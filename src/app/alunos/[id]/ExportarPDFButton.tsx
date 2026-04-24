@@ -15,7 +15,7 @@ export default function ExportarPDFButton(props: RelatorioPDFProps) {
         import('./RelatorioPDF'),
       ])
 
-      const element = React.createElement(RelatorioPDF, props)
+      const element = React.createElement(RelatorioPDF, props) as Parameters<typeof pdf>[0]
       const blob = await pdf(element).toBlob()
 
       const url = URL.createObjectURL(blob)
