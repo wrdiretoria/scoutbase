@@ -87,6 +87,15 @@ export default function LoginPage() {
             Cadastre-se
           </Link>
         </p>
+
+        <div className="mt-4 pt-4 border-t border-gray-100 text-center">
+          <Link
+            href="/pais/entrar"
+            className="text-sm text-gray-500 hover:text-green-600 transition-colors"
+          >
+            👨‍👩‍👦 Sou pai ou responsável →
+          </Link>
+        </div>
       </div>
     </main>
   )

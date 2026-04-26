@@ -70,6 +70,15 @@ export default function AlunosPage() {
     setErro(null)
 
     const supabase = createClient()
+
+    // Gera código sequencial único por professor (001, 002, ...)
+    const { count } = await supabase
+      .from('alunos')
+      .select('*', { count: 'exact', head: true })
+      .eq('professor_id', user.id)
+
+    const codigo = String((count ?? 0) + 1).padStart(3, '0')
+
     const { error } = await supabase.from('alunos').insert({
       nome: form.nome.trim(),
       posicao: form.posicao.trim() || null,
@@ -78,6 +87,7 @@ export default function AlunosPage() {
       telefone: form.telefone.trim() || null,
       professor_id: user.id,
       ativo: true,
+      codigo,
     })
 
     if (error) {

@@ -21,7 +21,7 @@ export default async function AlunoPerfilPage({ params }: Props) {
 
   const { data: aluno } = await supabase
     .from('alunos')
-    .select('id, nome, posicao, responsavel, telefone, ativo, token_acesso, turmas(nome)')
+    .select('id, nome, posicao, responsavel, telefone, ativo, token_acesso, codigo, turmas(nome)')
     .eq('id', id)
     .eq('professor_id', user.id)
     .single()
@@ -179,11 +179,27 @@ export default async function AlunoPerfilPage({ params }: Props) {
           </div>
         )}
 
-        {/* Link para pais */}
+        {/* Código do atleta para os pais */}
+        {'codigo' in aluno && aluno.codigo && (
+          <div className="bg-green-50 border border-green-200 rounded-xl p-5">
+            <p className="text-sm font-semibold text-gray-900 mb-1">Código de acesso dos pais</p>
+            <p className="text-xs text-gray-500 mb-3">
+              Passe este código para o responsável. Ele usará em{' '}
+              <span className="font-medium text-gray-700">scoutbase-eta.vercel.app/pais/entrar</span>
+            </p>
+            <div className="flex items-center gap-3">
+              <span className="text-4xl font-bold tracking-widest font-mono text-green-700">
+                {(aluno as { codigo: string }).codigo}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Link para pais (legado) */}
         {linkPublico && (
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-            <p className="text-sm font-semibold text-gray-900 mb-1">Link para os pais</p>
-            <p className="text-xs text-gray-400 mb-3">Compartilhe este link para que os pais acompanhem o desempenho do atleta.</p>
+            <p className="text-sm font-semibold text-gray-900 mb-1">Link público para os pais</p>
+            <p className="text-xs text-gray-400 mb-3">Alternativa sem login: compartilhe este link diretamente.</p>
             <CopyLinkButton url={linkPublico} />
           </div>
         )}
