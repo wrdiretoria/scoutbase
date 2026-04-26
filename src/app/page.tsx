@@ -89,7 +89,7 @@ export default function LandingPage() {
             <span className="block text-[clamp(3rem,10vw,7rem)] text-white">EVOLUA COM RESULTADOS</span>
           </h1>
           <p className="mt-6 text-lg text-gray-400 max-w-xl mx-auto">
-            Plataforma completa para gestão de escolinhas de futebol — presenças, avaliações, Scout Score e relatórios em um só lugar.
+            Plataforma completa para gestão de equipes de futebol — presenças, avaliações, Scout Score e relatórios em um só lugar.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
             <Link
