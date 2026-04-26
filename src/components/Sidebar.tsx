@@ -10,7 +10,8 @@ const navItems = [
   { label: 'Turmas', href: '/turmas' },
   { label: 'Presenças', href: '/presencas' },
   { label: 'Avaliações', href: '/avaliacoes' },
-  { label: 'Relatórios', href: '/relatorios' },
+  { label: 'Financeiro', href: '/financeiro' },
+  { label: 'Configurações', href: '/configuracoes' },
 ]
 
 export default function Sidebar() {
