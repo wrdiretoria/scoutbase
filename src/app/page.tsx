@@ -12,20 +12,30 @@ const audiences = [
   {
     icon: '🏆',
     title: 'Treinadores',
-    description: 'Tenha controle total da sua escolinha em um só lugar.',
+    description: 'Tenha controle total da sua equipe em um só lugar.',
     benefits: ['Cadastro e gestão de alunos', 'Controle de presença por turma', 'Avaliações com Scout Score', 'Relatórios em PDF'],
+    highlight: false,
   },
   {
     icon: '⚽',
     title: 'Atletas',
     description: 'Acompanhe sua evolução técnica, física e tática.',
     benefits: ['Scout Score atualizado', 'Histórico de avaliações', 'Gráfico de desempenho', 'Feedback do treinador'],
+    highlight: false,
   },
   {
     icon: '👨‍👩‍👦',
     title: 'Pais e Família',
     description: 'Fique por dentro do desenvolvimento do seu filho.',
     benefits: ['Link exclusivo sem login', 'Frequência em tempo real', 'Radar de habilidades', 'Comunicação direta'],
+    highlight: false,
+  },
+  {
+    icon: '👑',
+    title: 'CEO / Dono da Equipe',
+    description: 'Visão 360° de toda a operação — do financeiro aos atletas.',
+    benefits: ['Painel executivo do gestor', 'Visão geral de treinadores e atletas', 'Relatórios financeiros e operacionais', 'Indicadores estratégicos em tempo real'],
+    highlight: true,
   },
 ]
 
@@ -47,10 +57,10 @@ const testimonials = [
   {
     quote: 'Antes eu usava planilha, hoje tenho tudo num lugar só. Economizo horas toda semana.',
     name: 'Carlos Mendes',
-    role: 'Treinador — Escolinha Mendes FC',
+    role: 'Treinador — Equipe Mendes FC',
   },
   {
-    quote: 'Os pais adoram receber o link com o desempenho do filho. Profissionaliza muito a escolinha.',
+    quote: 'Os pais adoram receber o link com o desempenho do filho. Profissionaliza muito a equipe.',
     name: 'Rafael Souza',
     role: 'Coordenador Técnico',
   },
@@ -128,19 +138,30 @@ export default function LandingPage() {
           <h2 className="font-[family-name:var(--font-bebas)] text-4xl sm:text-5xl text-center tracking-wide mb-14">
             PARA QUEM É O SCOUTBASE?
           </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {audiences.map((a) => (
               <div
                 key={a.title}
-                className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-green-500/40 transition-colors"
+                className={`relative rounded-2xl p-6 transition-colors ${
+                  a.highlight
+                    ? 'bg-amber-950/40 border border-amber-500/50 hover:border-amber-400'
+                    : 'bg-white/5 border border-white/10 hover:border-green-500/40'
+                }`}
               >
+                {a.highlight && (
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-500 text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide whitespace-nowrap">
+                    Painel do Gestor
+                  </span>
+                )}
                 <div className="text-3xl mb-3">{a.icon}</div>
-                <h3 className="text-lg font-bold text-white mb-2">{a.title}</h3>
+                <h3 className={`text-lg font-bold mb-2 ${a.highlight ? 'text-amber-400' : 'text-white'}`}>
+                  {a.title}
+                </h3>
                 <p className="text-sm text-gray-400 mb-4">{a.description}</p>
                 <ul className="space-y-2">
                   {a.benefits.map((b) => (
                     <li key={b} className="flex items-center gap-2 text-sm text-gray-300">
-                      <span className="text-green-500">✓</span> {b}
+                      <span className={a.highlight ? 'text-amber-400' : 'text-green-500'}>✓</span> {b}
                     </li>
                   ))}
                 </ul>
@@ -156,7 +177,7 @@ export default function LandingPage() {
           {/* lista */}
           <div>
             <h2 className="font-[family-name:var(--font-bebas)] text-4xl sm:text-5xl tracking-wide mb-10">
-              TUDO QUE SUA ESCOLINHA PRECISA
+              TUDO QUE SUA EQUIPE PRECISA
             </h2>
             <div className="space-y-6">
               {features.map((f) => (
@@ -248,7 +269,7 @@ export default function LandingPage() {
       <section className="py-32 px-6">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="font-[family-name:var(--font-bebas)] text-[clamp(2.5rem,8vw,5.5rem)] leading-none tracking-wide">
-            PRONTO PARA PROFISSIONALIZAR SUA ESCOLINHA?
+            PRONTO PARA PROFISSIONALIZAR SUA EQUIPE?
           </h2>
           <p className="mt-6 text-gray-400 text-lg">
             Comece grátis hoje. Sem cartão de crédito.
