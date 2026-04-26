@@ -6,10 +6,10 @@ import { createClient } from '@/lib/supabase'
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard' },
-  { label: 'Alunos', href: '/alunos' },
-  { label: 'Turmas', href: '/turmas' },
-  { label: 'Presenças', href: '/presencas' },
-  { label: 'Avaliações', href: '/avaliacoes' },
+  { label: 'Atletas', href: '/alunos' },
+  { label: 'Equipes', href: '/turmas' },
+  { label: 'Frequência', href: '/presencas' },
+  { label: 'Desempenho', href: '/avaliacoes' },
   { label: 'Financeiro', href: '/financeiro' },
   { label: 'Configurações', href: '/configuracoes' },
 ]
