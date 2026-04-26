@@ -265,6 +265,147 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ─── PLANOS ─── */}
+      <section className="py-24 px-6">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="font-[family-name:var(--font-bebas)] text-4xl sm:text-5xl text-center tracking-wide mb-4">
+            PLANOS E PREÇOS
+          </h2>
+          <p className="text-center text-gray-400 text-sm mb-4">
+            Pais sempre acessam grátis. Boletim completo disponível quando o treinador tem plano pago.
+          </p>
+          <p className="text-center text-gray-500 text-xs mb-14">
+            Sem taxa de setup. Cancele quando quiser.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
+
+            {/* Grátis */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col">
+              <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">Grátis</p>
+              <p className="font-[family-name:var(--font-bebas)] text-5xl text-white tracking-wide">R$0</p>
+              <p className="text-xs text-gray-500 mt-1 mb-6">para sempre</p>
+              <ul className="space-y-3 flex-1">
+                {[
+                  'Cadastro de atletas',
+                  'Lista de presença',
+                  'Pais acompanham frequência do filho',
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-sm text-gray-300">
+                    <span className="text-green-500 mt-0.5">✓</span> {item}
+                  </li>
+                ))}
+                {[
+                  'Sem Scout Score',
+                  'Sem relatórios avançados',
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-sm text-gray-600">
+                    <span className="mt-0.5">✗</span> {item}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/cadastro"
+                className="mt-8 block text-center py-2.5 rounded-xl text-sm font-semibold border border-white/20 hover:border-white/40 text-white transition-colors"
+              >
+                Começar grátis
+              </Link>
+            </div>
+
+            {/* Treinador */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col">
+              <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">Treinador</p>
+              <div className="flex items-end gap-1">
+                <p className="font-[family-name:var(--font-bebas)] text-5xl text-white tracking-wide">R$47</p>
+                <p className="text-gray-500 text-sm mb-1.5">/mês</p>
+              </div>
+              <p className="text-xs text-gray-500 mt-1 mb-6">1 treinador · até 30 atletas</p>
+              <ul className="space-y-3 flex-1">
+                {[
+                  'Avaliações e presenças',
+                  'Scout Score completo',
+                  'Relatórios básicos e avançados',
+                  'Pais acompanham boletim completo',
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-sm text-gray-300">
+                    <span className="text-green-500 mt-0.5">✓</span> {item}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/cadastro"
+                className="mt-8 block text-center py-2.5 rounded-xl text-sm font-semibold border border-white/20 hover:border-white/40 text-white transition-colors"
+              >
+                Assinar
+              </Link>
+            </div>
+
+            {/* Equipe */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col">
+              <p className="text-xs text-gray-500 uppercase tracking-widest mb-3">Equipe</p>
+              <div className="flex items-end gap-1">
+                <p className="font-[family-name:var(--font-bebas)] text-5xl text-white tracking-wide">R$97</p>
+                <p className="text-gray-500 text-sm mb-1.5">/mês</p>
+              </div>
+              <p className="text-xs text-gray-500 mt-1 mb-6">3 treinadores · até 100 atletas</p>
+              <ul className="space-y-3 flex-1">
+                {[
+                  'Tudo do Plano Treinador',
+                  '3 treinadores inclusos',
+                  'Até 100 atletas',
+                  'Painel de gestão da equipe',
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-sm text-gray-300">
+                    <span className="text-green-500 mt-0.5">✓</span> {item}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/cadastro"
+                className="mt-8 block text-center py-2.5 rounded-xl text-sm font-semibold border border-white/20 hover:border-white/40 text-white transition-colors"
+              >
+                Assinar
+              </Link>
+            </div>
+
+            {/* CEO — destaque */}
+            <div className="relative bg-green-950/50 border-2 border-green-500 rounded-2xl p-6 flex flex-col">
+              <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-green-500 text-black text-xs font-bold px-4 py-1 rounded-full uppercase tracking-wide whitespace-nowrap">
+                ⭐ Recomendado
+              </span>
+              <p className="text-xs text-green-400 uppercase tracking-widest mb-3">CEO</p>
+              <div className="flex items-end gap-1">
+                <p className="font-[family-name:var(--font-bebas)] text-5xl text-green-400 tracking-wide">R$197</p>
+                <p className="text-gray-400 text-sm mb-1.5">/mês</p>
+              </div>
+              <p className="text-xs text-green-600 font-semibold mt-1 mb-1">30 dias grátis</p>
+              <p className="text-xs text-gray-500 mb-6">Treinadores e atletas ilimitados</p>
+              <ul className="space-y-3 flex-1">
+                {[
+                  'Até 200 atletas inclusos',
+                  'Acima de 200: R$0,99/atleta/mês',
+                  'Painel do gestor completo',
+                  'Financeiro e inadimplência',
+                  'Relatórios executivos',
+                  'Suporte prioritário',
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-sm text-gray-200">
+                    <span className="text-green-400 mt-0.5">✓</span> {item}
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/cadastro"
+                className="mt-8 block text-center py-2.5 rounded-xl text-sm font-bold bg-green-500 hover:bg-green-400 text-black transition-colors"
+              >
+                Começar 30 dias grátis
+              </Link>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
       {/* ─── CTA FINAL ─── */}
       <section className="py-32 px-6">
         <div className="max-w-3xl mx-auto text-center">
