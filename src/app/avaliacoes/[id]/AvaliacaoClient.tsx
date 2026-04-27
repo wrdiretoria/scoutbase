@@ -255,8 +255,8 @@ export default function AvaliacaoClient({ alunoId, professorId, rawAvaliacoes }:
     const { error: dbError } = await supabase.from('avaliacoes').insert(rows)
 
     if (dbError) {
-      console.error('AVALIACOES INSERT ERROR:', JSON.stringify(dbError, null, 2))
-      setError(`Erro: ${dbError.message} (code: ${dbError.code})`)
+      console.error('Avaliacoes insert error:', dbError)
+      setError('Erro ao salvar. Tente novamente.')
     } else {
       setSuccess(true)
       router.refresh()
