@@ -238,7 +238,7 @@ export default function AvaliacaoClient({ alunoId, professorId, rawAvaliacoes }:
 
     if (dbError) {
       console.error('Avaliacoes insert error:', dbError)
-      setError('Erro ao salvar. Tente novamente.')
+      setError(`${dbError.message} [${dbError.code}]`)
     } else {
       setSuccess(true)
       router.refresh()
