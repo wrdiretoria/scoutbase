@@ -91,7 +91,8 @@ export default function AlunosPage() {
     })
 
     if (error) {
-      setErro('Erro ao salvar aluno. Tente novamente.')
+      console.error('Supabase insert error:', error)
+      setErro(`Erro ao salvar: ${error.message}`)
       setSalvando(false)
       return
     }
