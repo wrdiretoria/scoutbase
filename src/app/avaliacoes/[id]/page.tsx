@@ -33,7 +33,7 @@ export default async function AvaliacoesPage({ params }: Props) {
     .order('created_at', { ascending: false })
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
+    <main className="min-h-screen bg-gray-50 px-4 py-6 md:p-8">
       <div className="max-w-2xl mx-auto space-y-6">
         <Link
           href={`/alunos/${id}`}
