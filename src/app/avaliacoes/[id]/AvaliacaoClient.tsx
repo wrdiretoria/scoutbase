@@ -193,6 +193,7 @@ function RadarChart({
 
 type Props = {
   alunoId: string
+  professorId: string
   rawAvaliacoes: RawAvaliacao[]
 }
 
@@ -203,7 +204,7 @@ const DEFAULT_NOTAS: Record<Pilar, number> = {
   Comportamento: 5,
 }
 
-export default function AvaliacaoClient({ alunoId, rawAvaliacoes }: Props) {
+export default function AvaliacaoClient({ alunoId, professorId, rawAvaliacoes }: Props) {
   const router = useRouter()
   const [notas, setNotas] = useState<Record<Pilar, number>>({ ...DEFAULT_NOTAS })
   const [saving, setSaving] = useState(false)
@@ -241,13 +242,14 @@ export default function AvaliacaoClient({ alunoId, rawAvaliacoes }: Props) {
     setSuccess(false)
 
     const supabase = createClient()
-    const now = new Date().toISOString()
+    const today = new Date().toISOString().split('T')[0]
 
     const rows = PILARES.map((pilar) => ({
       aluno_id: alunoId,
+      professor_id: professorId,
       nota: notas[pilar],
       categoria: pilar,
-      data: now,
+      data: today,
     }))
 
     const { error: dbError } = await supabase.from('avaliacoes').insert(rows)

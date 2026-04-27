@@ -50,7 +50,7 @@ export default async function AvaliacoesPage({ params }: Props) {
           )}
         </div>
 
-        <AvaliacaoClient alunoId={id} rawAvaliacoes={rawAvaliacoes ?? []} />
+        <AvaliacaoClient alunoId={id} professorId={user.id} rawAvaliacoes={rawAvaliacoes ?? []} />
       </div>
     </main>
   )
