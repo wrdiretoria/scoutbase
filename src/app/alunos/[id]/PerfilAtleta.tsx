@@ -20,7 +20,34 @@ interface Aluno {
   turma_id: string | null
   mensalidade: number | null
   status_pagamento: string | null
+  data_nascimento: string | null
   turmas: { nome: string } | null
+}
+
+function calcularIdade(dataNasc: string | null): number | null {
+  if (!dataNasc) return null
+  const hoje = new Date()
+  const nasc = new Date(dataNasc + 'T12:00:00')
+  let idade = hoje.getFullYear() - nasc.getFullYear()
+  if (
+    hoje.getMonth() < nasc.getMonth() ||
+    (hoje.getMonth() === nasc.getMonth() && hoje.getDate() < nasc.getDate())
+  ) {
+    idade--
+  }
+  return idade >= 0 ? idade : null
+}
+
+function categoriaParaIdade(idade: number): string {
+  if (idade <= 5) return 'Sub-5'
+  if (idade <= 7) return 'Sub-7'
+  if (idade <= 9) return 'Sub-9'
+  if (idade <= 11) return 'Sub-11'
+  if (idade <= 13) return 'Sub-13'
+  if (idade <= 15) return 'Sub-15'
+  if (idade <= 17) return 'Sub-17'
+  if (idade <= 20) return 'Sub-20'
+  return 'Adulto'
 }
 
 interface Avaliacao {
@@ -238,8 +265,14 @@ export default function PerfilAtleta({
     responsavel: aluno.responsavel ?? '',
     telefone: aluno.telefone ?? '',
     turma_id: aluno.turma_id ?? '',
+    data_nascimento: aluno.data_nascimento ?? '',
     ativo: aluno.ativo,
   })
+
+  const idadeAtleta = calcularIdade(aluno.data_nascimento)
+  const categoriaSugerida = idadeAtleta !== null ? categoriaParaIdade(idadeAtleta) : null
+  const idadeForm = calcularIdade(form.data_nascimento)
+  const categoriaForm = idadeForm !== null ? categoriaParaIdade(idadeForm) : null
 
   const [novaObs, setNovaObs] = useState('')
   const [envObs, setEnvObs] = useState(false)
@@ -258,6 +291,7 @@ export default function PerfilAtleta({
         responsavel: form.responsavel || null,
         telefone: form.telefone || null,
         turma_id: form.turma_id || null,
+        data_nascimento: form.data_nascimento || null,
         ativo: form.ativo,
       })
       .eq('id', aluno.id)
@@ -387,11 +421,29 @@ export default function PerfilAtleta({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
                   <InfoRow label="Posição" value={aluno.posicao} />
                   <InfoRow label="Equipe" value={aluno.turmas?.nome} />
+                  {aluno.data_nascimento && (
+                    <div>
+                      <p className="text-xs text-gray-400 font-medium">Data de nascimento</p>
+                      <p className="text-sm text-gray-800 mt-0.5">
+                        {new Date(aluno.data_nascimento + 'T12:00:00').toLocaleDateString('pt-BR')}
+                      </p>
+                      {idadeAtleta !== null && (
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-xs text-gray-500">{idadeAtleta} ano{idadeAtleta !== 1 ? 's' : ''}</span>
+                          {categoriaSugerida && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
+                              {categoriaSugerida}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
                   <InfoRow label="Responsável" value={aluno.responsavel} />
                   <InfoRow label="Telefone" value={aluno.telefone} />
                 </div>
 
-                {!aluno.posicao && !aluno.turmas?.nome && !aluno.responsavel && !aluno.telefone && (
+                {!aluno.posicao && !aluno.turmas?.nome && !aluno.responsavel && !aluno.telefone && !aluno.data_nascimento && (
                   <p className="text-sm text-gray-400">Nenhuma informação cadastrada.</p>
                 )}
 
@@ -781,6 +833,25 @@ export default function PerfilAtleta({
                   className={inputCls}
                   placeholder="ex: Atacante"
                 />
+              </Field>
+              <Field label="Data de nascimento">
+                <input
+                  type="date"
+                  value={form.data_nascimento}
+                  onChange={(e) =>
+                    setForm({ ...form, data_nascimento: e.target.value })
+                  }
+                  className={inputCls}
+                  max={new Date().toISOString().split('T')[0]}
+                />
+                {idadeForm !== null && categoriaForm && (
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <span className="text-xs text-gray-500">{idadeForm} ano{idadeForm !== 1 ? 's' : ''}</span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
+                      {categoriaForm}
+                    </span>
+                  </div>
+                )}
               </Field>
               <Field label="Responsável">
                 <input

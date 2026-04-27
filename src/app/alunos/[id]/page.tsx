@@ -21,7 +21,7 @@ export default async function AlunoPerfilPage({ params }: Props) {
   const { data: aluno } = await supabase
     .from('alunos')
     .select(
-      'id, nome, posicao, responsavel, telefone, ativo, token_acesso, codigo, turma_id, mensalidade, status_pagamento, turmas(nome)'
+      'id, nome, posicao, responsavel, telefone, ativo, token_acesso, codigo, turma_id, mensalidade, status_pagamento, data_nascimento, turmas(nome)'
     )
     .eq('id', id)
     .eq('professor_id', user.id)
@@ -139,6 +139,8 @@ export default async function AlunoPerfilPage({ params }: Props) {
         mensalidade: (aluno as { mensalidade?: number }).mensalidade ?? null,
         status_pagamento:
           (aluno as { status_pagamento?: string }).status_pagamento ?? null,
+        data_nascimento:
+          (aluno as { data_nascimento?: string }).data_nascimento ?? null,
         turmas: turmaNome ? { nome: turmaNome } : null,
       }}
       avaliacoes={avaliacoes ?? []}

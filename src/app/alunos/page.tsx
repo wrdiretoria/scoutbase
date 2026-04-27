@@ -16,9 +16,43 @@ type Aluno = {
 type Turma = {
   id: string
   nome: string
+  categoria: string | null
 }
 
-const formVazio = { nome: '', posicao: '', turma_id: '', responsavel: '', telefone: '' }
+const formVazio = {
+  nome: '',
+  posicao: '',
+  turma_id: '',
+  responsavel: '',
+  telefone: '',
+  data_nascimento: '',
+}
+
+function calcularIdade(dataNasc: string): number | null {
+  if (!dataNasc) return null
+  const hoje = new Date()
+  const nasc = new Date(dataNasc + 'T12:00:00')
+  let idade = hoje.getFullYear() - nasc.getFullYear()
+  if (
+    hoje.getMonth() < nasc.getMonth() ||
+    (hoje.getMonth() === nasc.getMonth() && hoje.getDate() < nasc.getDate())
+  ) {
+    idade--
+  }
+  return idade >= 0 ? idade : null
+}
+
+function categoriaParaIdade(idade: number): string {
+  if (idade <= 5) return 'Sub-5'
+  if (idade <= 7) return 'Sub-7'
+  if (idade <= 9) return 'Sub-9'
+  if (idade <= 11) return 'Sub-11'
+  if (idade <= 13) return 'Sub-13'
+  if (idade <= 15) return 'Sub-15'
+  if (idade <= 17) return 'Sub-17'
+  if (idade <= 20) return 'Sub-20'
+  return 'Adulto'
+}
 
 export default function AlunosPage() {
   const router = useRouter()
@@ -32,6 +66,11 @@ export default function AlunosPage() {
   const [salvando, setSalvando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
   const [form, setForm] = useState(formVazio)
+
+  // Derived: age and suggested category from birth date
+  const idadeCalculada = calcularIdade(form.data_nascimento)
+  const categoriaSugerida =
+    idadeCalculada !== null ? categoriaParaIdade(idadeCalculada) : null
 
   const fetchAlunos = useCallback(async () => {
     if (!user) return
@@ -57,7 +96,7 @@ export default function AlunosPage() {
     const supabase = createClient()
     supabase
       .from('turmas')
-      .select('id, nome')
+      .select('id, nome, categoria')
       .eq('professor_id', user.id)
       .order('nome')
       .then(({ data }) => setTurmas(data ?? []))
@@ -85,6 +124,7 @@ export default function AlunosPage() {
       turma_id: form.turma_id || null,
       responsavel: form.responsavel.trim() || null,
       telefone: form.telefone.trim() || null,
+      data_nascimento: form.data_nascimento || null,
       professor_id: user.id,
       ativo: true,
       codigo,
@@ -128,9 +168,9 @@ export default function AlunosPage() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Alunos</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Atletas</h1>
             <p className="text-sm text-gray-500 mt-0.5">
-              {alunos.length} aluno{alunos.length !== 1 ? 's' : ''} cadastrado{alunos.length !== 1 ? 's' : ''}
+              {alunos.length} atleta{alunos.length !== 1 ? 's' : ''} cadastrado{alunos.length !== 1 ? 's' : ''}
             </p>
           </div>
           <button
@@ -155,7 +195,7 @@ export default function AlunosPage() {
           {alunosFiltrados.length === 0 ? (
             <div className="py-16 text-center">
               <p className="text-gray-400 text-sm">
-                {busca ? 'Nenhum aluno encontrado para essa busca.' : 'Nenhum aluno cadastrado ainda.'}
+                {busca ? 'Nenhum atleta encontrado.' : 'Nenhum atleta cadastrado ainda.'}
               </p>
             </div>
           ) : (
@@ -200,15 +240,15 @@ export default function AlunosPage() {
         </div>
       </div>
 
-      {/* Modal novo aluno */}
+      {/* Modal novo atleta */}
       {modalAberto && (
         <div
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
           onClick={(e) => { if (e.target === e.currentTarget) fecharModal() }}
         >
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-semibold text-gray-900">Novo aluno</h2>
+              <h2 className="text-lg font-semibold text-gray-900">Novo atleta</h2>
               <button
                 onClick={fecharModal}
                 className="text-gray-400 hover:text-gray-600 text-xl leading-none"
@@ -218,6 +258,7 @@ export default function AlunosPage() {
             </div>
 
             <form onSubmit={salvarAluno} className="space-y-4">
+              {/* Nome */}
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">
                   Nome <span className="text-red-500">*</span>
@@ -228,10 +269,35 @@ export default function AlunosPage() {
                   value={form.nome}
                   onChange={(e) => setForm({ ...form, nome: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Nome do aluno"
+                  placeholder="Nome do atleta"
                 />
               </div>
 
+              {/* Data de nascimento */}
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  Data de nascimento
+                </label>
+                <input
+                  type="date"
+                  value={form.data_nascimento}
+                  onChange={(e) => setForm({ ...form, data_nascimento: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  max={new Date().toISOString().split('T')[0]}
+                />
+                {idadeCalculada !== null && categoriaSugerida && (
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <span className="text-xs text-gray-500">
+                      {idadeCalculada} ano{idadeCalculada !== 1 ? 's' : ''}
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
+                      ⚽ {categoriaSugerida}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Posição */}
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Posição</label>
                 <input
@@ -243,28 +309,37 @@ export default function AlunosPage() {
                 />
               </div>
 
+              {/* Equipe */}
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Turma</label>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  Equipe
+                  {categoriaSugerida && turmas.some(t => t.categoria === categoriaSugerida) && (
+                    <span className="ml-1.5 text-green-600 font-normal">
+                      (sugerido: {categoriaSugerida})
+                    </span>
+                  )}
+                </label>
                 {turmas.length > 0 ? (
                   <select
                     value={form.turma_id}
                     onChange={(e) => setForm({ ...form, turma_id: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                   >
-                    <option value="">Sem turma</option>
+                    <option value="">Sem equipe</option>
                     {turmas.map((t) => (
                       <option key={t.id} value={t.id}>
-                        {t.nome}
+                        {t.nome}{t.categoria ? ` (${t.categoria})` : ''}
                       </option>
                     ))}
                   </select>
                 ) : (
                   <p className="text-xs text-gray-400 py-2">
-                    Nenhuma turma cadastrada. Crie turmas primeiro.
+                    Nenhuma equipe cadastrada. Crie equipes primeiro.
                   </p>
                 )}
               </div>
 
+              {/* Responsável */}
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Responsável</label>
                 <input
@@ -276,6 +351,7 @@ export default function AlunosPage() {
                 />
               </div>
 
+              {/* Telefone */}
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Telefone</label>
                 <input
