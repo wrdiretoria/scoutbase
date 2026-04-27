@@ -82,7 +82,12 @@ export default function AlunosPage() {
       .select('id, nome, posicao, responsavel, ativo, turma_id, turmas(nome)')
       .eq('professor_id', user.id)
       .order('nome')
-    setAlunos(data ?? [])
+    setAlunos(
+      (data ?? []).map((a) => ({
+        ...a,
+        turmas: Array.isArray(a.turmas) ? (a.turmas[0] ?? null) : (a.turmas ?? null),
+      })) as Aluno[]
+    )
     setCarregando(false)
   }, [user])
 
