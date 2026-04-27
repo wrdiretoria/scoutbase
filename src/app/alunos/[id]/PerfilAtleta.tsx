@@ -274,6 +274,21 @@ export default function PerfilAtleta({
   const idadeForm = calcularIdade(form.data_nascimento)
   const categoriaForm = idadeForm !== null ? categoriaParaIdade(idadeForm) : null
 
+  const [equipeId, setEquipeId] = useState(aluno.turma_id ?? '')
+  const [salvandoEquipe, setSalvandoEquipe] = useState(false)
+
+  async function atualizarEquipe(novoId: string) {
+    setEquipeId(novoId)
+    setSalvandoEquipe(true)
+    const supabase = createClient()
+    await supabase
+      .from('alunos')
+      .update({ turma_id: novoId || null })
+      .eq('id', aluno.id)
+    setSalvandoEquipe(false)
+    router.refresh()
+  }
+
   const [novaObs, setNovaObs] = useState('')
   const [envObs, setEnvObs] = useState(false)
   const [observacoes, setObservacoes] = useState(initialObservacoes)
@@ -420,7 +435,31 @@ export default function PerfilAtleta({
               <div className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
                   <InfoRow label="Posição" value={aluno.posicao} />
-                  <InfoRow label="Equipe" value={aluno.turmas?.nome} />
+
+                  {/* Equipe — sempre visível, editável inline */}
+                  <div>
+                    <p className="text-xs text-gray-400 font-medium mb-1">Equipe</p>
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={equipeId}
+                        onChange={(e) => atualizarEquipe(e.target.value)}
+                        disabled={salvandoEquipe}
+                        className={`text-sm rounded-lg px-2.5 py-1.5 border focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors disabled:opacity-60 ${
+                          equipeId
+                            ? 'bg-green-50 border-green-200 text-green-700 font-medium'
+                            : 'bg-gray-50 border-gray-200 text-gray-400'
+                        }`}
+                      >
+                        <option value="">Sem equipe</option>
+                        {turmasList.map((t) => (
+                          <option key={t.id} value={t.id}>{t.nome}</option>
+                        ))}
+                      </select>
+                      {salvandoEquipe && (
+                        <span className="text-xs text-gray-400">Salvando...</span>
+                      )}
+                    </div>
+                  </div>
                   {aluno.data_nascimento && (
                     <div>
                       <p className="text-xs text-gray-400 font-medium">Data de nascimento</p>

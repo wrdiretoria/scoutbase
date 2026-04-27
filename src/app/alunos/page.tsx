@@ -11,6 +11,8 @@ type Aluno = {
   posicao: string | null
   responsavel: string | null
   ativo: boolean
+  turma_id: string | null
+  turmas: { nome: string } | null
 }
 
 type Turma = {
@@ -77,7 +79,7 @@ export default function AlunosPage() {
     const supabase = createClient()
     const { data } = await supabase
       .from('alunos')
-      .select('id, nome, posicao, responsavel, ativo')
+      .select('id, nome, posicao, responsavel, ativo, turma_id, turmas(nome)')
       .eq('professor_id', user.id)
       .order('nome')
     setAlunos(data ?? [])
@@ -101,6 +103,21 @@ export default function AlunosPage() {
       .order('nome')
       .then(({ data }) => setTurmas(data ?? []))
   }, [user, authLoading, router, fetchAlunos])
+
+  async function atualizarTurma(alunoId: string, turmaId: string) {
+    const supabase = createClient()
+    await supabase
+      .from('alunos')
+      .update({ turma_id: turmaId || null })
+      .eq('id', alunoId)
+    setAlunos((prev) =>
+      prev.map((a) => {
+        if (a.id !== alunoId) return a
+        const turma = turmas.find((t) => t.id === turmaId)
+        return { ...a, turma_id: turmaId || null, turmas: turma ? { nome: turma.nome } : null }
+      })
+    )
+  }
 
   async function salvarAluno(e: React.FormEvent) {
     e.preventDefault()
@@ -201,36 +218,54 @@ export default function AlunosPage() {
           ) : (
             <ul className="divide-y divide-gray-50">
               {alunosFiltrados.map((aluno) => (
-                <li key={aluno.id}>
+                <li
+                  key={aluno.id}
+                  className="flex items-center gap-3 px-6 py-3.5 hover:bg-gray-50 transition-colors"
+                >
+                  {/* Clicável: navega ao perfil */}
                   <button
                     onClick={() => router.push(`/alunos/${aluno.id}`)}
-                    className="w-full flex items-center justify-between px-6 py-4 hover:bg-gray-50 transition-colors text-left"
+                    className="flex items-center gap-3 flex-1 min-w-0 text-left"
                   >
-                    <div className="flex items-center gap-3">
-                      <span
-                        className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                          aluno.ativo ? 'bg-green-500' : 'bg-gray-300'
-                        }`}
-                      />
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">{aluno.nome}</p>
-                        {aluno.posicao && (
-                          <p className="text-xs text-gray-400 mt-0.5">{aluno.posicao}</p>
-                        )}
-                      </div>
+                    <span
+                      className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                        aluno.ativo ? 'bg-green-500' : 'bg-gray-300'
+                      }`}
+                    />
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">{aluno.nome}</p>
+                      {aluno.posicao && (
+                        <p className="text-xs text-gray-400 mt-0.5">{aluno.posicao}</p>
+                      )}
                     </div>
-                    <svg
-                      className="w-4 h-4 text-gray-300 flex-shrink-0"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
+                  </button>
+
+                  {/* Select de equipe inline */}
+                  <select
+                    value={aluno.turma_id ?? ''}
+                    onChange={(e) => atualizarTurma(aluno.id, e.target.value)}
+                    className={`flex-shrink-0 text-xs rounded-lg px-2.5 py-1.5 border focus:outline-none focus:ring-2 focus:ring-green-500 transition-colors ${
+                      aluno.turma_id
+                        ? 'bg-green-50 border-green-200 text-green-700 font-medium'
+                        : 'bg-gray-50 border-gray-200 text-gray-400'
+                    }`}
+                    title="Vincular à equipe"
+                  >
+                    <option value="">Sem equipe</option>
+                    {turmas.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.nome}
+                      </option>
+                    ))}
+                  </select>
+
+                  {/* Chevron */}
+                  <button
+                    onClick={() => router.push(`/alunos/${aluno.id}`)}
+                    className="flex-shrink-0 text-gray-300 hover:text-gray-500"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </button>
                 </li>
