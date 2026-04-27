@@ -28,10 +28,9 @@ export default async function AvaliacoesPage({ params }: Props) {
 
   const { data: rawAvaliacoes } = await supabase
     .from('avaliacoes')
-    .select('nota, categoria, data')
+    .select('tecnico, fisico, tatico, comportamento, scout_score, created_at')
     .eq('aluno_id', id)
-    .in('categoria', ['Técnico', 'Físico', 'Tático', 'Comportamento'])
-    .order('data', { ascending: false })
+    .order('created_at', { ascending: false })
 
   return (
     <main className="min-h-screen bg-gray-50 p-8">

@@ -51,9 +51,12 @@ function categoriaParaIdade(idade: number): string {
 }
 
 interface Avaliacao {
-  nota: number
-  categoria: string | null
-  data: string | null
+  scout_score: number | null
+  tecnico: number | null
+  fisico: number | null
+  tatico: number | null
+  comportamento: number | null
+  created_at: string
 }
 
 interface Presenca {
@@ -335,15 +338,14 @@ export default function PerfilAtleta({
     setEnvObs(false)
   }
 
-  // Group avaliacoes by categoria
-  const porCategoria = avaliacoes.reduce<
-    Record<string, { nota: number; data: string | null }[]>
-  >((acc, av) => {
-    const cat = av.categoria ?? 'Geral'
-    if (!acc[cat]) acc[cat] = []
-    acc[cat].push({ nota: av.nota, data: av.data })
-    return acc
-  }, {})
+  // Média por pilar (0-10)
+  const n = avaliacoes.length
+  const mediasPilares = n > 0 ? {
+    'Técnico': Math.round(avaliacoes.reduce((a, b) => a + (b.tecnico ?? 0), 0) / n * 10) / 10,
+    'Físico': Math.round(avaliacoes.reduce((a, b) => a + (b.fisico ?? 0), 0) / n * 10) / 10,
+    'Tático': Math.round(avaliacoes.reduce((a, b) => a + (b.tatico ?? 0), 0) / n * 10) / 10,
+    'Comportamento': Math.round(avaliacoes.reduce((a, b) => a + (b.comportamento ?? 0), 0) / n * 10) / 10,
+  } : null
 
   const abas: { key: Aba; label: string }[] = [
     { key: 'dados', label: 'Dados' },
@@ -623,8 +625,7 @@ export default function PerfilAtleta({
                             : '🔴 Necessita atenção'}
                         </p>
                         <p className="text-xs text-gray-400 mt-0.5">
-                          Baseado em {avaliacoes.length} avaliação
-                          {avaliacoes.length !== 1 ? 'ões' : ''}
+                          Baseado em {avaliacoes.length} avaliação{avaliacoes.length !== 1 ? 'ões' : ''}
                         </p>
                       </>
                     ) : (
@@ -635,39 +636,28 @@ export default function PerfilAtleta({
                   </div>
                 </div>
 
-                {/* Por categoria */}
-                {Object.keys(porCategoria).length > 0 && (
+                {/* Por pilar */}
+                {mediasPilares && (
                   <div className="space-y-3">
                     <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                      Por categoria
+                      Média por pilar
                     </p>
-                    {Object.entries(porCategoria).map(([cat, items]) => {
-                      const media = Math.round(
-                        items.reduce((a, b) => a + b.nota, 0) / items.length
-                      )
-                      return (
-                        <div key={cat} className="bg-gray-50 rounded-xl p-4">
-                          <div className="flex items-center justify-between mb-2">
-                            <p className="text-sm font-medium text-gray-700">{cat}</p>
-                            <span
-                              className={`text-sm font-bold ${scoreColor(media)}`}
-                            >
-                              {media}
-                            </span>
-                          </div>
-                          <div className="w-full bg-gray-200 rounded-full h-1.5">
-                            <div
-                              className={`h-1.5 rounded-full ${barColor(media)}`}
-                              style={{ width: `${media}%` }}
-                            />
-                          </div>
-                          <p className="text-xs text-gray-400 mt-1.5">
-                            {items.length} avaliação
-                            {items.length !== 1 ? 'ões' : ''}
-                          </p>
+                    {Object.entries(mediasPilares).map(([pilar, media]) => (
+                      <div key={pilar} className="bg-gray-50 rounded-xl p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-sm font-medium text-gray-700">{pilar}</p>
+                          <span className="text-sm font-bold text-gray-800">
+                            {media} <span className="text-xs text-gray-400 font-normal">/ 10</span>
+                          </span>
                         </div>
-                      )
-                    })}
+                        <div className="w-full bg-gray-200 rounded-full h-1.5">
+                          <div
+                            className={`h-1.5 rounded-full ${media >= 7.5 ? 'bg-green-500' : media >= 5 ? 'bg-yellow-400' : 'bg-red-400'}`}
+                            style={{ width: `${media * 10}%` }}
+                          />
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
 
@@ -679,25 +669,15 @@ export default function PerfilAtleta({
                     </p>
                     <ul className="divide-y divide-gray-50">
                       {avaliacoes.slice(0, 10).map((av, i) => (
-                        <li
-                          key={i}
-                          className="flex items-center justify-between py-3"
-                        >
-                          <div>
-                            {av.categoria && (
-                              <p className="text-sm text-gray-800">{av.categoria}</p>
-                            )}
-                            {av.data && (
-                              <p className="text-xs text-gray-400">
-                                {new Date(av.data).toLocaleDateString('pt-BR')}
-                              </p>
-                            )}
-                          </div>
-                          <span
-                            className={`text-sm font-bold ${scoreColor(av.nota)}`}
-                          >
-                            {av.nota}
-                          </span>
+                        <li key={i} className="flex items-center justify-between py-3">
+                          <p className="text-xs text-gray-400">
+                            {new Date(av.created_at).toLocaleDateString('pt-BR')}
+                          </p>
+                          {av.scout_score !== null && (
+                            <span className={`text-sm font-bold ${scoreColor(av.scout_score)}`}>
+                              {av.scout_score}
+                            </span>
+                          )}
                         </li>
                       ))}
                     </ul>

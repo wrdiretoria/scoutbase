@@ -8,13 +8,16 @@ const PILARES = ['Técnico', 'Físico', 'Tático', 'Comportamento'] as const
 type Pilar = (typeof PILARES)[number]
 
 type RawAvaliacao = {
-  nota: number
-  categoria: string
-  data: string
+  tecnico: number
+  fisico: number
+  tatico: number
+  comportamento: number
+  scout_score: number | null
+  created_at: string
 }
 
 type AvaliacaoGrupo = {
-  data: string
+  created_at: string
   tecnico: number
   fisico: number
   tatico: number
@@ -22,40 +25,18 @@ type AvaliacaoGrupo = {
   scoutScore: number
 }
 
-function groupAvaliacoes(rows: RawAvaliacao[]): AvaliacaoGrupo[] {
-  const byDate: Record<string, Partial<Record<Pilar, number>>> = {}
-
-  for (const row of rows) {
-    const pilar = row.categoria as Pilar
-    if (!PILARES.includes(pilar)) continue
-    if (!byDate[row.data]) byDate[row.data] = {}
-    if (byDate[row.data][pilar] === undefined) {
-      byDate[row.data][pilar] = row.nota
-    }
-  }
-
-  const result: AvaliacaoGrupo[] = []
-  for (const [date, pilares] of Object.entries(byDate)) {
-    if (
-      pilares['Técnico'] !== undefined &&
-      pilares['Físico'] !== undefined &&
-      pilares['Tático'] !== undefined &&
-      pilares['Comportamento'] !== undefined
-    ) {
-      const avg =
-        (pilares['Técnico'] + pilares['Físico'] + pilares['Tático'] + pilares['Comportamento']) / 4
-      result.push({
-        data: date,
-        tecnico: pilares['Técnico'],
-        fisico: pilares['Físico'],
-        tatico: pilares['Tático'],
-        comportamento: pilares['Comportamento'],
-        scoutScore: Math.round(avg * 10) / 10,
-      })
-    }
-  }
-
-  return result.sort((a, b) => b.data.localeCompare(a.data))
+function mapAvaliacoes(rows: RawAvaliacao[]): AvaliacaoGrupo[] {
+  return rows.map((r) => ({
+    created_at: r.created_at,
+    tecnico: r.tecnico ?? 0,
+    fisico: r.fisico ?? 0,
+    tatico: r.tatico ?? 0,
+    comportamento: r.comportamento ?? 0,
+    scoutScore:
+      r.scout_score !== null
+        ? r.scout_score
+        : Math.round(((r.tecnico + r.fisico + r.tatico + r.comportamento) / 4) * 10) / 10,
+  }))
 }
 
 function getMonthKey(dateStr: string) {
@@ -219,18 +200,18 @@ export default function AvaliacaoClient({ alunoId, professorId, rawAvaliacoes }:
     [notas]
   )
 
-  const avaliacoes = useMemo(() => groupAvaliacoes(rawAvaliacoes), [rawAvaliacoes])
+  const avaliacoes = useMemo(() => mapAvaliacoes(rawAvaliacoes), [rawAvaliacoes])
 
   const thisMonth = useMemo(() => {
     const now = new Date().toISOString().slice(0, 7)
-    return avaliacoes.find((a) => getMonthKey(a.data) === now) ?? null
+    return avaliacoes.find((a) => getMonthKey(a.created_at) === now) ?? null
   }, [avaliacoes])
 
   const prevMonth = useMemo(() => {
     const d = new Date()
     d.setMonth(d.getMonth() - 1)
     const prev = d.toISOString().slice(0, 7)
-    return avaliacoes.find((a) => getMonthKey(a.data) === prev) ?? null
+    return avaliacoes.find((a) => getMonthKey(a.created_at) === prev) ?? null
   }, [avaliacoes])
 
   const scoreColor =
@@ -242,17 +223,18 @@ export default function AvaliacaoClient({ alunoId, professorId, rawAvaliacoes }:
     setSuccess(false)
 
     const supabase = createClient()
-    const today = new Date().toISOString().split('T')[0]
+    const avg = (notas['Técnico'] + notas['Físico'] + notas['Tático'] + notas['Comportamento']) / 4
+    const scoutScore100 = Math.round(avg * 10)
 
-    const rows = PILARES.map((pilar) => ({
+    const { error: dbError } = await supabase.from('avaliacoes').insert({
       aluno_id: alunoId,
       professor_id: professorId,
-      nota: notas[pilar],
-      categoria: pilar,
-      data: today,
-    }))
-
-    const { error: dbError } = await supabase.from('avaliacoes').insert(rows)
+      tecnico: notas['Técnico'],
+      fisico: notas['Físico'],
+      tatico: notas['Tático'],
+      comportamento: notas['Comportamento'],
+      scout_score: scoutScore100,
+    })
 
     if (dbError) {
       console.error('Avaliacoes insert error:', dbError)
@@ -358,7 +340,7 @@ export default function AvaliacaoClient({ alunoId, professorId, rawAvaliacoes }:
               <li key={i} className="py-3">
                 <div className="flex items-center justify-between mb-2">
                   <p className="text-xs text-gray-400">
-                    {new Date(av.data).toLocaleDateString('pt-BR', {
+                    {new Date(av.created_at).toLocaleDateString('pt-BR', {
                       day: '2-digit',
                       month: 'short',
                       year: 'numeric',

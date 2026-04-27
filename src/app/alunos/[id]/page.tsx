@@ -32,17 +32,17 @@ export default async function AlunoPerfilPage({ params }: Props) {
   // ── Avaliações ───────────────────────────────────────────────────────────
   const { data: avaliacoes } = await supabase
     .from('avaliacoes')
-    .select('nota, categoria, data')
+    .select('scout_score, created_at, tecnico, fisico, tatico, comportamento')
     .eq('aluno_id', id)
-    .order('data', { ascending: false })
+    .order('created_at', { ascending: false })
 
-  const notas = (avaliacoes ?? [])
-    .map((a) => a.nota)
+  const scores = (avaliacoes ?? [])
+    .map((a) => a.scout_score)
     .filter((n) => n != null) as number[]
 
   const scoutScore =
-    notas.length > 0
-      ? Math.round(notas.reduce((a, b) => a + b, 0) / notas.length)
+    scores.length > 0
+      ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
       : null
 
   // ── Presenças (com campo data) ───────────────────────────────────────────
