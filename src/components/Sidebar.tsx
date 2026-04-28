@@ -10,7 +10,7 @@ const navItems = [
   { label: 'Atletas', href: '/alunos' },
   { label: 'Equipes', href: '/turmas' },
   { label: 'Frequência', href: '/presencas' },
-  { label: 'Desempenho', href: '/avaliacoes' },
+  { label: 'Desempenho', href: '/alunos' },
   { label: 'Financeiro', href: '/financeiro' },
   { label: 'Configurações', href: '/configuracoes' },
 ]
