@@ -9,7 +9,7 @@ import { createClient } from '@/lib/supabase'
 
 type Turma = { id: string; nome: string }
 type Aluno  = { id: string; nome: string; posicao: string | null }
-type Status = 'presente' | 'falta' | 'atrasado'
+type Status = 'presente' | 'falta'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -39,13 +39,13 @@ export default function PresencasPage() {
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
 
-  const [turmas,          setTurmas]          = useState<Turma[]>([])
+  const [turmas,           setTurmas]           = useState<Turma[]>([])
   const [turmaSelecionada, setTurmaSelecionada] = useState<string>('')
-  const [alunos,          setAlunos]          = useState<Aluno[]>([])
-  const [marcacoes,       setMarcacoes]       = useState<Record<string, Status>>({})
-  const [carregando,      setCarregando]      = useState(false)
-  const [salvandoTudo,    setSalvandoTudo]    = useState(false)
-  const [salvoOk,         setSalvoOk]         = useState(false)
+  const [alunos,           setAlunos]           = useState<Aluno[]>([])
+  const [marcacoes,        setMarcacoes]        = useState<Record<string, Status>>({})
+  const [carregando,       setCarregando]       = useState(false)
+  const [salvandoTudo,     setSalvandoTudo]     = useState(false)
+  const [salvoOk,          setSalvoOk]          = useState(false)
 
   // ── Auth ──────────────────────────────────────────────────────────────────
 
@@ -90,15 +90,13 @@ export default function PresencasPage() {
 
     const { data: dadosHoje } = await supabase
       .from('presencas')
-      .select('aluno_id, presente, atrasado')
+      .select('aluno_id, presente')
       .in('aluno_id', ids)
       .eq('data', HOJE)
 
     const mapa: Record<string, Status> = {}
     for (const p of dadosHoje ?? []) {
-      if ((p as { atrasado?: boolean }).atrasado) mapa[p.aluno_id] = 'atrasado'
-      else if (p.presente)                        mapa[p.aluno_id] = 'presente'
-      else                                        mapa[p.aluno_id] = 'falta'
+      mapa[p.aluno_id] = p.presente ? 'presente' : 'falta'
     }
     setMarcacoes(mapa)
     setCarregando(false)
@@ -108,18 +106,16 @@ export default function PresencasPage() {
 
   // ── Derived counts ────────────────────────────────────────────────────────
 
-  const countPresente  = Object.values(marcacoes).filter((v) => v === 'presente').length
-  const countFalta     = Object.values(marcacoes).filter((v) => v === 'falta').length
-  const countAtrasado  = Object.values(marcacoes).filter((v) => v === 'atrasado').length
-  const totalMarcados  = Object.keys(marcacoes).length
-  const semRegistro    = alunos.length - totalMarcados
-  const todosMarcados  = alunos.length > 0 && totalMarcados === alunos.length
+  const countPresente = Object.values(marcacoes).filter((v) => v === 'presente').length
+  const countFalta    = Object.values(marcacoes).filter((v) => v === 'falta').length
+  const totalMarcados = Object.keys(marcacoes).length
+  const semRegistro   = alunos.length - totalMarcados
+  const todosMarcados = alunos.length > 0 && totalMarcados === alunos.length
 
   // ── Actions ───────────────────────────────────────────────────────────────
 
   function marcar(alunoId: string, status: Status) {
     setMarcacoes((prev) => {
-      // Toggle off if clicking same button
       if (prev[alunoId] === status) {
         const next = { ...prev }
         delete next[alunoId]
@@ -149,7 +145,6 @@ export default function PresencasPage() {
 
     const ids = alunos.map((a) => a.id)
 
-    // Fetch existing IDs for today
     const { data: existentes } = await supabase
       .from('presencas')
       .select('id, aluno_id')
@@ -162,22 +157,21 @@ export default function PresencasPage() {
     const updates: PromiseLike<unknown>[] = []
 
     for (const aluno of alunos) {
-      const status  = marcacoes[aluno.id]
+      const status = marcacoes[aluno.id]
       if (!status) continue
-      const presente = status === 'presente' || status === 'atrasado'
-      const atrasado = status === 'atrasado'
+      const presente = status === 'presente'
 
       if (existMap[aluno.id]) {
         updates.push(
           supabase.from('presencas')
-            .update({ presente, atrasado })
+            .update({ presente })
             .eq('id', existMap[aluno.id])
             .then((r) => r)
         )
       } else {
         updates.push(
           supabase.from('presencas')
-            .insert({ aluno_id: aluno.id, data: HOJE, presente, atrasado })
+            .insert({ aluno_id: aluno.id, data: HOJE, presente })
             .then((r) => r)
         )
       }
@@ -231,7 +225,7 @@ export default function PresencasPage() {
 
         {/* ── Stat cards ── */}
         {turmaSelecionada && !carregando && alunos.length > 0 && (
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <div className="bg-white rounded-[20px] border border-gray-100 shadow-sm p-4 text-center">
               <p className="text-2xl font-bold text-green-600">{countPresente}</p>
               <p className="text-xs text-gray-400 mt-1 font-medium">✅ Presentes</p>
@@ -239,10 +233,6 @@ export default function PresencasPage() {
             <div className="bg-white rounded-[20px] border border-gray-100 shadow-sm p-4 text-center">
               <p className="text-2xl font-bold text-red-500">{countFalta}</p>
               <p className="text-xs text-gray-400 mt-1 font-medium">❌ Faltas</p>
-            </div>
-            <div className="bg-white rounded-[20px] border border-gray-100 shadow-sm p-4 text-center">
-              <p className="text-2xl font-bold text-amber-500">{countAtrasado}</p>
-              <p className="text-xs text-gray-400 mt-1 font-medium">⏰ Atrasados</p>
             </div>
           </div>
         )}
@@ -304,7 +294,7 @@ export default function PresencasPage() {
                           </div>
                         </div>
 
-                        {/* Botões de status — linha abaixo, tamanho touch-friendly */}
+                        {/* Botões de status */}
                         <div className="flex gap-2 mt-3">
                           <button
                             onClick={() => marcar(aluno.id, 'presente')}
@@ -325,16 +315,6 @@ export default function PresencasPage() {
                             }`}
                           >
                             ❌ Faltou
-                          </button>
-                          <button
-                            onClick={() => marcar(aluno.id, 'atrasado')}
-                            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                              status === 'atrasado'
-                                ? 'bg-amber-400 text-white shadow-sm scale-[1.02]'
-                                : 'bg-gray-50 text-gray-500 hover:bg-amber-50 hover:text-amber-500 border border-gray-100'
-                            }`}
-                          >
-                            ⏰ Atrasado
                           </button>
                         </div>
                       </li>
