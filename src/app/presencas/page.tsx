@@ -5,42 +5,60 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
 
+// ── Types ─────────────────────────────────────────────────────────────────────
+
 type Turma = { id: string; nome: string }
+type Aluno  = { id: string; nome: string; posicao: string | null }
+type Status = 'presente' | 'falta' | 'atrasado'
 
-type Aluno = { id: string; nome: string; posicao: string | null }
-
-type PresencaRegistro = { id: string; presente: boolean }
-
-type FrequenciaAluno = { total: number; presentes: number; pct: number }
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
 const HOJE = new Date().toISOString().split('T')[0]
+
+const dataFormatada = (() => {
+  const s = new Date(HOJE + 'T12:00:00').toLocaleDateString('pt-BR', {
+    weekday: 'long', day: '2-digit', month: 'long', year: 'numeric',
+  })
+  return s.charAt(0).toUpperCase() + s.slice(1)
+})()
+
+function getInitials(nome: string) {
+  return nome.split(' ').slice(0, 2).map((n) => n[0] ?? '').join('').toUpperCase()
+}
+
+function avatarBg(nome: string) {
+  const colors = ['bg-green-500','bg-blue-500','bg-purple-500','bg-orange-500','bg-teal-500','bg-pink-500','bg-indigo-500','bg-amber-500']
+  let h = 0
+  for (const c of nome) h = (h * 31 + c.charCodeAt(0)) % colors.length
+  return colors[h]
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function PresencasPage() {
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
 
-  const [turmas, setTurmas] = useState<Turma[]>([])
+  const [turmas,          setTurmas]          = useState<Turma[]>([])
   const [turmaSelecionada, setTurmaSelecionada] = useState<string>('')
-  const [alunos, setAlunos] = useState<Aluno[]>([])
-  const [presencasHoje, setPresencasHoje] = useState<Record<string, PresencaRegistro>>({})
-  const [frequencias, setFrequencias] = useState<Record<string, FrequenciaAluno>>({})
-  const [salvando, setSalvando] = useState<string | null>(null)
-  const [carregando, setCarregando] = useState(false)
+  const [alunos,          setAlunos]          = useState<Aluno[]>([])
+  const [marcacoes,       setMarcacoes]       = useState<Record<string, Status>>({})
+  const [carregando,      setCarregando]      = useState(false)
+  const [salvandoTudo,    setSalvandoTudo]    = useState(false)
+  const [salvoOk,         setSalvoOk]         = useState(false)
 
-  // Redireciona se não autenticado
+  // ── Auth ──────────────────────────────────────────────────────────────────
+
   useEffect(() => {
     if (!authLoading && !user) router.push('/login')
   }, [authLoading, user, router])
 
-  // Carrega turmas
+  // ── Load turmas ───────────────────────────────────────────────────────────
+
   useEffect(() => {
     if (!user) return
-    const supabase = createClient()
-    supabase
-      .from('turmas')
-      .select('id, nome')
-      .eq('professor_id', user.id)
-      .order('nome')
+    createClient()
+      .from('turmas').select('id, nome').eq('professor_id', user.id).order('nome')
       .then(({ data }) => {
         const lista = data ?? []
         setTurmas(lista)
@@ -48,13 +66,13 @@ export default function PresencasPage() {
       })
   }, [user])
 
+  // ── Load alunos + today's records ─────────────────────────────────────────
+
   const carregarDados = useCallback(async () => {
     if (!turmaSelecionada || !user) return
     setCarregando(true)
-
     const supabase = createClient()
 
-    // Alunos da turma selecionada
     const { data: dadosAlunos } = await supabase
       .from('alunos')
       .select('id, nome, posicao')
@@ -66,102 +84,112 @@ export default function PresencasPage() {
     const lista = dadosAlunos ?? []
     setAlunos(lista)
 
-    if (lista.length === 0) {
-      setPresencasHoje({})
-      setFrequencias({})
-      setCarregando(false)
-      return
-    }
+    if (!lista.length) { setMarcacoes({}); setCarregando(false); return }
 
     const ids = lista.map((a) => a.id)
 
-    // Presenças de HOJE
     const { data: dadosHoje } = await supabase
       .from('presencas')
-      .select('id, aluno_id, presente')
+      .select('aluno_id, presente, atrasado')
       .in('aluno_id', ids)
       .eq('data', HOJE)
 
-    const mapa: Record<string, PresencaRegistro> = {}
+    const mapa: Record<string, Status> = {}
     for (const p of dadosHoje ?? []) {
-      mapa[p.aluno_id] = { id: p.id, presente: p.presente }
+      if ((p as { atrasado?: boolean }).atrasado) mapa[p.aluno_id] = 'atrasado'
+      else if (p.presente)                        mapa[p.aluno_id] = 'presente'
+      else                                        mapa[p.aluno_id] = 'falta'
     }
-    setPresencasHoje(mapa)
-
-    // Todas as presenças para calcular frequência
-    const { data: todasPresencas } = await supabase
-      .from('presencas')
-      .select('aluno_id, presente')
-      .in('aluno_id', ids)
-
-    const freqMap: Record<string, FrequenciaAluno> = {}
-    for (const id of ids) {
-      const registros = (todasPresencas ?? []).filter((p) => p.aluno_id === id)
-      const total = registros.length
-      const presentes = registros.filter((p) => p.presente).length
-      freqMap[id] = { total, presentes, pct: total > 0 ? Math.round((presentes / total) * 100) : 0 }
-    }
-    setFrequencias(freqMap)
-
+    setMarcacoes(mapa)
     setCarregando(false)
   }, [turmaSelecionada, user])
 
-  useEffect(() => {
-    carregarDados()
-  }, [carregarDados])
+  useEffect(() => { carregarDados() }, [carregarDados])
 
-  async function marcarPresenca(alunoId: string, presente: boolean) {
-    setSalvando(alunoId)
+  // ── Derived counts ────────────────────────────────────────────────────────
+
+  const countPresente  = Object.values(marcacoes).filter((v) => v === 'presente').length
+  const countFalta     = Object.values(marcacoes).filter((v) => v === 'falta').length
+  const countAtrasado  = Object.values(marcacoes).filter((v) => v === 'atrasado').length
+  const totalMarcados  = Object.keys(marcacoes).length
+  const semRegistro    = alunos.length - totalMarcados
+  const todosMarcados  = alunos.length > 0 && totalMarcados === alunos.length
+
+  // ── Actions ───────────────────────────────────────────────────────────────
+
+  function marcar(alunoId: string, status: Status) {
+    setMarcacoes((prev) => {
+      // Toggle off if clicking same button
+      if (prev[alunoId] === status) {
+        const next = { ...prev }
+        delete next[alunoId]
+        return next
+      }
+      return { ...prev, [alunoId]: status }
+    })
+    setSalvoOk(false)
+  }
+
+  function marcarTodos() {
+    const todos: Record<string, Status> = {}
+    for (const a of alunos) todos[a.id] = 'presente'
+    setMarcacoes(todos)
+    setSalvoOk(false)
+  }
+
+  function limpar() {
+    setMarcacoes({})
+    setSalvoOk(false)
+  }
+
+  async function salvarTudo() {
+    if (!todosMarcados) return
+    setSalvandoTudo(true)
     const supabase = createClient()
-    const registroExistente = presencasHoje[alunoId]
 
-    if (registroExistente) {
-      await supabase
-        .from('presencas')
-        .update({ presente })
-        .eq('id', registroExistente.id)
-      setPresencasHoje((prev) => ({ ...prev, [alunoId]: { ...registroExistente, presente } }))
-    } else {
-      const { data } = await supabase
-        .from('presencas')
-        .insert({ aluno_id: alunoId, data: HOJE, presente })
-        .select('id')
-        .single()
-      if (data) {
-        setPresencasHoje((prev) => ({ ...prev, [alunoId]: { id: data.id, presente } }))
+    const ids = alunos.map((a) => a.id)
+
+    // Fetch existing IDs for today
+    const { data: existentes } = await supabase
+      .from('presencas')
+      .select('id, aluno_id')
+      .in('aluno_id', ids)
+      .eq('data', HOJE)
+
+    const existMap: Record<string, string> = {}
+    for (const r of existentes ?? []) existMap[r.aluno_id] = r.id
+
+    const updates: PromiseLike<unknown>[] = []
+
+    for (const aluno of alunos) {
+      const status  = marcacoes[aluno.id]
+      if (!status) continue
+      const presente = status === 'presente' || status === 'atrasado'
+      const atrasado = status === 'atrasado'
+
+      if (existMap[aluno.id]) {
+        updates.push(
+          supabase.from('presencas')
+            .update({ presente, atrasado })
+            .eq('id', existMap[aluno.id])
+            .then((r) => r)
+        )
+      } else {
+        updates.push(
+          supabase.from('presencas')
+            .insert({ aluno_id: aluno.id, data: HOJE, presente, atrasado })
+            .then((r) => r)
+        )
       }
     }
 
-    // Atualiza frequência local
-    setFrequencias((prev) => {
-      const atual = prev[alunoId]
-      if (!atual) return prev
-      const foiMarcadoAntes = registroExistente !== undefined
-      const eraPresenteAntes = registroExistente?.presente ?? false
-
-      let novoTotal = atual.total
-      let novosPresentes = atual.presentes
-
-      if (!foiMarcadoAntes) {
-        novoTotal += 1
-        if (presente) novosPresentes += 1
-      } else {
-        if (eraPresenteAntes && !presente) novosPresentes -= 1
-        if (!eraPresenteAntes && presente) novosPresentes += 1
-      }
-
-      return {
-        ...prev,
-        [alunoId]: {
-          total: novoTotal,
-          presentes: novosPresentes,
-          pct: novoTotal > 0 ? Math.round((novosPresentes / novoTotal) * 100) : 0,
-        },
-      }
-    })
-
-    setSalvando(null)
+    await Promise.all(updates)
+    setSalvandoTudo(false)
+    setSalvoOk(true)
+    setTimeout(() => setSalvoOk(false), 3000)
   }
+
+  // ── Loading ───────────────────────────────────────────────────────────────
 
   if (authLoading) {
     return (
@@ -171,131 +199,143 @@ export default function PresencasPage() {
     )
   }
 
-  const alunosEmRisco = alunos.filter((a) => {
-    const f = frequencias[a.id]
-    return f && f.total > 0 && f.pct < 70
-  })
-
-  const dataFormatada = new Date(HOJE + 'T12:00:00').toLocaleDateString('pt-BR', {
-    weekday: 'long',
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  })
+  // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <main className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-2xl mx-auto space-y-6">
+    <main className="min-h-screen bg-gray-50 pb-32">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 space-y-5">
 
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Presenças</h1>
-          <p className="text-sm text-gray-500 mt-0.5 capitalize">{dataFormatada}</p>
+        {/* ── Header ── */}
+        <div className="bg-white rounded-[20px] border border-gray-100 shadow-sm px-6 py-5">
+          <h1 className="text-2xl font-bold text-gray-900">Ficha de Presença</h1>
+          <p className="text-sm text-gray-400 mt-1">{dataFormatada}</p>
         </div>
 
-        {/* Seletor de turma */}
+        {/* ── Seletor de equipe ── */}
         {turmas.length === 0 ? (
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8 text-center">
-            <p className="text-gray-400 text-sm">Nenhuma turma cadastrada.</p>
-            <p className="text-gray-400 text-xs mt-1">Crie turmas primeiro para registrar presenças.</p>
+          <div className="bg-white rounded-[20px] border border-gray-100 shadow-sm p-8 text-center">
+            <p className="text-gray-400 text-sm">Nenhuma equipe cadastrada.</p>
+            <p className="text-gray-400 text-xs mt-1">Crie equipes primeiro para registrar presenças.</p>
           </div>
         ) : (
-          <div className="flex items-center gap-3">
-            <label className="text-sm font-medium text-gray-700 whitespace-nowrap">Turma:</label>
-            <select
-              value={turmaSelecionada}
-              onChange={(e) => setTurmaSelecionada(e.target.value)}
-              className="flex-1 px-3 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-            >
-              {turmas.map((t) => (
-                <option key={t.id} value={t.id}>{t.nome}</option>
-              ))}
-            </select>
+          <select
+            value={turmaSelecionada}
+            onChange={(e) => setTurmaSelecionada(e.target.value)}
+            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-[20px] text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 shadow-sm"
+          >
+            {turmas.map((t) => (
+              <option key={t.id} value={t.id}>{t.nome}</option>
+            ))}
+          </select>
+        )}
+
+        {/* ── Stat cards ── */}
+        {turmaSelecionada && !carregando && alunos.length > 0 && (
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-white rounded-[20px] border border-gray-100 shadow-sm p-4 text-center">
+              <p className="text-2xl font-bold text-green-600">{countPresente}</p>
+              <p className="text-xs text-gray-400 mt-1 font-medium">✅ Presentes</p>
+            </div>
+            <div className="bg-white rounded-[20px] border border-gray-100 shadow-sm p-4 text-center">
+              <p className="text-2xl font-bold text-red-500">{countFalta}</p>
+              <p className="text-xs text-gray-400 mt-1 font-medium">❌ Faltas</p>
+            </div>
+            <div className="bg-white rounded-[20px] border border-gray-100 shadow-sm p-4 text-center">
+              <p className="text-2xl font-bold text-amber-500">{countAtrasado}</p>
+              <p className="text-xs text-gray-400 mt-1 font-medium">⏰ Atrasados</p>
+            </div>
           </div>
         )}
 
-        {/* Lista de alunos */}
+        {/* ── Ações rápidas ── */}
+        {turmaSelecionada && !carregando && alunos.length > 0 && (
+          <div className="flex gap-3">
+            <button
+              onClick={marcarTodos}
+              className="flex-1 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm"
+            >
+              ✅ Todos presentes
+            </button>
+            <button
+              onClick={limpar}
+              className="px-5 py-2.5 bg-white hover:bg-gray-50 border border-gray-200 text-gray-600 text-sm font-medium rounded-xl transition-colors shadow-sm"
+            >
+              Limpar
+            </button>
+          </div>
+        )}
+
+        {/* ── Lista de atletas ── */}
         {turmaSelecionada && (
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="bg-white rounded-[20px] border border-gray-100 shadow-sm overflow-hidden">
             {carregando ? (
-              <div className="py-12 text-center">
-                <p className="text-gray-400 text-sm">Carregando alunos...</p>
+              <div className="py-16 text-center">
+                <p className="text-gray-400 text-sm">Carregando atletas...</p>
               </div>
             ) : alunos.length === 0 ? (
-              <div className="py-12 text-center">
-                <p className="text-gray-400 text-sm">Nenhum aluno nesta turma.</p>
+              <div className="py-16 text-center">
+                <p className="text-gray-400 text-sm">Nenhum atleta ativo nesta equipe.</p>
               </div>
             ) : (
               <>
-                <div className="px-6 py-3 border-b border-gray-50 flex items-center justify-between">
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                    {alunos.length} aluno{alunos.length !== 1 ? 's' : ''}
-                  </span>
-                  <span className="text-xs text-gray-400">
-                    {Object.keys(presencasHoje).length} marcado{Object.keys(presencasHoje).length !== 1 ? 's' : ''}
+                <div className="px-5 py-3 border-b border-gray-50">
+                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                    {alunos.length} atleta{alunos.length !== 1 ? 's' : ''} · {totalMarcados} marcado{totalMarcados !== 1 ? 's' : ''}
                   </span>
                 </div>
                 <ul className="divide-y divide-gray-50">
                   {alunos.map((aluno) => {
-                    const registro = presencasHoje[aluno.id]
-                    const freq = frequencias[aluno.id]
-                    const marcado = registro !== undefined
-                    const estaPresente = registro?.presente ?? false
-                    const emRisco = freq && freq.total > 0 && freq.pct < 70
+                    const status = marcacoes[aluno.id] ?? null
 
                     return (
-                      <li key={aluno.id} className="px-6 py-4">
-                        <div className="flex items-center justify-between gap-4">
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                              <p className="text-sm font-medium text-gray-900 truncate">{aluno.nome}</p>
-                              {emRisco && (
-                                <span className="flex-shrink-0 text-xs bg-red-50 text-red-600 px-1.5 py-0.5 rounded font-medium">
-                                  Risco
-                                </span>
-                              )}
-                            </div>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              {aluno.posicao && (
-                                <p className="text-xs text-gray-400">{aluno.posicao}</p>
-                              )}
-                              {freq && freq.total > 0 && (
-                                <span className={`text-xs font-medium ${
-                                  freq.pct >= 70 ? 'text-green-600' : 'text-red-500'
-                                }`}>
-                                  {freq.pct}% frequência
-                                </span>
-                              )}
-                            </div>
+                      <li key={aluno.id} className="px-5 py-4">
+                        <div className="flex items-center gap-3">
+                          {/* Avatar */}
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white text-sm font-bold flex-shrink-0 ${avatarBg(aluno.nome)}`}>
+                            {getInitials(aluno.nome)}
                           </div>
 
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            {/* Botão Falta */}
-                            <button
-                              onClick={() => marcarPresenca(aluno.id, false)}
-                              disabled={salvando === aluno.id}
-                              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                                marcado && !estaPresente
-                                  ? 'bg-red-500 text-white shadow-sm'
-                                  : 'bg-gray-100 text-gray-500 hover:bg-red-50 hover:text-red-500'
-                              } disabled:opacity-50`}
-                            >
-                              Falta
-                            </button>
-
-                            {/* Botão Presente */}
-                            <button
-                              onClick={() => marcarPresenca(aluno.id, true)}
-                              disabled={salvando === aluno.id}
-                              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                                marcado && estaPresente
-                                  ? 'bg-green-500 text-white shadow-sm'
-                                  : 'bg-gray-100 text-gray-500 hover:bg-green-50 hover:text-green-600'
-                              } disabled:opacity-50`}
-                            >
-                              {salvando === aluno.id ? '...' : 'Presente'}
-                            </button>
+                          {/* Info */}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-gray-900 truncate">{aluno.nome}</p>
+                            {aluno.posicao && (
+                              <p className="text-xs text-gray-400 mt-0.5">{aluno.posicao}</p>
+                            )}
                           </div>
+                        </div>
+
+                        {/* Botões de status — linha abaixo, tamanho touch-friendly */}
+                        <div className="flex gap-2 mt-3">
+                          <button
+                            onClick={() => marcar(aluno.id, 'presente')}
+                            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                              status === 'presente'
+                                ? 'bg-green-500 text-white shadow-sm scale-[1.02]'
+                                : 'bg-gray-50 text-gray-500 hover:bg-green-50 hover:text-green-600 border border-gray-100'
+                            }`}
+                          >
+                            ✅ Presente
+                          </button>
+                          <button
+                            onClick={() => marcar(aluno.id, 'falta')}
+                            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                              status === 'falta'
+                                ? 'bg-red-500 text-white shadow-sm scale-[1.02]'
+                                : 'bg-gray-50 text-gray-500 hover:bg-red-50 hover:text-red-500 border border-gray-100'
+                            }`}
+                          >
+                            ❌ Faltou
+                          </button>
+                          <button
+                            onClick={() => marcar(aluno.id, 'atrasado')}
+                            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                              status === 'atrasado'
+                                ? 'bg-amber-400 text-white shadow-sm scale-[1.02]'
+                                : 'bg-gray-50 text-gray-500 hover:bg-amber-50 hover:text-amber-500 border border-gray-100'
+                            }`}
+                          >
+                            ⏰ Atrasado
+                          </button>
                         </div>
                       </li>
                     )
@@ -305,27 +345,38 @@ export default function PresencasPage() {
             )}
           </div>
         )}
-
-        {/* Alunos em risco */}
-        {alunosEmRisco.length > 0 && !carregando && (
-          <div className="bg-red-50 border border-red-100 rounded-xl p-5">
-            <h2 className="text-sm font-semibold text-red-700 mb-3">
-              Alunos em risco — frequência abaixo de 70%
-            </h2>
-            <ul className="space-y-2">
-              {alunosEmRisco.map((aluno) => {
-                const freq = frequencias[aluno.id]
-                return (
-                  <li key={aluno.id} className="flex items-center justify-between">
-                    <span className="text-sm text-red-800">{aluno.nome}</span>
-                    <span className="text-sm font-bold text-red-600">{freq?.pct}%</span>
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
-        )}
       </div>
+
+      {/* ── Rodapé fixo ── */}
+      {turmaSelecionada && !carregando && alunos.length > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 shadow-lg px-4 py-4 space-y-3 z-40 md:left-56">
+          {/* Aviso atletas sem registro */}
+          {semRegistro > 0 && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 text-center">
+              <p className="text-sm font-medium text-amber-700">
+                ⚠️ {semRegistro} atleta{semRegistro !== 1 ? 's' : ''} sem registro ainda
+              </p>
+            </div>
+          )}
+
+          {/* Botão salvar */}
+          {salvoOk ? (
+            <div className="w-full py-3.5 rounded-[20px] bg-green-50 border border-green-200 text-green-700 text-sm font-semibold text-center">
+              ✅ Presença salva com sucesso!
+            </div>
+          ) : (
+            <button
+              onClick={salvarTudo}
+              disabled={!todosMarcados || salvandoTudo}
+              className="w-full py-3.5 rounded-[20px] text-sm font-bold transition-all shadow-sm disabled:opacity-40 disabled:cursor-not-allowed bg-green-600 hover:bg-green-700 disabled:bg-gray-200 disabled:text-gray-400 text-white"
+            >
+              {salvandoTudo
+                ? 'Salvando...'
+                : `Salvar presença — ${totalMarcados}/${alunos.length} registrados`}
+            </button>
+          )}
+        </div>
+      )}
     </main>
   )
 }
