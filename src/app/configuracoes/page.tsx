@@ -104,7 +104,7 @@ export default function ConfiguracoesPage() {
                 <div className="flex-1">
                   <p className="font-semibold text-gray-900">Opção A — Receber pelo app</p>
                   <p className="text-sm text-gray-500 mt-1">
-                    Responsáveis pagam via Pix direto pelo app. Taxa de serviço: 3,99%.
+                    Responsáveis pagam direto pelo app via Pix ou cartão. Taxa de serviço: 3,99%.
                   </p>
                   <p className="text-xs text-amber-600 font-medium mt-1">
                     Exemplo: responsável paga R$150 → ScoutBase R$5,99 → Você R$144,01
