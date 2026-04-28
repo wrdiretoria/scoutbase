@@ -104,10 +104,10 @@ export default function ConfiguracoesPage() {
                 <div className="flex-1">
                   <p className="font-semibold text-gray-900">Opção A — Receber pelo app</p>
                   <p className="text-sm text-gray-500 mt-1">
-                    Pais pagam via Pix direto pelo app. Split automático de 3,99% para o ScoutBase.
+                    Responsáveis pagam via Pix direto pelo app. Taxa de serviço: 3,99%.
                   </p>
                   <p className="text-xs text-amber-600 font-medium mt-1">
-                    Exemplo: pai paga R$150 → ScoutBase R$5,99 → Você R$144,01
+                    Exemplo: responsável paga R$150 → ScoutBase R$5,99 → Você R$144,01
                   </p>
                   <ul className="mt-3 space-y-1">
                     {[
@@ -178,7 +178,7 @@ export default function ConfiguracoesPage() {
                 <div className="flex-1">
                   <p className="font-semibold text-gray-900">Opção B — Receber por fora</p>
                   <p className="text-sm text-gray-500 mt-1">
-                    Pai paga direto para você como preferir (Pix pessoal, dinheiro, etc). Você
+                    Responsável paga direto para você como preferir (Pix pessoal, dinheiro, etc). Você
                     confirma manualmente na plataforma.
                   </p>
                   <ul className="mt-3 space-y-1">

@@ -93,7 +93,7 @@ export default function LoginPage() {
             href="/pais/entrar"
             className="text-sm text-gray-500 hover:text-green-600 transition-colors"
           >
-            👨‍👩‍👦 Sou pai ou responsável →
+            👨‍👩‍👦 Sou responsável →
           </Link>
         </div>
       </div>

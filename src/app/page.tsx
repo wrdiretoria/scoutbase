@@ -25,7 +25,7 @@ const audiences = [
   },
   {
     icon: '👨‍👩‍👦',
-    title: 'Pais e Família',
+    title: 'Responsáveis e Família',
     description: 'Fique por dentro do desenvolvimento do seu filho.',
     benefits: ['Link exclusivo sem login', 'Frequência em tempo real', 'Radar de habilidades', 'Comunicação direta'],
     highlight: false,
@@ -43,7 +43,7 @@ const features = [
   { icon: '📋', title: 'Gestão de Turmas', desc: 'Crie turmas por categoria (Sub-11, Sub-13…) e organize todos os alunos.' },
   { icon: '✅', title: 'Controle de Presença', desc: 'Marque presença com um clique. Visualize frequência e alertas de risco.' },
   { icon: '📊', title: 'Avaliações Completas', desc: 'Avalie 4 pilares: Técnico, Físico, Tático e Comportamento.' },
-  { icon: '📄', title: 'Relatório em PDF', desc: 'Gere relatórios profissionais para compartilhar com pais e responsáveis.' },
+  { icon: '📄', title: 'Relatório em PDF', desc: 'Gere relatórios profissionais para compartilhar com responsáveis.' },
 ]
 
 const steps = [
@@ -60,7 +60,7 @@ const testimonials = [
     role: 'Treinador — Equipe Mendes FC',
   },
   {
-    quote: 'Os pais adoram receber o link com o desempenho do filho. Profissionaliza muito a equipe.',
+    quote: 'Os responsáveis adoram receber o link com o desempenho do filho. Profissionaliza muito a equipe.',
     name: 'Rafael Souza',
     role: 'Coordenador Técnico',
   },
@@ -272,7 +272,7 @@ export default function LandingPage() {
             PLANOS E PREÇOS
           </h2>
           <p className="text-center text-gray-400 text-sm mb-4">
-            Pais sempre acessam grátis. Boletim completo disponível quando o treinador tem plano pago.
+            Responsáveis sempre acessam grátis. Boletim completo disponível quando o treinador tem plano pago.
           </p>
           <p className="text-center text-gray-500 text-xs mb-14">
             Sem taxa de setup. Cancele quando quiser.
@@ -289,7 +289,7 @@ export default function LandingPage() {
                 {[
                   'Cadastro de atletas',
                   'Lista de presença',
-                  'Pais acompanham frequência do filho',
+                  'Responsáveis acompanham frequência do filho',
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2 text-sm text-gray-300">
                     <span className="text-green-500 mt-0.5">✓</span> {item}
@@ -325,7 +325,7 @@ export default function LandingPage() {
                   'Avaliações e presenças',
                   'Scout Score completo',
                   'Relatórios básicos e avançados',
-                  'Pais acompanham boletim completo',
+                  'Responsáveis acompanham boletim completo',
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2 text-sm text-gray-300">
                     <span className="text-green-500 mt-0.5">✓</span> {item}
