@@ -16,7 +16,7 @@ interface Aluno {
   telefone: string | null
   ativo: boolean
   token_acesso: string | null
-  codigo: string | null
+  scout_id: string | null
   turma_id: string | null
   mensalidade: number | null
   status_pagamento: string | null
@@ -238,6 +238,80 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
         {label}
       </label>
       {children}
+    </div>
+  )
+}
+
+// ── Scout ID Card ─────────────────────────────────────────────────────────────
+
+function ScoutIdCard({
+  scoutId,
+  nome,
+  posicao,
+  categoria,
+  linkPublico,
+}: {
+  scoutId: string
+  nome: string
+  posicao: string | null
+  categoria: string | null
+  linkPublico: string | null
+}) {
+  const [copiado, setCopiado] = useState(false)
+
+  function copiarLink() {
+    if (!linkPublico) return
+    navigator.clipboard.writeText(linkPublico).then(() => {
+      setCopiado(true)
+      setTimeout(() => setCopiado(false), 2000)
+    })
+  }
+
+  return (
+    <div className="bg-green-900 rounded-2xl p-6 text-white shadow-lg">
+      <p className="text-xs font-semibold tracking-[0.2em] text-green-300 uppercase mb-1">
+        Scout ID
+      </p>
+      <p className="text-4xl font-black tracking-widest font-mono text-white leading-none mb-4">
+        {scoutId}
+      </p>
+      <div className="border-t border-green-700 pt-4 space-y-0.5 mb-4">
+        <p className="text-sm font-semibold text-white">{nome}</p>
+        {posicao && <p className="text-xs text-green-300">{posicao}</p>}
+        {categoria && (
+          <span className="inline-block text-xs font-semibold bg-green-700 text-green-100 px-2 py-0.5 rounded-full mt-1">
+            {categoria}
+          </span>
+        )}
+      </div>
+      <div className="space-y-2">
+        <p className="text-xs text-green-400">
+          Pais acessam em{' '}
+          <span className="text-green-200 font-medium">scoutbase-eta.vercel.app/pais/entrar</span>
+        </p>
+        {linkPublico && (
+          <button
+            onClick={copiarLink}
+            className="w-full flex items-center justify-center gap-2 bg-green-700 hover:bg-green-600 active:bg-green-500 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors"
+          >
+            {copiado ? (
+              <>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Link copiado!
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+                Compartilhar link
+              </>
+            )}
+          </button>
+        )}
+      </div>
     </div>
   )
 }
@@ -488,30 +562,14 @@ export default function PerfilAtleta({
                   <p className="text-sm text-gray-400">Nenhuma informação cadastrada.</p>
                 )}
 
-                {aluno.codigo && (
-                  <div className="bg-green-50 border border-green-200 rounded-xl p-5">
-                    <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-                      Código de acesso dos pais
-                    </p>
-                    <p className="text-4xl font-bold tracking-[0.3em] font-mono text-green-700">
-                      {aluno.codigo}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-2">
-                      Passe este código ao responsável em{' '}
-                      <span className="font-medium text-gray-600">
-                        scoutbase-eta.vercel.app/pais/entrar
-                      </span>
-                    </p>
-                  </div>
-                )}
-
-                {linkPublico && (
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <p className="text-xs font-semibold text-gray-400 mb-1">
-                      Link público (alternativa sem código)
-                    </p>
-                    <p className="text-xs text-gray-500 break-all font-mono">{linkPublico}</p>
-                  </div>
+                {aluno.scout_id && (
+                  <ScoutIdCard
+                    scoutId={aluno.scout_id}
+                    nome={aluno.nome}
+                    posicao={aluno.posicao}
+                    categoria={categoriaSugerida}
+                    linkPublico={linkPublico}
+                  />
                 )}
 
                 <div>

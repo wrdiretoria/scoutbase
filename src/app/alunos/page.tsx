@@ -132,13 +132,21 @@ export default function AlunosPage() {
 
     const supabase = createClient()
 
-    // Gera código sequencial único por professor (001, 002, ...)
-    const { count } = await supabase
+    // Gera Scout ID único global (SID-00001, SID-00002, ...)
+    const { data: lastAluno } = await supabase
       .from('alunos')
-      .select('*', { count: 'exact', head: true })
-      .eq('professor_id', user.id)
+      .select('scout_id')
+      .like('scout_id', 'SID-%')
+      .order('scout_id', { ascending: false })
+      .limit(1)
+      .single()
 
-    const codigo = String((count ?? 0) + 1).padStart(3, '0')
+    let nextNum = 1
+    if (lastAluno?.scout_id) {
+      const match = lastAluno.scout_id.match(/SID-(\d+)/)
+      if (match) nextNum = parseInt(match[1]) + 1
+    }
+    const scout_id = `SID-${String(nextNum).padStart(5, '0')}`
 
     const { error } = await supabase.from('alunos').insert({
       nome: form.nome.trim(),
@@ -149,7 +157,7 @@ export default function AlunosPage() {
       data_nascimento: form.data_nascimento || null,
       professor_id: user.id,
       ativo: true,
-      codigo,
+      scout_id,
     })
 
     if (error) {

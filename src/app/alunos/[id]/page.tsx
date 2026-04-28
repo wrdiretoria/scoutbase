@@ -21,7 +21,7 @@ export default async function AlunoPerfilPage({ params }: Props) {
   const { data: aluno } = await supabase
     .from('alunos')
     .select(
-      'id, nome, posicao, responsavel, telefone, ativo, token_acesso, codigo, turma_id, mensalidade, status_pagamento, data_nascimento, turmas(nome)'
+      'id, nome, posicao, responsavel, telefone, ativo, token_acesso, scout_id, turma_id, mensalidade, status_pagamento, data_nascimento, turmas(nome)'
     )
     .eq('id', id)
     .eq('professor_id', user.id)
@@ -114,8 +114,9 @@ export default async function AlunoPerfilPage({ params }: Props) {
   const hdrs = await headers()
   const host = hdrs.get('host') ?? 'localhost:3000'
   const proto = host.startsWith('localhost') ? 'http' : 'https'
-  const linkPublico = aluno.token_acesso
-    ? `${proto}://${host}/p/${aluno.token_acesso}`
+  const scoutId = (aluno as { scout_id?: string }).scout_id ?? null
+  const linkPublico = scoutId
+    ? `${proto}://${host}/atleta/${scoutId}`
     : null
 
   // ── Turma nome ───────────────────────────────────────────────────────────
@@ -134,7 +135,7 @@ export default async function AlunoPerfilPage({ params }: Props) {
         telefone: aluno.telefone ?? null,
         ativo: aluno.ativo,
         token_acesso: aluno.token_acesso ?? null,
-        codigo: (aluno as { codigo?: string }).codigo ?? null,
+        scout_id: scoutId,
         turma_id: (aluno as { turma_id?: string }).turma_id ?? null,
         mensalidade: (aluno as { mensalidade?: number }).mensalidade ?? null,
         status_pagamento:

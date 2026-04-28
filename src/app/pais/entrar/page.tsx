@@ -12,7 +12,7 @@ export default function PaisEntrarPage() {
   const [aba, setAba] = useState<Aba>('primeiro')
 
   // Primeiro acesso
-  const [codigo, setCodigo] = useState('')
+  const [scoutId, setScoutId] = useState('')
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
 
@@ -32,16 +32,16 @@ export default function PaisEntrarPage() {
 
     const supabase = createClient()
 
-    // 1. Valida o código
-    const codigoFormatado = codigo.trim().padStart(3, '0')
+    // 1. Valida o Scout ID
+    const sidFormatado = scoutId.trim().toUpperCase()
     const { data: aluno, error: alunoErr } = await supabase
       .from('alunos')
       .select('id, nome')
-      .eq('codigo', codigoFormatado)
+      .eq('scout_id', sidFormatado)
       .single()
 
     if (alunoErr || !aluno) {
-      setErro('Código inválido. Verifique com o treinador do seu filho.')
+      setErro('Scout ID inválido. Verifique com o treinador do seu filho.')
       setLoading(false)
       return
     }
@@ -53,7 +53,7 @@ export default function PaisEntrarPage() {
       options: {
         data: {
           tipo: 'pai',
-          aluno_codigo: codigoFormatado,
+          aluno_scout_id: sidFormatado,
           aluno_id: aluno.id,
           aluno_nome: aluno.nome,
         },
@@ -146,19 +146,18 @@ export default function PaisEntrarPage() {
           <form onSubmit={handlePrimeiroAcesso} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Código do atleta
+                Scout ID do atleta
               </label>
               <input
                 required
                 type="text"
-                maxLength={3}
-                value={codigo}
-                onChange={(e) => setCodigo(e.target.value.replace(/\D/g, ''))}
+                value={scoutId}
+                onChange={(e) => setScoutId(e.target.value.toUpperCase())}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-center tracking-widest font-mono focus:outline-none focus:ring-2 focus:ring-green-500"
-                placeholder="001"
+                placeholder="SID-00001"
               />
               <p className="text-xs text-gray-400 mt-1">
-                Peça o código de 3 dígitos ao treinador do seu filho.
+                Peça o Scout ID ao treinador do seu filho.
               </p>
             </div>
 
