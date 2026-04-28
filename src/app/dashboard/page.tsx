@@ -64,7 +64,7 @@ export default async function DashboardPage() {
   const totalAtivos = alunos?.filter((a) => a.ativo).length ?? 0
   const alunoIds = alunos?.map((a) => a.id) ?? []
 
-  // ── Presenças totais ─────────────────────────────────────────
+  // ── Presenças ────────────────────────────────────────────────
   const { data: presencas } = alunoIds.length
     ? await supabase
         .from('presencas')
@@ -72,15 +72,68 @@ export default async function DashboardPage() {
         .in('aluno_id', alunoIds)
     : { data: [] }
 
+  // ── Avaliações (scout_score + created_at) ───────────────────
+  const { data: avaliacoes } = alunoIds.length
+    ? await supabase
+        .from('avaliacoes')
+        .select('aluno_id, scout_score, created_at')
+        .in('aluno_id', alunoIds)
+    : { data: [] }
+
+  // Média de scout_score por atleta (0-100)
+  const scorePorAluno = new Map<string, number>()
+  for (const id of alunoIds) {
+    const scores = (avaliacoes ?? [])
+      .filter((a) => a.aluno_id === id && a.scout_score != null)
+      .map((a) => a.scout_score as number)
+    if (scores.length > 0) {
+      scorePorAluno.set(
+        id,
+        Math.round(scores.reduce((x, y) => x + y, 0) / scores.length)
+      )
+    }
+  }
+
+  // ── Evolução Geral (score médio mês atual vs mês anterior) ──
+  const agora = new Date()
+  const inicioMesAtual = new Date(agora.getFullYear(), agora.getMonth(), 1).toISOString()
+  const inicioMesAnterior = new Date(agora.getFullYear(), agora.getMonth() - 1, 1).toISOString()
+  const fimMesAnterior = new Date(agora.getFullYear(), agora.getMonth(), 1).toISOString()
+
+  const scoresAtual = (avaliacoes ?? [])
+    .filter((a) => a.scout_score != null && a.created_at >= inicioMesAtual)
+    .map((a) => a.scout_score as number)
+
+  const scoresAnterior = (avaliacoes ?? [])
+    .filter(
+      (a) =>
+        a.scout_score != null &&
+        a.created_at >= inicioMesAnterior &&
+        a.created_at < fimMesAnterior
+    )
+    .map((a) => a.scout_score as number)
+
+  const mediaAtual =
+    scoresAtual.length > 0
+      ? scoresAtual.reduce((a, b) => a + b, 0) / scoresAtual.length
+      : null
+
+  const mediaAnterior =
+    scoresAnterior.length > 0
+      ? scoresAnterior.reduce((a, b) => a + b, 0) / scoresAnterior.length
+      : null
+
+  const evolucao: number | null =
+    mediaAtual !== null && mediaAnterior !== null && mediaAnterior > 0
+      ? Math.round(((mediaAtual - mediaAnterior) / mediaAnterior) * 100)
+      : null
+
   // ── Treino hoje ──────────────────────────────────────────────
   const hojeStr = new Date().toISOString().split('T')[0]
-  const presencasHoje = (presencas ?? []).filter((p) =>
-    p.data?.startsWith(hojeStr)
-  )
+  const presencasHoje = (presencas ?? []).filter((p) => p.data?.startsWith(hojeStr))
   const treinoHoje = presencasHoje.length > 0 ? presencasHoje.length : null
 
   // ── Frequência mensal ────────────────────────────────────────
-  const agora = new Date()
   const primeiroDiaMes = new Date(agora.getFullYear(), agora.getMonth(), 1)
     .toISOString()
     .split('T')[0]
@@ -101,7 +154,7 @@ export default async function DashboardPage() {
       : null
   })()
 
-  // ── Frequência total (para alertas) ─────────────────────────
+  // ── Frequência total por aluno (alertas) ─────────────────────
   const frequenciaPorAluno = alunoIds.map((id) => {
     const reg = (presencas ?? []).filter((p) => p.aluno_id === id)
     if (!reg.length) return { id, freq: null }
@@ -130,23 +183,56 @@ export default async function DashboardPage() {
     {
       label: 'Treino hoje',
       valor: treinoHoje ?? '—',
-      sub: treinoHoje ? `${treinoHoje} atleta${treinoHoje > 1 ? 's' : ''} registrado${treinoHoje > 1 ? 's' : ''}` : 'Sem registro hoje',
+      sub: treinoHoje
+        ? `${treinoHoje} atleta${treinoHoje > 1 ? 's' : ''} registrado${treinoHoje > 1 ? 's' : ''}`
+        : 'Sem registro hoje',
       cor: treinoHoje ? 'text-green-600' : 'text-gray-400',
       icon: '🏃',
     },
     {
       label: 'Frequência mensal',
       valor: freqMensal !== null ? `${freqMensal}%` : '—',
-      sub: freqMensal !== null ? (freqMensal >= 75 ? 'Acima da meta' : 'Abaixo da meta') : 'Sem registros este mês',
-      cor: freqMensal === null ? 'text-gray-400' : freqMensal >= 75 ? 'text-green-600' : 'text-yellow-500',
+      sub:
+        freqMensal !== null
+          ? freqMensal >= 75
+            ? 'Acima da meta'
+            : 'Abaixo da meta'
+          : 'Sem registros este mês',
+      cor:
+        freqMensal === null
+          ? 'text-gray-400'
+          : freqMensal >= 75
+          ? 'text-green-600'
+          : 'text-yellow-500',
       icon: '📅',
     },
     {
-      label: 'Alertas de risco',
-      valor: alertasRisco.length,
-      sub: alertasRisco.length === 0 ? 'Tudo em ordem' : `abaixo de 75% de presença`,
-      cor: alertasRisco.length > 0 ? 'text-red-500' : 'text-green-600',
-      icon: '⚠️',
+      label: 'Evolução geral',
+      valor:
+        evolucao === null
+          ? '—'
+          : evolucao > 0
+          ? `+${evolucao}%`
+          : `${evolucao}%`,
+      sub:
+        evolucao === null
+          ? mediaAtual !== null
+            ? 'Sem dados do mês anterior'
+            : 'Sem avaliações este mês'
+          : evolucao > 0
+          ? 'Score médio subiu este mês'
+          : evolucao < 0
+          ? 'Score médio caiu este mês'
+          : 'Sem variação este mês',
+      cor:
+        evolucao === null
+          ? 'text-gray-400'
+          : evolucao > 0
+          ? 'text-green-600'
+          : evolucao < 0
+          ? 'text-red-500'
+          : 'text-gray-500',
+      icon: '📈',
     },
   ]
 
@@ -192,6 +278,39 @@ export default async function DashboardPage() {
           ))}
         </div>
 
+        {/* ── Alunos em risco ── */}
+        {alertasRisco.length > 0 && (
+          <div className="bg-red-50 rounded-[20px] border border-red-200 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className="text-red-500 text-lg">⚠️</span>
+                <h2 className="text-sm font-semibold text-gray-900">
+                  Atletas em risco de evasão
+                </h2>
+              </div>
+              <Link
+                href="/alunos"
+                className="text-xs font-semibold text-red-600 hover:text-red-700 hover:underline"
+              >
+                Ver todos →
+              </Link>
+            </div>
+            <ul className="divide-y divide-red-100">
+              {alertasRisco.map((aluno) => (
+                <li key={aluno.id} className="flex items-center justify-between py-3">
+                  <div className="flex items-center gap-3">
+                    <span className="w-2 h-2 rounded-full bg-red-400 flex-shrink-0" />
+                    <span className="text-sm text-gray-800">{aluno.nome}</span>
+                  </div>
+                  <span className="text-sm font-bold text-red-500">
+                    {aluno.frequencia}%
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* ── Ações rápidas ── */}
         <div>
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3 px-1">
@@ -211,34 +330,6 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* ── Alertas de risco ── */}
-        {alertasRisco.length > 0 && (
-          <div className="bg-white rounded-[20px] shadow-sm border border-red-100 p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-red-500 text-lg">⚠️</span>
-              <h2 className="text-sm font-semibold text-gray-900">
-                Atletas em risco — abaixo de 75% de presença
-              </h2>
-            </div>
-            <ul className="divide-y divide-gray-50">
-              {alertasRisco.map((aluno) => (
-                <li
-                  key={aluno.id}
-                  className="flex items-center justify-between py-3"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="w-2 h-2 rounded-full bg-red-400 flex-shrink-0" />
-                    <span className="text-sm text-gray-800">{aluno.nome}</span>
-                  </div>
-                  <span className="text-sm font-bold text-red-500">
-                    {aluno.frequencia}%
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
         {/* ── Lista de atletas ── */}
         {alunos && alunos.length > 0 && (
           <div className="bg-white rounded-[20px] shadow-sm border border-gray-100 p-6">
@@ -253,38 +344,50 @@ export default async function DashboardPage() {
             </div>
             <ul className="divide-y divide-gray-50">
               {alunos.slice(0, 8).map((aluno) => {
-                const dadosFreq = frequenciaPorAluno.find((f) => f.id === aluno.id)
+                const score = scorePorAluno.get(aluno.id) ?? null
+
+                const scoreBadge =
+                  score === null
+                    ? null
+                    : score >= 80
+                    ? { label: 'Ótimo', cls: 'bg-green-100 text-green-700' }
+                    : score >= 60
+                    ? { label: 'Bom', cls: 'bg-blue-100 text-blue-700' }
+                    : { label: 'Em risco', cls: 'bg-red-100 text-red-600' }
+
                 return (
-                  <li
-                    key={aluno.id}
-                    className="flex items-center justify-between py-3"
-                  >
-                    <div className="flex items-center gap-3">
+                  <li key={aluno.id} className="flex items-center justify-between py-3">
+                    <div className="flex items-center gap-3 min-w-0">
                       <span
                         className={`w-2 h-2 rounded-full flex-shrink-0 ${
                           aluno.ativo ? 'bg-green-500' : 'bg-gray-300'
                         }`}
                       />
-                      <span className="text-sm text-gray-800">{aluno.nome}</span>
+                      <span className="text-sm text-gray-800 truncate">{aluno.nome}</span>
                     </div>
-                    <span
-                      className={`text-xs font-semibold ${
-                        dadosFreq?.freq == null
-                          ? 'text-gray-300'
-                          : dadosFreq.freq >= 75
-                          ? 'text-green-600'
-                          : 'text-red-500'
-                      }`}
-                    >
-                      {dadosFreq?.freq != null ? `${dadosFreq.freq}%` : '—'}
-                    </span>
+                    <div className="flex items-center gap-2 flex-shrink-0 ml-3">
+                      {score !== null && (
+                        <span className="text-xs font-semibold text-gray-500">
+                          {score}
+                        </span>
+                      )}
+                      {scoreBadge ? (
+                        <span
+                          className={`text-xs font-semibold px-2 py-0.5 rounded-full ${scoreBadge.cls}`}
+                        >
+                          {scoreBadge.label}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-300">sem score</span>
+                      )}
+                    </div>
                   </li>
                 )
               })}
             </ul>
             {alunos.length > 8 && (
               <p className="text-xs text-gray-400 text-center mt-3">
-                +{alunos.length - 8} atleta{alunos.length - 8 > 1 ? 's' : ''} · {' '}
+                +{alunos.length - 8} atleta{alunos.length - 8 > 1 ? 's' : ''} ·{' '}
                 <Link href="/alunos" className="text-green-600 hover:underline">
                   ver todos
                 </Link>
