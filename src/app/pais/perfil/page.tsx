@@ -6,39 +6,42 @@ export default async function PaisPerfilPage() {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Só pais autenticados
   if (!user) redirect('/pais/entrar')
   if (user.user_metadata?.tipo !== 'pai') redirect('/pais/entrar')
 
-  const alunoCodigo = user.user_metadata?.aluno_codigo as string | undefined
+  const alunoScoutId = user.user_metadata?.aluno_scout_id as string | undefined
   const alunoIdMeta = user.user_metadata?.aluno_id as string | undefined
 
-  if (!alunoCodigo && !alunoIdMeta) {
+  if (!alunoScoutId && !alunoIdMeta) {
     return (
       <main className="p-8 text-center">
-        <p className="text-gray-500 text-sm">Código do atleta não encontrado na sua conta. Entre em contato com o treinador.</p>
+        <p className="text-gray-500 text-sm">
+          Código do atleta não encontrado na sua conta. Entre em contato com o treinador.
+        </p>
       </main>
     )
   }
 
-  // Busca o atleta pelo id (mais confiável) ou pelo código
+  // Busca o atleta pelo id (mais confiável) ou pelo scout_id
   const query = supabase
     .from('alunos')
-    .select('id, nome, posicao, ativo, professor_id, turmas(nome)')
+    .select('id, nome, posicao, scout_id, ativo, professor_id, turmas(nome)')
 
   const { data: aluno } = alunoIdMeta
     ? await query.eq('id', alunoIdMeta).single()
-    : await query.eq('codigo', alunoCodigo!).single()
+    : await query.eq('scout_id', alunoScoutId!).single()
 
   if (!aluno) {
     return (
       <main className="p-8 text-center">
-        <p className="text-gray-500 text-sm">Atleta não encontrado. Verifique o código com o treinador.</p>
+        <p className="text-gray-500 text-sm">
+          Atleta não encontrado. Verifique o Scout ID com o treinador.
+        </p>
       </main>
     )
   }
 
-  // Plano do treinador: tenta buscar em profiles
+  // Plano do treinador
   let planoPago = false
   try {
     const { data: profile } = await supabase
@@ -48,7 +51,7 @@ export default async function PaisPerfilPage() {
       .single()
     planoPago = profile?.plano === 'pago'
   } catch {
-    // profiles sem coluna plano ou sem acesso — padrão gratuito
+    // profiles sem coluna plano — padrão gratuito
   }
 
   // Presenças
@@ -61,52 +64,49 @@ export default async function PaisPerfilPage() {
   const presentes = presencas?.filter((p) => p.presente).length ?? 0
   const frequencia = totalPresencas > 0 ? Math.round((presentes / totalPresencas) * 100) : null
 
-  // Avaliações (só se plano pago)
-  let grupos: { data: string; score: number; tecnico: number; fisico: number; tatico: number; comportamento: number }[] = []
-  let ultimaAvaliacao = null
+  // Avaliações — novo schema (só se plano pago)
+  type AvaliacaoRow = {
+    tecnico: number
+    fisico: number
+    tatico: number
+    comportamento: number
+    scout_score: number | null
+    created_at: string
+  }
+
+  let avaliacoes: AvaliacaoRow[] = []
+  let ultimaAvaliacao: AvaliacaoRow | null = null
+  let scoutScore: number | null = null
 
   if (planoPago) {
-    const { data: avaliacoes } = await supabase
+    const { data } = await supabase
       .from('avaliacoes')
-      .select('nota, categoria, data')
+      .select('tecnico, fisico, tatico, comportamento, scout_score, created_at')
       .eq('aluno_id', aluno.id)
-      .order('data', { ascending: false })
+      .order('created_at', { ascending: false })
 
-    const byDate: Record<string, Record<string, number>> = {}
-    for (const av of avaliacoes ?? []) {
-      if (!av.data) continue
-      if (!byDate[av.data]) byDate[av.data] = {}
-      if (byDate[av.data][av.categoria] === undefined) byDate[av.data][av.categoria] = av.nota
-    }
+    avaliacoes = (data ?? []) as AvaliacaoRow[]
+    ultimaAvaliacao = avaliacoes[0] ?? null
 
-    for (const [date, pilares] of Object.entries(byDate)) {
-      const t = pilares['Técnico']
-      const f = pilares['Físico']
-      const ta = pilares['Tático']
-      const c = pilares['Comportamento']
-      if (t !== undefined && f !== undefined && ta !== undefined && c !== undefined) {
-        grupos.push({
-          data: date,
-          tecnico: t, fisico: f, tatico: ta, comportamento: c,
-          score: Math.round(((t + f + ta + c) / 4) * 10) / 10,
-        })
-      }
-    }
-    grupos.sort((a, b) => b.data.localeCompare(a.data))
-    ultimaAvaliacao = grupos[0] ?? null
+    const scores = avaliacoes.map((a) => a.scout_score).filter((s) => s != null) as number[]
+    scoutScore = scores.length > 0
+      ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+      : null
   }
 
   const turmaNome =
     aluno.turmas && !Array.isArray(aluno.turmas)
       ? (aluno.turmas as { nome: string }).nome
+      : Array.isArray(aluno.turmas) && aluno.turmas.length > 0
+      ? (aluno.turmas[0] as { nome: string }).nome
       : null
 
   const scoreColor =
-    ultimaAvaliacao === null
+    scoutScore === null
       ? 'text-gray-300'
-      : ultimaAvaliacao.score >= 7.5
+      : scoutScore >= 75
       ? 'text-green-600'
-      : ultimaAvaliacao.score >= 5
+      : scoutScore >= 50
       ? 'text-yellow-500'
       : 'text-red-500'
 
@@ -124,15 +124,20 @@ export default async function PaisPerfilPage() {
               <h1 className="text-2xl font-bold text-gray-900 truncate">{aluno.nome}</h1>
               {aluno.posicao && <p className="text-sm text-gray-500 mt-0.5">{aluno.posicao}</p>}
               {turmaNome && <p className="text-xs text-gray-400 mt-0.5">{turmaNome}</p>}
+              {(aluno as { scout_id?: string }).scout_id && (
+                <p className="text-xs font-mono text-green-600 mt-1 tracking-widest">
+                  {(aluno as { scout_id?: string }).scout_id}
+                </p>
+              )}
             </div>
 
-            {planoPago && ultimaAvaliacao && (
+            {planoPago && scoutScore !== null && (
               <div className="text-center flex-shrink-0">
                 <p className="text-xs text-gray-400 mb-1">Scout Score</p>
                 <p className={`text-5xl font-bold leading-none ${scoreColor}`}>
-                  {ultimaAvaliacao.score}
+                  {scoutScore}
                 </p>
-                <p className="text-xs text-gray-400 mt-1">de 10</p>
+                <p className="text-xs text-gray-400 mt-1">de 100</p>
               </div>
             )}
           </div>
@@ -168,13 +173,13 @@ export default async function PaisPerfilPage() {
           </div>
         )}
 
-        {/* Plano pago: avaliações */}
+        {/* Plano pago: última avaliação */}
         {planoPago && ultimaAvaliacao && (
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-sm font-semibold text-gray-900">Última avaliação</h2>
               <p className="text-xs text-gray-400">
-                {new Date(ultimaAvaliacao.data).toLocaleDateString('pt-BR', {
+                {new Date(ultimaAvaliacao.created_at).toLocaleDateString('pt-BR', {
                   day: '2-digit', month: 'short', year: 'numeric',
                 })}
               </p>
@@ -188,35 +193,45 @@ export default async function PaisPerfilPage() {
               ] as [string, number][]).map(([label, val]) => (
                 <div key={label} className="bg-gray-50 rounded-lg px-3 py-3">
                   <p className="text-xs text-gray-400">{label}</p>
-                  <p className="text-lg font-bold text-gray-800 mt-0.5">{val} <span className="text-xs font-normal text-gray-400">/ 10</span></p>
+                  <p className="text-lg font-bold text-gray-800 mt-0.5">
+                    {val} <span className="text-xs font-normal text-gray-400">/ 10</span>
+                  </p>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Histórico de avaliações (plano pago) */}
-        {planoPago && grupos.length > 1 && (
+        {/* Histórico (plano pago) */}
+        {planoPago && avaliacoes.length > 1 && (
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
             <h2 className="text-sm font-semibold text-gray-900 mb-4">Histórico</h2>
             <ul className="divide-y divide-gray-50">
-              {grupos.map((g) => (
-                <li key={g.data} className="flex items-center justify-between py-3">
+              {avaliacoes.map((av, i) => (
+                <li key={i} className="flex items-center justify-between py-3">
                   <p className="text-xs text-gray-400">
-                    {new Date(g.data).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    {new Date(av.created_at).toLocaleDateString('pt-BR', {
+                      day: '2-digit', month: 'short', year: 'numeric',
+                    })}
                   </p>
-                  <span className={`text-sm font-bold ${
-                    g.score >= 7.5 ? 'text-green-600' : g.score >= 5 ? 'text-yellow-500' : 'text-red-500'
-                  }`}>
-                    {g.score}
-                  </span>
+                  {av.scout_score !== null && (
+                    <span className={`text-sm font-bold ${
+                      av.scout_score >= 75
+                        ? 'text-green-600'
+                        : av.scout_score >= 50
+                        ? 'text-yellow-500'
+                        : 'text-red-500'
+                    }`}>
+                      {av.scout_score}
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>
           </div>
         )}
 
-        {planoPago && grupos.length === 0 && (
+        {planoPago && avaliacoes.length === 0 && (
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8 text-center">
             <p className="text-gray-400 text-sm">Nenhuma avaliação registrada ainda.</p>
           </div>

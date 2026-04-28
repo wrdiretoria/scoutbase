@@ -245,12 +245,14 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 // ── Scout ID Card ─────────────────────────────────────────────────────────────
 
 function ScoutIdCard({
+  alunoId,
   scoutId,
   nome,
   posicao,
   categoria,
   linkPublico,
 }: {
+  alunoId: string
   scoutId: string
   nome: string
   posicao: string | null
@@ -258,6 +260,9 @@ function ScoutIdCard({
   linkPublico: string | null
 }) {
   const [copiado, setCopiado] = useState(false)
+  const [resetando, setResetando] = useState(false)
+  const [senhaTemp, setSenhaTemp] = useState<string | null>(null)
+  const [erroReset, setErroReset] = useState<string | null>(null)
 
   function copiarLink() {
     if (!linkPublico) return
@@ -265,6 +270,29 @@ function ScoutIdCard({
       setCopiado(true)
       setTimeout(() => setCopiado(false), 2000)
     })
+  }
+
+  async function resetarAcesso() {
+    setResetando(true)
+    setSenhaTemp(null)
+    setErroReset(null)
+    try {
+      const res = await fetch('/api/pais/resetar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ alunoId }),
+      })
+      const json = await res.json()
+      if (!res.ok) {
+        setErroReset(json.error ?? 'Erro ao resetar acesso.')
+      } else {
+        setSenhaTemp(json.senhaTemp)
+      }
+    } catch {
+      setErroReset('Erro de conexão. Tente novamente.')
+    } finally {
+      setResetando(false)
+    }
   }
 
   return (
@@ -310,6 +338,43 @@ function ScoutIdCard({
               </>
             )}
           </button>
+        )}
+
+        {/* Reset parent access */}
+        {senhaTemp ? (
+          <div className="bg-green-800 rounded-xl p-3 text-center">
+            <p className="text-xs text-green-300 mb-1">Senha resetada! Diga ao pai:</p>
+            <p className="text-sm font-bold text-white font-mono tracking-wider">{senhaTemp}</p>
+            <p className="text-xs text-green-400 mt-1">Use o Scout ID como senha temporária</p>
+            <button
+              onClick={() => setSenhaTemp(null)}
+              className="text-xs text-green-400 hover:text-white mt-2 underline"
+            >
+              Fechar
+            </button>
+          </div>
+        ) : (
+          <>
+            <button
+              onClick={resetarAcesso}
+              disabled={resetando}
+              className="w-full flex items-center justify-center gap-2 bg-green-800 hover:bg-green-700 disabled:opacity-50 text-green-200 text-xs font-medium py-2 rounded-xl transition-colors border border-green-700"
+            >
+              {resetando ? (
+                'Resetando...'
+              ) : (
+                <>
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                  </svg>
+                  Resetar senha dos pais
+                </>
+              )}
+            </button>
+            {erroReset && (
+              <p className="text-xs text-red-300 text-center">{erroReset}</p>
+            )}
+          </>
         )}
       </div>
     </div>
@@ -564,6 +629,7 @@ export default function PerfilAtleta({
 
                 {aluno.scout_id && (
                   <ScoutIdCard
+                    alunoId={aluno.id}
                     scoutId={aluno.scout_id}
                     nome={aluno.nome}
                     posicao={aluno.posicao}
