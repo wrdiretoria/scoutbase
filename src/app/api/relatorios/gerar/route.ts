@@ -1,10 +1,52 @@
+/**
+ * POST /api/relatorios/gerar
+ *
+ * Gera relatórios de atletas usando Google Gemini (camada gratuita: 1.500 req/dia).
+ * Chave em: aistudio.google.com → Get API Key → adicionar como GEMINI_API_KEY
+ */
+
 import { NextRequest, NextResponse } from 'next/server'
-import Anthropic from '@anthropic-ai/sdk'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 import { createServerClient } from '@/lib/supabase'
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+// ── Gemini client ─────────────────────────────────────────────────────────────
+
+function getGemini() {
+  const key = process.env.GEMINI_API_KEY
+  if (!key) throw new Error('GEMINI_API_KEY não configurada')
+  return new GoogleGenerativeAI(key)
+}
+
+// ── Error messages ─────────────────────────────────────────────────────────────
+
+function friendlyError(err: unknown): { message: string; status: number } {
+  const msg = err instanceof Error ? err.message : String(err)
+
+  // Rate limit
+  if (msg.includes('429') || msg.toLowerCase().includes('quota') || msg.toLowerCase().includes('rate')) {
+    return {
+      message: 'Relatório temporariamente indisponível. Tente novamente em alguns minutos.',
+      status: 429,
+    }
+  }
+  // API key not set
+  if (msg.includes('GEMINI_API_KEY')) {
+    return {
+      message: 'Serviço de IA não configurado. Configure a variável GEMINI_API_KEY.',
+      status: 503,
+    }
+  }
+  // Generic
+  return {
+    message: 'Não foi possível gerar o relatório agora. Tente novamente em breve.',
+    status: 500,
+  }
+}
+
+// ── Route handler ─────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
+  // Auth
   const supabase = await createServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
@@ -21,7 +63,7 @@ export async function POST(req: NextRequest) {
 
   if (!aluno) return NextResponse.json({ error: 'Atleta não encontrado' }, { status: 404 })
 
-  // Fetch evaluations (most recent 6)
+  // Fetch latest evaluations (up to 6)
   const { data: avaliacoes } = await supabase
     .from('avaliacoes')
     .select(`
@@ -42,140 +84,113 @@ export async function POST(req: NextRequest) {
   const ultima = avaliacoes[0]
   const scoutScore = ultima.scout_score ? (ultima.scout_score / 10).toFixed(1) : '—'
 
-  // Build criteria detail for latest eval
-  const criterios = [
-    { cat: 'Técnico', itens: [
-      { nome: 'Passe curto', val: ultima.passe_curto },
-      { nome: 'Passe longo', val: ultima.passe_longo },
-      { nome: 'Domínio direito', val: ultima.dominio_direito },
-      { nome: 'Domínio esquerdo', val: ultima.dominio_esquerdo },
-      { nome: 'Tempo de bola', val: ultima.tempo_bola },
-      { nome: 'Condução', val: ultima.conducao },
-      { nome: 'Cabeceio', val: ultima.cabecio },
-      { nome: 'Finalização', val: ultima.finalizacao },
-    ]},
-    { cat: 'Físico', itens: [
-      { nome: 'Velocidade', val: ultima.velocidade },
-      { nome: 'Força', val: ultima.forca },
-      { nome: 'Impulsão', val: ultima.impulsao },
-      { nome: 'Mudança de direção', val: ultima.mudanca_direcao },
-      { nome: 'Coordenação', val: ultima.coordenacao },
-    ]},
-    { cat: 'Tático', itens: [
-      { nome: 'Visão de jogo', val: ultima.visao_jogo },
-      { nome: 'Posicionamento', val: ultima.posicionamento },
-      { nome: 'Capacidade de defender', val: ultima.cap_defender },
-      { nome: 'Capacidade de atacar', val: ultima.cap_atacar },
-    ]},
-    { cat: 'Comportamento', itens: [
-      { nome: 'Atitude', val: ultima.atitude },
-      { nome: 'Relação com pressão', val: ultima.pressao },
-      { nome: 'Liderança', val: ultima.lideranca },
-      { nome: 'Concentração', val: ultima.concentracao },
-      { nome: 'Colaboração', val: ultima.colaboracao },
-      { nome: 'Disciplina', val: ultima.disciplina },
-    ]},
-  ]
+  // Calcular frequência a partir do histórico de avaliações (aproximação)
+  // Frequência real viria de presencas, mas usamos os dados disponíveis
+  const evolucaoHistorico = avaliacoes.length > 1
+    ? `Histórico de Scout Score: ${avaliacoes
+        .map((a, i) => `${i === 0 ? 'atual' : `${i}ª anterior`}: ${a.scout_score ? (a.scout_score / 10).toFixed(1) : '—'}`)
+        .join(', ')}`
+    : 'Primeira avaliação registrada'
 
-  const criteriosTexto = criterios.map((c) =>
-    `${c.cat} (média ${ultima[c.cat.toLowerCase() as keyof typeof ultima] ?? '?'}/10):\n` +
-    c.itens.map((i) => `  - ${i.nome}: ${i.val ?? '?'}/10`).join('\n')
-  ).join('\n\n')
-
-  const evolucao = avaliacoes.length > 1
-    ? `\nHistórico de Scout Score (mais recente primeiro): ${avaliacoes.map((a, i) =>
-        `${i + 1}ª av: ${a.scout_score ? (a.scout_score / 10).toFixed(1) : '—'}`
-      ).join(', ')}`
-    : ''
-
-  let systemPrompt = ''
-  let userPrompt = ''
+  // Build prompt based on report type
+  let prompt = ''
 
   if (tipo === 'responsavel') {
-    systemPrompt = `Você é um assistente especialista em avaliação de atletas jovens de futebol.
-Escreve relatórios profissionais, positivos e motivadores em português do Brasil.
-Seu tom é amigável, próximo e encorajador — você fala diretamente para os pais/responsáveis.
-Use linguagem simples, sem jargões técnicos excessivos.`
+    prompt = `Você é um assistente especialista em desenvolvimento esportivo.
+Gere um boletim profissional e humanizado em português para os responsáveis do atleta abaixo.
+Inclua: pontos fortes, áreas de melhoria e uma mensagem motivacional personalizada.
+Tom: profissional mas acolhedor. Use **negrito** para destacar títulos de seção.
 
-    userPrompt = `Gere um BOLETIM DO ATLETA para os responsáveis de ${aluno.nome}${aluno.posicao ? ` (${aluno.posicao})` : ''}.
-Scout Score atual: ${scoutScore}/10
-${evolucao}
+Atleta: ${aluno.nome}
+Posição: ${aluno.posicao ?? 'Não informada'}
+Scout Score: ${scoutScore}/10
 
-Notas detalhadas da última avaliação:
-${criteriosTexto}
+Técnico: ${ultima.tecnico}/10
+Físico: ${ultima.fisico}/10
+Tático: ${ultima.tatico}/10
+Comportamento: ${ultima.comportamento}/10
+
+Detalhes técnicos (escala 1-10):
+- Passe curto: ${ultima.passe_curto ?? '—'} | Passe longo: ${ultima.passe_longo ?? '—'}
+- Domínio direito: ${ultima.dominio_direito ?? '—'} | Domínio esquerdo: ${ultima.dominio_esquerdo ?? '—'}
+- Condução: ${ultima.conducao ?? '—'} | Finalização: ${ultima.finalizacao ?? '—'}
+- Velocidade: ${ultima.velocidade ?? '—'} | Força: ${ultima.forca ?? '—'}
+- Visão de jogo: ${ultima.visao_jogo ?? '—'} | Posicionamento: ${ultima.posicionamento ?? '—'}
+- Atitude: ${ultima.atitude ?? '—'} | Disciplina: ${ultima.disciplina ?? '—'}
 ${ultima.observacao ? `\nObservação do treinador: "${ultima.observacao}"` : ''}
 
-Estruture o boletim com:
-1. **Mensagem de abertura** — apresentação calorosa (2-3 frases)
-2. **Pontos Fortes** — os 3 critérios com notas mais altas, descritos de forma positiva e motivadora
-3. **Áreas em Desenvolvimento** — 2-3 áreas para melhorar, fraseadas de forma construtiva e encorajadora (nunca negativa)
-4. **Mensagem de Encerramento** — palavras de incentivo e engajamento para os pais acompanharem o progresso
-
-Seja específico com os dados mas escreva em linguagem humana e acessível. Máximo 300 palavras.`
+Estruture com: abertura calorosa, Pontos Fortes (3 itens), Áreas em Desenvolvimento (2 itens), mensagem de encerramento motivacional. Máximo 280 palavras.`
 
   } else if (tipo === 'olheiro') {
-    systemPrompt = `Você é um assistente especialista em scouting e análise de talentos no futebol brasileiro.
-Escreve relatórios técnicos precisos, profissionais e objetivos em português do Brasil.
-Seu público são olheiros e dirigentes esportivos. Use terminologia técnica adequada.`
+    prompt = `Você é um especialista em scouting e análise de talentos no futebol brasileiro.
+Gere um relatório técnico de scouting profissional e objetivo em português.
+Use **negrito** para títulos de seção. Seja preciso e técnico.
 
-    userPrompt = `Gere um RELATÓRIO TÉCNICO DE SCOUTING para ${aluno.nome}${aluno.posicao ? ` (${aluno.posicao})` : ''}.
+Atleta: ${aluno.nome}
 Scout ID: ${aluno.scout_id ?? 'N/D'}
+Posição: ${aluno.posicao ?? 'Não informada'}
 Scout Score: ${scoutScore}/10
-Número de avaliações: ${avaliacoes.length}
-${evolucao}
-
-Notas detalhadas da última avaliação:
-${criteriosTexto}
-${ultima.observacao ? `\nObservação do avaliador: "${ultima.observacao}"` : ''}
-
-Estruture o relatório com:
-1. **Perfil Técnico** — análise objetiva das capacidades técnicas e físicas (2-3 parágrafos)
-2. **Pontos de Destaque** — habilidades acima da média com dados específicos
-3. **Áreas de Desenvolvimento** — aspectos que precisam de trabalho, com contexto técnico
-4. **Avaliação Geral** — parecer profissional sobre o potencial do atleta
-5. **Recomendação** — indicação do nível de interesse (alto/médio/baixo) com justificativa
-
-Seja preciso, técnico e baseado nos dados. Máximo 350 palavras.`
-
-  } else if (tipo === 'evolucao') {
-    systemPrompt = `Você é um especialista em análise de desempenho esportivo no futebol.
-Escreve análises de evolução claras, motivadoras e baseadas em dados.
-Seu tom é profissional mas acessível.`
-
-    userPrompt = `Gere uma ANÁLISE DE EVOLUÇÃO para ${aluno.nome}${aluno.posicao ? ` (${aluno.posicao})` : ''}.
-Scout Score atual: ${scoutScore}/10
 Avaliações registradas: ${avaliacoes.length}
-${evolucao}
+${evolucaoHistorico}
 
-Categorias na última avaliação:
+Scores por categoria (escala 1-10):
 - Técnico: ${ultima.tecnico}/10
 - Físico: ${ultima.fisico}/10
 - Tático: ${ultima.tatico}/10
 - Comportamento: ${ultima.comportamento}/10
 
-Estruture com:
-1. **Resumo da Evolução** — tendência geral de desempenho (melhora, estagnação, declínio)
-2. **Categoria em Destaque** — a que mais evolui ou se destaca, com análise
-3. **Foco de Desenvolvimento** — a categoria que mais precisa de atenção
-4. **Próximos Passos** — 2-3 recomendações práticas de treinamento
+Detalhes:
+- Passe curto: ${ultima.passe_curto ?? '—'} | Passe longo: ${ultima.passe_longo ?? '—'}
+- Domínio direito: ${ultima.dominio_direito ?? '—'} | Esquerdo: ${ultima.dominio_esquerdo ?? '—'}
+- Tempo de bola: ${ultima.tempo_bola ?? '—'} | Condução: ${ultima.conducao ?? '—'}
+- Cabeceio: ${ultima.cabecio ?? '—'} | Finalização: ${ultima.finalizacao ?? '—'}
+- Velocidade: ${ultima.velocidade ?? '—'} | Força: ${ultima.forca ?? '—'}
+- Impulsão: ${ultima.impulsao ?? '—'} | Mudança de direção: ${ultima.mudanca_direcao ?? '—'}
+- Visão de jogo: ${ultima.visao_jogo ?? '—'} | Posicionamento: ${ultima.posicionamento ?? '—'}
+- Capacidade defensiva: ${ultima.cap_defender ?? '—'} | Ofensiva: ${ultima.cap_atacar ?? '—'}
+- Atitude: ${ultima.atitude ?? '—'} | Liderança: ${ultima.lideranca ?? '—'}
+- Concentração: ${ultima.concentracao ?? '—'} | Disciplina: ${ultima.disciplina ?? '—'}
+${ultima.observacao ? `\nNota do avaliador: "${ultima.observacao}"` : ''}
 
-Baseie a análise nos dados fornecidos. Seja encorajador mas honesto. Máximo 250 palavras.`
+Estruture: Perfil Técnico, Pontos de Destaque, Áreas de Desenvolvimento, Avaliação Geral, Recomendação (Alto/Médio/Baixo interesse). Máximo 350 palavras.`
+
+  } else if (tipo === 'evolucao') {
+    prompt = `Você é especialista em análise de desempenho esportivo no futebol.
+Gere uma análise de evolução clara e motivadora em português.
+Use **negrito** para títulos de seção.
+
+Atleta: ${aluno.nome}
+Posição: ${aluno.posicao ?? 'Não informada'}
+Scout Score atual: ${scoutScore}/10
+${evolucaoHistorico}
+
+Última avaliação:
+- Técnico: ${ultima.tecnico}/10
+- Físico: ${ultima.fisico}/10
+- Tático: ${ultima.tatico}/10
+- Comportamento: ${ultima.comportamento}/10
+
+Estruture: Resumo da Evolução (tendência), Categoria em Destaque, Foco de Desenvolvimento, Próximos Passos (2-3 recomendações práticas). Máximo 250 palavras.`
+
   } else {
     return NextResponse.json({ error: 'Tipo inválido' }, { status: 400 })
   }
 
+  // Call Gemini
   try {
-    const message = await client.messages.create({
-      model: 'claude-opus-4-5',
-      max_tokens: 1024,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userPrompt }],
-    })
+    const genAI = getGemini()
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    const result = await model.generateContent(prompt)
+    const texto = result.response.text()
 
-    const texto = message.content[0].type === 'text' ? message.content[0].text : ''
-    return NextResponse.json({ texto, alunoNome: aluno.nome, scoutScore })
+    return NextResponse.json({
+      texto,
+      alunoNome: aluno.nome,
+      scoutScore,
+    })
   } catch (err) {
-    console.error('Anthropic error:', err)
-    return NextResponse.json({ error: 'Erro ao gerar relatório com IA' }, { status: 500 })
+    console.error('[Gemini] error:', err)
+    const { message, status } = friendlyError(err)
+    return NextResponse.json({ error: message }, { status })
   }
 }
