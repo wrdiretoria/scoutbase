@@ -317,10 +317,20 @@ function ScoutIdCard({
           Responsáveis acessam em{' '}
           <span className="text-green-200 font-medium">scoutbase-eta.vercel.app/pais/entrar</span>
         </p>
+
+        {/* 1 — Nova avaliação (destaque) */}
+        <Link
+          href={`/avaliacoes/${alunoId}`}
+          className="w-full flex items-center justify-center gap-2 bg-green-500 hover:bg-green-400 active:bg-green-300 text-white text-sm font-bold py-2.5 rounded-xl transition-colors"
+        >
+          + Nova avaliação
+        </Link>
+
+        {/* 2 — Compartilhar link (outline) */}
         {linkPublico && (
           <button
             onClick={copiarLink}
-            className="w-full flex items-center justify-center gap-2 bg-green-700 hover:bg-green-600 active:bg-green-500 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors"
+            className="w-full flex items-center justify-center gap-2 border border-green-600 hover:bg-green-800 text-green-300 text-sm font-semibold py-2.5 rounded-xl transition-colors"
           >
             {copiado ? (
               <>
@@ -637,15 +647,6 @@ export default function PerfilAtleta({
                     linkPublico={linkPublico}
                   />
                 )}
-
-                <div>
-                  <Link
-                    href={`/avaliacoes/${aluno.id}`}
-                    className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
-                  >
-                    + Nova avaliação
-                  </Link>
-                </div>
               </div>
             )}
 
@@ -808,14 +809,6 @@ export default function PerfilAtleta({
                   </div>
                 )}
 
-                <div>
-                  <Link
-                    href={`/avaliacoes/${aluno.id}`}
-                    className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
-                  >
-                    + Nova avaliação
-                  </Link>
-                </div>
               </div>
             )}
 
