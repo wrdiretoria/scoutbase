@@ -242,13 +242,13 @@ export default function PresencasPage() {
           <div className="flex gap-3">
             <button
               onClick={marcarTodos}
-              className="flex-1 py-2.5 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm"
+              className="flex-1 min-h-[48px] py-3 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm active:scale-[0.98]"
             >
               ✅ Todos presentes
             </button>
             <button
               onClick={limpar}
-              className="px-5 py-2.5 bg-white hover:bg-gray-50 border border-gray-200 text-gray-600 text-sm font-medium rounded-xl transition-colors shadow-sm"
+              className="px-5 min-h-[48px] py-3 bg-white hover:bg-gray-50 border border-gray-200 text-gray-600 text-sm font-medium rounded-xl transition-colors shadow-sm active:scale-[0.98]"
             >
               Limpar
             </button>
@@ -298,7 +298,7 @@ export default function PresencasPage() {
                         <div className="flex gap-2 mt-3">
                           <button
                             onClick={() => marcar(aluno.id, 'presente')}
-                            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                            className={`flex-1 min-h-[48px] py-3 rounded-xl text-sm font-semibold transition-all active:scale-[0.98] ${
                               status === 'presente'
                                 ? 'bg-green-500 text-white shadow-sm scale-[1.02]'
                                 : 'bg-gray-50 text-gray-500 hover:bg-green-50 hover:text-green-600 border border-gray-100'
@@ -308,7 +308,7 @@ export default function PresencasPage() {
                           </button>
                           <button
                             onClick={() => marcar(aluno.id, 'falta')}
-                            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                            className={`flex-1 min-h-[48px] py-3 rounded-xl text-sm font-semibold transition-all active:scale-[0.98] ${
                               status === 'falta'
                                 ? 'bg-red-500 text-white shadow-sm scale-[1.02]'
                                 : 'bg-gray-50 text-gray-500 hover:bg-red-50 hover:text-red-500 border border-gray-100'

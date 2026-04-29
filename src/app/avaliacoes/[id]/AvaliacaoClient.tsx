@@ -341,12 +341,12 @@ export default function AvaliacaoClient({ alunoId, professorId, rawAvaliacoes }:
                       {nota}
                     </span>
                   </div>
-                  <div className="grid grid-cols-10 gap-1">
+                  <div className="grid grid-cols-5 md:grid-cols-10 gap-1.5 md:gap-1">
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
                       <button
                         key={n}
                         onClick={() => setNota(crit.id, n)}
-                        className={`py-2.5 rounded-lg text-xs font-bold transition-all ${
+                        className={`py-3 md:py-2.5 rounded-lg text-sm md:text-xs font-bold transition-all min-h-[44px] md:min-h-0 ${
                           nota === n
                             ? cat.cor.selected
                             : `bg-gray-50 text-gray-400 border border-gray-100 ${cat.cor.hover}`
