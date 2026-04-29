@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { calcularSplit } from '@/lib/asaas'
+import PremiumModal from '@/components/PremiumModal'
 
 type Aluno = {
   id: string
@@ -52,6 +53,7 @@ export default function PainelFinanceiro({
   const [gerandoCobranca, setGerandoCobranca] = useState<string | null>(null)
   const [linkCopiado, setLinkCopiado] = useState<string | null>(null)
   const [erro, setErro] = useState<string | null>(null)
+  const [showPremium, setShowPremium] = useState(true)
 
   const emDia = alunos.filter((a) => !a.status_pagamento || a.status_pagamento === 'em_dia').length
   const emAtraso = alunos.filter((a) => a.status_pagamento === 'atraso').length
@@ -333,6 +335,15 @@ export default function PainelFinanceiro({
             })}
           </ul>
         </div>
+      )}
+
+      {/* ── Modal Premium ── */}
+      {showPremium && (
+        <PremiumModal
+          funcao="Painel Financeiro"
+          descricao="Controle mensalidades, inadimplência, cobranças automáticas e fluxo financeiro completo da sua escolinha."
+          onClose={() => setShowPremium(false)}
+        />
       )}
     </div>
   )

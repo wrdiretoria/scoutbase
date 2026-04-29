@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import PremiumModal from '@/components/PremiumModal'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -272,13 +273,28 @@ function Modal({
 
 // ── Main component ────────────────────────────────────────────────────────────
 
+// Descrição premium por tipo
+const PREMIUM_DESC: Record<TipoRelatorio, string> = {
+  responsavel: 'Boletim humanizado gerado por IA com pontos fortes, áreas de melhoria e mensagem personalizada para os responsáveis.',
+  olheiro: 'Relatório técnico completo com histórico, Scout Score por categoria, QR Code e assinatura digital para olheiros.',
+  evolucao: 'Análise comparativa mês a mês, evolução do Scout Score e recomendações práticas de desenvolvimento.',
+}
+
 export default function RelatoriosClient({ atletas }: { atletas: Atleta[] }) {
   const [tipoSelecionado, setTipoSelecionado] = useState<TipoRelatorio>('responsavel')
   const [gerando, setGerando] = useState<string | null>(null)    // alunoId sendo gerado
   const [modal, setModal] = useState<{ atleta: Atleta; tipo: TipoRelatorio; resultado: ResultadoRelatorio } | null>(null)
   const [erro, setErro] = useState<string | null>(null)
+  const [premiumModal, setPremiumModal] = useState<{ funcao: string; descricao: string } | null>(null)
 
   async function gerarRelatorio(atleta: Atleta) {
+    // Mostra o modal premium antes de gerar
+    const tipoConfig = TIPOS.find((t) => t.id === tipoSelecionado)!
+    setPremiumModal({
+      funcao: tipoConfig.titulo,
+      descricao: PREMIUM_DESC[tipoSelecionado],
+    })
+    return
     if (gerando) return
     setErro(null)
     setGerando(atleta.id)
@@ -472,13 +488,22 @@ export default function RelatoriosClient({ atletas }: { atletas: Atleta[] }) {
 
       </div>
 
-      {/* ── Modal ── */}
+      {/* ── Modal resultado ── */}
       {modal && (
         <Modal
           atleta={modal.atleta}
           tipo={modal.tipo}
           resultado={modal.resultado}
           onClose={() => setModal(null)}
+        />
+      )}
+
+      {/* ── Modal premium ── */}
+      {premiumModal && (
+        <PremiumModal
+          funcao={premiumModal.funcao}
+          descricao={premiumModal.descricao}
+          onClose={() => setPremiumModal(null)}
         />
       )}
     </div>
