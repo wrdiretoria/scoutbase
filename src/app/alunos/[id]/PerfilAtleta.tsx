@@ -428,6 +428,8 @@ export default function PerfilAtleta({
 
   const [equipeId, setEquipeId] = useState(aluno.turma_id ?? '')
   const [salvandoEquipe, setSalvandoEquipe] = useState(false)
+  const [modalRemover, setModalRemover] = useState(false)
+  const [removendo, setRemovendo] = useState(false)
 
   async function atualizarEquipe(novoId: string) {
     setEquipeId(novoId)
@@ -438,6 +440,15 @@ export default function PerfilAtleta({
       .update({ turma_id: novoId || null })
       .eq('id', aluno.id)
     setSalvandoEquipe(false)
+    router.refresh()
+  }
+
+  async function removerDaTurma() {
+    setRemovendo(true)
+    const supabase = createClient()
+    await supabase.from('alunos').update({ turma_id: null }).eq('id', aluno.id)
+    setRemovendo(false)
+    setModalRemover(false)
     router.refresh()
   }
 
@@ -599,7 +610,7 @@ export default function PerfilAtleta({
                   {/* Equipe — sempre visível, editável inline */}
                   <div>
                     <p className="text-xs text-gray-400 font-medium mb-1">Equipe</p>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <select
                         value={equipeId}
                         onChange={(e) => atualizarEquipe(e.target.value)}
@@ -617,6 +628,14 @@ export default function PerfilAtleta({
                       </select>
                       {salvandoEquipe && (
                         <span className="text-xs text-gray-400">Salvando...</span>
+                      )}
+                      {equipeId && !salvandoEquipe && (
+                        <button
+                          onClick={() => setModalRemover(true)}
+                          className="text-xs text-gray-400 hover:text-gray-600 underline underline-offset-2 transition-colors"
+                        >
+                          Remover da turma
+                        </button>
                       )}
                     </div>
                   </div>
@@ -946,6 +965,42 @@ export default function PerfilAtleta({
           </div>
         </div>
       </div>
+
+      {/* ── Modal Remover da turma ── */}
+      {modalRemover && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-[20px] shadow-xl w-full max-w-sm p-6 space-y-4">
+            <div className="text-center">
+              <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6" />
+                </svg>
+              </div>
+              <h2 className="text-base font-semibold text-gray-900">Remover da turma</h2>
+              <p className="text-sm text-gray-500 mt-2 leading-relaxed">
+                Isso vai desvincular <span className="font-medium text-gray-700">{aluno.nome}</span> da turma atual.
+                O histórico e o Scout ID dele continuam preservados.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setModalRemover(false)}
+                disabled={removendo}
+                className="flex-1 py-2.5 text-sm font-medium text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={removerDaTurma}
+                disabled={removendo}
+                className="flex-1 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 rounded-xl transition-colors"
+              >
+                {removendo ? 'Removendo...' : 'Confirmar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Edit Modal ── */}
       {editando && (

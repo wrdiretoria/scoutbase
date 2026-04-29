@@ -15,6 +15,7 @@ type Aluno = {
   ativo: boolean
   turma_id: string | null
   data_nascimento: string | null
+  scout_id: string | null
   turmas: { nome: string } | null
   frequenciaMes: number | null
   scoutScore: number | null // 0–100 stored in DB
@@ -96,15 +97,18 @@ export default function AlunosPage() {
   const router = useRouter()
   const { user, loading: authLoading } = useAuth()
 
-  const [alunos,      setAlunos]      = useState<Aluno[]>([])
-  const [turmas,      setTurmas]      = useState<Turma[]>([])
-  const [busca,       setBusca]       = useState('')
-  const [filtroTurma, setFiltroTurma] = useState('')
-  const [carregando,  setCarregando]  = useState(true)
-  const [modalAberto, setModalAberto] = useState(false)
-  const [salvando,    setSalvando]    = useState(false)
-  const [erro,        setErro]        = useState<string | null>(null)
-  const [form,        setForm]        = useState(formVazio)
+  const [alunos,           setAlunos]           = useState<Aluno[]>([])
+  const [turmas,           setTurmas]           = useState<Turma[]>([])
+  const [busca,            setBusca]            = useState('')
+  const [filtroTurma,      setFiltroTurma]      = useState('')
+  const [carregando,       setCarregando]       = useState(true)
+  const [modalAberto,      setModalAberto]      = useState(false)
+  const [salvando,         setSalvando]         = useState(false)
+  const [erro,             setErro]             = useState<string | null>(null)
+  const [form,             setForm]             = useState(formVazio)
+  const [adicionandoId,    setAdicionandoId]    = useState<string | null>(null)  // alunoId em fluxo de add
+  const [turmaParaAdd,     setTurmaParaAdd]     = useState('')
+  const [salvandoAdd,      setSalvandoAdd]      = useState(false)
 
   const idadeCalculada  = calcularIdade(form.data_nascimento)
   const categoriaSugerida = idadeCalculada !== null ? categoriaParaIdade(idadeCalculada) : null
@@ -118,13 +122,14 @@ export default function AlunosPage() {
     // 1. Alunos
     const { data: rawAlunos } = await supabase
       .from('alunos')
-      .select('id, nome, posicao, responsavel, ativo, turma_id, data_nascimento, turmas(nome)')
+      .select('id, nome, posicao, responsavel, ativo, turma_id, data_nascimento, scout_id, turmas(nome)')
       .eq('professor_id', user.id)
       .order('nome')
 
     const alunosList = (rawAlunos ?? []).map((a) => ({
       ...a,
       turmas: Array.isArray(a.turmas) ? (a.turmas[0] ?? null) : (a.turmas ?? null),
+      scout_id:      (a as { scout_id?: string | null }).scout_id ?? null,
       frequenciaMes: null as number | null,
       scoutScore:    null as number | null,
     })) as Aluno[]
@@ -218,10 +223,24 @@ export default function AlunosPage() {
 
   function fecharModal() { setModalAberto(false); setErro(null); setForm(formVazio) }
 
+  async function confirmarAddEquipe() {
+    if (!adicionandoId || !turmaParaAdd) return
+    setSalvandoAdd(true)
+    const supabase = createClient()
+    await supabase.from('alunos').update({ turma_id: turmaParaAdd }).eq('id', adicionandoId)
+    setSalvandoAdd(false)
+    setAdicionandoId(null)
+    setTurmaParaAdd('')
+    fetchAlunos()
+  }
+
   // ── Filter ─────────────────────────────────────────────────────────────────
 
+  const buscaLower = busca.toLowerCase()
   const alunosFiltrados = alunos.filter((a) => {
-    const okBusca = a.nome.toLowerCase().includes(busca.toLowerCase())
+    const okBusca = !busca ||
+      a.nome.toLowerCase().includes(buscaLower) ||
+      (a.scout_id?.toLowerCase().includes(buscaLower) ?? false)
     const okTurma = !filtroTurma || a.turma_id === filtroTurma
     return okBusca && okTurma
   })
@@ -268,7 +287,7 @@ export default function AlunosPage() {
               type="text"
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              placeholder="Buscar atleta por nome..."
+              placeholder="Buscar por nome ou SID..."
               className="w-full pl-9 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-green-500 shadow-sm"
             />
           </div>
@@ -342,13 +361,18 @@ export default function AlunosPage() {
                         </td>
 
                         {/* Equipe */}
-                        <td className="px-4 py-4">
+                        <td className="px-4 py-4" onClick={(e) => e.stopPropagation()}>
                           {aluno.turmas?.nome ? (
                             <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-green-50 text-green-700 text-xs font-semibold border border-green-100">
                               {aluno.turmas.nome}
                             </span>
                           ) : (
-                            <span className="text-xs text-gray-300">—</span>
+                            <button
+                              onClick={() => { setAdicionandoId(aluno.id); setTurmaParaAdd('') }}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-dashed border-gray-300 text-gray-400 text-xs font-medium hover:border-green-400 hover:text-green-600 transition-colors"
+                            >
+                              + Equipe
+                            </button>
                           )}
                         </td>
 
@@ -442,11 +466,18 @@ export default function AlunosPage() {
                       </svg>
                     </div>
 
-                    <div className="flex items-center gap-2 flex-wrap">
-                      {aluno.turmas?.nome && (
+                    <div className="flex items-center gap-2 flex-wrap" onClick={(e) => e.stopPropagation()}>
+                      {aluno.turmas?.nome ? (
                         <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-green-50 text-green-700 text-xs font-semibold border border-green-100">
                           {aluno.turmas.nome}
                         </span>
+                      ) : (
+                        <button
+                          onClick={() => { setAdicionandoId(aluno.id); setTurmaParaAdd('') }}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg border border-dashed border-gray-300 text-gray-400 text-xs font-medium hover:border-green-400 hover:text-green-600 transition-colors"
+                        >
+                          + Equipe
+                        </button>
                       )}
                       {aluno.frequenciaMes !== null && (
                         <span className={`text-xs font-semibold px-2 py-0.5 rounded-lg ${aluno.frequenciaMes >= 75 ? 'bg-gray-50 text-gray-600' : 'bg-red-50 text-red-500'}`}>
@@ -478,6 +509,50 @@ export default function AlunosPage() {
           </p>
         )}
       </div>
+
+      {/* ── Modal adicionar à equipe ── */}
+      {adicionandoId && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+          onClick={(e) => { if (e.target === e.currentTarget) setAdicionandoId(null) }}
+        >
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 space-y-4">
+            <h2 className="text-base font-semibold text-gray-900">Adicionar à equipe</h2>
+            <p className="text-sm text-gray-500">
+              Selecione a equipe para vincular este atleta.
+            </p>
+            {turmas.length > 0 ? (
+              <select
+                value={turmaParaAdd}
+                onChange={(e) => setTurmaParaAdd(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+                <option value="">Escolha uma equipe...</option>
+                {turmas.map((t) => (
+                  <option key={t.id} value={t.id}>{t.nome}{t.categoria ? ` (${t.categoria})` : ''}</option>
+                ))}
+              </select>
+            ) : (
+              <p className="text-xs text-gray-400">Nenhuma equipe cadastrada.</p>
+            )}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setAdicionandoId(null)}
+                className="flex-1 py-2 text-sm font-medium text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmarAddEquipe}
+                disabled={!turmaParaAdd || salvandoAdd}
+                className="flex-1 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:opacity-50 rounded-lg transition-colors"
+              >
+                {salvandoAdd ? 'Salvando...' : 'Confirmar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Modal novo atleta ── */}
       {modalAberto && (
