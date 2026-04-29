@@ -7,7 +7,7 @@ export default async function RelatoriosPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  // Fetch all athletes
+  // Fetch all active athletes
   const { data: rawAlunos } = await supabase
     .from('alunos')
     .select('id, nome, posicao, scout_id, ativo')
@@ -17,7 +17,7 @@ export default async function RelatoriosPage() {
 
   const alunoIds = (rawAlunos ?? []).map((a) => a.id)
 
-  // Fetch latest evaluation per athlete (all, ordered by date)
+  // Fetch all evaluations ordered by date (to get latest + previous)
   const { data: avaliacoes } = alunoIds.length
     ? await supabase
         .from('avaliacoes')
@@ -26,31 +26,52 @@ export default async function RelatoriosPage() {
         .order('created_at', { ascending: false })
     : { data: [] }
 
+  // Fetch current month presencas for frequency
+  const startOfMonth = new Date()
+  startOfMonth.setDate(1)
+  const startDate = startOfMonth.toISOString().split('T')[0]
+
+  const { data: presencas } = alunoIds.length
+    ? await supabase
+        .from('presencas')
+        .select('aluno_id, presente')
+        .in('aluno_id', alunoIds)
+        .gte('data', startDate)
+    : { data: [] }
+
   // Build enriched athlete list
   const atletas = (rawAlunos ?? []).map((aluno) => {
     const evals = (avaliacoes ?? []).filter((a) => a.aluno_id === aluno.id)
     const latest = evals[0] ?? null
+    const previous = evals[1] ?? null
 
-    // Average scout score across all evaluations
-    const scores = evals
-      .filter((e) => e.scout_score !== null)
-      .map((e) => e.scout_score as number)
-    const avgScore = scores.length
-      ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+    // Latest scout score (÷10 display) and evolution
+    const latestScore = latest?.scout_score ?? null
+    const prevScore   = previous?.scout_score ?? null
+    const evolucao = latestScore !== null && prevScore !== null
+      ? parseFloat(((latestScore - prevScore) / 10).toFixed(1))
       : null
+
+    // Frequency this month
+    const alunoPresencas = (presencas ?? []).filter((p) => p.aluno_id === aluno.id)
+    const total    = alunoPresencas.length
+    const presentes = alunoPresencas.filter((p) => p.presente).length
+    const freqMes  = total > 0 ? Math.round((presentes / total) * 100) : null
 
     return {
       id: aluno.id,
       nome: aluno.nome,
       posicao: aluno.posicao ?? null,
       scout_id: aluno.scout_id ?? null,
-      scoutScore: avgScore,
+      scoutScore: latestScore,
       ultimaAvaliacao: latest?.created_at ?? null,
       totalAvaliacoes: evals.length,
-      tecnico: latest?.tecnico ?? null,
-      fisico: latest?.fisico ?? null,
-      tatico: latest?.tatico ?? null,
+      tecnico:     latest?.tecnico     ?? null,
+      fisico:      latest?.fisico      ?? null,
+      tatico:      latest?.tatico      ?? null,
       comportamento: latest?.comportamento ?? null,
+      evolucao,
+      freqMes,
     }
   })
 
