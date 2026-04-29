@@ -105,9 +105,9 @@ export default function LandingPage() {
       <section className="pt-40 pb-24 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="font-[family-name:var(--font-bebas)] leading-[1.05] tracking-wide">
-            <span className="block text-[clamp(2.6rem,8vw,5.5rem)] text-white">SEUS TREINOS SÃO BONS.</span>
-            <span className="block text-[clamp(2.6rem,8vw,5.5rem)] text-green-500">AGORA FAÇA TODOS</span>
-            <span className="block text-[clamp(2.6rem,8vw,5.5rem)] text-white">ENXERGAREM ISSO.</span>
+            <span className="block text-[clamp(2rem,6vw,4.5rem)] text-white leading-tight">ONDE O FUTEBOL DE BASE</span>
+            <span className="block text-[clamp(2rem,6vw,4.5rem)] text-green-500 leading-tight">SE CONECTA E ENTREGA</span>
+            <span className="block text-[clamp(2rem,6vw,4.5rem)] text-white leading-tight">RESULTADOS</span>
           </h1>
           <p className="mt-7 text-base sm:text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
             Avalie atletas, mostre evolução com relatórios de IA e transforme sua escolinha em uma estrutura de nível profissional.
