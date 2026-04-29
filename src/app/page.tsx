@@ -55,20 +55,31 @@ const steps = [
 
 const testimonials = [
   {
-    quote: 'Antes eu usava planilha, hoje tenho tudo num lugar só. Economizo horas toda semana.',
-    name: 'Carlos Mendes',
-    role: 'Treinador — Equipe Mendes FC',
+    quote: 'Antes anotava tudo no caderno. Hoje os pais recebem relatório pelo WhatsApp. Profissionalizou demais meu trabalho.',
+    name: 'Roberto Carvalho',
+    role: 'Treinador de Base',
+    city: 'Rio de Janeiro, RJ',
   },
   {
-    quote: 'Os responsáveis adoram receber o link com o desempenho do filho. Profissionaliza muito a equipe.',
-    name: 'Rafael Souza',
+    quote: 'Os pais confiam mais no meu trabalho porque veem tudo em tempo real. Isso fidelizou minha escolinha.',
+    name: 'Rafael Mendes',
+    role: 'Treinador',
+    city: 'São Paulo, SP',
+  },
+  {
+    quote: 'Consigo mostrar evolução com dados. Isso é o que diferencia um professor sério.',
+    name: 'Bruno Lima',
     role: 'Coordenador Técnico',
+    city: 'Belo Horizonte, BH',
   },
-  {
-    quote: 'O Scout Score virou referência nas reuniões. Os alunos querem melhorar a nota deles.',
-    name: 'Juliana Lima',
-    role: 'Professora de Futebol Feminino',
-  },
+]
+
+const dores = [
+  'Alunos e dados espalhados no caderno e grupo do WhatsApp',
+  'Pais cobrando resultados que você não consegue mostrar',
+  'Alunos saindo sem você saber o motivo',
+  'Falta de organização que faz você parecer menos profissional',
+  'Dificuldade de acompanhar a evolução de cada aluno',
 ]
 
 export default function LandingPage() {
@@ -93,13 +104,13 @@ export default function LandingPage() {
       {/* ─── HERO ─── */}
       <section className="pt-40 pb-24 px-6">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="font-[family-name:var(--font-bebas)] leading-none tracking-wide">
-            <span className="block text-[clamp(3rem,10vw,7rem)] text-white">ORGANIZE SEU TIME</span>
-            <span className="block text-[clamp(3rem,10vw,7rem)] text-green-500">GERENCIE COM DADOS</span>
-            <span className="block text-[clamp(3rem,10vw,7rem)] text-white">EVOLUA COM RESULTADOS</span>
+          <h1 className="font-[family-name:var(--font-bebas)] leading-[1.05] tracking-wide">
+            <span className="block text-[clamp(2.6rem,8vw,5.5rem)] text-white">SEUS TREINOS SÃO BONS.</span>
+            <span className="block text-[clamp(2.6rem,8vw,5.5rem)] text-green-500">AGORA FAÇA TODOS</span>
+            <span className="block text-[clamp(2.6rem,8vw,5.5rem)] text-white">ENXERGAREM ISSO.</span>
           </h1>
-          <p className="mt-6 text-lg text-gray-400 max-w-xl mx-auto">
-            ScoutBase — ferramenta completa para gestão de equipes de futebol. Presenças, avaliações, Scout Score e relatórios em um só lugar.
+          <p className="mt-7 text-base sm:text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
+            Avalie atletas, mostre evolução com relatórios de IA e transforme sua escolinha em uma estrutura de nível profissional.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
             <Link
@@ -114,6 +125,41 @@ export default function LandingPage() {
             >
               Ver como funciona
             </a>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── DORES ─── */}
+      <section className="py-20 px-6">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="font-[family-name:var(--font-bebas)] text-3xl sm:text-4xl text-center tracking-wide mb-3">
+            VOCÊ SE IDENTIFICA COM ISSO?
+          </h2>
+          <p className="text-center text-gray-500 text-sm mb-10">
+            Se sim, o ScoutBase foi feito pra você.
+          </p>
+          <div className="space-y-3">
+            {dores.map((dor) => (
+              <div
+                key={dor}
+                className="flex items-start gap-4 bg-white/[0.03] border border-white/[0.07] rounded-2xl px-5 py-4"
+              >
+                <span className="flex-shrink-0 w-7 h-7 rounded-full bg-amber-500/15 flex items-center justify-center mt-0.5">
+                  <svg className="w-3.5 h-3.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                  </svg>
+                </span>
+                <p className="text-gray-300 text-sm sm:text-base leading-snug">{dor}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 text-center">
+            <Link
+              href="/cadastro"
+              className="inline-flex items-center gap-2 px-7 py-3.5 bg-green-600 hover:bg-green-500 text-white font-semibold rounded-xl text-sm transition-colors"
+            >
+              Resolver isso agora →
+            </Link>
           </div>
         </div>
       </section>
@@ -252,12 +298,21 @@ export default function LandingPage() {
             {testimonials.map((t) => (
               <div
                 key={t.name}
-                className="bg-white/5 border border-white/10 rounded-2xl p-6"
+                className="bg-white/5 border border-white/10 rounded-2xl p-6 flex flex-col"
               >
-                <p className="text-gray-300 text-sm leading-relaxed">"{t.quote}"</p>
-                <div className="mt-4 pt-4 border-t border-white/10">
+                {/* Stars */}
+                <div className="flex gap-0.5 mb-4">
+                  {[1,2,3,4,5].map((s) => (
+                    <svg key={s} className="w-4 h-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+                </div>
+                <p className="text-gray-300 text-sm leading-relaxed flex-1">"{t.quote}"</p>
+                <div className="mt-5 pt-4 border-t border-white/10">
                   <p className="font-semibold text-white text-sm">{t.name}</p>
-                  <p className="text-xs text-gray-500">{t.role}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{t.role}</p>
+                  <p className="text-xs text-green-600 mt-0.5">{t.city}</p>
                 </div>
               </div>
             ))}
