@@ -11,6 +11,7 @@ const navItems = [
   { label: 'Equipes',      href: '/turmas' },
   { label: 'Frequência',   href: '/presencas' },
   { label: 'Desempenho',   href: '/alunos' },
+  { label: 'Relatórios',   href: '/relatorios' },
   { label: 'Financeiro',   href: '/financeiro' },
   { label: 'Configurações',href: '/configuracoes' },
 ]
