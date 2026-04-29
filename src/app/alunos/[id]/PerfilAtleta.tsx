@@ -564,17 +564,26 @@ export default function PerfilAtleta({
           {/* Tab bar */}
           <div className="flex border-b border-gray-100 overflow-x-auto scrollbar-hide">
             {abas.map((a) => (
-              <button
-                key={a.key}
-                onClick={() => setAba(a.key)}
-                className={`flex-shrink-0 px-5 py-3.5 text-sm font-medium transition-colors border-b-2 ${
-                  aba === a.key
-                    ? 'border-green-600 text-green-700 bg-green-50/40'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                {a.label}
-              </button>
+              <div key={a.key} className="flex items-center flex-shrink-0">
+                <button
+                  onClick={() => setAba(a.key)}
+                  className={`flex-shrink-0 px-5 py-3.5 text-sm font-medium transition-colors border-b-2 ${
+                    aba === a.key
+                      ? 'border-green-600 text-green-700 bg-green-50/40'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  }`}
+                >
+                  {a.label}
+                </button>
+                {a.key === 'desempenho' && (
+                  <Link
+                    href={`/avaliacoes/${aluno.id}`}
+                    className="flex-shrink-0 ml-0.5 mr-1 px-2 py-1 text-xs font-semibold text-green-600 border border-green-200 rounded-lg hover:bg-green-50 hover:border-green-400 transition-colors"
+                  >
+                    + Avaliar
+                  </Link>
+                )}
+              </div>
             ))}
           </div>
 
