@@ -26,7 +26,7 @@ export default async function PaisPerfilPage() {
   const admin = createAdminClient()
   const query = admin
     .from('alunos')
-    .select('id, nome, posicao, scout_id, ativo, professor_id, pai_auth_id, turmas(nome)')
+    .select('id, nome, posicao, scout_id, ativo, professor_id, pai_auth_id, status_pagamento, turmas(nome)')
 
   const { data: aluno } = alunoIdMeta
     ? await query.eq('id', alunoIdMeta).single()
@@ -166,6 +166,31 @@ export default async function PaisPerfilPage() {
             </p>
           )}
         </div>
+
+        {/* Status financeiro — apenas informativo, nunca bloqueia acesso */}
+        {(() => {
+          const st = (aluno as { status_pagamento?: string | null }).status_pagamento
+          const emDia = !st || st === 'em_dia' || st === 'pago'
+          return (
+            <div className={`rounded-xl border p-4 flex items-start gap-3 ${
+              emDia
+                ? 'bg-green-50 border-green-100'
+                : 'bg-yellow-50 border-yellow-200'
+            }`}>
+              <span className="text-lg flex-shrink-0 mt-0.5">{emDia ? '✅' : '⚠️'}</span>
+              <div>
+                <p className={`text-sm font-semibold ${emDia ? 'text-green-800' : 'text-yellow-800'}`}>
+                  {emDia ? 'Mensalidade em dia' : 'Mensalidade pendente'}
+                </p>
+                {!emDia && (
+                  <p className="text-xs text-yellow-700 mt-0.5 leading-relaxed">
+                    Entre em contato com o treinador para regularizar.
+                  </p>
+                )}
+              </div>
+            </div>
+          )
+        })()}
 
         {/* Plano gratuito: aviso */}
         {!planoPago && (
