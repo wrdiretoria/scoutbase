@@ -46,9 +46,9 @@ export default function PaisEntrarPage() {
     setInfo(null)
 
     const supabase = createClient()
-    const sid = scoutIdPrimeiro.trim().toUpperCase()
+    const sid = `SID-${scoutIdPrimeiro.trim().toUpperCase()}`
 
-    // 1. Valida Scout ID
+    // 1. Valida número do atleta
     const { data: aluno, error: alunoErr } = await supabase
       .from('alunos')
       .select('id, nome')
@@ -56,7 +56,7 @@ export default function PaisEntrarPage() {
       .single()
 
     if (alunoErr || !aluno) {
-      setErro('Scout ID inválido. Verifique com o treinador do seu filho.')
+      setErro('Número inválido. Verifique com o treinador do seu filho.')
       setLoading(false)
       return
     }
@@ -80,7 +80,7 @@ export default function PaisEntrarPage() {
         signUpErr.message.includes('already registered') ||
         signUpErr.message.includes('User already registered')
       ) {
-        setErro('Já existe um acesso criado para este Scout ID. Use a aba "Já tenho conta".')
+        setErro('Já existe um acesso criado para este número. Use a aba "Já tenho conta".')
       } else {
         setErro('Não foi possível criar o acesso. Tente novamente.')
       }
@@ -114,7 +114,7 @@ export default function PaisEntrarPage() {
     setInfo(null)
 
     const supabase = createClient()
-    const sid = scoutIdRetorno.trim().toUpperCase()
+    const sid = `SID-${scoutIdRetorno.trim().toUpperCase()}`
 
     const { data, error } = await supabase.auth.signInWithPassword({
       email: sidToEmail(sid),
@@ -122,7 +122,7 @@ export default function PaisEntrarPage() {
     })
 
     if (error || !data.user) {
-      setErro('Scout ID ou senha incorretos.')
+      setErro('Número ou senha incorretos.')
       setLoading(false)
       return
     }
@@ -145,7 +145,7 @@ export default function PaisEntrarPage() {
     setTelefoneEncontrado(null)
 
     const supabase = createClient()
-    const sid = scoutIdRecuperar.trim().toUpperCase()
+    const sid = `SID-${scoutIdRecuperar.trim().toUpperCase()}`
 
     const { data: aluno, error } = await supabase
       .from('alunos')
@@ -154,7 +154,7 @@ export default function PaisEntrarPage() {
       .single()
 
     if (error || !aluno) {
-      setErro('Scout ID não encontrado. Verifique o código.')
+      setErro('Número não encontrado. Verifique com o treinador.')
       setLoading(false)
       return
     }
@@ -206,18 +206,18 @@ export default function PaisEntrarPage() {
           <form onSubmit={handlePrimeiroAcesso} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Scout ID do atleta
+                Número do atleta
               </label>
               <input
                 required
                 type="text"
                 value={scoutIdPrimeiro}
-                onChange={(e) => setScoutIdPrimeiro(e.target.value.toUpperCase())}
+                onChange={(e) => setScoutIdPrimeiro(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-center tracking-widest font-mono focus:outline-none focus:ring-2 focus:ring-green-500"
-                placeholder="SID-00001"
+                placeholder="Ex: 00001"
               />
               <p className="text-xs text-gray-400 mt-1">
-                Peça o Scout ID ao treinador do seu filho.
+                Peça o número do atleta ao treinador do seu filho.
               </p>
             </div>
 
@@ -258,15 +258,15 @@ export default function PaisEntrarPage() {
           <form onSubmit={handleRetorno} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Scout ID do atleta
+                Número do atleta
               </label>
               <input
                 required
                 type="text"
                 value={scoutIdRetorno}
-                onChange={(e) => setScoutIdRetorno(e.target.value.toUpperCase())}
+                onChange={(e) => setScoutIdRetorno(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-center tracking-widest font-mono focus:outline-none focus:ring-2 focus:ring-green-500"
-                placeholder="SID-00001"
+                placeholder="Ex: 00001"
               />
             </div>
 
@@ -310,19 +310,19 @@ export default function PaisEntrarPage() {
             {!telefoneEncontrado ? (
               <form onSubmit={handleRecuperar} className="space-y-4">
                 <p className="text-sm text-gray-500">
-                  Informe o Scout ID do seu filho. Vamos mostrar o contato do treinador para ele resetar sua senha.
+                  Informe o número do seu filho. Vamos mostrar o contato do treinador para ele resetar sua senha.
                 </p>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Scout ID do atleta
+                    Número do atleta
                   </label>
                   <input
                     required
                     type="text"
                     value={scoutIdRecuperar}
-                    onChange={(e) => setScoutIdRecuperar(e.target.value.toUpperCase())}
+                    onChange={(e) => setScoutIdRecuperar(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-center tracking-widest font-mono focus:outline-none focus:ring-2 focus:ring-green-500"
-                    placeholder="SID-00001"
+                    placeholder="Ex: 00001"
                   />
                 </div>
 

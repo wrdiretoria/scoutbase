@@ -430,6 +430,8 @@ export default function PerfilAtleta({
   const [salvandoEquipe, setSalvandoEquipe] = useState(false)
   const [modalRemover, setModalRemover] = useState(false)
   const [removendo, setRemovendo] = useState(false)
+  const [modalRemoverAtleta, setModalRemoverAtleta] = useState(false)
+  const [removendoAtleta, setRemovendoAtleta] = useState(false)
 
   async function atualizarEquipe(novoId: string) {
     setEquipeId(novoId)
@@ -450,6 +452,18 @@ export default function PerfilAtleta({
     setRemovendo(false)
     setModalRemover(false)
     router.refresh()
+  }
+
+  async function removerAtleta() {
+    setRemovendoAtleta(true)
+    const supabase = createClient()
+    await supabase
+      .from('alunos')
+      .update({ professor_id: null, turma_id: null })
+      .eq('id', aluno.id)
+    setRemovendoAtleta(false)
+    setModalRemoverAtleta(false)
+    router.push('/alunos')
   }
 
   const [novaObs, setNovaObs] = useState('')
@@ -561,12 +575,20 @@ export default function PerfilAtleta({
                 </p>
               )}
             </div>
-            <button
-              onClick={() => setEditando(true)}
-              className="flex-shrink-0 text-xs font-medium text-gray-400 hover:text-gray-700 border border-gray-200 hover:border-gray-300 rounded-lg px-3 py-1.5 transition-colors"
-            >
-              Editar
-            </button>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onClick={() => setEditando(true)}
+                className="text-xs font-medium text-gray-400 hover:text-gray-700 border border-gray-200 hover:border-gray-300 rounded-lg px-3 py-1.5 transition-colors"
+              >
+                Editar
+              </button>
+              <button
+                onClick={() => setModalRemoverAtleta(true)}
+                className="text-xs font-medium text-gray-400 hover:text-gray-600 border border-gray-200 hover:border-gray-300 rounded-lg px-3 py-1.5 transition-colors"
+              >
+                Remover atleta
+              </button>
+            </div>
           </div>
         </div>
 
@@ -996,6 +1018,42 @@ export default function PerfilAtleta({
                 className="flex-1 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 rounded-xl transition-colors"
               >
                 {removendo ? 'Removendo...' : 'Confirmar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal Remover atleta ── */}
+      {modalRemoverAtleta && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-[20px] shadow-xl w-full max-w-sm p-6 space-y-4">
+            <div className="text-center">
+              <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6" />
+                </svg>
+              </div>
+              <h2 className="text-base font-semibold text-gray-900">Remover atleta</h2>
+              <p className="text-sm text-gray-500 mt-2 leading-relaxed">
+                Isso vai remover <span className="font-medium text-gray-700">{aluno.nome}</span> da sua lista de atletas.
+                O histórico e Scout ID dele continuam preservados no sistema.
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setModalRemoverAtleta(false)}
+                disabled={removendoAtleta}
+                className="flex-1 py-2.5 text-sm font-medium text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={removerAtleta}
+                disabled={removendoAtleta}
+                className="flex-1 py-2.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 rounded-xl transition-colors"
+              >
+                {removendoAtleta ? 'Removendo...' : 'Confirmar'}
               </button>
             </div>
           </div>
