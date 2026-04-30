@@ -245,10 +245,10 @@ export default async function DashboardPage() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
-                {getSaudacao()}, {nomeUsuario} 👋
+                Bem-vindo ao seu painel, {nomeUsuario}.
               </h1>
               <p className="text-gray-500 mt-1 text-sm sm:text-base">
-                Sua equipe está evoluindo hoje.
+                Continue evoluindo.
               </p>
             </div>
             <div className="hidden sm:flex items-center justify-center w-14 h-14 rounded-2xl bg-green-50 text-2xl flex-shrink-0">
