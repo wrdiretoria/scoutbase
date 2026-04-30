@@ -26,7 +26,7 @@ export default async function PaisPerfilPage() {
   const admin = createAdminClient()
   const query = admin
     .from('alunos')
-    .select('id, nome, posicao, scout_id, ativo, professor_id, pai_auth_id, status_pagamento, turmas(nome)')
+    .select('id, nome, posicao, scout_id, ativo, professor_id, pai_auth_id, status_pagamento, turmas(id, nome)')
 
   const { data: aluno } = alunoIdMeta
     ? await query.eq('id', alunoIdMeta).single()
@@ -58,6 +58,35 @@ export default async function PaisPerfilPage() {
     planoPago = profile?.plano === 'pago'
   } catch {
     // profiles sem coluna plano — padrão gratuito
+  }
+
+  // Próximos eventos da turma do atleta
+  const turmaId = aluno.turmas && !Array.isArray(aluno.turmas)
+    ? (aluno.turmas as { id?: string } | null)?.id ?? null
+    : Array.isArray(aluno.turmas) && aluno.turmas.length > 0
+    ? (aluno.turmas[0] as { id?: string }).id ?? null
+    : null
+
+  type EventoRow = {
+    id: string
+    tipo: string
+    data: string
+    horario: string | null
+    local: string | null
+    observacao: string | null
+  }
+
+  let proximosEventos: EventoRow[] = []
+  if (turmaId) {
+    const hoje = new Date().toISOString().split('T')[0]
+    const { data: evs } = await admin
+      .from('eventos')
+      .select('id, tipo, data, horario, local, observacao')
+      .eq('turma_id', turmaId)
+      .gte('data', hoje)
+      .order('data')
+      .limit(5)
+    proximosEventos = (evs ?? []) as EventoRow[]
   }
 
   // Presenças (admin client)
@@ -102,9 +131,9 @@ export default async function PaisPerfilPage() {
 
   const turmaNome =
     aluno.turmas && !Array.isArray(aluno.turmas)
-      ? (aluno.turmas as { nome: string }).nome
+      ? (aluno.turmas as { id?: string; nome: string }).nome
       : Array.isArray(aluno.turmas) && aluno.turmas.length > 0
-      ? (aluno.turmas[0] as { nome: string }).nome
+      ? (aluno.turmas[0] as { id?: string; nome: string }).nome
       : null
 
   const scoreColor =
@@ -191,6 +220,44 @@ export default async function PaisPerfilPage() {
             </div>
           )
         })()}
+
+        {/* Próximos eventos da turma */}
+        {proximosEventos.length > 0 && (
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+            <h2 className="text-sm font-semibold text-gray-900 mb-3">Próximos eventos</h2>
+            <ul className="space-y-2">
+              {proximosEventos.map((ev) => {
+                const tipoLabel: Record<string, string> = {
+                  treino: 'Treino', jogo: 'Jogo', avaliacao: 'Avaliação',
+                  reuniao: 'Reunião', outro: 'Outro',
+                }
+                const tipoCor: Record<string, string> = {
+                  treino: 'bg-green-100 text-green-700',
+                  jogo: 'bg-blue-100 text-blue-700',
+                  avaliacao: 'bg-purple-100 text-purple-700',
+                  reuniao: 'bg-amber-100 text-amber-700',
+                  outro: 'bg-gray-100 text-gray-600',
+                }
+                return (
+                  <li key={ev.id} className="flex items-start gap-3">
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full mt-0.5 shrink-0 ${tipoCor[ev.tipo] ?? 'bg-gray-100 text-gray-600'}`}>
+                      {tipoLabel[ev.tipo] ?? ev.tipo}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-sm text-gray-800">
+                        {new Date(ev.data + 'T12:00:00').toLocaleDateString('pt-BR', {
+                          weekday: 'short', day: '2-digit', month: 'short',
+                        })}
+                        {ev.horario && ` · ${ev.horario.slice(0, 5)}`}
+                      </p>
+                      {ev.local && <p className="text-xs text-gray-400 truncate">{ev.local}</p>}
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
+        )}
 
         {/* Plano gratuito: aviso */}
         {!planoPago && (
