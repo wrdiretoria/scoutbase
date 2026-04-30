@@ -1,9 +1,9 @@
 import { redirect } from 'next/navigation'
-import { createServerClient } from '@/lib/supabase'
+import { createServerClient, createAdminClient } from '@/lib/supabase'
 
 export default async function PaisPerfilPage() {
+  // 1. Verifica sessão com client normal (respeita cookies do usuário)
   const supabase = await createServerClient()
-
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) redirect('/pais/entrar')
@@ -22,10 +22,11 @@ export default async function PaisPerfilPage() {
     )
   }
 
-  // Busca o atleta pelo id (mais confiável) ou pelo scout_id
-  const query = supabase
+  // 2. Busca atleta com admin client (bypassa RLS — seguro pois auth já foi verificada)
+  const admin = createAdminClient()
+  const query = admin
     .from('alunos')
-    .select('id, nome, posicao, scout_id, ativo, professor_id, turmas(nome)')
+    .select('id, nome, posicao, scout_id, ativo, professor_id, pai_auth_id, turmas(nome)')
 
   const { data: aluno } = alunoIdMeta
     ? await query.eq('id', alunoIdMeta).single()
@@ -35,16 +36,21 @@ export default async function PaisPerfilPage() {
     return (
       <main className="p-8 text-center">
         <p className="text-gray-500 text-sm">
-          Atleta não encontrado. Verifique o Scout ID com o treinador.
+          Atleta não encontrado. Verifique o número do atleta com o treinador.
         </p>
       </main>
     )
   }
 
-  // Plano do treinador
+  // 3. Se o pai_auth_id ainda não foi salvo, salva agora com admin client
+  if (!(aluno as { pai_auth_id?: string | null }).pai_auth_id) {
+    await admin.from('alunos').update({ pai_auth_id: user.id }).eq('id', aluno.id)
+  }
+
+  // Plano do treinador (admin client — profiles também tem RLS)
   let planoPago = false
   try {
-    const { data: profile } = await supabase
+    const { data: profile } = await admin
       .from('profiles')
       .select('plano')
       .eq('id', aluno.professor_id)
@@ -54,8 +60,8 @@ export default async function PaisPerfilPage() {
     // profiles sem coluna plano — padrão gratuito
   }
 
-  // Presenças
-  const { data: presencas } = await supabase
+  // Presenças (admin client)
+  const { data: presencas } = await admin
     .from('presencas')
     .select('presente')
     .eq('aluno_id', aluno.id)
@@ -64,7 +70,7 @@ export default async function PaisPerfilPage() {
   const presentes = presencas?.filter((p) => p.presente).length ?? 0
   const frequencia = totalPresencas > 0 ? Math.round((presentes / totalPresencas) * 100) : null
 
-  // Avaliações — novo schema (só se plano pago)
+  // Avaliações (admin client, só se plano pago)
   type AvaliacaoRow = {
     tecnico: number
     fisico: number
@@ -79,7 +85,7 @@ export default async function PaisPerfilPage() {
   let scoutScore: number | null = null
 
   if (planoPago) {
-    const { data } = await supabase
+    const { data } = await admin
       .from('avaliacoes')
       .select('tecnico, fisico, tatico, comportamento, scout_score, created_at')
       .eq('aluno_id', aluno.id)
