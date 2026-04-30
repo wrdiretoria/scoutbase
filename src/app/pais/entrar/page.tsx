@@ -45,23 +45,23 @@ export default function PaisEntrarPage() {
     setErro(null)
     setInfo(null)
 
-    const supabase = createClient()
     const sid = `SID-${scoutIdPrimeiro.trim().toUpperCase()}`
 
-    // 1. Valida número do atleta
-    const { data: aluno, error: alunoErr } = await supabase
-      .from('alunos')
-      .select('id, nome')
-      .eq('scout_id', sid)
-      .single()
-
-    if (alunoErr || !aluno) {
+    // 1. Valida número via API (admin client — sem RLS)
+    const verificar = await fetch('/api/pais/verificar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ scout_id: sid }),
+    })
+    if (!verificar.ok) {
       setErro('Número inválido. Verifique com o treinador do seu filho.')
       setLoading(false)
       return
     }
+    const aluno = await verificar.json() as { id: string; nome: string }
 
     // 2. Cria conta com email sintético
+    const supabase = createClient()
     const { data, error: signUpErr } = await supabase.auth.signUp({
       email: sidToEmail(sid),
       password: senhaPrimeiro,
@@ -88,22 +88,16 @@ export default function PaisEntrarPage() {
       return
     }
 
-    // 3. Salva pai_auth_id no aluno (melhor esforço)
-    if (data.user) {
-      await supabase
-        .from('alunos')
-        .update({ pai_auth_id: data.user.id })
-        .eq('id', aluno.id)
-    }
+    // 3. pai_auth_id será salvo automaticamente em /pais/perfil via admin client
 
     // 4. Se sessão imediata → redireciona
-    if (data.session) {
+    if (data?.session) {
       router.push('/pais/perfil')
       return
     }
 
-    // 5. Email de confirmação (raro com email sintético; normalmente cria sessão direto)
-    setInfo('Acesso criado! Tente entrar usando a aba "Já tenho conta".')
+    // 5. Sem sessão imediata (raro)
+    setInfo('Acesso criado! Entre usando a aba "Já tenho conta".')
     setLoading(false)
   }
 
@@ -144,20 +138,21 @@ export default function PaisEntrarPage() {
     setInfo(null)
     setTelefoneEncontrado(null)
 
-    const supabase = createClient()
     const sid = `SID-${scoutIdRecuperar.trim().toUpperCase()}`
 
-    const { data: aluno, error } = await supabase
-      .from('alunos')
-      .select('responsavel, telefone')
-      .eq('scout_id', sid)
-      .single()
+    const verificar = await fetch('/api/pais/verificar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ scout_id: sid }),
+    })
 
-    if (error || !aluno) {
+    if (!verificar.ok) {
       setErro('Número não encontrado. Verifique com o treinador.')
       setLoading(false)
       return
     }
+
+    const aluno = await verificar.json() as { id: string; nome: string; telefone: string | null }
 
     if (!aluno.telefone) {
       setErro('Nenhum telefone cadastrado para este atleta. Entre em contato direto com o treinador.')
