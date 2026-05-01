@@ -49,10 +49,26 @@ export default async function DashboardPage() {
 
   if (!user) redirect('/login')
 
-  const nomeUsuario =
-    (user.user_metadata?.nome as string | undefined)?.split(' ')[0] ??
-    user.email?.split('@')[0] ??
-    'Treinador'
+  // Busca nome: user_metadata (novo cadastro) → profiles.nome → profiles.full_name → fallback
+  let nomeUsuario: string = 'Treinador'
+  const metaNome = (user.user_metadata?.nome as string | undefined)?.trim()
+  if (metaNome) {
+    nomeUsuario = metaNome.split(' ')[0]
+  } else {
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('nome, full_name')
+        .eq('id', user.id)
+        .single()
+      const profileNome =
+        (profile as { nome?: string; full_name?: string } | null)?.nome?.trim() ||
+        (profile as { nome?: string; full_name?: string } | null)?.full_name?.trim()
+      if (profileNome) nomeUsuario = profileNome.split(' ')[0]
+    } catch {
+      // profiles sem coluna nome — ignora
+    }
+  }
 
   // ── Alunos ──────────────────────────────────────────────────
   const { data: alunos } = await supabase
