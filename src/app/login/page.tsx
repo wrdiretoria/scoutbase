@@ -93,7 +93,7 @@ export default function LoginPage() {
             href="/pais/entrar"
             className="text-sm text-gray-500 hover:text-green-600 transition-colors"
           >
-            👨‍👩‍👦 Sou responsável →
+            Área do atleta →
           </Link>
         </div>
       </div>
