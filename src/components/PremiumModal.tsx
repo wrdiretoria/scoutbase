@@ -28,7 +28,7 @@ export default function PremiumModal({ funcao, descricao, onClose }: PremiumModa
         onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
       >
         {/* Card */}
-        <div className="pm-card w-full max-w-sm bg-white rounded-[20px] shadow-2xl overflow-hidden">
+        <div className="pm-card relative w-full max-w-sm bg-white rounded-[20px] shadow-2xl overflow-hidden">
 
           {/* Top stripe */}
           <div className="h-1.5 w-full bg-gradient-to-r from-[#16a34a] to-green-400" />
@@ -59,7 +59,7 @@ export default function PremiumModal({ funcao, descricao, onClose }: PremiumModa
 
             {/* CTA */}
             <Link
-              href="/cadastro"
+              href="/financeiro"
               className="block w-full py-3.5 rounded-2xl bg-[#16a34a] hover:bg-green-500 text-white text-sm font-bold transition-colors shadow-md shadow-green-200"
             >
               Assinar agora →
@@ -67,7 +67,7 @@ export default function PremiumModal({ funcao, descricao, onClose }: PremiumModa
 
             {/* Ver planos */}
             <Link
-              href="/cadastro"
+              href="/financeiro"
               className="block mt-3 text-xs text-gray-400 hover:text-gray-600 transition-colors"
             >
               Ver todos os planos

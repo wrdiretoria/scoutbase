@@ -1,6 +1,6 @@
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
-import { createServerClient } from '@/lib/supabase'
+import { createServerClient, createAdminClient } from '@/lib/supabase'
 import AvaliacaoClient from './AvaliacaoClient'
 
 type Props = {
@@ -32,6 +32,22 @@ export default async function AvaliacoesPage({ params }: Props) {
     .eq('aluno_id', id)
     .order('created_at', { ascending: false })
 
+  // ── Trial status ──────────────────────────────────────────────────────────
+  const mesAtual = new Date().toISOString().slice(0, 7) // 'YYYY-MM'
+  const admin = createAdminClient()
+
+  const { data: trialRow } = await admin
+    .from('uso_trial')
+    .select('avaliacoes_usadas')
+    .eq('professor_id', user.id)
+    .eq('mes_ano', mesAtual)
+    .maybeSingle()
+
+  const trialUsadas = trialRow?.avaliacoes_usadas ?? 0
+
+  // TODO: wire isPremium to Asaas subscription status
+  const isPremium = false
+
   return (
     <main className="min-h-screen bg-gray-50 px-4 py-6 md:p-8">
       <div className="max-w-2xl mx-auto space-y-6">
@@ -49,7 +65,13 @@ export default async function AvaliacoesPage({ params }: Props) {
           )}
         </div>
 
-        <AvaliacaoClient alunoId={id} professorId={user.id} rawAvaliacoes={rawAvaliacoes ?? []} />
+        <AvaliacaoClient
+          alunoId={id}
+          professorId={user.id}
+          rawAvaliacoes={rawAvaliacoes ?? []}
+          trialUsadas={trialUsadas}
+          isPremium={isPremium}
+        />
       </div>
     </main>
   )

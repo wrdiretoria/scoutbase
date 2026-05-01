@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import PremiumModal from '@/components/PremiumModal'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -235,19 +236,27 @@ function RadarChart({ current, previous }: { current: AvaliacaoGrupo | null; pre
 
 // ── Main component ────────────────────────────────────────────────────────────
 
+const TRIAL_LIMITE = 3
+
 type Props = {
   alunoId: string
   professorId: string
   rawAvaliacoes: RawAvaliacao[]
+  trialUsadas: number
+  isPremium: boolean
 }
 
-export default function AvaliacaoClient({ alunoId, professorId, rawAvaliacoes }: Props) {
+export default function AvaliacaoClient({ alunoId, professorId, rawAvaliacoes, trialUsadas, isPremium }: Props) {
   const router = useRouter()
   const [notas, setNotas] = useState<Notas>({ ...DEFAULT_NOTAS })
   const [observacao, setObservacao] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [trialLocal, setTrialLocal] = useState(trialUsadas)
+  const [showPremiumModal, setShowPremiumModal] = useState(false)
+
+  const bloqueado = !isPremium && trialLocal >= TRIAL_LIMITE
 
   const scoutScore = useMemo(() => calcScoutScore(notas), [notas])
 
@@ -269,6 +278,12 @@ export default function AvaliacaoClient({ alunoId, professorId, rawAvaliacoes }:
   }
 
   async function handleSave() {
+    // ── Trial gate ──────────────────────────────────────────────────────────
+    if (bloqueado) {
+      setShowPremiumModal(true)
+      return
+    }
+
     setSaving(true)
     setError(null)
     setSuccess(false)
@@ -276,20 +291,17 @@ export default function AvaliacaoClient({ alunoId, professorId, rawAvaliacoes }:
     const supabase = createClient()
 
     // Category averages (stored in existing columns, 1–10 scale)
-    const tecnico      = Math.round(avgCat(notas, CATEGORIAS[0]) * 10) / 10
-    const fisico       = Math.round(avgCat(notas, CATEGORIAS[1]) * 10) / 10
-    const tatico       = Math.round(avgCat(notas, CATEGORIAS[2]) * 10) / 10
+    const tecnico       = Math.round(avgCat(notas, CATEGORIAS[0]) * 10) / 10
+    const fisico        = Math.round(avgCat(notas, CATEGORIAS[1]) * 10) / 10
+    const tatico        = Math.round(avgCat(notas, CATEGORIAS[2]) * 10) / 10
     const comportamento = Math.round(avgCat(notas, CATEGORIAS[3]) * 10) / 10
-    const scout_score  = Math.round(scoutScore * 10) // stored 0–100
+    const scout_score   = Math.round(scoutScore * 10) // stored 0–100
 
     const { error: dbError } = await supabase.from('avaliacoes').insert({
       aluno_id: alunoId,
       professor_id: professorId,
-      // Category averages
       tecnico, fisico, tatico, comportamento, scout_score,
-      // Individual criteria
       ...notas,
-      // Observation
       observacao: observacao.trim() || null,
     })
 
@@ -298,12 +310,51 @@ export default function AvaliacaoClient({ alunoId, professorId, rawAvaliacoes }:
     } else {
       setSuccess(true)
       router.refresh()
+      // Increment trial counter (fire-and-forget)
+      if (!isPremium) {
+        fetch('/api/freemium/incrementar', { method: 'POST' }).catch(() => null)
+        setTrialLocal((prev) => prev + 1)
+      }
     }
     setSaving(false)
   }
 
   return (
     <div className="space-y-5 pb-32">
+
+      {/* ── Trial counter ── */}
+      {!isPremium && (
+        <div className={`flex items-center gap-3 rounded-[20px] px-4 py-3 border ${
+          bloqueado
+            ? 'bg-red-50 border-red-200'
+            : trialLocal >= TRIAL_LIMITE - 1
+            ? 'bg-amber-50 border-amber-200'
+            : 'bg-green-50 border-green-100'
+        }`}>
+          <span className="text-lg shrink-0">🎯</span>
+          <div className="flex-1 min-w-0">
+            <p className={`text-sm font-semibold ${bloqueado ? 'text-red-800' : 'text-gray-800'}`}>
+              {trialLocal} de {TRIAL_LIMITE} avaliações gratuitas usadas
+            </p>
+            {bloqueado && (
+              <p className="text-xs text-red-600 mt-0.5">Assine para continuar avaliando</p>
+            )}
+          </div>
+          {/* Progress dots */}
+          <div className="flex gap-1 shrink-0">
+            {Array.from({ length: TRIAL_LIMITE }).map((_, i) => (
+              <span
+                key={i}
+                className={`w-2.5 h-2.5 rounded-full ${
+                  i < trialLocal
+                    ? bloqueado ? 'bg-red-400' : 'bg-green-500'
+                    : 'bg-gray-200'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── Scout Score live ── */}
       <div className="bg-white rounded-[20px] border border-gray-100 shadow-sm px-6 py-5 flex items-center justify-between">
@@ -391,11 +442,28 @@ export default function AvaliacaoClient({ alunoId, professorId, rawAvaliacoes }:
         <button
           onClick={handleSave}
           disabled={saving}
-          className="w-full py-3.5 rounded-[20px] bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white text-sm font-bold transition-colors shadow-sm"
+          className={`w-full py-3.5 rounded-[20px] text-white text-sm font-bold transition-colors shadow-sm disabled:opacity-50 ${
+            bloqueado
+              ? 'bg-amber-500 hover:bg-amber-600'
+              : 'bg-green-600 hover:bg-green-700'
+          }`}
         >
-          {saving ? 'Salvando…' : `Salvar avaliação — Scout Score ${scoutScore.toFixed(1)}`}
+          {saving
+            ? 'Salvando…'
+            : bloqueado
+            ? '⭐ Assinar para avaliar'
+            : `Salvar avaliação — Scout Score ${scoutScore.toFixed(1)}`}
         </button>
       </div>
+
+      {/* ── Premium modal ── */}
+      {showPremiumModal && (
+        <PremiumModal
+          funcao="Avaliações ilimitadas"
+          descricao="Você usou suas 3 avaliações gratuitas. Assine para avaliar todos os seus atletas ilimitadamente."
+          onClose={() => setShowPremiumModal(false)}
+        />
+      )}
 
       {/* ── Radar chart ── */}
       {(thisMonth || prevMonth) && (
