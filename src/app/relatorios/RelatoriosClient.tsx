@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import PremiumModal from '@/components/PremiumModal'
+import EmptyState from '@/components/EmptyState'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -348,10 +349,13 @@ export default function RelatoriosClient({ atletas }: { atletas: Atleta[] }) {
 
         {/* ── Lista de atletas ── */}
         {atletas.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm py-16 text-center">
-            <p className="text-3xl mb-3">📋</p>
-            <p className="text-gray-500 font-medium">Nenhum atleta cadastrado.</p>
-            <p className="text-gray-400 text-sm mt-1">Cadastre atletas e faça avaliações para gerar relatórios.</p>
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
+            <EmptyState
+              icon="📊"
+              title="Nenhuma avaliação registrada ainda."
+              subtitle="Avalie um atleta para gerar o primeiro relatório."
+              action={{ label: 'Ir para Atletas →', href: '/alunos' }}
+            />
           </div>
         ) : (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createServerClient } from '@/lib/supabase'
+import EmptyState from '@/components/EmptyState'
 
 function getSaudacao() {
   const hora = new Date().getHours()
@@ -413,16 +414,13 @@ export default async function DashboardPage() {
         )}
 
         {alunos?.length === 0 && (
-          <div className="bg-white rounded-[20px] shadow-sm border border-gray-100 p-12 text-center">
-            <p className="text-4xl mb-3">⚽</p>
-            <p className="text-gray-500 font-medium">Nenhum atleta cadastrado ainda.</p>
-            <p className="text-gray-400 text-sm mt-1">
-              Clique em{' '}
-              <Link href="/alunos" className="text-green-600 hover:underline font-medium">
-                Novo atleta
-              </Link>{' '}
-              para começar.
-            </p>
+          <div className="bg-white rounded-[20px] shadow-sm border border-gray-100">
+            <EmptyState
+              icon="⚽"
+              title="Sua equipe começa aqui."
+              subtitle="Cadastre o primeiro atleta e organize tudo como clube profissional."
+              action={{ label: 'Cadastrar atleta →', href: '/alunos' }}
+            />
           </div>
         )}
 

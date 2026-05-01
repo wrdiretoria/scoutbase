@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
+import EmptyState from '@/components/EmptyState'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -305,11 +306,20 @@ export default function AlunosPage() {
 
         {/* ── Tabela (desktop) ── */}
         {alunosFiltrados.length === 0 ? (
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm py-20 text-center">
-            <p className="text-gray-400 text-sm">
-              {busca || filtroTurma ? 'Nenhum atleta encontrado com esses filtros.' : 'Nenhum atleta cadastrado ainda.'}
-            </p>
-          </div>
+          alunos.length === 0 ? (
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
+              <EmptyState
+                icon="👤"
+                title="Nenhum atleta cadastrado ainda."
+                subtitle="Adicione seu primeiro atleta e comece a acompanhar a evolução."
+                action={{ label: '+ Novo atleta', onClick: () => setModalAberto(true) }}
+              />
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm py-20 text-center">
+              <p className="text-gray-400 text-sm">Nenhum atleta encontrado com esses filtros.</p>
+            </div>
+          )
         ) : (
           <>
             {/* Desktop table */}

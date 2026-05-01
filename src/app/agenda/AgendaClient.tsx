@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import EmptyState from '@/components/EmptyState'
 
 type Turma = { id: string; nome: string }
 
@@ -285,6 +286,18 @@ export default function AgendaClient({ turmas, eventosBanco, professorId }: Prop
           </div>
         ))}
       </div>
+
+      {/* Empty state — sem eventos no mês */}
+      {eventosFiltrados.length === 0 && (
+        <div className="bg-white rounded-xl border border-gray-100 shadow-sm mt-4">
+          <EmptyState
+            icon="📅"
+            title="Nenhum evento agendado."
+            subtitle="Crie o primeiro evento e mantenha sua equipe informada."
+            action={{ label: '+ Novo evento', onClick: () => abrirNovoEvento() }}
+          />
+        </div>
+      )}
 
       {/* ── Modal criar evento ── */}
       {modalAberto && (

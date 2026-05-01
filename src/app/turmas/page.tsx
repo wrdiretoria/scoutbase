@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
+import EmptyState from '@/components/EmptyState'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -213,10 +214,13 @@ export default function TurmasPage() {
             <p className="text-gray-400 text-sm">Carregando...</p>
           </div>
         ) : turmas.length === 0 ? (
-          <div className="bg-white rounded-[20px] border border-gray-100 shadow-sm py-16 text-center">
-            <p className="text-2xl mb-3">⚽</p>
-            <p className="text-gray-500 font-medium text-sm">Nenhuma equipe cadastrada.</p>
-            <p className="text-xs text-gray-300 mt-1">Crie sua primeira equipe para começar.</p>
+          <div className="bg-white rounded-[20px] border border-gray-100 shadow-sm">
+            <EmptyState
+              icon="🏆"
+              title="Nenhuma equipe criada."
+              subtitle="Crie sua primeira equipe e organize seus atletas por categoria."
+              action={{ label: '+ Nova equipe', onClick: () => setModalAberto(true) }}
+            />
           </div>
         ) : (
           <div className="space-y-4">

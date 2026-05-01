@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
+import EmptyState from '@/components/EmptyState'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -263,9 +264,12 @@ export default function PresencasPage() {
                 <p className="text-gray-400 text-sm">Carregando atletas...</p>
               </div>
             ) : alunos.length === 0 ? (
-              <div className="py-16 text-center">
-                <p className="text-gray-400 text-sm">Nenhum atleta ativo nesta equipe.</p>
-              </div>
+              <EmptyState
+                icon="📋"
+                title="Nenhum atleta nesta equipe."
+                subtitle="Adicione atletas à equipe para registrar presenças."
+                action={{ label: 'Ir para Atletas →', href: '/alunos' }}
+              />
             ) : (
               <>
                 <div className="px-5 py-3 border-b border-gray-50">

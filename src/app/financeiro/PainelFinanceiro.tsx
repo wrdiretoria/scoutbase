@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import EmptyState from '@/components/EmptyState'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -306,9 +307,18 @@ export default function PainelFinanceiro({
       {/* ── Lista de atletas ── */}
       <div className="bg-white rounded-[20px] border border-gray-100 shadow-sm overflow-hidden">
         {alunosFiltrados.length === 0 ? (
-          <div className="py-16 text-center">
-            <p className="text-gray-400 text-sm">Nenhum atleta encontrado.</p>
-          </div>
+          alunos.length === 0 ? (
+            <EmptyState
+              icon="💰"
+              title="Nenhum registro financeiro ainda."
+              subtitle="Cadastre atletas e defina as mensalidades para começar o controle."
+              action={{ label: 'Cadastrar atleta →', href: '/alunos' }}
+            />
+          ) : (
+            <div className="py-16 text-center">
+              <p className="text-gray-400 text-sm">Nenhum atleta encontrado com esses filtros.</p>
+            </div>
+          )
         ) : (
           <ul className="divide-y divide-gray-50">
             {alunosFiltrados.map((aluno) => {
