@@ -105,12 +105,11 @@ export default function LandingPage() {
       <section className="pt-40 pb-24 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="font-[family-name:var(--font-bebas)] leading-[1.05] tracking-wide">
-            <span className="block text-[clamp(2rem,6vw,4.5rem)] text-white leading-tight">ONDE O FUTEBOL DE BASE</span>
-            <span className="block text-[clamp(2rem,6vw,4.5rem)] text-green-500 leading-tight">SE CONECTA E ENTREGA</span>
-            <span className="block text-[clamp(2rem,6vw,4.5rem)] text-white leading-tight">RESULTADOS</span>
+            <span className="block text-[clamp(2rem,6vw,4.5rem)] text-white leading-tight">ONDE O FUTEBOL SE CONECTA</span>
+            <span className="block text-[clamp(2rem,6vw,4.5rem)] text-green-500 leading-tight">E ENTREGA RESULTADOS</span>
           </h1>
           <p className="mt-7 text-base sm:text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
-            Avalie atletas, mostre evolução com relatórios de IA e transforme sua escolinha em uma estrutura de nível profissional.
+            Avalie atletas, mostre evolução com relatórios e eleve o nível dos seus atletas, em uma estrutura de nível profissional.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
             <Link
