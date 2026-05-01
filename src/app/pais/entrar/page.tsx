@@ -122,7 +122,7 @@ export default function PaisEntrarPage() {
     }
 
     if (data.user.user_metadata?.tipo !== 'pai') {
-      setErro('Esta conta não é de responsável.')
+      setErro('Esta conta não é de atleta.')
       await supabase.auth.signOut()
       setLoading(false)
       return
@@ -167,7 +167,7 @@ export default function PaisEntrarPage() {
   return (
     <main className="flex items-center justify-center py-16 px-4">
       <div className="w-full max-w-sm bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-        <h1 className="text-xl font-bold text-gray-900 mb-1">Acesso para Responsáveis</h1>
+        <h1 className="text-xl font-bold text-gray-900 mb-1">Acesso para Atletas</h1>
         <p className="text-sm text-gray-500 mb-6">
           Acompanhe o desempenho do seu filho
         </p>

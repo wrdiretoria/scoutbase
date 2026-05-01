@@ -314,7 +314,7 @@ function ScoutIdCard({
       </div>
       <div className="space-y-2">
         <p className="text-xs text-green-400">
-          Responsáveis acessam em{' '}
+          Atleta acessa em{' '}
           <span className="text-green-200 font-medium">scoutbase-eta.vercel.app/pais/entrar</span>
         </p>
 
@@ -353,7 +353,7 @@ function ScoutIdCard({
         {/* Reset parent access */}
         {senhaTemp ? (
           <div className="bg-green-800 rounded-xl p-3 text-center">
-            <p className="text-xs text-green-300 mb-1">Senha resetada! Diga ao responsável:</p>
+            <p className="text-xs text-green-300 mb-1">Senha resetada! Diga ao atleta:</p>
             <p className="text-sm font-bold text-white font-mono tracking-wider">{senhaTemp}</p>
             <p className="text-xs text-green-400 mt-1">Use o Scout ID como senha temporária</p>
             <button
@@ -377,7 +377,7 @@ function ScoutIdCard({
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                   </svg>
-                  Resetar senha do responsável
+                  Resetar senha do atleta
                 </>
               )}
             </button>

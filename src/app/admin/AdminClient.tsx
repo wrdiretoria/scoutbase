@@ -199,7 +199,7 @@ export default function AdminClient({ users: initialUsers, atletas: initialAtlet
               {[
                 { label: 'Usuários totais', value: stats.totalUsuarios, cor: 'text-gray-900' },
                 { label: 'Treinadores', value: stats.professores, cor: 'text-blue-600' },
-                { label: 'Responsáveis', value: stats.responsaveis, cor: 'text-purple-600' },
+                { label: 'Atletas c/ acesso', value: stats.responsaveis, cor: 'text-purple-600' },
                 { label: 'Atletas', value: stats.totalAtletas, cor: 'text-green-600' },
                 { label: 'Avaliações', value: stats.totalAvaliacoes, cor: 'text-amber-600' },
                 { label: 'Registros de presença', value: stats.totalPresencas, cor: 'text-gray-600' },
@@ -218,7 +218,7 @@ export default function AdminClient({ users: initialUsers, atletas: initialAtlet
                   <li key={u.id} className="flex items-center justify-between py-2.5">
                     <div>
                       <p className="text-sm font-medium text-gray-800">{u.nome || u.email}</p>
-                      <p className="text-xs text-gray-400">{u.email} · {u.tipo === 'pai' ? 'Responsável' : 'Treinador'}</p>
+                      <p className="text-xs text-gray-400">{u.email} · {u.tipo === 'pai' ? 'Atleta' : 'Treinador'}</p>
                     </div>
                     <p className="text-xs text-gray-400">
                       {new Date(u.created_at).toLocaleDateString('pt-BR')}
@@ -255,7 +255,7 @@ export default function AdminClient({ users: initialUsers, atletas: initialAtlet
                       <p className="text-sm font-medium text-gray-900 truncate">
                         {u.nome || '(sem nome)'}{' '}
                         <span className={`text-xs font-normal ${u.tipo === 'pai' ? 'text-purple-500' : 'text-blue-500'}`}>
-                          {u.tipo === 'pai' ? 'Responsável' : 'Treinador'}
+                          {u.tipo === 'pai' ? 'Atleta' : 'Treinador'}
                         </span>
                       </p>
                       <p className="text-xs text-gray-400 truncate">{u.email}</p>
