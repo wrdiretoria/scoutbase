@@ -28,7 +28,7 @@ export default async function AdminPage() {
   // ── Atletas ──
   const { data: atletas } = await admin
     .from('alunos')
-    .select('id, nome, posicao, scout_id, ativo, professor_id, created_at')
+    .select('id, nome, posicao, scout_id, ativo, professor_id, data_nascimento, turmas(nome)')
     .order('nome')
 
   // ── Avaliações (count) ──

@@ -20,7 +20,8 @@ type Atleta = {
   scout_id: string | null
   ativo: boolean
   professor_id: string | null
-  created_at: string
+  data_nascimento: string | null
+  turmas: { nome: string } | { nome: string }[] | null
 }
 
 type Stats = {
@@ -288,27 +289,38 @@ export default function AdminClient({ users: initialUsers, atletas: initialAtlet
                 {atletasFiltrados.length === 0 && (
                   <li className="px-5 py-8 text-center text-gray-400 text-sm">Nenhum resultado.</li>
                 )}
-                {atletasFiltrados.map((a) => (
-                  <li
-                    key={a.id}
-                    onClick={() => setModalAtleta(a)}
-                    className="flex items-center justify-between px-5 py-3.5 hover:bg-gray-50 cursor-pointer transition-colors"
-                  >
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {a.nome}{' '}
-                        <span className={`text-xs font-normal ${a.ativo ? 'text-green-500' : 'text-gray-400'}`}>
-                          {a.ativo ? 'Ativo' : 'Inativo'}
-                        </span>
+                {atletasFiltrados.map((a) => {
+                  const turmaNome = a.turmas && !Array.isArray(a.turmas)
+                    ? a.turmas.nome
+                    : Array.isArray(a.turmas) && a.turmas.length > 0
+                    ? a.turmas[0].nome
+                    : null
+                  const professor = users.find((u) => u.id === a.professor_id)
+                  return (
+                    <li
+                      key={a.id}
+                      onClick={() => setModalAtleta(a)}
+                      className="flex items-center justify-between px-5 py-3.5 hover:bg-gray-50 cursor-pointer transition-colors"
+                    >
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {a.nome}{' '}
+                          <span className={`text-xs font-normal ${a.ativo ? 'text-green-500' : 'text-gray-400'}`}>
+                            {a.ativo ? 'Ativo' : 'Inativo'}
+                          </span>
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {[a.posicao, turmaNome].filter(Boolean).join(' · ') || '—'}
+                        </p>
+                        {a.scout_id && <p className="text-xs font-mono text-green-600">{a.scout_id}</p>}
+                        {professor && <p className="text-xs text-blue-500">👤 {professor.nome || professor.email}</p>}
+                      </div>
+                      <p className="text-xs text-gray-400 shrink-0 ml-4">
+                        {a.data_nascimento ?? '—'}
                       </p>
-                      <p className="text-xs text-gray-400">{a.posicao ?? '—'}</p>
-                      {a.scout_id && <p className="text-xs font-mono text-green-600">{a.scout_id}</p>}
-                    </div>
-                    <p className="text-xs text-gray-400 shrink-0 ml-4">
-                      {new Date(a.created_at).toLocaleDateString('pt-BR')}
-                    </p>
-                  </li>
-                ))}
+                    </li>
+                  )
+                })}
               </ul>
             </div>
           </div>
@@ -420,8 +432,20 @@ export default function AdminClient({ users: initialUsers, atletas: initialAtlet
                 <p><span className="text-gray-400">Posição:</span> {modalAtleta.posicao ?? '—'}</p>
                 <p><span className="text-gray-400">SID:</span> {modalAtleta.scout_id ?? '—'}</p>
                 <p><span className="text-gray-400">Status:</span> {modalAtleta.ativo ? 'Ativo' : 'Inativo'}</p>
-                <p><span className="text-gray-400">Cadastro:</span> {new Date(modalAtleta.created_at).toLocaleDateString('pt-BR')}</p>
-                <p><span className="text-gray-400">Professor ID:</span> {modalAtleta.professor_id ?? '—'}</p>
+                <p><span className="text-gray-400">Nasc.:</span> {modalAtleta.data_nascimento ?? '—'}</p>
+                <p><span className="text-gray-400">Turma:</span> {
+                  modalAtleta.turmas && !Array.isArray(modalAtleta.turmas)
+                    ? modalAtleta.turmas.nome
+                    : Array.isArray(modalAtleta.turmas) && modalAtleta.turmas.length > 0
+                    ? modalAtleta.turmas[0].nome
+                    : '—'
+                }</p>
+                <p><span className="text-gray-400">Treinador:</span> {
+                  (() => {
+                    const p = users.find((u) => u.id === modalAtleta.professor_id)
+                    return p ? (p.nome || p.email) : (modalAtleta.professor_id ?? '—')
+                  })()
+                }</p>
               </div>
               <button
                 onClick={deletarAtleta}
