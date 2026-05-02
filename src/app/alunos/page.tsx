@@ -194,14 +194,21 @@ export default function AlunosPage() {
     setSalvando(true); setErro(null)
     const supabase = createClient()
 
-    const { data: lastAluno } = await supabase
-      .from('alunos').select('scout_id').like('scout_id', 'SID-%')
-      .order('scout_id', { ascending: false }).limit(1).single()
+    // Busca todos os scout_ids existentes e pega o maior número
+    const { data: todosIds } = await supabase
+      .from('alunos')
+      .select('scout_id')
+      .like('scout_id', 'SID-%')
 
     let nextNum = 1
-    if (lastAluno?.scout_id) {
-      const match = lastAluno.scout_id.match(/SID-(\d+)/)
-      if (match) nextNum = parseInt(match[1]) + 1
+    if (todosIds && todosIds.length > 0) {
+      const nums = todosIds
+        .map((a) => {
+          const m = (a.scout_id as string | null)?.match(/SID-(\d+)/)
+          return m ? parseInt(m[1]) : 0
+        })
+        .filter((n) => n > 0)
+      if (nums.length > 0) nextNum = Math.max(...nums) + 1
     }
     const scout_id = `SID-${String(nextNum).padStart(5, '0')}`
 
