@@ -110,7 +110,9 @@ export default function AgendaClient({ turmas, eventosBanco, professorId }: Prop
 
   function abrirNovoEvento(dia?: number) {
     const d = dia ? dataStr(dia) : ''
-    setForm({ turma_id: turmas[0]?.id ?? '', tipo: 'treino', data: d, horario: '', local: '', observacao: '' })
+    // Se há um filtro de equipe ativo, pré-seleciona essa equipe no form
+    const defaultTurma = filtroTurma !== 'todas' ? filtroTurma : (turmas[0]?.id ?? '')
+    setForm({ turma_id: defaultTurma, tipo: 'treino', data: d, horario: '', local: '', observacao: '' })
     setDiaSelecionado(d)
     setModalAberto(true)
   }
