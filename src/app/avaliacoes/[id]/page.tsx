@@ -19,7 +19,7 @@ export default async function AvaliacoesPage({ params }: Props) {
 
   const { data: aluno } = await supabase
     .from('alunos')
-    .select('id, nome, posicao')
+    .select('id, nome, posicao, scout_id')
     .eq('id', id)
     .eq('professor_id', user.id)
     .single()
@@ -67,6 +67,8 @@ export default async function AvaliacoesPage({ params }: Props) {
 
         <AvaliacaoClient
           alunoId={id}
+          alunoNome={aluno.nome}
+          scoutId={(aluno as { scout_id?: string | null }).scout_id ?? null}
           professorId={user.id}
           rawAvaliacoes={rawAvaliacoes ?? []}
           trialUsadas={trialUsadas}
