@@ -154,20 +154,9 @@ export default function AgendaClient({ turmas, eventosBanco, professorId }: Prop
   return (
     <main className="p-4 md:p-6 max-w-4xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6 gap-4">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900">Agenda</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Treinos, jogos e eventos da equipe</p>
-        </div>
-        <button
-          onClick={() => abrirNovoEvento()}
-          className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Novo evento
-        </button>
+      <div className="mb-6">
+        <h1 className="text-xl font-bold text-gray-900">Agenda</h1>
+        <p className="text-sm text-gray-500 mt-0.5">Treinos, jogos e eventos da equipe</p>
       </div>
 
       {/* Filtro de turma */}
@@ -279,14 +268,17 @@ export default function AgendaClient({ turmas, eventosBanco, professorId }: Prop
         </div>
       </div>
 
-      {/* Legenda */}
-      <div className="flex flex-wrap gap-3 mt-4">
-        {TIPOS.map((t) => (
-          <div key={t.value} className="flex items-center gap-1.5">
-            <span className={`w-2.5 h-2.5 rounded-full ${t.cor}`} />
-            <span className="text-xs text-gray-500">{t.label}</span>
-          </div>
-        ))}
+      {/* Legenda + hint */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
+        <div className="flex flex-wrap gap-3">
+          {TIPOS.map((t) => (
+            <div key={t.value} className="flex items-center gap-1.5">
+              <span className={`w-2.5 h-2.5 rounded-full ${t.cor}`} />
+              <span className="text-xs text-gray-500">{t.label}</span>
+            </div>
+          ))}
+        </div>
+        <p className="text-xs text-gray-400 italic">Clique em um dia para adicionar um evento</p>
       </div>
 
       {/* Empty state — sem eventos no mês */}
@@ -295,8 +287,7 @@ export default function AgendaClient({ turmas, eventosBanco, professorId }: Prop
           <EmptyState
             icon="📅"
             title="Nenhum evento agendado."
-            subtitle="Crie o primeiro evento e mantenha sua equipe informada."
-            action={{ label: '+ Novo evento', onClick: () => abrirNovoEvento() }}
+            subtitle="Clique em um dia no calendário para criar o primeiro evento."
           />
         </div>
       )}
