@@ -222,42 +222,60 @@ export default async function PaisPerfilPage() {
         })()}
 
         {/* Próximos eventos da turma */}
-        {proximosEventos.length > 0 && (
-          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-            <h2 className="text-sm font-semibold text-gray-900 mb-3">Próximos eventos</h2>
-            <ul className="space-y-2">
-              {proximosEventos.map((ev) => {
-                const tipoLabel: Record<string, string> = {
-                  treino: 'Treino', jogo: 'Jogo', avaliacao: 'Avaliação',
-                  reuniao: 'Reunião', outro: 'Outro',
-                }
-                const tipoCor: Record<string, string> = {
-                  treino: 'bg-green-100 text-green-700',
-                  jogo: 'bg-blue-100 text-blue-700',
-                  avaliacao: 'bg-purple-100 text-purple-700',
-                  reuniao: 'bg-amber-100 text-amber-700',
-                  outro: 'bg-gray-100 text-gray-600',
-                }
-                return (
-                  <li key={ev.id} className="flex items-start gap-3">
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full mt-0.5 shrink-0 ${tipoCor[ev.tipo] ?? 'bg-gray-100 text-gray-600'}`}>
-                      {tipoLabel[ev.tipo] ?? ev.tipo}
-                    </span>
-                    <div className="min-w-0">
-                      <p className="text-sm text-gray-800">
-                        {new Date(ev.data + 'T12:00:00').toLocaleDateString('pt-BR', {
-                          weekday: 'short', day: '2-digit', month: 'short',
-                        })}
-                        {ev.horario && ` · ${ev.horario.slice(0, 5)}`}
-                      </p>
-                      {ev.local && <p className="text-xs text-gray-400 truncate">{ev.local}</p>}
-                    </div>
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
-        )}
+        {(() => {
+          const TIPO_CFG: Record<string, { emoji: string; label: string; chip: string }> = {
+            treino:     { emoji: '🟢', label: 'Treino',     chip: 'bg-green-100 text-green-700'   },
+            jogo:       { emoji: '🔵', label: 'Jogo',       chip: 'bg-blue-100  text-blue-700'    },
+            coletivo:   { emoji: '🟡', label: 'Coletivo',   chip: 'bg-yellow-100 text-yellow-700' },
+            sem_treino: { emoji: '🔴', label: 'Sem treino', chip: 'bg-red-100   text-red-600'     },
+            avaliacao:  { emoji: '🟣', label: 'Avaliação',  chip: 'bg-purple-100 text-purple-700' },
+            reuniao:    { emoji: '🟠', label: 'Reunião',    chip: 'bg-amber-100  text-amber-700'  },
+            outro:      { emoji: '⚪', label: 'Outro',      chip: 'bg-gray-100   text-gray-500'   },
+          }
+
+          function formatarEvento(data: string, horario: string | null): string {
+            const d = new Date(data + 'T12:00:00')
+            const dia = d.toLocaleDateString('pt-BR', { weekday: 'short' })
+              .replace('.', '')
+            const weekday = dia.charAt(0).toUpperCase() + dia.slice(1)
+            const dd = String(d.getDate()).padStart(2, '0')
+            const mm = String(d.getMonth() + 1).padStart(2, '0')
+            if (!horario) return `${weekday}, ${dd}/${mm}`
+            const [h, m] = horario.split(':')
+            const hora = m === '00' ? `${parseInt(h)}h` : `${parseInt(h)}h${m}`
+            return `${weekday}, ${dd}/${mm} às ${hora}`
+          }
+
+          return (
+            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+              <h2 className="text-sm font-semibold text-gray-900 mb-3">Próximos eventos</h2>
+              {proximosEventos.length === 0 ? (
+                <p className="text-sm text-gray-400 py-2">Nenhum evento agendado.</p>
+              ) : (
+                <ul className="space-y-3">
+                  {proximosEventos.map((ev) => {
+                    const cfg = TIPO_CFG[ev.tipo] ?? TIPO_CFG.outro
+                    return (
+                      <li key={ev.id} className="flex items-start gap-3">
+                        <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full shrink-0 mt-0.5 ${cfg.chip}`}>
+                          {cfg.emoji} {cfg.label}
+                        </span>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-gray-800 leading-snug">
+                            {formatarEvento(ev.data, ev.horario)}
+                          </p>
+                          {ev.local && (
+                            <p className="text-xs text-gray-400 mt-0.5 truncate">📍 {ev.local}</p>
+                          )}
+                        </div>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+            </div>
+          )
+        })()}
 
         {/* Plano gratuito: aviso */}
         {!planoPago && (
