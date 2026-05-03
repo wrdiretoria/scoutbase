@@ -188,6 +188,9 @@ export default function AgendaClient({ turmas, eventosBanco, professorId }: Prop
         </div>
       )}
 
+      {/* Hint */}
+      <p className="text-xs text-gray-400 italic mb-3">Clique no dia para adicionar seu evento.</p>
+
       {/* Navegação mês */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
@@ -268,17 +271,14 @@ export default function AgendaClient({ turmas, eventosBanco, professorId }: Prop
         </div>
       </div>
 
-      {/* Legenda + hint */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
-        <div className="flex flex-wrap gap-3">
-          {TIPOS.map((t) => (
-            <div key={t.value} className="flex items-center gap-1.5">
-              <span className={`w-2.5 h-2.5 rounded-full ${t.cor}`} />
-              <span className="text-xs text-gray-500">{t.label}</span>
-            </div>
-          ))}
-        </div>
-        <p className="text-xs text-gray-400 italic">Clique em um dia para adicionar um evento</p>
+      {/* Legenda */}
+      <div className="flex flex-wrap gap-3 mt-4">
+        {TIPOS.map((t) => (
+          <div key={t.value} className="flex items-center gap-1.5">
+            <span className={`w-2.5 h-2.5 rounded-full ${t.cor}`} />
+            <span className="text-xs text-gray-500">{t.label}</span>
+          </div>
+        ))}
       </div>
 
       {/* Empty state — sem eventos no mês */}
