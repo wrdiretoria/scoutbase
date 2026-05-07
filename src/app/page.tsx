@@ -124,16 +124,16 @@ export default function LandingPage() {
         <div style={{
           position: 'relative', zIndex: 2,
           height: '100%',
-          display: 'grid', gridTemplateColumns: '1fr 1fr',
+          width: '100%',
+          display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)',
           alignItems: 'center',
           padding: '0 80px',
           gap: '40px',
-          maxWidth: '1300px',
-          margin: '0 auto',
+          boxSizing: 'border-box',
         }}>
 
           {/* ── LEFT COLUMN ── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', minWidth: 0 }}>
 
             {/* Badge */}
             <span style={{
@@ -194,8 +194,8 @@ export default function LandingPage() {
           </div>
 
           {/* ── RIGHT COLUMN ── */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-            <div style={{ position: 'relative', width: '520px', height: '580px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', minWidth: 0, overflow: 'visible' }}>
+            <div style={{ position: 'relative', width: '520px', height: '580px', flexShrink: 0 }}>
 
               {/* ── PHONE FRONT ── */}
               <div style={{
