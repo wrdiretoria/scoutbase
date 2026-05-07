@@ -52,6 +52,26 @@ export default function LandingPage() {
         .nav-link:hover { color:white; }
         .card-item { transition:background .2s; cursor:default; }
         .card-item:hover { background:rgba(34,197,94,0.06); }
+
+        /* ── MOBILE ── */
+        @media (max-width: 860px) {
+          .nav-links-wrap { display:none !important; }
+          .hero-grid {
+            grid-template-columns: 1fr !important;
+            padding: 0 28px !important;
+            align-items: flex-start !important;
+            padding-top: 100px !important;
+          }
+          .hero-phones { display:none !important; }
+          .cards-grid { grid-template-columns: 1fr 1fr !important; }
+          .card-item { border-right: none !important; border-bottom: 1px solid rgba(34,197,94,0.1); }
+          .footer-inner { flex-direction: column !important; gap: 8px !important; text-align: center !important; }
+          .hero-section { height: auto !important; min-height: 100vh !important; }
+          .hero-left { padding-bottom: 60px !important; }
+        }
+        @media (max-width: 480px) {
+          .cards-grid { grid-template-columns: 1fr !important; }
+        }
       `}</style>
 
       {/* ─── NAV ─── */}
@@ -68,7 +88,7 @@ export default function LandingPage() {
             <span style={{ color:'white' }}>MEU </span>
             <span style={{ color:'#22c55e' }}>CRAQUE</span>
           </span>
-          <div style={{ display:'flex', alignItems:'center', gap:'24px', flex:1, justifyContent:'center' }}>
+          <div className="nav-links-wrap" style={{ display:'flex', alignItems:'center', gap:'24px', flex:1, justifyContent:'center' }}>
             {navLinks.map(l => <a key={l} href="#" className="nav-link">{l}</a>)}
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:'10px', flexShrink:0 }}>
@@ -83,7 +103,7 @@ export default function LandingPage() {
       </nav>
 
       {/* ─── HERO ─── */}
-      <section style={{ position:'relative', height:'100vh', overflow:'hidden' }}>
+      <section className="hero-section" style={{ position:'relative', height:'100vh', overflow:'hidden' }}>
         {/* BG */}
         <img
           src="https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?w=1920&q=90"
@@ -93,14 +113,14 @@ export default function LandingPage() {
         <div style={{ position:'absolute', inset:0, zIndex:1, background:'linear-gradient(to right, rgba(0,0,0,0.93) 0%, rgba(0,0,0,0.80) 45%, rgba(0,0,0,0.25) 100%)' }} />
 
         {/* Grid */}
-        <div style={{
+        <div className="hero-grid" style={{
           position:'relative', zIndex:2, height:'100%', width:'100%',
           display:'grid', gridTemplateColumns:'minmax(0,1fr) minmax(0,1fr)',
-          alignItems:'center', padding:'0 80px', gap:'48px', boxSizing:'border-box',
+          alignItems:'center', padding:'0 80px', gap:'48px', boxSizing:'border-box'
         }}>
 
           {/* LEFT */}
-          <div style={{ display:'flex', flexDirection:'column', gap:'28px', minWidth:0 }}>
+          <div className="hero-left" style={{ display:'flex', flexDirection:'column', gap:'28px', minWidth:0 }}>
             <span style={{
               display:'inline-flex', alignItems:'center', gap:'8px', width:'fit-content',
               padding:'6px 16px', borderRadius:'100px',
@@ -131,7 +151,7 @@ export default function LandingPage() {
           </div>
 
           {/* RIGHT — phones */}
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'flex-end', minWidth:0 }}>
+          <div className="hero-phones" style={{ display:'flex', alignItems:'center', justifyContent:'flex-end', minWidth:0 }}>
             <div style={{ position:'relative', width:'540px', height:'580px', flexShrink:0 }}>
 
               {/* PHONE FRONT — left, larger, in front */}
@@ -355,7 +375,7 @@ export default function LandingPage() {
 
       {/* ─── CARDS BAR ─── */}
       <div style={{ background:'#080e09', borderTop:'1px solid rgba(34,197,94,0.15)' }}>
-        <div style={{ maxWidth:'1280px', margin:'0 auto', display:'grid', gridTemplateColumns:'repeat(4,1fr)' }}>
+        <div className="cards-grid" style={{ maxWidth:'1280px', margin:'0 auto', display:'grid', gridTemplateColumns:'repeat(4,1fr)' }}>
           {cards.map((c, i) => (
             <div key={c.title} className="card-item" style={{
               padding:'28px 24px',
@@ -372,13 +392,13 @@ export default function LandingPage() {
 
       {/* ─── FOOTER ─── */}
       <footer style={{ background:'#06100a', borderTop:'1px solid rgba(255,255,255,0.05)', padding:'28px 40px' }}>
-        <div style={{ maxWidth:'1280px', margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-          <span style={{ fontSize:'18px', fontWeight:800, letterSpacing:'0.04em', display:'flex', alignItems:'center', gap:'6px' }}>
+        <div className="footer-inner" style={{ maxWidth:'1280px', margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <span style={{ fontSize:'18px', fontWeight:800, letterSpacing:'0.04em', display:'flex', alignItems:'center', gap:'6px', flexShrink:0 }}>
             <span>⚽</span>
             <span style={{ color:'white' }}>MEU </span>
             <span style={{ color:'#22c55e' }}>CRAQUE</span>
           </span>
-          <p style={{ margin:0, fontSize:'13px', color:'rgba(255,255,255,0.3)' }}>
+          <p style={{ margin:0, fontSize:'13px', color:'rgba(255,255,255,0.3)', textAlign:'center' }}>
             © {new Date().getFullYear()} Meu Craque. Todos os direitos reservados.
           </p>
         </div>
