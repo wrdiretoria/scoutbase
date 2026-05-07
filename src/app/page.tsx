@@ -138,13 +138,10 @@ export default function LandingPage() {
         </nav>
 
         {/* ─── GRID HERO ─── */}
-        <div className="relative z-10 flex-1 grid grid-cols-1 lg:grid-cols-2 h-screen w-full">
+        <div className="relative z-10 grid grid-cols-2 h-screen items-center">
 
-          {/* Esquerda — topo-esquerdo */}
-          <div
-            className="flex flex-col gap-6 self-start"
-            style={{ paddingLeft: '80px', paddingTop: '160px' }}
-          >
+          {/* Esquerda */}
+          <div className="flex flex-col justify-center pl-20 gap-6">
             {/* Badge */}
             <span className="inline-flex items-center gap-2 w-fit px-4 py-1.5 rounded-full text-xs font-semibold text-white border border-green-500/50" style={{ backgroundColor: 'rgba(34,197,94,0.15)' }}>
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
@@ -180,7 +177,7 @@ export default function LandingPage() {
           </div>
 
           {/* Direita — phones flutuando */}
-          <div className="hidden lg:flex items-center justify-center relative" style={{ width: '500px', height: '600px', margin: 'auto' }}>
+          <div className="flex items-center justify-center h-full relative">
             {/* Phone de trás */}
             <div
               className="absolute bg-white rounded-[40px] shadow-2xl overflow-hidden"
