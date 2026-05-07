@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "powershell",
+            "command": "Set-Location 'C:\\Users\\was25\\OneDrive\\Desktop\\Saas\\belaja'; $changes = git status --porcelain; if ($changes) { git add -A; git commit -m 'chore: auto-commit'; git push origin master }",
+            "timeout": 60,
+            "statusMessage": "Salvando no GitHub..."
+          }
+        ]
+      }
+    ]
+  }
+}

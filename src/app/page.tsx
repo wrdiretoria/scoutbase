@@ -56,6 +56,9 @@ export default function LandingPage() {
         /* ── MOBILE ── */
         @media (max-width: 860px) {
           .nav-links-wrap { display:none !important; }
+          .nav-inner { padding: 0 16px !important; gap: 12px !important; }
+          .nav-btn-secondary { display:none !important; }
+          .nav-btn-primary { padding: 8px 14px !important; font-size: 13px !important; }
           .hero-grid {
             grid-template-columns: 1fr !important;
             padding: 0 28px !important;
@@ -82,7 +85,7 @@ export default function LandingPage() {
         borderBottom:'1px solid rgba(255,255,255,0.06)',
         display:'flex', alignItems:'center',
       }}>
-        <div style={{ maxWidth:'1280px', margin:'0 auto', padding:'0 40px', width:'100%', display:'flex', alignItems:'center', gap:'32px' }}>
+        <div className="nav-inner" style={{ maxWidth:'1280px', margin:'0 auto', padding:'0 40px', width:'100%', display:'flex', alignItems:'center', gap:'32px' }}>
           <span style={{ fontSize:'20px', fontWeight:800, letterSpacing:'0.04em', flexShrink:0, display:'flex', alignItems:'center', gap:'8px' }}>
             <span style={{ fontSize:'22px' }}>⚽</span>
             <span style={{ color:'white' }}>MEU </span>
@@ -92,10 +95,10 @@ export default function LandingPage() {
             {navLinks.map(l => <a key={l} href="#" className="nav-link">{l}</a>)}
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:'10px', flexShrink:0 }}>
-            <Link href="/login" style={{ padding:'8px 20px', fontSize:'14px', fontWeight:600, color:'white', border:'1.5px solid rgba(255,255,255,0.3)', borderRadius:'10px', textDecoration:'none' }}>
+            <Link href="/login" className="nav-btn-secondary" style={{ padding:'8px 20px', fontSize:'14px', fontWeight:600, color:'white', border:'1.5px solid rgba(255,255,255,0.3)', borderRadius:'10px', textDecoration:'none' }}>
               Entrar
             </Link>
-            <Link href="/cadastro" style={{ padding:'8px 20px', fontSize:'14px', fontWeight:700, color:'black', background:'#22c55e', borderRadius:'10px', textDecoration:'none' }}>
+            <Link href="/cadastro" className="nav-btn-primary" style={{ padding:'8px 20px', fontSize:'14px', fontWeight:700, color:'black', background:'#22c55e', borderRadius:'10px', textDecoration:'none' }}>
               Começar agora
             </Link>
           </div>
