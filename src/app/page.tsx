@@ -96,16 +96,11 @@ export default function LandingPage() {
     <div className="bg-[#09110d] text-white min-h-screen">
 
       {/* ─── HERO FULLSCREEN ─── */}
-      <section className="relative min-h-screen flex flex-col overflow-hidden">
+      <section style={{ minHeight: '100vh', position: 'relative', display: 'flex', flexDirection: 'column' }}>
         {/* Background */}
-        <img
-          src="https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?w=1920&q=90"
-          alt=""
-          aria-hidden
-          className="absolute inset-0 w-full h-full object-cover object-center"
-        />
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: "url('https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?w=1920&q=90')", backgroundSize: 'cover', backgroundPosition: 'center', zIndex: 0 }} />
         {/* Overlay */}
-        <div className="absolute inset-0 bg-black/50" />
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 1 }} />
 
         {/* ─── NAV FIXA ─── */}
         <nav className="fixed top-0 left-0 right-0 z-50 bg-black/30 backdrop-blur-md border-b border-white/10">
@@ -138,10 +133,10 @@ export default function LandingPage() {
         </nav>
 
         {/* ─── GRID HERO ─── */}
-        <div className="relative z-10 grid grid-cols-2 h-screen items-center">
+        <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', position: 'relative', zIndex: 2, padding: '0 80px', gap: '40px' }}>
 
           {/* Esquerda */}
-          <div className="flex flex-col justify-center pl-20 gap-6">
+          <div className="flex flex-col gap-6">
             {/* Badge */}
             <span className="inline-flex items-center gap-2 w-fit px-4 py-1.5 rounded-full text-xs font-semibold text-white border border-green-500/50" style={{ backgroundColor: 'rgba(34,197,94,0.15)' }}>
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
@@ -257,7 +252,7 @@ export default function LandingPage() {
         </div>
 
         {/* ─── CARDS BAR ─── */}
-        <div className="relative z-10 w-full border-t border-white/10 bg-black/40 backdrop-blur-sm">
+        <div style={{ position: 'relative', zIndex: 2 }} className="w-full border-t border-white/10 bg-black/40 backdrop-blur-sm">
           <div className="max-w-7xl mx-auto px-8 grid grid-cols-2 lg:grid-cols-4 divide-x divide-white/10">
             {cardBar.map((c) => (
               <div key={c.title} className="flex items-start gap-3 px-6 py-5">
