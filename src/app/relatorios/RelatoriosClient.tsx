@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import PremiumModal from '@/components/PremiumModal'
@@ -138,8 +138,8 @@ function ModalRelatorio({
   const dataStr  = agora.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
   const horaStr  = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
   const linkPublico = atleta.scout_id
-    ? `https://scoutbase-eta.vercel.app/relatorio/${atleta.scout_id}`
-    : `https://scoutbase-eta.vercel.app/atleta/${atleta.id}`
+    ? `https://Meu Craque-eta.vercel.app/relatorio/${atleta.scout_id}`
+    : `https://Meu Craque-eta.vercel.app/atleta/${atleta.id}`
 
   const evolDisplay = resultado.scoreAnterior
     ? `${resultado.scoreAnterior} → ${resultado.scoutScore}`
@@ -159,7 +159,7 @@ function ModalRelatorio({
 
   function compartilharWhatsApp() {
     const msg = encodeURIComponent(
-      `📊 *Relatório Mensal ScoutBase*\n\n*${atleta.nome}*\n` +
+      `📊 *Relatório Mensal Meu Craque*\n\n*${atleta.nome}*\n` +
       `Scout Score: ${resultado.scoutScore}/10\n` +
       (resultado.freqMes !== null ? `Frequência: ${resultado.freqMes}%\n` : '') +
       `\n${resultado.texto}\n\n🔗 Perfil: ${linkPublico}`

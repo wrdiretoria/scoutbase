@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
@@ -93,7 +93,7 @@ export default function Sidebar() {
 
         {/* Logo — centered absolutely */}
         <span className="absolute left-1/2 -translate-x-1/2 text-lg font-bold text-green-600 pointer-events-none select-none">
-          ScoutBase
+          Meu Craque
         </span>
 
         {/* Spacer — right (keeps logo visually centered) */}
@@ -120,7 +120,7 @@ export default function Sidebar() {
           }`}
         >
           <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-            <span className="text-lg font-bold text-green-600">ScoutBase</span>
+            <span className="text-lg font-bold text-green-600">Meu Craque</span>
             <button
               onClick={() => setOpen(false)}
               className="flex items-center justify-center w-8 h-8 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
@@ -138,7 +138,7 @@ export default function Sidebar() {
       {/* ── Desktop sidebar ── */}
       <aside className="hidden md:flex w-56 shrink-0 bg-white border-r border-gray-100 min-h-screen flex-col">
         <div className="px-6 py-5 border-b border-gray-100">
-          <span className="text-lg font-bold text-green-600">ScoutBase</span>
+          <span className="text-lg font-bold text-green-600">Meu Craque</span>
         </div>
         {navContent}
       </aside>

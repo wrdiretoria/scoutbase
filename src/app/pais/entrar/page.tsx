@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -9,7 +9,7 @@ type Aba = 'primeiro' | 'retorno' | 'recuperar'
 
 /** Synthetic email used as Supabase Auth identity for parents */
 function sidToEmail(sid: string) {
-  return `${sid.toLowerCase()}@pais.scoutbase`
+  return `${sid.toLowerCase()}@pais.Meu Craque`
 }
 
 export default function PaisEntrarPage() {

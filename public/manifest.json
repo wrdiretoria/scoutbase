@@ -1,0 +1,45 @@
+﻿{
+  "name": "Meu Craque — Gestão de Escolinhas",
+  "short_name": "Meu Craque",
+  "description": "Organize sua base. Gerencie com dados. Evolua com resultados.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a",
+  "orientation": "portrait-primary",
+  "lang": "pt-BR",
+  "categories": ["sports", "productivity", "business"],
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Atletas",
+      "url": "/alunos",
+      "description": "Gerenciar atletas"
+    },
+    {
+      "name": "Agenda",
+      "url": "/agenda",
+      "description": "Ver agenda da equipe"
+    },
+    {
+      "name": "Frequência",
+      "url": "/presencas",
+      "description": "Registrar presenças"
+    }
+  ]
+}

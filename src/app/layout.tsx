@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Bebas_Neue, DM_Sans } from "next/font/google";
 import "./globals.css";
 
@@ -14,7 +14,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "ScoutBase — Gestão de Escolinhas de Futebol",
+  title: "Meu Craque — Gestão de Escolinhas de Futebol",
   description: "Organize sua base. Gerencie com dados. Evolua com resultados.",
 };
 

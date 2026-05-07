@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useMemo } from 'react'
 
@@ -174,7 +174,7 @@ export default function AdminClient({ users: initialUsers, atletas: initialAtlet
             <span className="text-xs text-gray-400">Acesso restrito</span>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Painel Administrativo</h1>
-          <p className="text-sm text-gray-500 mt-0.5">ScoutBase — visão completa do sistema</p>
+          <p className="text-sm text-gray-500 mt-0.5">Meu Craque — visão completa do sistema</p>
         </div>
 
         {/* Abas */}

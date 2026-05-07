@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useMemo } from 'react'
 import EmptyState from '@/components/EmptyState'
@@ -213,7 +213,7 @@ export default function PainelFinanceiro({
     const tel = aluno.telefone?.replace(/\D/g, '') ?? ''
     const valor = aluno.mensalidade ?? mensalidadePadrao
     const msg = encodeURIComponent(
-      `Olá! A mensalidade de ${aluno.nome} no valor de ${formatBRL(valor)} está pendente. Acesse o ScoutBase para mais detalhes.`
+      `Olá! A mensalidade de ${aluno.nome} no valor de ${formatBRL(valor)} está pendente. Acesse o Meu Craque para mais detalhes.`
     )
     return `https://wa.me/55${tel}?text=${msg}`
   }

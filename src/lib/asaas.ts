@@ -1,4 +1,4 @@
-const BASE = process.env.ASAAS_SANDBOX === 'true'
+﻿const BASE = process.env.ASAAS_SANDBOX === 'true'
   ? 'https://sandbox.asaas.com/api/v3'
   : 'https://api.asaas.com/v3'
 
@@ -65,9 +65,9 @@ export const asaas = {
     ),
 }
 
-/** Calcula split: ScoutBase fica 3,99%, treinador recebe o restante */
+/** Calcula split: Meu Craque fica 3,99%, treinador recebe o restante */
 export function calcularSplit(valor: number) {
-  const taxaScoutBase = Math.round(valor * 0.0399 * 100) / 100
-  const treinador = Math.round((valor - taxaScoutBase) * 100) / 100
-  return { taxaScoutBase, treinador }
+  const taxaApp = Math.round(valor * 0.0399 * 100) / 100
+  const treinador = Math.round((valor - taxaApp) * 100) / 100
+  return { taxaApp, treinador }
 }

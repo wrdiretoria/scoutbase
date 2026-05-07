@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+﻿import { redirect } from 'next/navigation'
 import { createServerClient, createAdminClient } from '@/lib/supabase'
 
 export default async function PaisPerfilPage() {
@@ -353,7 +353,7 @@ export default async function PaisPerfilPage() {
           </div>
         )}
 
-        <p className="text-center text-xs text-gray-300 pb-4">Gerado pelo ScoutBase</p>
+        <p className="text-center text-xs text-gray-300 pb-4">Gerado pelo Meu Craque</p>
       </div>
     </main>
   )

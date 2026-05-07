@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 
 /* ─── dados estáticos ─── */
 const stats = [
@@ -82,48 +82,192 @@ const dores = [
   'Dificuldade de acompanhar a evolução de cada aluno',
 ]
 
+const navLinks = ['Recursos', 'Treinadores', 'Atletas', 'Responsáveis', 'Preços', 'Sobre']
+
+const cardBar = [
+  { icon: '🏟️', title: 'Para Treinadores', desc: 'Gerencie turmas, presenças e avaliações num só lugar.' },
+  { icon: '⚽', title: 'Para Atletas', desc: 'Acompanhe sua evolução com dados reais.' },
+  { icon: '👨‍👩‍👦', title: 'Para Responsáveis', desc: 'Veja o progresso do seu filho em tempo real.' },
+  { icon: '🔍', title: 'Para Scouts', desc: 'Descubra talentos com relatórios completos.' },
+]
+
 export default function LandingPage() {
   return (
     <div className="bg-[#09110d] text-white min-h-screen">
 
-      {/* ─── NAV ─── */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-[#09110d]/90 backdrop-blur border-b border-white/5">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <span className="font-[family-name:var(--font-bebas)] text-2xl text-green-500 tracking-wide">
-            ScoutBase
-          </span>
-          <Link
-            href="/login"
-            className="px-4 py-2 bg-green-600 hover:bg-green-500 text-white text-sm font-semibold rounded-lg transition-colors"
-          >
-            Entrar →
-          </Link>
-        </div>
-      </header>
+      {/* ─── HERO FULLSCREEN ─── */}
+      <section
+        className="relative min-h-screen flex flex-col"
+        style={{
+          backgroundImage: 'url(https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?w=1920&q=90)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center top',
+        }}
+      >
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black/55" />
 
-      {/* ─── HERO ─── */}
-      <section className="pt-40 pb-24 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="font-[family-name:var(--font-bebas)] leading-[1.05] tracking-wide">
-            <span className="block text-[clamp(2rem,6vw,4.5rem)] text-white leading-tight">ONDE O FUTEBOL SE CONECTA</span>
-            <span className="block text-[clamp(2rem,6vw,4.5rem)] text-green-500 leading-tight">E ENTREGA RESULTADOS</span>
-          </h1>
-          <p className="mt-7 text-base sm:text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
-            Avalie atletas, mostre evolução com relatórios e eleve o nível dos seus atletas, em uma estrutura de nível profissional.
-          </p>
-          <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/cadastro"
-              className="px-8 py-4 bg-green-600 hover:bg-green-500 text-white font-semibold rounded-xl text-base transition-colors"
+        {/* ─── NAV FIXA ─── */}
+        <nav className="fixed top-0 left-0 right-0 z-50 bg-black/30 backdrop-blur-md border-b border-white/10">
+          <div className="max-w-7xl mx-auto px-8 h-16 flex items-center justify-between gap-8">
+            {/* Logo */}
+            <span className="font-[family-name:var(--font-bebas)] text-2xl tracking-widest shrink-0">
+              <span className="text-white">MEU </span>
+              <span style={{ color: '#22c55e' }}>CRAQUE</span>
+            </span>
+
+            {/* Links */}
+            <div className="hidden lg:flex items-center gap-6 flex-1 justify-center">
+              {navLinks.map((l) => (
+                <a key={l} href="#" className="text-sm text-white/70 hover:text-white transition-colors font-medium">
+                  {l}
+                </a>
+              ))}
+            </div>
+
+            {/* Botões */}
+            <div className="flex items-center gap-3 shrink-0">
+              <Link href="/login" className="px-4 py-2 text-sm font-semibold text-white border border-white/30 hover:border-white/60 rounded-lg transition-colors">
+                Entrar
+              </Link>
+              <Link href="/cadastro" className="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors" style={{ backgroundColor: '#16a34a' }}>
+                Começar agora
+              </Link>
+            </div>
+          </div>
+        </nav>
+
+        {/* ─── GRID HERO ─── */}
+        <div className="relative z-10 flex-1 grid grid-cols-1 lg:grid-cols-2 items-center h-screen max-w-7xl mx-auto w-full px-8 gap-12">
+
+          {/* Esquerda */}
+          <div className="pl-0 lg:pl-12 flex flex-col gap-6">
+            {/* Badge */}
+            <span className="inline-flex items-center gap-2 w-fit px-4 py-1.5 rounded-full text-xs font-semibold text-white border border-green-500/50" style={{ backgroundColor: 'rgba(34,197,94,0.15)' }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              Plataforma #1 para futebol de base
+            </span>
+
+            {/* H1 */}
+            <h1 className="font-black leading-tight" style={{ fontSize: '72px' }}>
+              <span className="block text-white">A plataforma que</span>
+              <span className="block text-white">está transformando</span>
+              <span className="block italic" style={{ color: '#22c55e' }}>o futebol.</span>
+            </h1>
+
+            {/* Subtítulo */}
+            <p className="text-lg text-white/70 max-w-md leading-relaxed">
+              Avalie atletas, mostre evolução com dados e eleve o nível da sua escolinha para um padrão profissional.
+            </p>
+
+            {/* Botão */}
+            <div>
+              <Link
+                href="/cadastro"
+                className="inline-flex items-center gap-3 px-8 py-4 text-white text-base font-bold rounded-2xl transition-all shadow-lg shadow-green-900/40 hover:scale-105"
+                style={{ backgroundColor: '#16a34a' }}
+              >
+                Começar grátis agora
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Link>
+              <p className="text-xs text-white/40 mt-3">Sem cartão de crédito · Configuração em 2 min</p>
+            </div>
+          </div>
+
+          {/* Direita — phones flutuando */}
+          <div className="hidden lg:flex items-center justify-center relative h-[500px]">
+            {/* Phone de trás */}
+            <div
+              className="absolute bg-white rounded-[40px] shadow-2xl overflow-hidden"
+              style={{
+                width: '208px',
+                height: '400px',
+                top: '40px',
+                right: '80px',
+                transform: 'rotate(6deg)',
+                opacity: 0.85,
+              }}
             >
-              Começar Agora — é grátis
-            </Link>
-            <a
-              href="#como-funciona"
-              className="px-8 py-4 border border-white/20 hover:border-white/40 text-white font-semibold rounded-xl text-base transition-colors"
+              <div className="h-8 bg-gray-100 flex items-center justify-center">
+                <div className="w-16 h-1.5 bg-gray-300 rounded-full" />
+              </div>
+              <div className="p-4 space-y-3">
+                <div className="h-3 bg-green-100 rounded-full w-3/4" />
+                <div className="h-2 bg-gray-100 rounded-full w-full" />
+                <div className="h-2 bg-gray-100 rounded-full w-2/3" />
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  {['Técnico','Físico','Tático','Comport.'].map(l => (
+                    <div key={l} className="bg-gray-50 rounded-xl p-2">
+                      <p className="text-[8px] text-gray-400">{l}</p>
+                      <p className="text-xs font-bold text-gray-800">8.5</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-2 bg-green-50 rounded-xl p-2">
+                  <p className="text-[8px] text-gray-400">Frequência</p>
+                  <p className="text-xs font-bold text-green-600">91%</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Phone da frente */}
+            <div
+              className="absolute bg-white rounded-[44px] shadow-2xl overflow-hidden"
+              style={{
+                width: '256px',
+                height: '480px',
+                top: '10px',
+                left: '60px',
+                transform: 'rotate(-4deg)',
+              }}
             >
-              Ver como funciona
-            </a>
+              <div className="h-9 bg-gray-50 flex items-center justify-center border-b border-gray-100">
+                <div className="w-20 h-1.5 bg-gray-300 rounded-full" />
+              </div>
+              <div className="p-5 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center text-white font-bold text-sm">G</div>
+                  <div>
+                    <p className="text-xs font-bold text-gray-900">Gabriel Silva</p>
+                    <p className="text-[10px] text-gray-400">Sub-15 · Meia</p>
+                  </div>
+                  <span className="ml-auto text-lg font-black text-green-600">84</span>
+                </div>
+                <div className="bg-green-50 rounded-2xl p-3 text-center">
+                  <p className="text-[9px] text-gray-400 mb-1">Scout Score</p>
+                  <p className="text-3xl font-black text-green-600">84</p>
+                  <p className="text-[9px] text-gray-400">de 100</p>
+                </div>
+                <div className="space-y-2">
+                  {[['📅 Próximo treino','Qui, 08/05 às 09h'],['📍 Local','Campo Principal'],['✅ Frequência','91%']].map(([l,v]) => (
+                    <div key={l} className="flex justify-between text-[10px]">
+                      <span className="text-gray-500">{l}</span>
+                      <span className="font-semibold text-gray-800">{v}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-2 rounded-2xl overflow-hidden bg-green-600 p-3 text-center">
+                  <p className="text-white text-[10px] font-semibold">Mensalidade em dia ✅</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ─── CARDS BAR ─── */}
+        <div className="relative z-10 w-full border-t border-white/10 bg-black/40 backdrop-blur-sm">
+          <div className="max-w-7xl mx-auto px-8 grid grid-cols-2 lg:grid-cols-4 divide-x divide-white/10">
+            {cardBar.map((c) => (
+              <div key={c.title} className="flex items-start gap-3 px-6 py-5">
+                <span className="text-2xl mt-0.5">{c.icon}</span>
+                <div>
+                  <p className="text-sm font-bold text-white">{c.title}</p>
+                  <p className="text-xs text-white/50 mt-0.5 leading-snug">{c.desc}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -135,7 +279,7 @@ export default function LandingPage() {
             VOCÊ SE IDENTIFICA COM ISSO?
           </h2>
           <p className="text-center text-gray-500 text-sm mb-10">
-            Se sim, o ScoutBase foi feito pra você.
+            Se sim, o Meu Craque foi feito pra você.
           </p>
           <div className="space-y-3">
             {dores.map((dor) => (
@@ -181,7 +325,7 @@ export default function LandingPage() {
       <section className="py-24 px-6">
         <div className="max-w-5xl mx-auto">
           <h2 className="font-[family-name:var(--font-bebas)] text-4xl sm:text-5xl text-center tracking-wide mb-14">
-            PARA QUEM É O SCOUTBASE?
+            PARA QUEM É O Meu Craque?
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {audiences.map((a) => (
@@ -369,10 +513,10 @@ export default function LandingPage() {
       <footer className="border-t border-white/5 py-8 px-6">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <span className="font-[family-name:var(--font-bebas)] text-xl text-green-500 tracking-wide">
-            ScoutBase
+            Meu Craque
           </span>
           <p className="text-xs text-gray-600">
-            © {new Date().getFullYear()} ScoutBase. Todos os direitos reservados.
+            © {new Date().getFullYear()} Meu Craque. Todos os direitos reservados.
           </p>
         </div>
       </footer>

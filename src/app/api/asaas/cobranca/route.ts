@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase'
 import { asaas, calcularSplit } from '@/lib/asaas'
 
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
       billingType: 'PIX',
       value: valor,
       dueDate: vencimento,
-      description: `Mensalidade ScoutBase — ${nome_aluno} — ${competencia}`,
+      description: `Mensalidade Meu Craque — ${nome_aluno} — ${competencia}`,
       externalReference: aluno_id,
       splits,
     })

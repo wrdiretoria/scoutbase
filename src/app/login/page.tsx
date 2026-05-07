@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -34,7 +34,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Entrar</h1>
         <p className="text-sm text-gray-500 mb-6">
-          Acesse sua conta do ScoutBase
+          Acesse sua conta do Meu Craque
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">

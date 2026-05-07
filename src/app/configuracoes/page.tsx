@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase'
@@ -107,7 +107,7 @@ export default function ConfiguracoesPage() {
                     Responsáveis pagam direto pelo app via Pix ou cartão. Taxa de serviço: 3,99%.
                   </p>
                   <p className="text-xs text-amber-600 font-medium mt-1">
-                    Exemplo: responsável paga R$150 → ScoutBase R$5,99 → Você R$144,01
+                    Exemplo: responsável paga R$150 → Meu Craque R$5,99 → Você R$144,01
                   </p>
                   <ul className="mt-3 space-y-1">
                     {[
@@ -184,7 +184,7 @@ export default function ConfiguracoesPage() {
                   <ul className="mt-3 space-y-1">
                     {[
                       'Atleta só pausa se você marcar manualmente como inadimplente',
-                      'Sem split — ScoutBase recebe apenas a assinatura do plano',
+                      'Sem split — Meu Craque recebe apenas a assinatura do plano',
                     ].map((b) => (
                       <li key={b} className="text-xs text-gray-500 flex items-start gap-1.5">
                         <span className="mt-0.5">→</span> {b}

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -130,7 +130,7 @@ export default function CadastroPage() {
       <div className="w-full max-w-sm bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
         <h1 className="text-2xl font-bold text-gray-900 mb-2">Criar conta</h1>
         <p className="text-sm text-gray-500 mb-6">
-          Comece a usar o ScoutBase hoje
+          Comece a usar o Meu Craque hoje
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
