@@ -86,11 +86,11 @@ export default function LandingPage() {
       <section style={{ position:'relative', height:'100vh', overflow:'hidden' }}>
         {/* BG */}
         <img
-          src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1920&q=90"
+          src="https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?w=1920&q=90"
           alt="" aria-hidden
           style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', objectPosition:'center top', zIndex:0 }}
         />
-        <div style={{ position:'absolute', inset:0, zIndex:1, background:'linear-gradient(to right, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0.15) 100%)' }} />
+        <div style={{ position:'absolute', inset:0, zIndex:1, background:'linear-gradient(to right, rgba(0,0,0,0.93) 0%, rgba(0,0,0,0.80) 45%, rgba(0,0,0,0.25) 100%)' }} />
 
         {/* Grid */}
         <div style={{
@@ -110,7 +110,7 @@ export default function LandingPage() {
               ⭐ A PLATAFORMA #1 PARA O FUTEBOL DE BASE
             </span>
 
-            <h1 style={{ fontSize:'clamp(44px,5vw,68px)', fontWeight:900, letterSpacing:'-0.04em', lineHeight:1.0, color:'white', margin:0 }}>
+            <h1 style={{ fontSize:'clamp(52px,5.5vw,76px)', fontWeight:900, letterSpacing:'-0.04em', lineHeight:1.0, color:'white', margin:0 }}>
               <span style={{ display:'block' }}>A jornada completa</span>
               <span style={{ display:'block' }}>de quem vive</span>
               <em style={{ display:'block', color:'#22c55e', fontStyle:'italic' }}>o futebol.</em>
@@ -136,7 +136,7 @@ export default function LandingPage() {
 
               {/* PHONE FRONT — left, larger, in front */}
               <div style={{
-                position:'absolute', left:0, bottom:0, zIndex:2,
+                position:'absolute', left:0, top:'50px', zIndex:2,
                 width:'252px', borderRadius:'40px', background:'#111',
                 padding:'10px 8px',
                 boxShadow:'0 40px 80px rgba(0,0,0,0.7), 0 0 0 1.5px rgba(255,255,255,0.12)',
@@ -254,8 +254,8 @@ export default function LandingPage() {
               {/* PHONE BACK — right, smaller, behind */}
               <div style={{
                 position:'absolute', right:0, top:0, zIndex:1,
-                width:'224px', borderRadius:'38px', background:'#111',
-                padding:'10px 8px', opacity:0.92,
+                width:'220px', borderRadius:'38px', background:'#111',
+                padding:'10px 8px', opacity:0.90,
                 boxShadow:'0 28px 56px rgba(0,0,0,0.6), 0 0 0 1.5px rgba(255,255,255,0.10)',
                 animation:'floatBack 5s ease-in-out infinite 0.8s',
               }}>
