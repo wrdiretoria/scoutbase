@@ -96,16 +96,16 @@ export default function LandingPage() {
     <div className="bg-[#09110d] text-white min-h-screen">
 
       {/* ─── HERO FULLSCREEN ─── */}
-      <section
-        className="relative min-h-screen flex flex-col"
-        style={{
-          backgroundImage: 'url(https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?w=1920&q=90)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center top',
-        }}
-      >
+      <section className="relative min-h-screen flex flex-col overflow-hidden">
+        {/* Background */}
+        <img
+          src="https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?w=1920&q=90"
+          alt=""
+          aria-hidden
+          className="absolute inset-0 w-full h-full object-cover object-center"
+        />
         {/* Overlay */}
-        <div className="absolute inset-0 bg-black/55" />
+        <div className="absolute inset-0 bg-black/50" />
 
         {/* ─── NAV FIXA ─── */}
         <nav className="fixed top-0 left-0 right-0 z-50 bg-black/30 backdrop-blur-md border-b border-white/10">
@@ -138,10 +138,13 @@ export default function LandingPage() {
         </nav>
 
         {/* ─── GRID HERO ─── */}
-        <div className="relative z-10 flex-1 grid grid-cols-1 lg:grid-cols-2 items-center h-screen max-w-7xl mx-auto w-full px-8 gap-12">
+        <div className="relative z-10 flex-1 grid grid-cols-1 lg:grid-cols-2 h-screen w-full">
 
-          {/* Esquerda */}
-          <div className="pl-0 lg:pl-12 flex flex-col gap-6">
+          {/* Esquerda — topo-esquerdo */}
+          <div
+            className="flex flex-col gap-6 self-start"
+            style={{ paddingLeft: '80px', paddingTop: '160px' }}
+          >
             {/* Badge */}
             <span className="inline-flex items-center gap-2 w-fit px-4 py-1.5 rounded-full text-xs font-semibold text-white border border-green-500/50" style={{ backgroundColor: 'rgba(34,197,94,0.15)' }}>
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
@@ -149,14 +152,14 @@ export default function LandingPage() {
             </span>
 
             {/* H1 */}
-            <h1 className="font-black leading-tight" style={{ fontSize: '72px' }}>
-              <span className="block text-white">A plataforma que</span>
-              <span className="block text-white">está transformando</span>
+            <h1 className="leading-tight" style={{ fontSize: '72px', fontWeight: 900 }}>
+              <span className="block text-white">A jornada completa</span>
+              <span className="block text-white">de quem vive</span>
               <span className="block italic" style={{ color: '#22c55e' }}>o futebol.</span>
             </h1>
 
             {/* Subtítulo */}
-            <p className="text-lg text-white/70 max-w-md leading-relaxed">
+            <p className="text-lg text-white/70 leading-relaxed">
               Avalie atletas, mostre evolução com dados e eleve o nível da sua escolinha para um padrão profissional.
             </p>
 
@@ -177,20 +180,20 @@ export default function LandingPage() {
           </div>
 
           {/* Direita — phones flutuando */}
-          <div className="hidden lg:flex items-center justify-center relative h-[500px]">
+          <div className="hidden lg:flex items-center justify-center relative" style={{ width: '500px', height: '600px', margin: 'auto' }}>
             {/* Phone de trás */}
             <div
               className="absolute bg-white rounded-[40px] shadow-2xl overflow-hidden"
               style={{
-                width: '208px',
-                height: '400px',
-                top: '40px',
-                right: '80px',
+                width: '240px',
+                height: '460px',
+                top: '60px',
+                right: '20px',
                 transform: 'rotate(6deg)',
                 opacity: 0.85,
               }}
             >
-              <div className="h-8 bg-gray-100 flex items-center justify-center">
+              <div className="h-8 bg-white flex items-center justify-center">
                 <div className="w-16 h-1.5 bg-gray-300 rounded-full" />
               </div>
               <div className="p-4 space-y-3">
@@ -216,14 +219,14 @@ export default function LandingPage() {
             <div
               className="absolute bg-white rounded-[44px] shadow-2xl overflow-hidden"
               style={{
-                width: '256px',
-                height: '480px',
-                top: '10px',
-                left: '60px',
+                width: '288px',
+                height: '540px',
+                top: '30px',
+                left: '20px',
                 transform: 'rotate(-4deg)',
               }}
             >
-              <div className="h-9 bg-gray-50 flex items-center justify-center border-b border-gray-100">
+              <div className="h-9 bg-white flex items-center justify-center border-b border-gray-100">
                 <div className="w-20 h-1.5 bg-gray-300 rounded-full" />
               </div>
               <div className="p-5 space-y-4">
