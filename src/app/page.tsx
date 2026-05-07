@@ -152,7 +152,7 @@ export default function LandingPage() {
             </span>
 
             {/* H1 */}
-            <h1 className="leading-tight" style={{ fontSize: '72px', fontWeight: 900 }}>
+            <h1 className="leading-tight" style={{ fontSize: '5rem', fontWeight: 900, letterSpacing: '-0.03em', maxWidth: 'none' }}>
               <span className="block text-white">A jornada completa</span>
               <span className="block text-white">de quem vive</span>
               <span className="block italic" style={{ color: '#22c55e' }}>o futebol.</span>
