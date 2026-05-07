@@ -56,9 +56,11 @@ export default function LandingPage() {
         /* ── MOBILE ── */
         @media (max-width: 860px) {
           .nav-links-wrap { display:none !important; }
-          .nav-inner { padding: 0 16px !important; gap: 12px !important; }
-          .nav-btn-secondary { display:none !important; }
-          .nav-btn-primary { padding: 8px 14px !important; font-size: 13px !important; }
+          .nav-inner { padding: 0 12px !important; gap: 8px !important; }
+          .nav-btn-secondary { padding: 7px 12px !important; font-size: 12px !important; }
+          .nav-btn-primary { padding: 7px 12px !important; font-size: 12px !important; }
+          .nav-logo-text { font-size: 16px !important; }
+          .nav-logo-icon { font-size: 18px !important; }
           .hero-grid {
             grid-template-columns: 1fr !important;
             padding: 0 28px !important;
@@ -84,10 +86,11 @@ export default function LandingPage() {
         backdropFilter:'blur(20px)',
         borderBottom:'1px solid rgba(255,255,255,0.06)',
         display:'flex', alignItems:'center',
+        overflowX:'hidden',
       }}>
         <div className="nav-inner" style={{ maxWidth:'1280px', margin:'0 auto', padding:'0 40px', width:'100%', display:'flex', alignItems:'center', gap:'32px' }}>
-          <span style={{ fontSize:'20px', fontWeight:800, letterSpacing:'0.04em', flexShrink:0, display:'flex', alignItems:'center', gap:'8px' }}>
-            <span style={{ fontSize:'22px' }}>⚽</span>
+          <span className="nav-logo-text" style={{ fontSize:'20px', fontWeight:800, letterSpacing:'0.04em', flexShrink:0, display:'flex', alignItems:'center', gap:'8px' }}>
+            <span className="nav-logo-icon" style={{ fontSize:'22px' }}>⚽</span>
             <span style={{ color:'white' }}>MEU </span>
             <span style={{ color:'#22c55e' }}>CRAQUE</span>
           </span>
