@@ -50,6 +50,10 @@ export default function LandingPage() {
           0%, 100% { transform: translateY(0px); }
           50%       { transform: translateY(-10px); }
         }
+        .nav-link { color: rgba(255,255,255,0.65); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+        .nav-link:hover { color: white; }
+        .card-hover { transition: background 0.2s; }
+        .card-hover:hover { background: rgba(34,197,94,0.04); }
       `}</style>
 
       {/* ─── NAV ─── */}
@@ -71,9 +75,7 @@ export default function LandingPage() {
           {/* Links */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '28px', flex: 1, justifyContent: 'center' }}>
             {navLinks.map((l) => (
-              <a key={l} href="#" style={{ fontSize: '14px', color: 'rgba(255,255,255,0.65)', textDecoration: 'none', fontWeight: 500, transition: 'color 0.2s' }}
-                onMouseOver={e => (e.currentTarget.style.color = 'white')}
-                onMouseOut={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.65)')}>
+              <a key={l} href="#" className="nav-link">
                 {l}
               </a>
             ))}
@@ -371,11 +373,8 @@ export default function LandingPage() {
             <div key={c.title} style={{
               padding: '28px',
               borderRight: i < 3 ? '1px solid rgba(34,197,94,0.1)' : 'none',
-              transition: 'background 0.2s',
-              cursor: 'default',
             }}
-              onMouseOver={e => (e.currentTarget.style.background = 'rgba(34,197,94,0.04)')}
-              onMouseOut={e => (e.currentTarget.style.background = 'transparent')}
+            className="card-hover"
             >
               <span style={{ fontSize: '24px', display: 'block', marginBottom: '10px' }}>{c.icon}</span>
               <p style={{ margin: '0 0 6px', fontSize: '15px', fontWeight: 700, color: c.highlight ? '#22c55e' : 'white' }}>{c.title}</p>
