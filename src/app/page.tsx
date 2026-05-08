@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import NavBar from './components/NavBar'
 import ActivityTicker from './components/ActivityTicker'
+import TeamOfWeekSection from './components/TeamOfWeekSection'
 import ProspectsSection from './components/ProspectsSection'
 import RankingSection from './components/RankingSection'
 
@@ -381,6 +382,8 @@ export default function LandingPage() {
       </section>
 
       <ActivityTicker />
+
+      <TeamOfWeekSection />
 
       <ProspectsSection />
 
