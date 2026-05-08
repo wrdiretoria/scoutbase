@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import NavBar from './components/NavBar'
+import RankingSection from './components/RankingSection'
 
 const cards = [
   {
@@ -342,6 +343,8 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      <RankingSection />
 
       {/* ─── CARDS BAR ─── */}
       <div style={{ background:'#080e09', borderTop:'1px solid rgba(34,197,94,0.15)' }}>
