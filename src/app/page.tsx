@@ -73,14 +73,14 @@ export default function LandingPage() {
       <NavBar />
 
       {/* ─── HERO ─── */}
-      <section className="hero-section" style={{ position:'relative', height:'100vh', overflow:'hidden' }}>
+      <section className="hero-section" style={{ position:'relative', height:'100svh', overflow:'hidden' }}>
         {/* BG */}
         <img
           src="/images/hero-player.png"
           alt="" aria-hidden
-          style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', objectPosition:'center top', zIndex:0 }}
+          style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', objectPosition:'center center', zIndex:0 }}
         />
-        <div style={{ position:'absolute', inset:0, zIndex:1, background:'linear-gradient(to right, rgba(0,0,0,0.93) 0%, rgba(0,0,0,0.80) 45%, rgba(0,0,0,0.25) 100%)' }} />
+        <div style={{ position:'absolute', inset:0, zIndex:1, background:'linear-gradient(to right, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.60) 40%, rgba(0,0,0,0.15) 100%)' }} />
 
         {/* Grid */}
         <div className="hero-grid" style={{
