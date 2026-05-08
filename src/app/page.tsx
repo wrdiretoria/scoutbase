@@ -76,7 +76,7 @@ export default function LandingPage() {
       <section className="hero-section" style={{ position:'relative', height:'100vh', overflow:'hidden' }}>
         {/* BG */}
         <img
-          src="https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?w=1920&q=90"
+          src="/images/hero-player.png"
           alt="" aria-hidden
           style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', objectPosition:'center top', zIndex:0 }}
         />
