@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup — Ranking Infinito</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #06100a; font-family: system-ui, sans-serif; padding: 60px 0; }
+
+  h2 {
+    text-align: center;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 40px;
+  }
+
+  .marquee-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+  }
+
+  .marquee-track {
+    display: flex;
+    gap: 16px;
+    width: max-content;
+  }
+
+  .marquee-track.left  { animation: scrollLeft  35s linear infinite; }
+  .marquee-track.right { animation: scrollRight 40s linear infinite; }
+
+  @keyframes scrollLeft  { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @keyframes scrollRight { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+
+  .card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 14px 20px;
+    min-width: 220px;
+    flex-shrink: 0;
+    transition: background 0.2s;
+  }
+
+  .avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 800;
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .info { flex: 1; }
+  .name { font-size: 14px; font-weight: 700; color: white; }
+  .meta { font-size: 12px; color: rgba(255,255,255,0.45); margin-top: 2px; }
+
+  .rating {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+  }
+  .rating-num {
+    font-size: 22px;
+    font-weight: 900;
+    color: #22c55e;
+    line-height: 1;
+  }
+  .rating-label {
+    font-size: 9px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+    background: rgba(34,197,94,0.15);
+    color: #22c55e;
+    border: 1px solid rgba(34,197,94,0.3);
+    margin-top: 4px;
+    display: inline-block;
+  }
+</style>
+</head>
+<body>
+
+<h2>⚡ Atletas em destaque esta semana</h2>
+
+<div class="marquee-wrapper">
+
+  <!-- LINHA 1 — vai para esquerda -->
+  <div class="marquee-track left">
+    <!-- set 1 -->
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#16a34a,#4ade80)">PH</div><div class="info"><div class="name">Pedro Henrique</div><div class="meta">Meia Atacante · São Paulo</div><span class="badge">↑ +3 posições</span></div><div class="rating"><div class="rating-num">91</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#2563eb,#60a5fa)">AS</div><div class="info"><div class="name">Arthur Silva</div><div class="meta">Goleiro · Santos</div><span class="badge">Destaque</span></div><div class="rating"><div class="rating-num">88</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#7c3aed,#a78bfa)">MC</div><div class="info"><div class="name">Miguel Costa</div><div class="meta">Zagueiro · Curitiba</div><span class="badge">↑ +5 posições</span></div><div class="rating"><div class="rating-num">86</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#dc2626,#f87171)">GL</div><div class="info"><div class="name">Gabriel Lima</div><div class="meta">Lateral Dir. · BH</div><span class="badge">Destaque</span></div><div class="rating"><div class="rating-num">85</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#d97706,#fbbf24)">KA</div><div class="info"><div class="name">Kauã Alves</div><div class="meta">Atacante · Fortaleza</div><span class="badge">↑ +2 posições</span></div><div class="rating"><div class="rating-num">84</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#0891b2,#67e8f9)">LF</div><div class="info"><div class="name">Lucas Ferreira</div><div class="meta">Meia · Rio de Janeiro</div><span class="badge">Destaque</span></div><div class="rating"><div class="rating-num">83</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#be185d,#f472b6)">RM</div><div class="info"><div class="name">Rafael Moura</div><div class="meta">Volante · Recife</div><span class="badge">↑ +4 posições</span></div><div class="rating"><div class="rating-num">81</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#065f46,#34d399)">FO</div><div class="info"><div class="name">Felipe Oliveira</div><div class="meta">Zagueiro · Porto Alegre</div><span class="badge">Destaque</span></div><div class="rating"><div class="rating-num">79</div><div class="rating-label">Rating</div></div></div>
+    <!-- set 2 (clone para loop) -->
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#16a34a,#4ade80)">PH</div><div class="info"><div class="name">Pedro Henrique</div><div class="meta">Meia Atacante · São Paulo</div><span class="badge">↑ +3 posições</span></div><div class="rating"><div class="rating-num">91</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#2563eb,#60a5fa)">AS</div><div class="info"><div class="name">Arthur Silva</div><div class="meta">Goleiro · Santos</div><span class="badge">Destaque</span></div><div class="rating"><div class="rating-num">88</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#7c3aed,#a78bfa)">MC</div><div class="info"><div class="name">Miguel Costa</div><div class="meta">Zagueiro · Curitiba</div><span class="badge">↑ +5 posições</span></div><div class="rating"><div class="rating-num">86</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#dc2626,#f87171)">GL</div><div class="info"><div class="name">Gabriel Lima</div><div class="meta">Lateral Dir. · BH</div><span class="badge">Destaque</span></div><div class="rating"><div class="rating-num">85</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#d97706,#fbbf24)">KA</div><div class="info"><div class="name">Kauã Alves</div><div class="meta">Atacante · Fortaleza</div><span class="badge">↑ +2 posições</span></div><div class="rating"><div class="rating-num">84</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#0891b2,#67e8f9)">LF</div><div class="info"><div class="name">Lucas Ferreira</div><div class="meta">Meia · Rio de Janeiro</div><span class="badge">Destaque</span></div><div class="rating"><div class="rating-num">83</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#be185d,#f472b6)">RM</div><div class="info"><div class="name">Rafael Moura</div><div class="meta">Volante · Recife</div><span class="badge">↑ +4 posições</span></div><div class="rating"><div class="rating-num">81</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#065f46,#34d399)">FO</div><div class="info"><div class="name">Felipe Oliveira</div><div class="meta">Zagueiro · Porto Alegre</div><span class="badge">Destaque</span></div><div class="rating"><div class="rating-num">79</div><div class="rating-label">Rating</div></div></div>
+  </div>
+
+  <!-- LINHA 2 — vai para direita -->
+  <div class="marquee-track right">
+    <!-- set 1 -->
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#b45309,#fcd34d)">TN</div><div class="info"><div class="name">Thiago Nunes</div><div class="meta">Atacante · Campinas</div><span class="badge">↑ +6 posições</span></div><div class="rating"><div class="rating-num">87</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#1d4ed8,#93c5fd)">BS</div><div class="info"><div class="name">Bruno Santos</div><div class="meta">Lateral Esq. · Salvador</div><span class="badge">Destaque</span></div><div class="rating"><div class="rating-num">85</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#16a34a,#86efac)">DC</div><div class="info"><div class="name">Diego Campos</div><div class="meta">Meia · Manaus</div><span class="badge">↑ +1 posição</span></div><div class="rating"><div class="rating-num">82</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#9d174d,#fb7185)">VR</div><div class="info"><div class="name">Victor Rocha</div><div class="meta">Goleiro · Brasília</div><span class="badge">Destaque</span></div><div class="rating"><div class="rating-num">80</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#065f46,#6ee7b7)">EN</div><div class="info"><div class="name">Eduardo Neto</div><div class="meta">Zagueiro · Goiânia</div><span class="badge">↑ +3 posições</span></div><div class="rating"><div class="rating-num">78</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#92400e,#fde68a)">JM</div><div class="info"><div class="name">João Mendes</div><div class="meta">Atacante · Natal</div><span class="badge">Destaque</span></div><div class="rating"><div class="rating-num">76</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#4338ca,#c7d2fe)">RA</div><div class="info"><div class="name">Rodrigo Azevedo</div><div class="meta">Volante · Florianópolis</div><span class="badge">↑ +2 posições</span></div><div class="rating"><div class="rating-num">74</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#0e7490,#a5f3fc)">CL</div><div class="info"><div class="name">Carlos Lima</div><div class="meta">Lateral Dir. · Belém</div><span class="badge">Destaque</span></div><div class="rating"><div class="rating-num">72</div><div class="rating-label">Rating</div></div></div>
+    <!-- set 2 (clone para loop) -->
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#b45309,#fcd34d)">TN</div><div class="info"><div class="name">Thiago Nunes</div><div class="meta">Atacante · Campinas</div><span class="badge">↑ +6 posições</span></div><div class="rating"><div class="rating-num">87</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#1d4ed8,#93c5fd)">BS</div><div class="info"><div class="name">Bruno Santos</div><div class="meta">Lateral Esq. · Salvador</div><span class="badge">Destaque</span></div><div class="rating"><div class="rating-num">85</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#16a34a,#86efac)">DC</div><div class="info"><div class="name">Diego Campos</div><div class="meta">Meia · Manaus</div><span class="badge">↑ +1 posição</span></div><div class="rating"><div class="rating-num">82</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#9d174d,#fb7185)">VR</div><div class="info"><div class="name">Victor Rocha</div><div class="meta">Goleiro · Brasília</div><span class="badge">Destaque</span></div><div class="rating"><div class="rating-num">80</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#065f46,#6ee7b7)">EN</div><div class="info"><div class="name">Eduardo Neto</div><div class="meta">Zagueiro · Goiânia</div><span class="badge">↑ +3 posições</span></div><div class="rating"><div class="rating-num">78</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#92400e,#fde68a)">JM</div><div class="info"><div class="name">João Mendes</div><div class="meta">Atacante · Natal</div><span class="badge">Destaque</span></div><div class="rating"><div class="rating-num">76</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#4338ca,#c7d2fe)">RA</div><div class="info"><div class="name">Rodrigo Azevedo</div><div class="meta">Volante · Florianópolis</div><span class="badge">↑ +2 posições</span></div><div class="rating"><div class="rating-num">74</div><div class="rating-label">Rating</div></div></div>
+    <div class="card"><div class="avatar" style="background:linear-gradient(135deg,#0e7490,#a5f3fc)">CL</div><div class="info"><div class="name">Carlos Lima</div><div class="meta">Lateral Dir. · Belém</div><span class="badge">Destaque</span></div><div class="rating"><div class="rating-num">72</div><div class="rating-label">Rating</div></div></div>
+  </div>
+
+</div>
+
+</body>
+</html>
