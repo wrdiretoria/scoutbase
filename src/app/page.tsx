@@ -1,6 +1,5 @@
 import Link from 'next/link'
-
-const navLinks = ['Para atletas', 'Para treinadores', 'Para responsáveis', 'Para scouts', 'Recursos', 'Planos']
+import NavBar from './components/NavBar'
 
 const cards = [
   {
@@ -48,22 +47,14 @@ export default function LandingPage() {
       <style>{`
         @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
         @keyframes floatBack { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-        .nav-link { color:rgba(255,255,255,0.65); text-decoration:none; font-size:14px; font-weight:500; transition:color .2s; }
-        .nav-link:hover { color:white; }
         .card-item { transition:background .2s; cursor:default; }
         .card-item:hover { background:rgba(34,197,94,0.06); }
 
         /* ── MOBILE ── */
-        @media (max-width: 860px) {
-          .nav-links-wrap { display:none !important; }
-          .nav-inner { padding: 0 12px !important; gap: 8px !important; }
-          .nav-btn-secondary { padding: 7px 12px !important; font-size: 12px !important; }
-          .nav-btn-primary { padding: 7px 12px !important; font-size: 12px !important; }
-          .nav-logo-text { font-size: 16px !important; }
-          .nav-logo-icon { font-size: 18px !important; }
+        @media (max-width: 768px) {
           .hero-grid {
             grid-template-columns: 1fr !important;
-            padding: 0 28px !important;
+            padding: 0 24px !important;
             align-items: flex-start !important;
             padding-top: 100px !important;
           }
@@ -79,34 +70,7 @@ export default function LandingPage() {
         }
       `}</style>
 
-      {/* ─── NAV ─── */}
-      <nav style={{
-        position:'fixed', top:0, left:0, right:0, zIndex:100,
-        height:'64px', background:'rgba(6,16,10,0.9)',
-        backdropFilter:'blur(20px)',
-        borderBottom:'1px solid rgba(255,255,255,0.06)',
-        display:'flex', alignItems:'center',
-        overflowX:'hidden',
-      }}>
-        <div className="nav-inner" style={{ maxWidth:'1280px', margin:'0 auto', padding:'0 40px', width:'100%', display:'flex', alignItems:'center', gap:'32px' }}>
-          <span className="nav-logo-text" style={{ fontSize:'20px', fontWeight:800, letterSpacing:'0.04em', flexShrink:0, display:'flex', alignItems:'center', gap:'8px' }}>
-            <span className="nav-logo-icon" style={{ fontSize:'22px' }}>⚽</span>
-            <span style={{ color:'white' }}>MEU </span>
-            <span style={{ color:'#22c55e' }}>CRAQUE</span>
-          </span>
-          <div className="nav-links-wrap" style={{ display:'flex', alignItems:'center', gap:'24px', flex:1, justifyContent:'center' }}>
-            {navLinks.map(l => <a key={l} href="#" className="nav-link">{l}</a>)}
-          </div>
-          <div style={{ display:'flex', alignItems:'center', gap:'10px', flexShrink:0 }}>
-            <Link href="/login" className="nav-btn-secondary" style={{ padding:'8px 20px', fontSize:'14px', fontWeight:600, color:'white', border:'1.5px solid rgba(255,255,255,0.3)', borderRadius:'10px', textDecoration:'none' }}>
-              Entrar
-            </Link>
-            <Link href="/cadastro" className="nav-btn-primary" style={{ padding:'8px 20px', fontSize:'14px', fontWeight:700, color:'black', background:'#22c55e', borderRadius:'10px', textDecoration:'none' }}>
-              Começar agora
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <NavBar />
 
       {/* ─── HERO ─── */}
       <section className="hero-section" style={{ position:'relative', height:'100vh', overflow:'hidden' }}>
