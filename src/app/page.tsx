@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import NavBar from './components/NavBar'
+import ActivityTicker from './components/ActivityTicker'
 import RankingSection from './components/RankingSection'
 
 const cards = [
@@ -377,6 +378,8 @@ export default function LandingPage() {
           <p style={{ fontSize:'11px', color:'white', margin:0 }}>#5  Kauã A.    84</p>
         </div>
       </section>
+
+      <ActivityTicker />
 
       <RankingSection />
 
