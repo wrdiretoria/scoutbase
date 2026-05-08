@@ -101,9 +101,9 @@ export default function LandingPage() {
             </span>
 
             <h1 style={{ fontSize:'clamp(52px,5.5vw,76px)', fontWeight:900, letterSpacing:'-0.04em', lineHeight:1.0, color:'white', margin:0 }}>
-              <span style={{ display:'block' }}>A jornada completa</span>
-              <span style={{ display:'block' }}>de quem vive</span>
-              <em style={{ display:'block', color:'#22c55e', fontStyle:'italic' }}>o futebol.</em>
+              <span style={{ display:'block' }}>Todo Craque</span>
+              <span style={{ display:'block' }}>merece ser</span>
+              <em style={{ display:'block', color:'#22c55e', fontStyle:'italic' }}>visto.</em>
             </h1>
 
             <p style={{ fontSize:'17px', color:'rgba(255,255,255,0.68)', lineHeight:1.65, margin:0, maxWidth:'420px' }}>
