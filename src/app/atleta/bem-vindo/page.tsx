@@ -226,7 +226,7 @@ function BemVindoContent() {
             📲 Compartilhar meu card
           </button>
 
-          <Link href="/dashboard" style={{ textDecoration: 'none' }}>
+          <Link href="/atleta/perfil" style={{ textDecoration: 'none' }}>
             <button className="secondary-btn">
               Ver meu perfil completo →
             </button>
