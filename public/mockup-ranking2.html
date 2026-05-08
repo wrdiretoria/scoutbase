@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup Ranking — 3 opções</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#06100a; font-family:system-ui,sans-serif; color:white; }
+
+/* ─── LABEL ─── */
+.option-label {
+  text-align:center;
+  padding: 48px 24px 32px;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.35);
+}
+.option-label span {
+  display:inline-block;
+  background:rgba(34,197,94,0.12);
+  border:1px solid rgba(34,197,94,0.3);
+  color:#22c55e;
+  padding:4px 16px;
+  border-radius:100px;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:0.1em;
+  margin-bottom:10px;
+}
+.option-label h3 {
+  font-size:22px;
+  font-weight:800;
+  color:white;
+  margin-top:6px;
+}
+
+.section-title {
+  text-align:center;
+  margin-bottom:36px;
+  padding:0 24px;
+}
+.section-title p {
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:0.1em;
+  color:#22c55e;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+.section-title h2 {
+  font-size:clamp(24px,4vw,36px);
+  font-weight:900;
+  letter-spacing:-0.03em;
+}
+
+.divider {
+  height:1px;
+  background:rgba(255,255,255,0.06);
+  margin:0 40px;
+}
+
+/* ════════════════════════════════
+   OPÇÃO A — Lista ranking limpa
+═══════════════════════════════════ */
+.option-a { padding:0 0 60px; }
+
+.rank-table {
+  max-width:860px;
+  margin:0 auto;
+  padding:0 24px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.rank-row {
+  display:flex;
+  align-items:center;
+  gap:20px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:16px;
+  padding:16px 24px;
+  transition:background 0.2s;
+}
+.rank-row:hover { background:rgba(34,197,94,0.05); border-color:rgba(34,197,94,0.2); }
+
+.rank-pos {
+  font-size:18px;
+  font-weight:900;
+  width:28px;
+  text-align:center;
+  flex-shrink:0;
+  color:rgba(255,255,255,0.25);
+}
+.rank-pos.gold   { color:#f59e0b; }
+.rank-pos.silver { color:#94a3b8; }
+.rank-pos.bronze { color:#b45309; }
+
+.rank-avatar {
+  width:48px; height:48px;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; font-weight:800; color:white;
+  flex-shrink:0;
+}
+
+.rank-info { flex:1; min-width:0; }
+.rank-name { font-size:15px; font-weight:700; color:white; }
+.rank-meta { font-size:12px; color:rgba(255,255,255,0.45); margin-top:2px; }
+
+.rank-trend {
+  font-size:11px; font-weight:700;
+  padding:3px 10px; border-radius:20px;
+  flex-shrink:0;
+}
+.trend-up   { background:rgba(34,197,94,0.12); color:#22c55e; border:1px solid rgba(34,197,94,0.25); }
+.trend-same { background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.3); border:1px solid rgba(255,255,255,0.1); }
+
+.rank-rating {
+  text-align:right;
+  flex-shrink:0;
+}
+.rank-rating .num { font-size:26px; font-weight:900; color:#22c55e; line-height:1; }
+.rank-rating .lbl { font-size:9px; color:rgba(255,255,255,0.3); text-transform:uppercase; letter-spacing:0.05em; }
+
+/* ════════════════════════════════
+   OPÇÃO B — Cards FIFA
+═══════════════════════════════════ */
+.option-b { padding:0 0 60px; }
+
+.fifa-grid {
+  display:flex;
+  gap:16px;
+  padding:0 24px;
+  max-width:1100px;
+  margin:0 auto;
+  overflow-x:auto;
+  padding-bottom:8px;
+}
+
+.fifa-card {
+  flex-shrink:0;
+  width:190px;
+  border-radius:20px;
+  padding:24px 18px;
+  position:relative;
+  overflow:hidden;
+  cursor:default;
+}
+.fifa-card::before {
+  content:'';
+  position:absolute; inset:0;
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,0.1);
+}
+
+.fifa-card.c1 { background:linear-gradient(145deg,#1a2e1a,#0d1f0d); }
+.fifa-card.c2 { background:linear-gradient(145deg,#1a1a2e,#0d0d1f); }
+.fifa-card.c3 { background:linear-gradient(145deg,#2e1a1a,#1f0d0d); }
+.fifa-card.c4 { background:linear-gradient(145deg,#2e2a1a,#1f1a0d); }
+.fifa-card.c5 { background:linear-gradient(145deg,#1a2a2e,#0d1a1f); }
+
+.fifa-pos-badge {
+  position:absolute; top:14px; left:14px;
+  font-size:11px; font-weight:800;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.12);
+  padding:2px 8px; border-radius:20px;
+  color:rgba(255,255,255,0.5);
+}
+.fifa-pos-badge.gold   { background:rgba(245,158,11,0.15); border-color:rgba(245,158,11,0.4); color:#f59e0b; }
+.fifa-pos-badge.silver { background:rgba(148,163,184,0.12); border-color:rgba(148,163,184,0.3); color:#94a3b8; }
+.fifa-pos-badge.bronze { background:rgba(180,83,9,0.12); border-color:rgba(180,83,9,0.3); color:#b45309; }
+
+.fifa-avatar-wrap {
+  display:flex; justify-content:center;
+  margin:28px 0 16px;
+}
+.fifa-avatar {
+  width:72px; height:72px;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:20px; font-weight:900; color:white;
+  border:2px solid rgba(255,255,255,0.1);
+}
+
+.fifa-rating-big {
+  text-align:center;
+  font-size:48px; font-weight:900; color:#22c55e;
+  line-height:1;
+  margin-bottom:4px;
+}
+.fifa-name { text-align:center; font-size:14px; font-weight:700; margin-bottom:2px; }
+.fifa-pos  { text-align:center; font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:16px; }
+
+.fifa-stats {
+  display:flex; flex-direction:column; gap:6px;
+  border-top:1px solid rgba(255,255,255,0.07);
+  padding-top:14px;
+}
+.fifa-stat {
+  display:flex; justify-content:space-between; align-items:center;
+}
+.fifa-stat-label { font-size:10px; color:rgba(255,255,255,0.4); }
+.fifa-stat-bar-wrap { flex:1; height:3px; background:rgba(255,255,255,0.08); border-radius:2px; margin:0 8px; }
+.fifa-stat-bar { height:100%; border-radius:2px; background:#22c55e; }
+.fifa-stat-val { font-size:11px; font-weight:700; color:white; min-width:20px; text-align:right; }
+
+/* ════════════════════════════════
+   OPÇÃO C — Pódio + Lista
+═══════════════════════════════════ */
+.option-c { padding:0 0 60px; }
+
+.podium-wrap {
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  gap:16px;
+  padding:0 24px;
+  max-width:860px;
+  margin:0 auto 32px;
+}
+
+.podium-card {
+  flex:1;
+  max-width:240px;
+  border-radius:20px;
+  padding:28px 20px 24px;
+  text-align:center;
+  position:relative;
+  border:1px solid rgba(255,255,255,0.08);
+}
+.podium-card.first  { background:linear-gradient(160deg,rgba(34,197,94,0.12),rgba(34,197,94,0.04)); border-color:rgba(34,197,94,0.25); margin-bottom:0; }
+.podium-card.second { background:rgba(255,255,255,0.03); margin-bottom:20px; }
+.podium-card.third  { background:rgba(255,255,255,0.03); margin-bottom:40px; }
+
+.podium-crown {
+  position:absolute; top:-16px; left:50%; transform:translateX(-50%);
+  font-size:28px;
+}
+.podium-num {
+  font-size:11px; font-weight:800; letter-spacing:0.1em;
+  color:rgba(255,255,255,0.3); margin-bottom:14px;
+}
+.podium-num.gold   { color:#f59e0b; }
+.podium-num.silver { color:#94a3b8; }
+.podium-num.bronze { color:#b45309; }
+
+.podium-av {
+  width:64px; height:64px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; font-weight:900; color:white;
+  margin:0 auto 12px;
+}
+.podium-rating { font-size:36px; font-weight:900; color:#22c55e; line-height:1; }
+.podium-name   { font-size:14px; font-weight:700; margin:6px 0 2px; }
+.podium-meta   { font-size:11px; color:rgba(255,255,255,0.4); }
+.podium-badge  {
+  display:inline-block; margin-top:10px;
+  font-size:10px; font-weight:700;
+  background:rgba(34,197,94,0.12); color:#22c55e;
+  border:1px solid rgba(34,197,94,0.25);
+  padding:3px 10px; border-radius:20px;
+}
+
+.mini-list {
+  max-width:860px; margin:0 auto;
+  padding:0 24px;
+  display:flex; flex-direction:column; gap:8px;
+}
+.mini-row {
+  display:flex; align-items:center; gap:16px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:12px; padding:12px 20px;
+}
+.mini-num  { font-size:14px; font-weight:800; color:rgba(255,255,255,0.25); width:20px; }
+.mini-av   { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; color:white; flex-shrink:0; }
+.mini-info { flex:1; }
+.mini-name { font-size:13px; font-weight:700; }
+.mini-meta { font-size:11px; color:rgba(255,255,255,0.4); }
+.mini-badge{ font-size:10px; font-weight:700; color:#22c55e; background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.2); padding:2px 8px; border-radius:20px; flex-shrink:0; }
+.mini-rat  { font-size:20px; font-weight:900; color:#22c55e; flex-shrink:0; }
+
+/* responsive */
+@media(max-width:600px){
+  .fifa-card { width:160px; }
+  .podium-wrap { gap:10px; }
+  .podium-card { padding:20px 12px 18px; }
+  .rank-row { padding:12px 16px; gap:12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ OPÇÃO A ══ -->
+<div class="option-label">
+  <span>OPÇÃO A</span>
+  <h3>Lista ranking limpa</h3>
+</div>
+<div class="option-a">
+  <div class="section-title">
+    <p>⚡ Destaques da semana</p>
+    <h2>Os craques em evidência</h2>
+  </div>
+  <div class="rank-table">
+    <div class="rank-row">
+      <div class="rank-pos gold">#1</div>
+      <div class="rank-avatar" style="background:linear-gradient(135deg,#16a34a,#4ade80)">PH</div>
+      <div class="rank-info"><div class="rank-name">Pedro Henrique</div><div class="rank-meta">Meia Atacante · São Paulo – SP</div></div>
+      <div class="rank-trend trend-up">↑ +3 posições</div>
+      <div class="rank-rating"><div class="num">91</div><div class="lbl">Rating</div></div>
+    </div>
+    <div class="rank-row">
+      <div class="rank-pos silver">#2</div>
+      <div class="rank-avatar" style="background:linear-gradient(135deg,#2563eb,#60a5fa)">AS</div>
+      <div class="rank-info"><div class="rank-name">Arthur Silva</div><div class="rank-meta">Goleiro · Santos – SP</div></div>
+      <div class="rank-trend trend-same">= estável</div>
+      <div class="rank-rating"><div class="num">88</div><div class="lbl">Rating</div></div>
+    </div>
+    <div class="rank-row">
+      <div class="rank-pos bronze">#3</div>
+      <div class="rank-avatar" style="background:linear-gradient(135deg,#7c3aed,#a78bfa)">MC</div>
+      <div class="rank-info"><div class="rank-name">Miguel Costa</div><div class="rank-meta">Zagueiro · Curitiba – PR</div></div>
+      <div class="rank-trend trend-up">↑ +5 posições</div>
+      <div class="rank-rating"><div class="num">86</div><div class="lbl">Rating</div></div>
+    </div>
+    <div class="rank-row">
+      <div class="rank-pos">#4</div>
+      <div class="rank-avatar" style="background:linear-gradient(135deg,#dc2626,#f87171)">GL</div>
+      <div class="rank-info"><div class="rank-name">Gabriel Lima</div><div class="rank-meta">Lateral Dir. · Belo Horizonte – MG</div></div>
+      <div class="rank-trend trend-up">↑ +1 posição</div>
+      <div class="rank-rating"><div class="num">85</div><div class="lbl">Rating</div></div>
+    </div>
+    <div class="rank-row">
+      <div class="rank-pos">#5</div>
+      <div class="rank-avatar" style="background:linear-gradient(135deg,#d97706,#fbbf24)">KA</div>
+      <div class="rank-info"><div class="rank-name">Kauã Alves</div><div class="rank-meta">Atacante · Fortaleza – CE</div></div>
+      <div class="rank-trend trend-up">↑ +2 posições</div>
+      <div class="rank-rating"><div class="num">84</div><div class="lbl">Rating</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══ OPÇÃO B ══ -->
+<div class="option-label">
+  <span>OPÇÃO B</span>
+  <h3>Cards estilo FIFA</h3>
+</div>
+<div class="option-b">
+  <div class="section-title">
+    <p>⚡ Destaques da semana</p>
+    <h2>Os craques em evidência</h2>
+  </div>
+  <div class="fifa-grid">
+
+    <div class="fifa-card c1">
+      <div class="fifa-pos-badge gold">#1</div>
+      <div class="fifa-avatar-wrap"><div class="fifa-avatar" style="background:linear-gradient(135deg,#16a34a,#4ade80)">PH</div></div>
+      <div class="fifa-rating-big">91</div>
+      <div class="fifa-name">Pedro Henrique</div>
+      <div class="fifa-pos">Meia Atacante · SP</div>
+      <div class="fifa-stats">
+        <div class="fifa-stat"><span class="fifa-stat-label">Velocidade</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:92%"></div></div><span class="fifa-stat-val">92</span></div>
+        <div class="fifa-stat"><span class="fifa-stat-label">Finalização</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:88%"></div></div><span class="fifa-stat-val">88</span></div>
+        <div class="fifa-stat"><span class="fifa-stat-label">Drible</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:90%"></div></div><span class="fifa-stat-val">90</span></div>
+        <div class="fifa-stat"><span class="fifa-stat-label">Passe</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:85%"></div></div><span class="fifa-stat-val">85</span></div>
+        <div class="fifa-stat"><span class="fifa-stat-label">Físico</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:80%"></div></div><span class="fifa-stat-val">80</span></div>
+      </div>
+    </div>
+
+    <div class="fifa-card c2">
+      <div class="fifa-pos-badge silver">#2</div>
+      <div class="fifa-avatar-wrap"><div class="fifa-avatar" style="background:linear-gradient(135deg,#2563eb,#60a5fa)">AS</div></div>
+      <div class="fifa-rating-big">88</div>
+      <div class="fifa-name">Arthur Silva</div>
+      <div class="fifa-pos">Goleiro · Santos</div>
+      <div class="fifa-stats">
+        <div class="fifa-stat"><span class="fifa-stat-label">Reflexo</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:91%"></div></div><span class="fifa-stat-val">91</span></div>
+        <div class="fifa-stat"><span class="fifa-stat-label">Posicionam.</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:87%"></div></div><span class="fifa-stat-val">87</span></div>
+        <div class="fifa-stat"><span class="fifa-stat-label">Agilidade</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:85%"></div></div><span class="fifa-stat-val">85</span></div>
+        <div class="fifa-stat"><span class="fifa-stat-label">Saída de Bola</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:82%"></div></div><span class="fifa-stat-val">82</span></div>
+        <div class="fifa-stat"><span class="fifa-stat-label">Liderança</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:88%"></div></div><span class="fifa-stat-val">88</span></div>
+      </div>
+    </div>
+
+    <div class="fifa-card c3">
+      <div class="fifa-pos-badge bronze">#3</div>
+      <div class="fifa-avatar-wrap"><div class="fifa-avatar" style="background:linear-gradient(135deg,#7c3aed,#a78bfa)">MC</div></div>
+      <div class="fifa-rating-big">86</div>
+      <div class="fifa-name">Miguel Costa</div>
+      <div class="fifa-pos">Zagueiro · Curitiba</div>
+      <div class="fifa-stats">
+        <div class="fifa-stat"><span class="fifa-stat-label">Marcação</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:89%"></div></div><span class="fifa-stat-val">89</span></div>
+        <div class="fifa-stat"><span class="fifa-stat-label">Físico</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:87%"></div></div><span class="fifa-stat-val">87</span></div>
+        <div class="fifa-stat"><span class="fifa-stat-label">Cabeceio</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:84%"></div></div><span class="fifa-stat-val">84</span></div>
+        <div class="fifa-stat"><span class="fifa-stat-label">Passe</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:78%"></div></div><span class="fifa-stat-val">78</span></div>
+        <div class="fifa-stat"><span class="fifa-stat-label">Posicionam.</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:85%"></div></div><span class="fifa-stat-val">85</span></div>
+      </div>
+    </div>
+
+    <div class="fifa-card c4">
+      <div class="fifa-pos-badge">#4</div>
+      <div class="fifa-avatar-wrap"><div class="fifa-avatar" style="background:linear-gradient(135deg,#dc2626,#f87171)">GL</div></div>
+      <div class="fifa-rating-big">85</div>
+      <div class="fifa-name">Gabriel Lima</div>
+      <div class="fifa-pos">Lateral Dir. · BH</div>
+      <div class="fifa-stats">
+        <div class="fifa-stat"><span class="fifa-stat-label">Velocidade</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:88%"></div></div><span class="fifa-stat-val">88</span></div>
+        <div class="fifa-stat"><span class="fifa-stat-label">Cruzamento</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:84%"></div></div><span class="fifa-stat-val">84</span></div>
+        <div class="fifa-stat"><span class="fifa-stat-label">Marcação</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:82%"></div></div><span class="fifa-stat-val">82</span></div>
+        <div class="fifa-stat"><span class="fifa-stat-label">Físico</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:80%"></div></div><span class="fifa-stat-val">80</span></div>
+        <div class="fifa-stat"><span class="fifa-stat-label">Resistência</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:86%"></div></div><span class="fifa-stat-val">86</span></div>
+      </div>
+    </div>
+
+    <div class="fifa-card c5">
+      <div class="fifa-pos-badge">#5</div>
+      <div class="fifa-avatar-wrap"><div class="fifa-avatar" style="background:linear-gradient(135deg,#d97706,#fbbf24)">KA</div></div>
+      <div class="fifa-rating-big">84</div>
+      <div class="fifa-name">Kauã Alves</div>
+      <div class="fifa-pos">Atacante · Fortaleza</div>
+      <div class="fifa-stats">
+        <div class="fifa-stat"><span class="fifa-stat-label">Finalização</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:86%"></div></div><span class="fifa-stat-val">86</span></div>
+        <div class="fifa-stat"><span class="fifa-stat-label">Velocidade</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:84%"></div></div><span class="fifa-stat-val">84</span></div>
+        <div class="fifa-stat"><span class="fifa-stat-label">Drible</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:82%"></div></div><span class="fifa-stat-val">82</span></div>
+        <div class="fifa-stat"><span class="fifa-stat-label">Cabeceio</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:75%"></div></div><span class="fifa-stat-val">75</span></div>
+        <div class="fifa-stat"><span class="fifa-stat-label">Pressão</span><div class="fifa-stat-bar-wrap"><div class="fifa-stat-bar" style="width:80%"></div></div><span class="fifa-stat-val">80</span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ══ OPÇÃO C ══ -->
+<div class="option-label">
+  <span>OPÇÃO C</span>
+  <h3>Pódio top 3 + lista abaixo</h3>
+</div>
+<div class="option-c">
+  <div class="section-title">
+    <p>⚡ Destaques da semana</p>
+    <h2>Os craques em evidência</h2>
+  </div>
+
+  <!-- PÓDIO -->
+  <div class="podium-wrap">
+    <!-- 2º -->
+    <div class="podium-card second">
+      <div class="podium-num silver">#2</div>
+      <div class="podium-av" style="background:linear-gradient(135deg,#2563eb,#60a5fa);margin:0 auto 12px">AS</div>
+      <div class="podium-rating">88</div>
+      <div class="podium-name">Arthur Silva</div>
+      <div class="podium-meta">Goleiro · Santos – SP</div>
+      <div class="podium-badge">= estável</div>
+    </div>
+    <!-- 1º -->
+    <div class="podium-card first">
+      <div class="podium-crown">🏆</div>
+      <div class="podium-num gold">#1</div>
+      <div class="podium-av" style="background:linear-gradient(135deg,#16a34a,#4ade80);margin:0 auto 12px">PH</div>
+      <div class="podium-rating">91</div>
+      <div class="podium-name">Pedro Henrique</div>
+      <div class="podium-meta">Meia Atacante · SP</div>
+      <div class="podium-badge">↑ +3 posições</div>
+    </div>
+    <!-- 3º -->
+    <div class="podium-card third">
+      <div class="podium-num bronze">#3</div>
+      <div class="podium-av" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);margin:0 auto 12px">MC</div>
+      <div class="podium-rating">86</div>
+      <div class="podium-name">Miguel Costa</div>
+      <div class="podium-meta">Zagueiro · Curitiba</div>
+      <div class="podium-badge">↑ +5 posições</div>
+    </div>
+  </div>
+
+  <!-- MINI LISTA 4-5 -->
+  <div class="mini-list">
+    <div class="mini-row">
+      <div class="mini-num">#4</div>
+      <div class="mini-av" style="background:linear-gradient(135deg,#dc2626,#f87171)">GL</div>
+      <div class="mini-info"><div class="mini-name">Gabriel Lima</div><div class="mini-meta">Lateral Dir. · BH – MG</div></div>
+      <div class="mini-badge">↑ +1</div>
+      <div class="mini-rat">85</div>
+    </div>
+    <div class="mini-row">
+      <div class="mini-num">#5</div>
+      <div class="mini-av" style="background:linear-gradient(135deg,#d97706,#fbbf24)">KA</div>
+      <div class="mini-info"><div class="mini-name">Kauã Alves</div><div class="mini-meta">Atacante · Fortaleza – CE</div></div>
+      <div class="mini-badge">↑ +2</div>
+      <div class="mini-rat">84</div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
