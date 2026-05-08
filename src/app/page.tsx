@@ -48,8 +48,16 @@ export default function LandingPage() {
       <style>{`
         @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
         @keyframes floatBack { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+        @keyframes heroFadeUp { from { opacity:0; transform:translateY(18px) } to { opacity:1; transform:translateY(0) } }
         .card-item { transition:background .2s; cursor:default; }
         .card-item:hover { background:rgba(34,197,94,0.06); }
+
+        .h-badge  { animation:heroFadeUp 0.7s ease forwards; animation-delay:0.10s; opacity:0; }
+        .h-line-1 { animation:heroFadeUp 0.7s ease forwards; animation-delay:0.25s; opacity:0; }
+        .h-line-2 { animation:heroFadeUp 0.7s ease forwards; animation-delay:0.42s; opacity:0; }
+        .h-sub    { animation:heroFadeUp 0.7s ease forwards; animation-delay:0.58s; opacity:0; }
+        .h-ctas   { animation:heroFadeUp 0.7s ease forwards; animation-delay:0.72s; opacity:0; }
+        .hero-hud { display:block; }
 
         /* ── MOBILE ── */
         @media (max-width: 768px) {
@@ -60,10 +68,11 @@ export default function LandingPage() {
             padding-top: 100px !important;
           }
           .hero-phones { display:none !important; }
+          .hero-hud    { display:none !important; }
           .cards-grid { grid-template-columns: 1fr 1fr !important; }
           .card-item { border-right: none !important; border-bottom: 1px solid rgba(34,197,94,0.1); }
           .footer-inner { flex-direction: column !important; gap: 8px !important; text-align: center !important; }
-          .hero-section { height: auto !important; min-height: 100vh !important; }
+          .hero-section { height: auto !important; min-height: 100svh !important; }
           .hero-left { padding-bottom: 60px !important; }
         }
         @media (max-width: 480px) {
@@ -81,7 +90,10 @@ export default function LandingPage() {
           alt="" aria-hidden
           style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', objectPosition:'center center', zIndex:0 }}
         />
-        <div style={{ position:'absolute', inset:0, zIndex:1, background:'linear-gradient(to right, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.60) 40%, rgba(0,0,0,0.15) 100%)' }} />
+        {/* Overlay 1 — direcional: escuro à esquerda, abre à direita */}
+        <div style={{ position:'absolute', inset:0, zIndex:1, background:'linear-gradient(105deg, rgba(3,8,5,0.90) 0%, rgba(3,8,5,0.74) 42%, rgba(3,8,5,0.20) 100%)' }} />
+        {/* Overlay 2 — vinheta: bordas mais escuras */}
+        <div style={{ position:'absolute', inset:0, zIndex:1, background:'radial-gradient(ellipse at 68% 50%, transparent 35%, rgba(0,0,0,0.52) 100%)' }} />
 
         {/* Grid */}
         <div className="hero-grid" style={{
@@ -92,33 +104,41 @@ export default function LandingPage() {
 
           {/* LEFT */}
           <div className="hero-left" style={{ display:'flex', flexDirection:'column', gap:'28px', minWidth:0 }}>
-            <span style={{
+            <span className="h-badge" style={{
               display:'inline-flex', alignItems:'center', gap:'8px', width:'fit-content',
               padding:'6px 16px', borderRadius:'100px',
               border:'1.5px solid rgba(34,197,94,0.5)', background:'rgba(34,197,94,0.08)',
               fontSize:'11px', fontWeight:700, color:'#22c55e', letterSpacing:'0.06em',
             }}>
-              ⭐ A PLATAFORMA #1 PARA O FUTEBOL DE BASE
+              ⚡ O PALCO DIGITAL DO FUTEBOL BRASILEIRO
             </span>
 
             <h1 style={{ fontSize:'clamp(52px,5.5vw,76px)', fontWeight:900, letterSpacing:'-0.04em', lineHeight:1.0, color:'white', margin:0 }}>
-              <span style={{ display:'block' }}>Todo Craque</span>
-              <span style={{ display:'block' }}>merece ser</span>
-              <em style={{ display:'block', color:'#22c55e', fontStyle:'italic' }}>visto.</em>
+              <span className="h-line-1" style={{ display:'block' }}>Você é</span>
+              <em className="h-line-2" style={{ display:'block', color:'#22c55e', fontStyle:'italic' }}>o próximo.</em>
             </h1>
 
-            <p style={{ fontSize:'17px', color:'rgba(255,255,255,0.68)', lineHeight:1.65, margin:0, maxWidth:'420px' }}>
-              Gestão, evolução e visibilidade para transformar treino em oportunidades reais.
+            <p className="h-sub" style={{ fontSize:'17px', color:'rgba(255,255,255,0.68)', lineHeight:1.65, margin:0, maxWidth:'420px' }}>
+              Crie seu perfil. Suba no ranking. Seja descoberto por quem importa.
             </p>
 
-            <Link href="/cadastro" style={{
-              display:'inline-flex', alignItems:'center', gap:'14px', width:'fit-content',
-              background:'#22c55e', color:'black', fontWeight:800, fontSize:'17px',
-              borderRadius:'14px', padding:'16px 32px', textDecoration:'none',
-            }}>
-              <span style={{ width:'34px', height:'34px', borderRadius:'50%', background:'rgba(0,0,0,0.18)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'16px', flexShrink:0 }}>↗</span>
-              Começar minha jornada
-            </Link>
+            <div className="h-ctas" style={{ display:'flex', alignItems:'center', gap:'20px', flexWrap:'wrap' }}>
+              <Link href="/cadastro" style={{
+                display:'inline-flex', alignItems:'center', gap:'14px', width:'fit-content',
+                background:'#22c55e', color:'black', fontWeight:800, fontSize:'17px',
+                borderRadius:'14px', padding:'16px 32px', textDecoration:'none',
+              }}>
+                <span style={{ width:'34px', height:'34px', borderRadius:'50%', background:'rgba(0,0,0,0.18)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'16px', flexShrink:0 }}>↗</span>
+                Criar meu perfil grátis
+              </Link>
+              <a href="#ranking" style={{
+                fontSize:'14px', fontWeight:700, color:'rgba(255,255,255,0.65)',
+                textDecoration:'none', borderBottom:'1px solid rgba(255,255,255,0.25)',
+                paddingBottom:'2px', whiteSpace:'nowrap',
+              }}>
+                Ver ranking por cidade →
+              </a>
+            </div>
           </div>
 
           {/* RIGHT — phones */}
@@ -341,6 +361,20 @@ export default function LandingPage() {
 
             </div>
           </div>
+        </div>
+
+        {/* HUD sutil — ranking ao vivo, decorativo, oculto no mobile */}
+        <div className="hero-hud" style={{
+          position:'absolute', right:'72px', top:'50%', transform:'translateY(-50%)',
+          zIndex:2, fontFamily:'monospace', textAlign:'right',
+          opacity:0.09, pointerEvents:'none', userSelect:'none', lineHeight:1.5,
+        }}>
+          <p style={{ fontSize:'10px', letterSpacing:'0.18em', color:'white', margin:'0 0 10px', textTransform:'uppercase' }}>Ranking ao vivo</p>
+          <p style={{ fontSize:'22px', fontWeight:900, color:'white', margin:'0 0 5px' }}>#1  Pedro H.   91</p>
+          <p style={{ fontSize:'17px', color:'white', margin:'0 0 5px' }}>#2  Arthur S.  88</p>
+          <p style={{ fontSize:'14px', color:'white', margin:'0 0 5px' }}>#3  Miguel C.  86</p>
+          <p style={{ fontSize:'13px', color:'white', margin:'0 0 5px' }}>#4  Gabriel L. 85</p>
+          <p style={{ fontSize:'11px', color:'white', margin:0 }}>#5  Kauã A.    84</p>
         </div>
       </section>
 
