@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import NavBar from './components/NavBar'
 import ActivityTicker from './components/ActivityTicker'
+import ProspectsSection from './components/ProspectsSection'
 import RankingSection from './components/RankingSection'
 
 const cards = [
@@ -380,6 +381,8 @@ export default function LandingPage() {
       </section>
 
       <ActivityTicker />
+
+      <ProspectsSection />
 
       <RankingSection />
 
