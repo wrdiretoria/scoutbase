@@ -64,7 +64,7 @@ export default function AtletaCadastroPage() {
       body: JSON.stringify({ userId: data.user.id, dataNascimento: dataNasc }),
     })
 
-    const params = new URLSearchParams({ nome, posicao, cidade, dataNasc })
+    const params = new URLSearchParams({ nome, posicao, cidade, dataNasc, uid: data.user.id })
     router.push(`/atleta/bem-vindo?${params.toString()}`)
   }
 

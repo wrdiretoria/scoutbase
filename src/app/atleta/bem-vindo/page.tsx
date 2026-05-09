@@ -45,10 +45,14 @@ function BemVindoContent() {
   const cidade  = params.get('cidade')  ?? ''
   const dataNasc = params.get('dataNasc') ?? ''
 
+  const uid       = params.get('uid') ?? ''
   const ovr       = calcularOVR(nome)
   const categoria = dataNasc ? calcularCategoria(dataNasc) : ''
   const initials  = getInitials(nome)
   const posAbrev  = posLabel(posicao)
+  const cardUrl   = uid
+    ? `https://scoutbase-eta.vercel.app/jogador/${uid}`
+    : 'https://scoutbase-eta.vercel.app'
 
   return (
     <main style={{
@@ -215,10 +219,10 @@ function BemVindoContent() {
                 navigator.share({
                   title: `${nome} · OVR ${ovr} · MeuCraque`,
                   text: `Acabei de entrar no MeuCraque! Meu OVR inicial é ${ovr}. Você é o próximo?`,
-                  url: 'https://scoutbase-eta.vercel.app',
+                  url: cardUrl,
                 })
               } else {
-                navigator.clipboard.writeText(`Acabei de entrar no MeuCraque! OVR ${ovr} · ${posicao} · ${cidade}. Você é o próximo? scoutbase-eta.vercel.app`)
+                navigator.clipboard.writeText(cardUrl)
                 alert('Link copiado! Cole no seu story ou grupo.')
               }
             }}
