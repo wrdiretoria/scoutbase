@@ -83,127 +83,135 @@ export default async function JogadorPublicoPage({ params }: Props) {
       justifyContent: 'center', padding: '24px',
       fontFamily: 'system-ui, sans-serif',
     }}>
+      <style>{`
+        @keyframes cardIn {
+          from { opacity:0; transform:translateY(28px) scale(0.96) }
+          to   { opacity:1; transform:translateY(0) scale(1) }
+        }
+        @keyframes ovrIn {
+          0%  { opacity:0; transform:scale(0.6) }
+          65% { transform:scale(1.06) }
+          100%{ opacity:1; transform:scale(1) }
+        }
+        @keyframes glowPulse {
+          0%,100% { text-shadow:0 0 24px rgba(34,197,94,0.5),0 0 48px rgba(34,197,94,0.22) }
+          50%     { text-shadow:0 0 40px rgba(34,197,94,0.78),0 0 80px rgba(34,197,94,0.38) }
+        }
+        .pub-card { animation: cardIn .55s cubic-bezier(.22,.68,0,1.2) forwards; }
+        .pub-ovr  { animation: ovrIn .5s cubic-bezier(.22,.68,0,1.2) forwards .3s, glowPulse 3s ease-in-out infinite 1s; opacity:0; }
+      `}</style>
 
-      {/* Card público */}
-      <div style={{
-        width: '100%', maxWidth: '340px',
-        borderRadius: '24px', overflow: 'hidden',
-        background: '#0b1610',
-        border: '1px solid rgba(34,197,94,0.2)',
-        boxShadow: '0 0 60px rgba(34,197,94,0.15), 0 32px 80px rgba(0,0,0,0.7)',
-      }}>
-        {/* Topo */}
+      <div className="pub-card" style={{ width:'100%', maxWidth:'320px' }}>
         <div style={{
-          background: 'linear-gradient(160deg,#15803d 0%,#064e1e 100%)',
-          padding: '24px 20px 0',
-          display: 'flex', flexDirection: 'column', alignItems: 'center',
-          minHeight: '140px', position: 'relative',
+          borderRadius:'22px', overflow:'hidden',
+          background:'#0b1610',
+          border:'1px solid rgba(34,197,94,0.22)',
+          boxShadow:'0 0 56px rgba(34,197,94,0.18), 0 24px 64px rgba(0,0,0,0.65)',
         }}>
-          {categoria && (
+
+          {/* Topo */}
+          <div style={{
+            position:'relative', minHeight:'156px',
+            background:'linear-gradient(160deg,#166534 0%,#052e16 100%)',
+            backgroundImage:'linear-gradient(160deg,#166534 0%,#052e16 100%), repeating-linear-gradient(0deg,rgba(255,255,255,0.025) 0px,rgba(255,255,255,0.025) 1px,transparent 1px,transparent 28px),repeating-linear-gradient(90deg,rgba(255,255,255,0.025) 0px,rgba(255,255,255,0.025) 1px,transparent 1px,transparent 28px)',
+            display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+            padding:'20px 16px 0',
+          }}>
+            {/* Posição — esquerda */}
             <div style={{
-              position: 'absolute', top: '14px', left: '16px',
-              background: 'rgba(0,0,0,0.45)', borderRadius: '20px',
-              padding: '3px 10px', fontSize: '9px', fontWeight: 800,
-              color: 'rgba(255,255,255,0.85)', letterSpacing: '0.08em',
+              position:'absolute', top:'14px', left:'14px',
+              background:'rgba(0,0,0,0.5)', backdropFilter:'blur(4px)',
+              border:'1px solid rgba(255,255,255,0.15)',
+              borderRadius:'8px', padding:'4px 10px',
+              fontSize:'10px', fontWeight:800, color:'white', letterSpacing:'0.08em',
             }}>
-              {categoria}
-            </div>
-          )}
-
-          {/* Verificado */}
-          <div style={{
-            position: 'absolute', top: '14px', right: '16px',
-            background: 'rgba(34,197,94,0.2)', border: '1px solid rgba(34,197,94,0.4)',
-            borderRadius: '20px', padding: '3px 10px',
-            fontSize: '9px', fontWeight: 800, color: '#4ade80',
-          }}>
-            ✓ MEUCRAQUE
-          </div>
-
-          {/* OVR */}
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '6px', marginTop: '32px', marginBottom: '16px' }}>
-            <span style={{
-              fontSize: '68px', fontWeight: 900, lineHeight: 1, color: 'white',
-              letterSpacing: '-0.04em', textShadow: '0 4px 24px rgba(0,0,0,0.5)',
-            }}>
-              {ovr}
-            </span>
-            <span style={{ fontSize: '15px', fontWeight: 700, color: 'rgba(255,255,255,0.55)', marginBottom: '12px' }}>
               {pos}
-            </span>
-          </div>
-        </div>
+            </div>
 
-        {/* Avatar */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '-36px', position: 'relative', zIndex: 2 }}>
-          <div style={{
-            width: '72px', height: '72px', borderRadius: '50%',
-            background: 'linear-gradient(135deg,#15803d,#4ade80)',
-            border: '3px solid #0b1610',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '22px', fontWeight: 900, color: 'white',
-            boxShadow: '0 8px 32px rgba(34,197,94,0.45)',
-          }}>
-            {initials}
-          </div>
-        </div>
-
-        {/* Dados */}
-        <div style={{ padding: '14px 22px 24px', textAlign: 'center' }}>
-          <h1 style={{ margin: '0 0 4px', fontSize: '19px', fontWeight: 800, color: 'white' }}>{nome}</h1>
-          <p style={{ margin: '0 0 18px', fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>
-            {posicao}{cidade ? ` · ${cidade}` : ''}
-          </p>
-
-          {/* Stats */}
-          <div style={{
-            display: 'grid', gridTemplateColumns: '1fr 1fr',
-            gap: '8px', marginBottom: '18px',
-          }}>
-            {[
-              { label: 'OVR', val: String(ovr) },
-              { label: 'Categoria', val: categoria ?? '—' },
-              { label: 'Status', val: 'Ativo' },
-              { label: 'Desde', val: criadoEm },
-            ].map(s => (
-              <div key={s.label} style={{
-                background: 'rgba(255,255,255,0.03)',
-                border: '1px solid rgba(255,255,255,0.06)',
-                borderRadius: '10px', padding: '10px 8px',
+            {/* Categoria — direita */}
+            {categoria && (
+              <div style={{
+                position:'absolute', top:'14px', right:'14px',
+                background:'rgba(34,197,94,0.18)', border:'1px solid rgba(34,197,94,0.35)',
+                borderRadius:'8px', padding:'4px 10px',
+                fontSize:'10px', fontWeight:800, color:'#4ade80', letterSpacing:'0.06em',
               }}>
-                <p style={{ margin: '0 0 2px', fontSize: '14px', fontWeight: 800, color: '#22c55e' }}>{s.val}</p>
-                <p style={{ margin: 0, fontSize: '9px', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{s.label}</p>
+                {categoria}
               </div>
-            ))}
+            )}
+
+            {/* OVR */}
+            <div className="pub-ovr" style={{ textAlign:'center', marginTop:'12px' }}>
+              <div style={{ fontSize:'76px', fontWeight:900, color:'white', lineHeight:1, letterSpacing:'-0.05em' }}>
+                {ovr}
+              </div>
+              <div style={{ fontSize:'10px', fontWeight:700, letterSpacing:'0.18em', color:'rgba(255,255,255,0.45)', textTransform:'uppercase', marginTop:'4px' }}>
+                Overall
+              </div>
+            </div>
           </div>
 
-          {/* Verificação */}
-          <div style={{
-            background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.15)',
-            borderRadius: '10px', padding: '10px 12px', marginBottom: '18px',
-          }}>
-            <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>
-              🔐 Perfil registrado no MeuCraque. OVR aumenta com avaliações do treinador.
+          {/* Avatar */}
+          <div style={{ display:'flex', justifyContent:'center', marginTop:'-34px', position:'relative', zIndex:2 }}>
+            <div style={{
+              width:'68px', height:'68px', borderRadius:'50%',
+              background:'linear-gradient(135deg,#15803d,#4ade80)',
+              border:'3px solid #0b1610',
+              display:'flex', alignItems:'center', justifyContent:'center',
+              fontSize:'20px', fontWeight:900, color:'white',
+              boxShadow:'0 8px 28px rgba(34,197,94,0.45)',
+            }}>
+              {initials}
+            </div>
+          </div>
+
+          {/* Dados */}
+          <div style={{ padding:'12px 20px 22px', textAlign:'center' }}>
+            <h1 style={{ margin:'0 0 2px', fontSize:'18px', fontWeight:800, color:'white' }}>{nome}</h1>
+            <p style={{ margin:'0 0 16px', fontSize:'12px', color:'rgba(255,255,255,0.38)' }}>
+              {posicao}{cidade ? ` · ${cidade}` : ''}
             </p>
-          </div>
 
-          {/* CTA */}
-          <Link href="/cadastro" style={{
-            display: 'block', padding: '13px', borderRadius: '14px',
-            background: '#22c55e', color: 'black', fontWeight: 800,
-            fontSize: '14px', textDecoration: 'none', textAlign: 'center',
-          }}>
-            Você é o próximo → Criar meu perfil
-          </Link>
+            {/* Stats */}
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px', marginBottom:'16px' }}>
+              {[
+                { label:'Categoria', val: categoria ?? '—' },
+                { label:'Desde',     val: criadoEm },
+                { label:'Status',    val:'Ativo' },
+                { label:'Overall',   val: String(ovr) },
+              ].map(s => (
+                <div key={s.label} style={{
+                  background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.06)',
+                  borderRadius:'10px', padding:'10px 8px',
+                }}>
+                  <p style={{ margin:'0 0 2px', fontSize:'14px', fontWeight:800, color:'#22c55e' }}>{s.val}</p>
+                  <p style={{ margin:0, fontSize:'9px', color:'rgba(255,255,255,0.3)', textTransform:'uppercase', letterSpacing:'0.06em' }}>{s.label}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Frase */}
+            <p style={{ margin:'0 0 16px', fontSize:'12px', color:'rgba(255,255,255,0.35)', fontStyle:'italic', lineHeight:1.6 }}>
+              "Mostre seu futebol ao mundo."
+            </p>
+
+            {/* CTA */}
+            <Link href="/cadastro" style={{
+              display:'block', padding:'13px', borderRadius:'14px',
+              background:'#22c55e', color:'black', fontWeight:800,
+              fontSize:'14px', textDecoration:'none', textAlign:'center',
+            }}>
+              Você é o próximo → Criar meu perfil
+            </Link>
+          </div>
         </div>
       </div>
 
-      {/* Rodapé */}
-      <div style={{ marginTop: '20px', textAlign: 'center' }}>
-        <Link href="/" style={{ fontSize: '13px', fontWeight: 800, color: 'white', textDecoration: 'none', letterSpacing: '0.04em' }}>
-          ⚽ MEU <span style={{ color: '#22c55e' }}>CRAQUE</span>
+      <div style={{ marginTop:'20px', textAlign:'center' }}>
+        <Link href="/" style={{ fontSize:'13px', fontWeight:800, color:'white', textDecoration:'none', letterSpacing:'0.04em' }}>
+          ⚽ MEU <span style={{ color:'#22c55e' }}>CRAQUE</span>
         </Link>
-        <p style={{ margin: '4px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.2)' }}>
+        <p style={{ margin:'4px 0 0', fontSize:'11px', color:'rgba(255,255,255,0.2)' }}>
           O palco digital do futebol brasileiro
         </p>
       </div>
