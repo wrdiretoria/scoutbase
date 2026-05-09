@@ -55,6 +55,7 @@ export default function AtletaPerfilPage() {
   const router = useRouter()
   const [meta, setMeta] = useState<AtletaMeta | null>(null)
   const [dataNasc, setDataNasc] = useState<string | null>(null)
+  const [uid, setUid] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -63,6 +64,7 @@ export default function AtletaPerfilPage() {
       const { data: { user } } = await supabase.auth.getUser()
 
       if (!user) { router.push('/login'); return }
+      setUid(user.id)
 
       const m = user.user_metadata as Partial<AtletaMeta>
       if (m?.tipo !== 'atleta') { router.push('/dashboard'); return }
@@ -270,14 +272,17 @@ export default function AtletaPerfilPage() {
           <button
             className="action-btn"
             onClick={() => {
+              const cardUrl = uid
+                ? `https://scoutbase-eta.vercel.app/jogador/${uid}`
+                : 'https://scoutbase-eta.vercel.app'
               if (navigator.share) {
                 navigator.share({
                   title: `${meta.nome} · OVR ${ovr} · MeuCraque`,
                   text: `Acabei de entrar no MeuCraque! OVR ${ovr} · ${meta.posicao} · ${meta.cidade}. Você é o próximo?`,
-                  url: 'https://scoutbase-eta.vercel.app',
+                  url: cardUrl,
                 })
               } else {
-                navigator.clipboard.writeText(`Acabei de entrar no MeuCraque! OVR ${ovr} · ${meta.posicao} · ${meta.cidade}. scoutbase-eta.vercel.app`)
+                navigator.clipboard.writeText(cardUrl)
                 alert('Link copiado!')
               }
             }}
