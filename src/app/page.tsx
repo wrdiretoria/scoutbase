@@ -67,16 +67,17 @@ export default function LandingPage() {
           .hero-grid {
             grid-template-columns: 1fr !important;
             padding: 0 24px !important;
-            align-items: flex-start !important;
-            padding-top: 100px !important;
+            align-items: center !important;
+            padding-top: 80px !important;
+            padding-bottom: 60px !important;
           }
           .hero-phones { display:none !important; }
           .hero-hud    { display:none !important; }
           .cards-grid { grid-template-columns: 1fr 1fr !important; }
           .card-item { border-right: none !important; border-bottom: 1px solid rgba(34,197,94,0.1); }
           .footer-inner { flex-direction: column !important; gap: 8px !important; text-align: center !important; }
-          .hero-section { height: auto !important; min-height: 100svh !important; }
-          .hero-left { padding-bottom: 60px !important; }
+          .hero-section { height: auto !important; min-height: 0 !important; }
+          .hero-left { padding-bottom: 0 !important; }
         }
         @media (max-width: 480px) {
           .cards-grid { grid-template-columns: 1fr !important; }
