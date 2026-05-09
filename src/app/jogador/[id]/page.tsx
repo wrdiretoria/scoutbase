@@ -117,28 +117,27 @@ export default async function JogadorPublicoPage({ params }: Props) {
             display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
             padding:'20px 16px 0',
           }}>
-            {/* Posição — esquerda */}
+            {/* Badges — flex row, evita clipping no mobile */}
             <div style={{
-              position:'absolute', top:'14px', left:'14px',
-              background:'rgba(0,0,0,0.5)', backdropFilter:'blur(4px)',
-              border:'1px solid rgba(255,255,255,0.15)',
-              borderRadius:'8px', padding:'4px 10px',
-              fontSize:'10px', fontWeight:800, color:'white', letterSpacing:'0.08em',
+              position:'absolute', top:'14px', left:'14px', right:'14px',
+              display:'flex', justifyContent:'space-between', alignItems:'center',
+              zIndex:10,
             }}>
-              {pos}
-            </div>
-
-            {/* Categoria — direita */}
-            {categoria && (
               <div style={{
-                position:'absolute', top:'14px', right:'14px',
-                background:'rgba(34,197,94,0.18)', border:'1px solid rgba(34,197,94,0.35)',
+                background:'rgba(0,0,0,0.5)', backdropFilter:'blur(4px)',
+                border:'1px solid rgba(255,255,255,0.15)',
                 borderRadius:'8px', padding:'4px 10px',
-                fontSize:'10px', fontWeight:800, color:'#4ade80', letterSpacing:'0.06em',
-              }}>
-                {categoria}
-              </div>
-            )}
+                fontSize:'10px', fontWeight:800, color:'white', letterSpacing:'0.08em',
+              }}>{pos}</div>
+              {categoria
+                ? <div style={{
+                    background:'rgba(34,197,94,0.18)', border:'1px solid rgba(34,197,94,0.35)',
+                    borderRadius:'8px', padding:'4px 10px',
+                    fontSize:'10px', fontWeight:800, color:'#4ade80', letterSpacing:'0.06em',
+                  }}>{categoria}</div>
+                : <div />
+              }
+            </div>
 
             {/* OVR */}
             <div className="pub-ovr" style={{ textAlign:'center', marginTop:'12px' }}>

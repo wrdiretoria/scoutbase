@@ -162,6 +162,7 @@ export default function AtletaPerfilPage() {
                 position: 'absolute', top: '12px', right: '14px',
                 background: 'rgba(0,0,0,0.4)', borderRadius: '20px',
                 padding: '3px 10px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.8)',
+                zIndex: 10,
               }}>
                 {categoria}
               </div>

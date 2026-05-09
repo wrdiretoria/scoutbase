@@ -129,30 +129,30 @@ function BemVindoContent() {
             backgroundImage:'linear-gradient(160deg,#166534 0%,#052e16 100%), repeating-linear-gradient(0deg,rgba(255,255,255,0.025) 0px,rgba(255,255,255,0.025) 1px,transparent 1px,transparent 28px), repeating-linear-gradient(90deg,rgba(255,255,255,0.025) 0px,rgba(255,255,255,0.025) 1px,transparent 1px,transparent 28px)',
           }}>
 
-            {/* Badge posição — esquerda */}
-            {posicao && (
-              <div style={{
-                position:'absolute', top:'14px', left:'14px',
-                background:'rgba(0,0,0,0.5)', backdropFilter:'blur(4px)',
-                border:'1px solid rgba(255,255,255,0.15)',
-                borderRadius:'8px', padding:'4px 10px',
-                fontSize:'10px', fontWeight:800, color:'white', letterSpacing:'0.08em',
-              }}>
-                {posAbrev}
-              </div>
-            )}
-
-            {/* Badge categoria — direita */}
-            {categoria && (
-              <div style={{
-                position:'absolute', top:'14px', right:'14px',
-                background:'rgba(34,197,94,0.18)', border:'1px solid rgba(34,197,94,0.35)',
-                borderRadius:'8px', padding:'4px 10px',
-                fontSize:'10px', fontWeight:800, color:'#4ade80', letterSpacing:'0.06em',
-              }}>
-                {categoria}
-              </div>
-            )}
+            {/* Badges — flex row, evita clipping no mobile */}
+            <div style={{
+              position:'absolute', top:'14px', left:'14px', right:'14px',
+              display:'flex', justifyContent:'space-between', alignItems:'center',
+              zIndex:10,
+            }}>
+              {posicao
+                ? <div style={{
+                    background:'rgba(0,0,0,0.5)', backdropFilter:'blur(4px)',
+                    border:'1px solid rgba(255,255,255,0.15)',
+                    borderRadius:'8px', padding:'4px 10px',
+                    fontSize:'10px', fontWeight:800, color:'white', letterSpacing:'0.08em',
+                  }}>{posAbrev}</div>
+                : <div />
+              }
+              {categoria
+                ? <div style={{
+                    background:'rgba(34,197,94,0.18)', border:'1px solid rgba(34,197,94,0.35)',
+                    borderRadius:'8px', padding:'4px 10px',
+                    fontSize:'10px', fontWeight:800, color:'#4ade80', letterSpacing:'0.06em',
+                  }}>{categoria}</div>
+                : <div />
+              }
+            </div>
 
             {/* OVR — número grande com glow */}
             <div style={{ textAlign:'center', marginTop:'12px' }}>
