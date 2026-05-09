@@ -14,88 +14,102 @@ export default function LoginPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    setLoading(true)
     setError(null)
+    setLoading(true)
 
     const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error: signInErr } = await supabase.auth.signInWithPassword({ email, password })
 
-    if (error) {
+    if (signInErr || !data.user) {
       setError('Email ou senha incorretos.')
       setLoading(false)
       return
     }
 
-    router.push('/dashboard')
+    const tipo = (data.user.user_metadata as { tipo?: string })?.tipo
+    router.push(tipo === 'atleta' ? '/atleta/perfil' : '/dashboard')
+  }
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%', padding: '12px 16px', borderRadius: '12px', boxSizing: 'border-box',
+    background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+    color: 'white', fontSize: '15px', outline: 'none', fontFamily: 'system-ui, sans-serif',
+  }
+  const labelStyle: React.CSSProperties = {
+    display: 'block', fontSize: '12px', fontWeight: 700,
+    color: 'rgba(255,255,255,0.5)', marginBottom: '8px',
+    letterSpacing: '0.04em', textTransform: 'uppercase',
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-full max-w-sm bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Entrar</h1>
-        <p className="text-sm text-gray-500 mb-6">
-          Acesse sua conta do Meu Craque
-        </p>
+    <main style={{
+      background: '#06100a', minHeight: '100vh',
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      padding: '24px', fontFamily: 'system-ui, sans-serif',
+    }}>
+      <div style={{ width: '100%', maxWidth: '380px' }}>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Logo */}
+        <div style={{ textAlign: 'center', marginBottom: '36px' }}>
+          <Link href="/" style={{ fontSize: '18px', fontWeight: 800, color: 'white', textDecoration: 'none', letterSpacing: '0.03em' }}>
+            ⚽ MEU <span style={{ color: '#22c55e' }}>CRAQUE</span>
+          </Link>
+          <h1 style={{ margin: '20px 0 6px', fontSize: '26px', fontWeight: 900, color: 'white', letterSpacing: '-0.02em' }}>
+            Bem-vindo de volta
+          </h1>
+          <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.4)' }}>
+            Entre para acessar seu perfil
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
+            <label style={labelStyle}>Email</label>
             <input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="seu@email.com"
+              type="email" required value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="seu@email.com" style={inputStyle}
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-              Senha
-            </label>
+            <label style={labelStyle}>Senha</label>
             <input
-              id="password"
-              type="password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-              placeholder="••••••••"
+              type="password" required value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Sua senha" style={inputStyle}
             />
           </div>
 
           {error && (
-            <p className="text-sm text-red-600 bg-red-50 rounded-lg px-3 py-2">{error}</p>
+            <p style={{
+              margin: 0, padding: '10px 14px', borderRadius: '10px',
+              background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)',
+              fontSize: '13px', color: '#f87171',
+            }}>
+              {error}
+            </p>
           )}
 
           <button
-            type="submit"
-            disabled={loading}
-            className="w-full py-2 px-4 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
+            type="submit" disabled={loading}
+            style={{
+              padding: '14px', borderRadius: '14px', border: 'none',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              background: '#22c55e', color: 'black', fontWeight: 800,
+              fontSize: '16px', opacity: loading ? 0.6 : 1, marginTop: '4px',
+            }}
           >
-            {loading ? 'Entrando...' : 'Entrar'}
+            {loading ? 'Entrando…' : 'Entrar →'}
           </button>
         </form>
 
-        <p className="text-sm text-center text-gray-500 mt-6">
-          Não tem conta?{' '}
-          <Link href="/cadastro" className="text-green-600 hover:underline font-medium">
-            Cadastre-se
+        <p style={{ marginTop: '24px', textAlign: 'center', fontSize: '13px', color: 'rgba(255,255,255,0.3)' }}>
+          Ainda não tem conta?{' '}
+          <Link href="/cadastro" style={{ color: '#22c55e', textDecoration: 'none', fontWeight: 700 }}>
+            Criar perfil grátis
           </Link>
         </p>
-
-        <div className="mt-4 pt-4 border-t border-gray-100 text-center">
-          <Link
-            href="/pais/entrar"
-            className="text-sm text-gray-500 hover:text-green-600 transition-colors"
-          >
-            Área do atleta →
-          </Link>
-        </div>
       </div>
     </main>
   )

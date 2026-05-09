@@ -237,6 +237,13 @@ export default function AtletaCadastroPage() {
             </button>
           </form>
         )}
+        {/* Link para login */}
+        <p style={{ marginTop: '28px', textAlign: 'center', fontSize: '13px', color: 'rgba(255,255,255,0.3)' }}>
+          Já tem conta?{' '}
+          <Link href="/login" style={{ color: '#22c55e', textDecoration: 'none', fontWeight: 700 }}>
+            Entrar →
+          </Link>
+        </p>
       </div>
     </main>
   )
