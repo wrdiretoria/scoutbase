@@ -61,7 +61,12 @@ export default function AtletaCadastroPage() {
     await fetch('/api/atleta/salvar-perfil', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: data.user.id, dataNascimento: dataNasc }),
+      body: JSON.stringify({
+        userId: data.user.id,
+        dataNascimento: dataNasc,
+        nome,
+        email,
+      }),
     })
 
     const params = new URLSearchParams({ nome, posicao, cidade, dataNasc, uid: data.user.id })

@@ -3,9 +3,11 @@ import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
   try {
-    const { userId, dataNascimento } = await req.json() as {
+    const { userId, dataNascimento, nome, email } = await req.json() as {
       userId?: string
       dataNascimento?: string
+      nome?: string
+      email?: string
     }
 
     if (!userId || !dataNascimento) {
@@ -17,7 +19,12 @@ export async function POST(req: Request) {
     const { error } = await admin
       .from('profiles')
       .upsert(
-        { id: userId, data_nascimento: dataNascimento },
+        {
+          id: userId,
+          data_nascimento: dataNascimento,
+          ...(nome  && { nome }),
+          ...(email && { email }),
+        },
         { onConflict: 'id' }
       )
 
