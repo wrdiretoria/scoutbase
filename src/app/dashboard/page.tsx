@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { createServerClient, createAdminClient } from '@/lib/supabase'
+import { createServerClient } from '@/lib/supabase'
 import EmptyState from '@/components/EmptyState'
 
 function getSaudacao() {
@@ -187,14 +187,6 @@ export default async function DashboardPage() {
       ...alunos?.find((a) => a.id === f.id),
       frequencia: f.freq as number,
     }))
-
-  // ── Atletas da plataforma (admin) ───────────────────────────
-  const admin = createAdminClient()
-  const { data: { users: todosUsuarios } } = await admin.auth.admin.listUsers({ perPage: 1000 })
-  const atletasPlataforma = todosUsuarios.filter(u => u.user_metadata?.tipo === 'atleta')
-  const recentes = atletasPlataforma
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-    .slice(0, 5)
 
   // ── Cards ────────────────────────────────────────────────────
   const cards = [
@@ -431,60 +423,6 @@ export default async function DashboardPage() {
             />
           </div>
         )}
-
-        {/* ── Plataforma MeuCraque (visão admin) ── */}
-        <div className="bg-gray-900 rounded-[20px] border border-gray-700 p-6">
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <p className="text-xs font-bold text-green-400 uppercase tracking-widest mb-1">🌐 Plataforma MeuCraque</p>
-              <h2 className="text-lg font-bold text-white">
-                {atletasPlataforma.length} atleta{atletasPlataforma.length !== 1 ? 's' : ''} auto-registrado{atletasPlataforma.length !== 1 ? 's' : ''}
-              </h2>
-            </div>
-            <Link
-              href="/ranking"
-              className="text-xs font-bold text-green-400 border border-green-800 px-3 py-1.5 rounded-lg hover:bg-green-900/30 transition-colors"
-            >
-              Ver ranking →
-            </Link>
-          </div>
-
-          <ul className="divide-y divide-gray-800">
-            {recentes.map((u, i) => {
-              const meta = u.user_metadata as { nome?: string; posicao?: string; cidade?: string }
-              const nome = meta.nome ?? 'Atleta'
-              const pos = meta.posicao ?? ''
-              const cidade = meta.cidade ?? ''
-              return (
-                <li key={u.id} className="flex items-center justify-between py-3">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="text-xs font-bold text-gray-500 w-5">#{i + 1}</span>
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-700 to-green-400 flex items-center justify-center text-xs font-black text-white flex-shrink-0">
-                      {nome.split(' ').slice(0, 2).map((n: string) => n[0] ?? '').join('').toUpperCase()}
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-white truncate">{nome}</p>
-                      <p className="text-xs text-gray-400 truncate">{pos}{cidade ? ` · ${cidade}` : ''}</p>
-                    </div>
-                  </div>
-                  <Link
-                    href={`/jogador/${u.id}`}
-                    className="text-xs text-green-400 hover:underline flex-shrink-0 ml-2"
-                  >
-                    Ver card →
-                  </Link>
-                </li>
-              )
-            })}
-          </ul>
-
-          {atletasPlataforma.length > 5 && (
-            <p className="text-xs text-gray-500 text-center mt-4">
-              Mostrando 5 de {atletasPlataforma.length} ·{' '}
-              <Link href="/ranking" className="text-green-400 hover:underline">ver todos no ranking</Link>
-            </p>
-          )}
-        </div>
 
       </div>
     </div>
