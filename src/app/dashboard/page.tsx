@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { createServerClient } from '@/lib/supabase'
+import { createServerClient, createAdminClient } from '@/lib/supabase'
 import EmptyState from '@/components/EmptyState'
+import CopyInviteLink from '@/app/components/CopyInviteLink'
 
 function getSaudacao() {
   const hora = new Date().getHours()
@@ -70,6 +71,34 @@ export default async function DashboardPage() {
       // profiles sem coluna nome — ignora
     }
   }
+
+  // ── Atletas da escolinha (via link de convite) ───────────────
+  const admin = createAdminClient()
+  const { data: escolaProfiles } = await admin
+    .from('profiles')
+    .select('id, nome, data_nascimento')
+    .eq('escola_id', user.id)
+    .order('nome')
+
+  // Enriquece com posição/cidade do user_metadata
+  const escolaAtletas = await Promise.all(
+    (escolaProfiles ?? []).map(async (p) => {
+      try {
+        const { data: { user: u } } = await admin.auth.admin.getUserById(p.id)
+        const meta = (u?.user_metadata ?? {}) as { posicao?: string; cidade?: string }
+        return {
+          id: p.id,
+          nome: (p.nome as string) ?? 'Atleta',
+          posicao: meta.posicao ?? '',
+          cidade: meta.cidade ?? '',
+        }
+      } catch {
+        return { id: p.id, nome: (p.nome as string) ?? 'Atleta', posicao: '', cidade: '' }
+      }
+    })
+  )
+
+  const inviteUrl = `https://scoutbase-eta.vercel.app/entrar/${user.id}`
 
   // ── Alunos ──────────────────────────────────────────────────
   const { data: alunos } = await supabase
@@ -273,6 +302,64 @@ export default async function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* ── Link de convite da escolinha ── */}
+        <div className="bg-white rounded-[20px] shadow-sm border border-gray-100 p-6">
+          <div className="flex items-start justify-between gap-3 mb-4">
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">
+                Link da sua escolinha
+              </p>
+              <p className="text-sm text-gray-500 leading-snug">
+                Compartilhe com seus atletas. Quem abrir entra automaticamente vinculado a você.
+              </p>
+            </div>
+            <span className="text-2xl flex-shrink-0">🔗</span>
+          </div>
+          <CopyInviteLink url={inviteUrl} />
+        </div>
+
+        {/* ── Atletas vinculados pela escolinha ── */}
+        {escolaAtletas.length > 0 && (
+          <div className="bg-white rounded-[20px] shadow-sm border border-gray-100 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">
+                  Atletas da escolinha
+                </p>
+                <p className="text-sm text-gray-500">
+                  {escolaAtletas.length} atleta{escolaAtletas.length !== 1 ? 's' : ''} se cadastrou pelo seu link
+                </p>
+              </div>
+              <span className="text-2xl">⚽</span>
+            </div>
+            <ul className="divide-y divide-gray-50">
+              {escolaAtletas.map((atleta) => (
+                <li key={atleta.id} className="flex items-center justify-between py-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-700 to-green-400 flex items-center justify-center text-white text-xs font-black flex-shrink-0">
+                      {atleta.nome.split(' ').slice(0, 2).map((n: string) => n[0] ?? '').join('').toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-gray-800 truncate">{atleta.nome}</p>
+                      {(atleta.posicao || atleta.cidade) && (
+                        <p className="text-xs text-gray-400 truncate">
+                          {[atleta.posicao, atleta.cidade].filter(Boolean).join(' · ')}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <Link
+                    href={`/jogador/${atleta.id}`}
+                    className="text-xs text-green-600 font-semibold hover:underline flex-shrink-0 ml-3"
+                  >
+                    Ver perfil →
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* ── Cards de métricas ── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

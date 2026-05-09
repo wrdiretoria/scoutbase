@@ -3,11 +3,12 @@ import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
   try {
-    const { userId, dataNascimento, nome, email } = await req.json() as {
+    const { userId, dataNascimento, nome, email, escolaId } = await req.json() as {
       userId?: string
       dataNascimento?: string
       nome?: string
       email?: string
+      escolaId?: string
     }
 
     if (!userId || !dataNascimento) {
@@ -22,8 +23,9 @@ export async function POST(req: Request) {
         {
           id: userId,
           data_nascimento: dataNascimento,
-          ...(nome  && { nome }),
-          ...(email && { email }),
+          ...(nome      && { nome }),
+          ...(email     && { email }),
+          ...(escolaId  && { escola_id: escolaId }),
         },
         { onConflict: 'id' }
       )
