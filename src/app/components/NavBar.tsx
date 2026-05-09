@@ -4,12 +4,10 @@ import { useState } from 'react'
 import Link from 'next/link'
 
 const navLinks = [
-  'Para atletas',
-  'Para treinadores',
-  'Para responsáveis',
-  'Para scouts',
-  'Recursos',
-  'Planos',
+  { label: '🏆 Ranking', href: '/ranking' },
+  { label: 'Para atletas', href: '/cadastro' },
+  { label: 'Para treinadores', href: '/treinador/cadastro' },
+  { label: 'Planos', href: '#' },
 ]
 
 export default function NavBar() {
@@ -53,7 +51,7 @@ export default function NavBar() {
           {/* Desktop links */}
           <div className="nav-desktop-links">
             {navLinks.map(l => (
-              <a key={l} href="#" className="nav-link-d">{l}</a>
+              <Link key={l.label} href={l.href} className="nav-link-d">{l.label}</Link>
             ))}
           </div>
 
@@ -113,12 +111,12 @@ export default function NavBar() {
         >
           {/* Nav links */}
           {navLinks.map((l, i) => (
-            <a
-              key={l}
-              href="#"
+            <Link
+              key={l.label}
+              href={l.href}
               onClick={() => setOpen(false)}
               style={{
-                color: 'rgba(255,255,255,0.75)',
+                color: l.href === '/ranking' ? '#22c55e' : 'rgba(255,255,255,0.75)',
                 textDecoration: 'none',
                 fontSize: '22px',
                 fontWeight: 600,
@@ -128,8 +126,8 @@ export default function NavBar() {
                 letterSpacing: '-0.01em',
               }}
             >
-              {l}
-            </a>
+              {l.label}
+            </Link>
           ))}
 
           {/* Action buttons */}
