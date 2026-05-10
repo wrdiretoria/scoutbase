@@ -119,7 +119,7 @@ export default function LandingPage() {
               border:'1px solid rgba(0,255,136,0.35)', background:'rgba(0,255,136,0.06)',
               fontSize:'10px', fontWeight:700, color:'rgba(0,255,136,0.85)', letterSpacing:'0.10em',
             }}>
-              ⚽ FUTEBOL BRASILEIRO · DIGITAL
+              ⚽ A NOVA ERA DO FUTEBOL
             </span>
 
             <h1 style={{ margin:0, padding:0, lineHeight:1.08, letterSpacing:'-0.03em' }}>
