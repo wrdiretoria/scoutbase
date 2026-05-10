@@ -10,7 +10,7 @@ type Area = 'atleta' | 'escola' | null
 export default function LoginPage() {
   const router = useRouter()
   const [area, setArea] = useState<Area>(null)
-  const [email, setEmail] = useState('')
+  const [identifier, setIdentifier] = useState('') // email ou ID do atleta
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -20,11 +20,32 @@ export default function LoginPage() {
     setError(null)
     setLoading(true)
 
+    let emailParaLogin = identifier
+
+    // Atleta entra com ID → busca email pelo ID
+    if (area === 'atleta') {
+      const res = await fetch('/api/auth/buscar-por-id', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ athleteId: identifier }),
+      })
+      if (!res.ok) {
+        setError('ID não encontrado. Verifique e tente novamente.')
+        setLoading(false)
+        return
+      }
+      const { email } = await res.json() as { email: string }
+      emailParaLogin = email
+    }
+
     const supabase = createClient()
-    const { data, error: signInErr } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error: signInErr } = await supabase.auth.signInWithPassword({
+      email: emailParaLogin,
+      password,
+    })
 
     if (signInErr || !data.user) {
-      setError('Email ou senha incorretos.')
+      setError(area === 'atleta' ? 'Senha incorreta.' : 'Email ou senha incorretos.')
       setLoading(false)
       return
     }
@@ -182,18 +203,26 @@ export default function LoginPage() {
                 Bem-vindo de volta
               </h1>
               <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.35)' }}>
-                Entre com seu email e senha
+                {area === 'atleta' ? 'Entre com seu ID e senha' : 'Entre com seu email e senha'}
               </p>
             </div>
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
               <div>
-                <label style={labelStyle}>Email</label>
+                <label style={labelStyle}>{area === 'atleta' ? 'ID do Atleta' : 'Email'}</label>
                 <input
-                  type="email" required value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="seu@email.com" style={inputStyle}
+                  type={area === 'atleta' ? 'text' : 'email'}
+                  required
+                  value={identifier}
+                  onChange={e => setIdentifier(e.target.value)}
+                  placeholder={area === 'atleta' ? 'Ex: MC-00123' : 'seu@email.com'}
+                  style={{ ...inputStyle, textTransform: area === 'atleta' ? 'uppercase' : 'none' }}
                 />
+                {area === 'atleta' && (
+                  <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.25)' }}>
+                    Seu ID está no seu perfil de atleta
+                  </p>
+                )}
               </div>
 
               <div>
