@@ -13,13 +13,14 @@ async function gerarAthleteId(admin: ReturnType<typeof createAdminClient>): Prom
 
 export async function POST(req: Request) {
   try {
-    const { userId, dataNascimento, nome, escolaId, athleteId: preGeneratedId, recoveryEmail } = await req.json() as {
+    const { userId, dataNascimento, nome, escolaId, athleteId: preGeneratedId, recoveryEmail, avatarUrl } = await req.json() as {
       userId?: string
       dataNascimento?: string
       nome?: string
       escolaId?: string
       athleteId?: string
       recoveryEmail?: string | null
+      avatarUrl?: string | null
     }
 
     if (!userId || !dataNascimento) {
@@ -48,6 +49,7 @@ export async function POST(req: Request) {
           ...(nome          && { nome }),
           ...(escolaId      && { escola_id: escolaId }),
           ...(recoveryEmail && { recovery_email: recoveryEmail }),
+          ...(avatarUrl     && { avatar_url: avatarUrl }),
         },
         { onConflict: 'id' }
       )

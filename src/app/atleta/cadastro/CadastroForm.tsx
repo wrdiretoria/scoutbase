@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
@@ -26,8 +26,18 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
   const [recoveryEmail, setRecoveryEmail] = useState('')
   const [password, setPassword] = useState('')
   const [consent, setConsent] = useState(false)
+  const [photo, setPhoto] = useState<File | null>(null)
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setPhoto(file)
+    setPhotoPreview(URL.createObjectURL(file))
+  }
 
   function handleNext(e: React.FormEvent) {
     e.preventDefault()
@@ -66,21 +76,43 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
       return
     }
 
-    // 3. Salvar perfil com o ID pré-gerado e email de recuperação
+    const userId = data.user.id
+
+    // 3. Upload da foto se houver
+    let avatarUrl: string | null = null
+    if (photo) {
+      const ext = photo.name.split('.').pop() ?? 'jpg'
+      const { error: uploadErr } = await supabase.storage
+        .from('avatars')
+        .upload(`${userId}.${ext}`, photo, { upsert: true, contentType: photo.type })
+
+      if (!uploadErr) {
+        const { data: { publicUrl } } = supabase.storage
+          .from('avatars')
+          .getPublicUrl(`${userId}.${ext}`)
+        avatarUrl = publicUrl
+      }
+    }
+
+    // 4. Salvar perfil
     await fetch('/api/atleta/salvar-perfil', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        userId: data.user.id,
+        userId,
         dataNascimento: dataNasc,
         nome,
         athleteId,
+        avatarUrl,
         recoveryEmail: recoveryEmail.trim().toLowerCase() || null,
         ...(escolaId ? { escolaId } : {}),
       }),
     })
 
-    const params = new URLSearchParams({ nome, posicao, cidade, dataNasc, uid: data.user.id, athleteId })
+    const params = new URLSearchParams({
+      nome, posicao, cidade, dataNasc, uid: userId, athleteId,
+      ...(avatarUrl ? { avatarUrl } : {}),
+    })
     router.push(`/atleta/bem-vindo?${params.toString()}`)
   }
 
@@ -117,7 +149,6 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
             </p>
           </div>
 
-          {/* Banner de escola */}
           {escolaId && escolaNome && (
             <div style={{
               marginBottom: '20px', padding: '12px 16px', borderRadius: '12px',
@@ -126,12 +157,8 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
             }}>
               <span style={{ fontSize: '20px' }}>⚽</span>
               <div>
-                <p style={{ margin: 0, fontSize: '11px', color: '#22c55e', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                  Convite aceito
-                </p>
-                <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>
-                  Escolinha de {escolaNome}
-                </p>
+                <p style={{ margin: 0, fontSize: '11px', color: '#22c55e', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Convite aceito</p>
+                <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>Escolinha de {escolaNome}</p>
               </div>
             </div>
           )}
@@ -160,9 +187,121 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
           </p>
         </div>
 
-        {/* STEP 1 — Identidade */}
+        {/* STEP 1 — Identidade + Foto */}
         {step === 1 && (
           <form onSubmit={handleNext} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+
+            {/* ── FOTO ── */}
+            <div>
+              <label style={labelStyle}>Foto do atleta</label>
+
+              {/* Guia visual */}
+              <div style={{
+                display: 'grid', gridTemplateColumns: '1fr 1fr',
+                gap: '8px', marginBottom: '12px',
+              }}>
+                {/* Exemplo BOM */}
+                <div style={{
+                  borderRadius: '12px', overflow: 'hidden',
+                  border: '1.5px solid rgba(34,197,94,0.4)',
+                  background: 'rgba(34,197,94,0.05)',
+                  padding: '10px',
+                }}>
+                  <div style={{
+                    width: '100%', aspectRatio: '3/4',
+                    background: 'linear-gradient(160deg,#1a3a2a,#0b1f14)',
+                    borderRadius: '8px', marginBottom: '8px',
+                    display: 'flex', flexDirection: 'column',
+                    alignItems: 'center', justifyContent: 'center', gap: '4px',
+                  }}>
+                    {/* Silhueta boa */}
+                    <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(34,197,94,0.4)' }} />
+                    <div style={{ width: '50px', height: '40px', borderRadius: '8px 8px 0 0', background: 'rgba(34,197,94,0.3)', marginTop: '2px' }} />
+                  </div>
+                  <p style={{ margin: 0, fontSize: '10px', fontWeight: 700, color: '#22c55e', textAlign: 'center' }}>✓ ASSIM</p>
+                  <p style={{ margin: '2px 0 0', fontSize: '9px', color: 'rgba(255,255,255,0.35)', textAlign: 'center', lineHeight: 1.4 }}>
+                    Rosto visível<br />Fundo simples<br />Foto sozinho
+                  </p>
+                </div>
+
+                {/* Exemplo RUIM */}
+                <div style={{
+                  borderRadius: '12px', overflow: 'hidden',
+                  border: '1.5px solid rgba(239,68,68,0.3)',
+                  background: 'rgba(239,68,68,0.04)',
+                  padding: '10px',
+                }}>
+                  <div style={{
+                    width: '100%', aspectRatio: '3/4',
+                    background: 'linear-gradient(160deg,#2a1a1a,#1f0b0b)',
+                    borderRadius: '8px', marginBottom: '8px',
+                    display: 'flex', flexDirection: 'column',
+                    alignItems: 'center', justifyContent: 'center', gap: '4px',
+                  }}>
+                    {/* Silhuetas múltiplas / ruim */}
+                    <div style={{ display: 'flex', gap: '4px', alignItems: 'flex-end' }}>
+                      <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: 'rgba(239,68,68,0.3)' }} />
+                      <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(239,68,68,0.5)' }} />
+                      <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: 'rgba(239,68,68,0.3)' }} />
+                    </div>
+                    <div style={{ fontSize: '18px', marginTop: '4px' }}>🕶️</div>
+                  </div>
+                  <p style={{ margin: 0, fontSize: '10px', fontWeight: 700, color: '#f87171', textAlign: 'center' }}>✗ EVITE</p>
+                  <p style={{ margin: '2px 0 0', fontSize: '9px', color: 'rgba(255,255,255,0.35)', textAlign: 'center', lineHeight: 1.4 }}>
+                    Óculos escuros<br />Grupo de pessoas<br />Foto escura
+                  </p>
+                </div>
+              </div>
+
+              {/* Área de upload */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                capture="user"
+                onChange={handlePhotoChange}
+                style={{ display: 'none' }}
+              />
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                style={{
+                  width: '100%', borderRadius: '14px', cursor: 'pointer',
+                  border: `2px dashed ${photoPreview ? 'rgba(34,197,94,0.5)' : 'rgba(255,255,255,0.15)'}`,
+                  background: photoPreview ? 'rgba(34,197,94,0.04)' : 'rgba(255,255,255,0.02)',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center',
+                  justifyContent: 'center', padding: photoPreview ? '8px' : '20px 16px',
+                  gap: '8px', transition: 'all 0.2s', boxSizing: 'border-box',
+                }}
+              >
+                {photoPreview ? (
+                  <img
+                    src={photoPreview}
+                    alt="preview"
+                    style={{ width: '90px', height: '110px', objectFit: 'cover', borderRadius: '10px', display: 'block' }}
+                  />
+                ) : (
+                  <>
+                    <div style={{ fontSize: '28px' }}>📸</div>
+                    <p style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>
+                      Toque para adicionar foto
+                    </p>
+                    <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.25)' }}>
+                      opcional — mas faz seu card se destacar
+                    </p>
+                  </>
+                )}
+              </div>
+              {photoPreview && (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{ width: '100%', marginTop: '6px', padding: '8px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'rgba(255,255,255,0.4)', fontSize: '12px', cursor: 'pointer' }}
+                >
+                  Trocar foto
+                </button>
+              )}
+            </div>
+
             <div>
               <label style={labelStyle}>Nome completo</label>
               <input
@@ -217,7 +356,6 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
         {/* STEP 2 — Acesso */}
         {step === 2 && (
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-
             <div>
               <label style={labelStyle}>Senha</label>
               <input
@@ -232,9 +370,7 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
             <div>
               <label style={labelStyle}>
                 Email de recuperação{' '}
-                <span style={{ fontWeight: 400, color: 'rgba(255,255,255,0.3)', textTransform: 'none', letterSpacing: 0 }}>
-                  (opcional)
-                </span>
+                <span style={{ fontWeight: 400, color: 'rgba(255,255,255,0.3)', textTransform: 'none', letterSpacing: 0 }}>(opcional)</span>
               </label>
               <input
                 type="email" value={recoveryEmail} onChange={e => setRecoveryEmail(e.target.value)}
@@ -246,7 +382,6 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
               </p>
             </div>
 
-            {/* Consentimento */}
             <label style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer' }}>
               <div
                 onClick={() => setConsent(!consent)}
