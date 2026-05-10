@@ -40,12 +40,17 @@ function calcularIdade(dataNasc: string) {
 export default function TreinadorCadastroPage() {
   const router = useRouter()
   const [nome, setNome] = useState('')
+  const [nomeEscola, setNomeEscola] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [cpf, setCpf] = useState('')
   const [dataNasc, setDataNasc] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+
+  const isEscola = typeof window !== 'undefined'
+    ? new URLSearchParams(window.location.search).get('tipo') === 'escola'
+    : false
 
   function handleCpf(e: React.ChangeEvent<HTMLInputElement>) {
     setCpf(formatarCPF(e.target.value))
@@ -84,7 +89,7 @@ export default function TreinadorCadastroPage() {
     const { data, error: signUpErr } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { nome, tipo: 'treinador' } },
+      options: { data: { nome, tipo: isEscola ? 'escola' : 'treinador', ...(isEscola && nomeEscola ? { nome_escola: nomeEscola } : {}) } },
     })
 
     if (signUpErr || !data.user) {
@@ -130,11 +135,32 @@ export default function TreinadorCadastroPage() {
             <Link href="/login" style={{ color: '#22c55e', textDecoration: 'none', fontWeight: 600 }}>Entrar →</Link>
           </p>
         </div>
-        <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', color: '#22c55e', textTransform: 'uppercase' }}>🏟️ Escola de Futebol</p>
-        <h1 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: 800, color: 'white' }}>Cadastrar minha escola</h1>
-        <p style={{ margin: '0 0 24px', fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>Gerencie turmas, atletas e avaliações no Meu Craque.</p>
+        <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', color: '#22c55e', textTransform: 'uppercase' }}>
+          {isEscola ? '🏟️ Escola de Futebol' : '👨‍🏫 Treinador'}
+        </p>
+        <h1 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: 800, color: 'white' }}>
+          {isEscola ? 'Cadastrar minha escola' : 'Criar perfil de treinador'}
+        </h1>
+        <p style={{ margin: '0 0 24px', fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>
+          {isEscola ? 'Gerencie turmas, atletas e avaliações no Meu Craque.' : 'Monte seu currículo e seja encontrado por escolas.'}
+        </p>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {isEscola && (
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.6)', marginBottom: '6px' }}>Nome da escola</label>
+              <input
+                type="text" required={isEscola} value={nomeEscola}
+                onChange={e => setNomeEscola(e.target.value)}
+                placeholder="Ex: Escolinha do Craque FC"
+                style={{
+                  width: '100%', padding: '10px 14px', borderRadius: '10px', boxSizing: 'border-box',
+                  background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+                  color: 'white', fontSize: '14px', outline: 'none',
+                }}
+              />
+            </div>
+          )}
           {[
             { id: 'nome', label: 'Nome completo', type: 'text', value: nome, setter: setNome, placeholder: 'Seu nome' },
             { id: 'cpf',  label: 'CPF', type: 'text', value: cpf, setter: (v: string) => setCpf(v), placeholder: '000.000.000-00', inputMode: 'numeric' as const },
