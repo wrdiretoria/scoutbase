@@ -147,22 +147,26 @@ export default function LandingPage() {
               Crie seu perfil e faça parte da evolução.
             </p>
 
-            <div className="h-ctas" style={{ display:'flex', alignItems:'center', gap:'20px', flexWrap:'wrap', marginTop:'4px' }}>
-              <Link href="/cadastro" style={{
-                display:'inline-flex', alignItems:'center', gap:'12px', width:'fit-content',
+            <div className="h-ctas" style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', gap:'14px', marginTop:'4px' }}>
+              <Link href="/login" style={{
+                display:'inline-flex', alignItems:'center', justifyContent:'center',
+                width:'220px',
                 background:'#00FF88', color:'#030805', fontWeight:800, fontSize:'16px',
-                borderRadius:'12px', padding:'16px 34px', textDecoration:'none',
-                letterSpacing:'0.01em',
+                borderRadius:'12px', padding:'16px 0', textDecoration:'none',
+                letterSpacing:'0.06em',
                 boxShadow:'0 0 32px rgba(0,255,136,0.28), 0 4px 16px rgba(0,0,0,0.4)',
               }}>
-                Criar meu perfil grátis →
+                ENTRAR
               </Link>
               <a href="#ranking" style={{
-                fontSize:'13px', fontWeight:600, color:'rgba(255,255,255,0.4)',
-                textDecoration:'none', letterSpacing:'0.04em', textTransform:'uppercase',
-                whiteSpace:'nowrap',
+                display:'inline-flex', alignItems:'center', justifyContent:'center',
+                width:'220px',
+                fontSize:'14px', fontWeight:700, color:'rgba(255,255,255,0.75)',
+                textDecoration:'none', letterSpacing:'0.06em',
+                border:'1.5px solid rgba(255,255,255,0.2)',
+                borderRadius:'12px', padding:'14px 0',
               }}>
-                Ver ranking →
+                VER RANKING →
               </a>
             </div>
           </div>
