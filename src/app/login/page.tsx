@@ -259,9 +259,12 @@ export default function LoginPage() {
                 />
                 {area === 'atleta' && (
                   <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.25)' }}>
-                    Seu ID está no seu perfil de atleta.{' '}
-                    <Link href="/atleta/recuperar-id" style={{ color: '#22c55e', textDecoration: 'none' }}>
-                      Esqueceu?
+                    <Link href="/atleta/recuperar-id" style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>
+                      Esqueceu o ID?
+                    </Link>
+                    {' · '}
+                    <Link href="/atleta/recuperar-senha" style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>
+                      Esqueceu a senha?
                     </Link>
                   </p>
                 )}
