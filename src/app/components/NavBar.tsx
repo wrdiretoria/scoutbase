@@ -6,7 +6,7 @@ import Link from 'next/link'
 const navLinks = [
   { label: '🏆 Ranking', href: '/ranking' },
   { label: 'Para atletas', href: '/cadastro' },
-  { label: 'Para treinadores', href: '/treinador/cadastro' },
+  { label: 'Para escolas', href: '/treinador/cadastro' },
   { label: '🔍 Para scouts', href: '/scout/busca' },
   { label: 'Planos', href: '#' },
 ]
