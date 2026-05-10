@@ -21,11 +21,6 @@ function calcularCategoria(dataNasc: string): string {
   return 'Adulto'
 }
 
-function calcularOVR(nome: string): number {
-  const hash = nome.split('').reduce((a, c) => a + c.charCodeAt(0), 0)
-  return 68 + (hash % 13)
-}
-
 function getInitials(nome: string) {
   return nome.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase()
 }
@@ -59,6 +54,7 @@ export default function AtletaPerfilPage() {
   const [meta,      setMeta]      = useState<AtletaMeta | null>(null)
   const [dataNasc,  setDataNasc]  = useState<string | null>(null)
   const [uid,       setUid]       = useState<string | null>(null)
+  const [athleteId, setAthleteId] = useState<string | null>(null)
   const [loading,   setLoading]   = useState(true)
 
   const [curriculo, setCurriculo] = useState<Curriculo>({
@@ -88,11 +84,12 @@ export default function AtletaPerfilPage() {
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('data_nascimento, bio, altura, peso, pe_dominante, clube_atual')
+        .select('data_nascimento, bio, altura, peso, pe_dominante, clube_atual, athlete_id')
         .eq('id', user.id)
         .single()
 
       if (profile?.data_nascimento) setDataNasc(profile.data_nascimento as string)
+      if (profile?.athlete_id)      setAthleteId(profile.athlete_id as string)
 
       setCurriculo({
         bio:         (profile?.bio          as string)  ?? '',
@@ -159,7 +156,6 @@ export default function AtletaPerfilPage() {
 
   if (!meta) return null
 
-  const ovr       = calcularOVR(meta.nome)
   const categoria = dataNasc ? calcularCategoria(dataNasc) : null
   const initials  = getInitials(meta.nome)
   const pos       = posAbrev(meta.posicao)
@@ -249,8 +245,7 @@ export default function AtletaPerfilPage() {
               {initials}
             </div>
             <div style={{ paddingBottom: '16px' }}>
-              <span style={{ fontSize: '48px', fontWeight: 900, lineHeight: 1, color: 'white', letterSpacing: '-0.04em' }}>{ovr}</span>
-              <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.55)', marginLeft: '6px' }}>{pos}</span>
+              <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.55)', marginLeft: '2px' }}>{pos}</span>
             </div>
           </div>
 
@@ -280,13 +275,36 @@ export default function AtletaPerfilPage() {
           </div>
         </div>
 
+        {/* ── ID do Atleta ── */}
+        {athleteId && (
+          <div style={{
+            background: 'rgba(0,255,136,0.05)',
+            border: '1.5px solid rgba(0,255,136,0.25)',
+            borderRadius: '16px', padding: '16px 20px',
+            marginBottom: '16px',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          }}>
+            <div>
+              <p style={{ margin: '0 0 2px', fontSize: '10px', fontWeight: 700, letterSpacing: '0.12em', color: 'rgba(0,255,136,0.7)', textTransform: 'uppercase' }}>
+                Seu ID de Atleta
+              </p>
+              <p style={{ margin: 0, fontSize: '26px', fontWeight: 900, color: '#00FF88', letterSpacing: '0.06em', lineHeight: 1 }}>
+                {athleteId}
+              </p>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <p style={{ margin: 0, fontSize: '10px', color: 'rgba(255,200,0,0.7)', fontWeight: 700 }}>⚠️ Guarde</p>
+              <p style={{ margin: 0, fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>usado no login</p>
+            </div>
+          </div>
+        )}
+
         {/* ── Stats ── */}
         <div style={{
-          display: 'grid', gridTemplateColumns: '1fr 1fr 1fr',
+          display: 'grid', gridTemplateColumns: '1fr 1fr',
           gap: '10px', marginBottom: '24px',
         }}>
           {[
-            { label: 'OVR', val: String(ovr), sub: 'geral' },
             { label: 'Ranking', val: '—', sub: 'aguardando' },
             { label: 'Avaliações', val: '0', sub: 'registradas' },
           ].map(s => (
@@ -334,10 +352,7 @@ export default function AtletaPerfilPage() {
                 placeholder="Conte quem você é como atleta. Seu estilo de jogo, pontos fortes, o que te move..."
                 maxLength={280}
                 rows={3}
-                style={{
-                  ...inputStyle,
-                  resize: 'none', lineHeight: 1.55,
-                }}
+                style={{ ...inputStyle, resize: 'none', lineHeight: 1.55 }}
               />
               <p style={{ margin: '5px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.2)', textAlign: 'right' }}>
                 {curriculo.bio.length}/280
@@ -417,8 +432,7 @@ export default function AtletaPerfilPage() {
                   padding: '12px 14px', borderRadius: '12px',
                   background: 'rgba(255,255,255,0.02)',
                   border: '1px solid rgba(255,255,255,0.05)',
-                  opacity: 0.55,
-                  userSelect: 'none',
+                  opacity: 0.55, userSelect: 'none',
                 }}>
                   <span style={{ fontSize: '18px', flexShrink: 0 }}>{item.icon}</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -468,8 +482,8 @@ export default function AtletaPerfilPage() {
                 : 'https://scoutbase-eta.vercel.app'
               if (navigator.share) {
                 navigator.share({
-                  title: `${meta.nome} · OVR ${ovr} · MeuCraque`,
-                  text: `Acabei de montar meu currículo no MeuCraque! OVR ${ovr} · ${meta.posicao} · ${meta.cidade}. Você é o próximo?`,
+                  title: `${meta.nome} · MeuCraque`,
+                  text: `Acabei de montar meu currículo no MeuCraque! ${meta.posicao} · ${meta.cidade}. Você é o próximo?`,
                   url: cardUrl,
                 })
               } else {
