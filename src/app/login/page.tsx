@@ -5,15 +5,59 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 
-type Area = 'atleta' | 'escola' | 'treinador' | null
+type Area = 'atleta' | 'treinador' | 'escola' | null
+
+const areas = [
+  {
+    id: 'atleta' as Area,
+    icon: '⚡',
+    title: 'Atleta',
+    desc: 'Entre ou crie seu perfil de atleta',
+    loginLabel: 'Entrar com ID',
+    cadastroLabel: 'Criar perfil de atleta',
+    cadastroHref: '/atleta/cadastro',
+  },
+  {
+    id: 'treinador' as Area,
+    icon: '👨‍🏫',
+    title: 'Treinador',
+    desc: 'Entre ou monte seu currículo',
+    loginLabel: 'Entrar como treinador',
+    cadastroLabel: 'Criar perfil de treinador',
+    cadastroHref: '/treinador/cadastro',
+  },
+  {
+    id: 'escola' as Area,
+    icon: '🏟️',
+    title: 'Minha Escola',
+    desc: 'Entre ou cadastre sua escola',
+    loginLabel: 'Entrar como dono',
+    cadastroLabel: 'Cadastrar minha escola',
+    cadastroHref: '/treinador/cadastro?tipo=escola',
+  },
+]
 
 export default function LoginPage() {
   const router = useRouter()
   const [area, setArea] = useState<Area>(null)
-  const [identifier, setIdentifier] = useState('') // email ou ID do atleta
+  const [step, setStep] = useState<0 | 1 | 2>(0) // 0=escolha, 1=ação, 2=login
+  const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+
+  const areaInfo = areas.find(a => a.id === area)
+
+  function handleSelectArea(id: Area) {
+    setArea(id)
+    setStep(1)
+    setError(null)
+  }
+
+  function handleBack() {
+    if (step === 2) { setStep(1); setError(null) }
+    else { setArea(null); setStep(0); setError(null) }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -22,7 +66,6 @@ export default function LoginPage() {
 
     let emailParaLogin = identifier
 
-    // Atleta entra com ID → busca email pelo ID
     if (area === 'atleta') {
       const res = await fetch('/api/auth/buscar-por-id', {
         method: 'POST',
@@ -52,7 +95,6 @@ export default function LoginPage() {
 
     const tipo = (data.user.user_metadata as { tipo?: string })?.tipo
     if (tipo === 'atleta') router.push('/atleta/perfil')
-    else if (tipo === 'scout') router.push('/scout/busca')
     else if (tipo === 'treinador') router.push('/treinador/perfil')
     else router.push('/dashboard')
   }
@@ -74,175 +116,137 @@ export default function LoginPage() {
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
       padding: '24px', fontFamily: 'system-ui, sans-serif',
     }}>
-      <div style={{ width: '100%', maxWidth: '420px' }}>
+      <div style={{ width: '100%', maxWidth: '400px' }}>
 
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <Link href="/" style={{ fontSize: '18px', fontWeight: 800, color: 'white', textDecoration: 'none', letterSpacing: '0.03em' }}>
+          <Link href="/" style={{ fontSize: '18px', fontWeight: 800, color: 'white', textDecoration: 'none' }}>
             ⚽ MEU <span style={{ color: '#22c55e' }}>CRAQUE</span>
           </Link>
         </div>
 
-        {/* ── STEP 1: escolha da área ── */}
-        {!area && (
+        {/* ── STEP 0: escolha a área ── */}
+        {step === 0 && (
           <>
-            <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-              <h1 style={{ margin: '0 0 8px', fontSize: '24px', fontWeight: 900, color: 'white', letterSpacing: '-0.02em' }}>
-                Qual é a sua área?
+            <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+              <h1 style={{ margin: '0 0 8px', fontSize: '22px', fontWeight: 900, color: 'white', letterSpacing: '-0.02em' }}>
+                Quem é você no jogo?
               </h1>
-              <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.35)' }}>
-                Escolha para continuar
-              </p>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-
-              {/* Atleta e Responsável */}
-              <button
-                onClick={() => setArea('atleta')}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '18px',
-                  padding: '22px 24px', borderRadius: '16px', border: 'none',
-                  background: 'rgba(255,255,255,0.04)',
-                  outline: '1.5px solid rgba(255,255,255,0.1)',
-                  cursor: 'pointer', textAlign: 'left', width: '100%',
-                  transition: 'all .2s',
-                }}
-                onMouseEnter={e => (e.currentTarget.style.outline = '1.5px solid rgba(0,255,136,0.5)')}
-                onMouseLeave={e => (e.currentTarget.style.outline = '1.5px solid rgba(255,255,255,0.1)')}
-              >
-                <span style={{
-                  width: '48px', height: '48px', borderRadius: '14px', flexShrink: 0,
-                  background: 'rgba(0,255,136,0.1)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '22px',
-                }}>⚡</span>
-                <div>
-                  <p style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 800, color: 'white' }}>
-                    Atleta e Responsável
-                  </p>
-                  <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.4 }}>
-                    Acesse seu perfil, acompanhe a evolução e conquistas
-                  </p>
-                </div>
-                <span style={{ marginLeft: 'auto', fontSize: '18px', color: 'rgba(255,255,255,0.25)', flexShrink: 0 }}>›</span>
-              </button>
-
-              {/* Treinador */}
-              <button
-                onClick={() => setArea('treinador')}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '18px',
-                  padding: '22px 24px', borderRadius: '16px', border: 'none',
-                  background: 'rgba(255,255,255,0.04)',
-                  outline: '1.5px solid rgba(255,255,255,0.1)',
-                  cursor: 'pointer', textAlign: 'left', width: '100%',
-                  transition: 'all .2s',
-                }}
-                onMouseEnter={e => (e.currentTarget.style.outline = '1.5px solid rgba(0,255,136,0.5)')}
-                onMouseLeave={e => (e.currentTarget.style.outline = '1.5px solid rgba(255,255,255,0.1)')}
-              >
-                <span style={{
-                  width: '48px', height: '48px', borderRadius: '14px', flexShrink: 0,
-                  background: 'rgba(0,255,136,0.1)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '22px',
-                }}>👨‍🏫</span>
-                <div>
-                  <p style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 800, color: 'white' }}>
-                    Treinador
-                  </p>
-                  <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.4 }}>
-                    Monte seu currículo e gerencie seus atletas
-                  </p>
-                </div>
-                <span style={{ marginLeft: 'auto', fontSize: '18px', color: 'rgba(255,255,255,0.25)', flexShrink: 0 }}>›</span>
-              </button>
-
-              {/* Minha Escola de Futebol */}
-              <button
-                onClick={() => setArea('escola')}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '18px',
-                  padding: '22px 24px', borderRadius: '16px', border: 'none',
-                  background: 'rgba(255,255,255,0.04)',
-                  outline: '1.5px solid rgba(255,255,255,0.1)',
-                  cursor: 'pointer', textAlign: 'left', width: '100%',
-                  transition: 'all .2s',
-                }}
-                onMouseEnter={e => (e.currentTarget.style.outline = '1.5px solid rgba(0,255,136,0.5)')}
-                onMouseLeave={e => (e.currentTarget.style.outline = '1.5px solid rgba(255,255,255,0.1)')}
-              >
-                <span style={{
-                  width: '48px', height: '48px', borderRadius: '14px', flexShrink: 0,
-                  background: 'rgba(0,255,136,0.1)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '22px',
-                }}>🏟️</span>
-                <div>
-                  <p style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 800, color: 'white' }}>
-                    Minha Escola de Futebol
-                  </p>
-                  <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.4 }}>
-                    Gerencie turmas, atletas e avaliações da sua escolinha
-                  </p>
-                </div>
-                <span style={{ marginLeft: 'auto', fontSize: '18px', color: 'rgba(255,255,255,0.25)', flexShrink: 0 }}>›</span>
-              </button>
-
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {areas.map(a => (
+                <button
+                  key={a.id}
+                  onClick={() => handleSelectArea(a.id)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '16px',
+                    padding: '20px 22px', borderRadius: '16px', border: 'none',
+                    background: 'rgba(255,255,255,0.04)',
+                    outline: '1.5px solid rgba(255,255,255,0.1)',
+                    cursor: 'pointer', textAlign: 'left', width: '100%',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.outline = '1.5px solid rgba(0,255,136,0.4)')}
+                  onMouseLeave={e => (e.currentTarget.style.outline = '1.5px solid rgba(255,255,255,0.1)')}
+                >
+                  <span style={{
+                    width: '44px', height: '44px', borderRadius: '12px', flexShrink: 0,
+                    background: 'rgba(0,255,136,0.08)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px',
+                  }}>{a.icon}</span>
+                  <div>
+                    <p style={{ margin: '0 0 2px', fontSize: '16px', fontWeight: 800, color: 'white' }}>{a.title}</p>
+                    <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255,255,255,0.35)' }}>{a.desc}</p>
+                  </div>
+                  <span style={{ marginLeft: 'auto', color: 'rgba(255,255,255,0.2)', fontSize: '18px' }}>›</span>
+                </button>
+              ))}
             </div>
-
-            <p style={{ marginTop: '28px', textAlign: 'center', fontSize: '13px', color: 'rgba(255,255,255,0.25)' }}>
-              Ainda não tem conta?{' '}
-              <Link href="/cadastro" style={{ color: '#22c55e', textDecoration: 'none', fontWeight: 700 }}>
-                Criar perfil grátis
-              </Link>
-            </p>
           </>
         )}
 
-        {/* ── STEP 2: formulário de login ── */}
-        {area && (
+        {/* ── STEP 1: entrar ou criar perfil ── */}
+        {step === 1 && areaInfo && (
           <>
-            {/* Voltar */}
-            <button
-              onClick={() => { setArea(null); setError(null) }}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '6px',
-                background: 'none', border: 'none', cursor: 'pointer',
-                color: 'rgba(255,255,255,0.4)', fontSize: '13px', fontWeight: 600,
-                marginBottom: '28px', padding: 0,
-              }}
-            >
+            <button onClick={handleBack} style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: 'rgba(255,255,255,0.4)', fontSize: '13px', fontWeight: 600,
+              marginBottom: '28px', padding: 0, display: 'flex', alignItems: 'center', gap: '6px',
+            }}>
               ← Voltar
             </button>
 
-            {/* Área selecionada */}
+            {/* Badge área */}
             <div style={{
               display: 'flex', alignItems: 'center', gap: '10px',
               padding: '12px 16px', borderRadius: '12px',
               background: 'rgba(0,255,136,0.06)', border: '1px solid rgba(0,255,136,0.2)',
               marginBottom: '28px',
             }}>
-              <span style={{ fontSize: '18px' }}>
-                {area === 'atleta' ? '⚡' : area === 'treinador' ? '👨‍🏫' : '🏟️'}
-              </span>
-              <span style={{ fontSize: '14px', fontWeight: 700, color: 'rgba(255,255,255,0.8)' }}>
-                {area === 'atleta' ? 'Atleta e Responsável' : area === 'treinador' ? 'Treinador' : 'Minha Escola de Futebol'}
-              </span>
+              <span style={{ fontSize: '18px' }}>{areaInfo.icon}</span>
+              <span style={{ fontSize: '14px', fontWeight: 700, color: 'rgba(255,255,255,0.8)' }}>{areaInfo.title}</span>
             </div>
 
-            <div style={{ marginBottom: '28px' }}>
-              <h1 style={{ margin: '0 0 6px', fontSize: '24px', fontWeight: 900, color: 'white', letterSpacing: '-0.02em' }}>
-                Bem-vindo de volta
-              </h1>
-              <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.35)' }}>
-                {area === 'atleta' ? 'Entre com seu ID e senha' : 'Entre com seu email e senha'}
-              </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {/* Entrar */}
+              <button
+                onClick={() => setStep(2)}
+                style={{
+                  padding: '18px 22px', borderRadius: '14px', border: 'none',
+                  background: '#00FF88', color: '#030805', fontWeight: 800,
+                  fontSize: '15px', cursor: 'pointer', width: '100%',
+                  boxShadow: '0 0 24px rgba(0,255,136,0.2)',
+                }}
+              >
+                {areaInfo.loginLabel} →
+              </button>
 
+              {/* Criar perfil */}
+              <Link
+                href={areaInfo.cadastroHref}
+                style={{
+                  display: 'block', padding: '18px 22px', borderRadius: '14px',
+                  border: '1.5px solid rgba(255,255,255,0.12)',
+                  color: 'rgba(255,255,255,0.7)', fontWeight: 700,
+                  fontSize: '15px', textDecoration: 'none', textAlign: 'center',
+                }}
+              >
+                {areaInfo.cadastroLabel}
+              </Link>
+            </div>
+          </>
+        )}
+
+        {/* ── STEP 2: formulário de login ── */}
+        {step === 2 && areaInfo && (
+          <>
+            <button onClick={handleBack} style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: 'rgba(255,255,255,0.4)', fontSize: '13px', fontWeight: 600,
+              marginBottom: '28px', padding: 0, display: 'flex', alignItems: 'center', gap: '6px',
+            }}>
+              ← Voltar
+            </button>
+
+            {/* Badge área */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '10px',
+              padding: '12px 16px', borderRadius: '12px',
+              background: 'rgba(0,255,136,0.06)', border: '1px solid rgba(0,255,136,0.2)',
+              marginBottom: '24px',
+            }}>
+              <span style={{ fontSize: '18px' }}>{areaInfo.icon}</span>
+              <span style={{ fontSize: '14px', fontWeight: 700, color: 'rgba(255,255,255,0.8)' }}>{areaInfo.title}</span>
             </div>
 
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+            <h1 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: 900, color: 'white', letterSpacing: '-0.02em' }}>
+              Bem-vindo de volta
+            </h1>
+            <p style={{ margin: '0 0 24px', fontSize: '14px', color: 'rgba(255,255,255,0.35)' }}>
+              {area === 'atleta' ? 'Entre com seu ID e senha' : 'Entre com seu email e senha'}
+            </p>
+
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
                 <label style={labelStyle}>{area === 'atleta' ? 'ID do Atleta' : 'Email'}</label>
                 <input
@@ -285,19 +289,12 @@ export default function LoginPage() {
                   padding: '14px', borderRadius: '14px', border: 'none',
                   cursor: loading ? 'not-allowed' : 'pointer',
                   background: '#22c55e', color: 'black', fontWeight: 800,
-                  fontSize: '16px', opacity: loading ? 0.6 : 1, marginTop: '4px',
+                  fontSize: '16px', opacity: loading ? 0.6 : 1,
                 }}
               >
                 {loading ? 'Entrando…' : 'Entrar →'}
               </button>
             </form>
-
-            <p style={{ marginTop: '24px', textAlign: 'center', fontSize: '13px', color: 'rgba(255,255,255,0.3)' }}>
-              Ainda não tem conta?{' '}
-              <Link href="/cadastro" style={{ color: '#22c55e', textDecoration: 'none', fontWeight: 700 }}>
-                Criar perfil grátis
-              </Link>
-            </p>
           </>
         )}
 
