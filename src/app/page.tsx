@@ -51,15 +51,18 @@ export default function LandingPage() {
       <style>{`
         @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
         @keyframes floatBack { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-        @keyframes heroFadeUp { from { opacity:0; transform:translateY(18px) } to { opacity:1; transform:translateY(0) } }
+        @keyframes heroFadeUp { from { opacity:0; transform:translateY(22px) } to { opacity:1; transform:translateY(0) } }
+        @keyframes glowPulse { 0%,100%{text-shadow:0 0 40px rgba(0,255,136,0.45),0 0 80px rgba(0,255,136,0.18)} 50%{text-shadow:0 0 60px rgba(0,255,136,0.65),0 0 120px rgba(0,255,136,0.28)} }
         .card-item { transition:background .2s; cursor:default; }
         .card-item:hover { background:rgba(34,197,94,0.06); }
 
-        .h-badge  { animation:heroFadeUp 0.7s ease forwards; animation-delay:0.10s; opacity:0; }
-        .h-line-1 { animation:heroFadeUp 0.7s ease forwards; animation-delay:0.25s; opacity:0; }
-        .h-line-2 { animation:heroFadeUp 0.7s ease forwards; animation-delay:0.42s; opacity:0; }
-        .h-sub    { animation:heroFadeUp 0.7s ease forwards; animation-delay:0.58s; opacity:0; }
-        .h-ctas   { animation:heroFadeUp 0.7s ease forwards; animation-delay:0.72s; opacity:0; }
+        .h-badge  { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards; animation-delay:0.08s; opacity:0; }
+        .h-line-1 { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards; animation-delay:0.22s; opacity:0; }
+        .h-line-2 { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards; animation-delay:0.36s; opacity:0; }
+        .h-line-3 { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards; animation-delay:0.50s; opacity:0; }
+        .h-sub    { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards; animation-delay:0.66s; opacity:0; }
+        .h-ctas   { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards; animation-delay:0.80s; opacity:0; }
+        .neon-word { animation:glowPulse 3.5s ease-in-out infinite; }
         .hero-hud { display:block; }
 
         /* ── MOBILE ── */
@@ -95,9 +98,11 @@ export default function LandingPage() {
           style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', objectPosition:'center center', zIndex:0 }}
         />
         {/* Overlay 1 — direcional: escuro à esquerda, abre à direita */}
-        <div style={{ position:'absolute', inset:0, zIndex:1, background:'linear-gradient(105deg, rgba(3,8,5,0.90) 0%, rgba(3,8,5,0.74) 42%, rgba(3,8,5,0.20) 100%)' }} />
+        <div style={{ position:'absolute', inset:0, zIndex:1, background:'linear-gradient(105deg, rgba(3,8,5,0.93) 0%, rgba(3,8,5,0.78) 42%, rgba(3,8,5,0.22) 100%)' }} />
         {/* Overlay 2 — vinheta: bordas mais escuras */}
-        <div style={{ position:'absolute', inset:0, zIndex:1, background:'radial-gradient(ellipse at 68% 50%, transparent 35%, rgba(0,0,0,0.52) 100%)' }} />
+        <div style={{ position:'absolute', inset:0, zIndex:1, background:'radial-gradient(ellipse at 68% 50%, transparent 35%, rgba(0,0,0,0.55) 100%)' }} />
+        {/* Overlay 3 — neon glow verde no canto esquerdo/baixo, sutil */}
+        <div style={{ position:'absolute', inset:0, zIndex:1, background:'radial-gradient(ellipse at 10% 85%, rgba(0,255,136,0.07) 0%, transparent 55%)' }} />
 
         {/* Grid */}
         <div className="hero-grid" style={{
@@ -107,40 +112,56 @@ export default function LandingPage() {
         }}>
 
           {/* LEFT */}
-          <div className="hero-left" style={{ display:'flex', flexDirection:'column', gap:'28px', minWidth:0 }}>
+          <div className="hero-left" style={{ display:'flex', flexDirection:'column', gap:'32px', minWidth:0 }}>
             <span className="h-badge" style={{
               display:'inline-flex', alignItems:'center', gap:'8px', width:'fit-content',
-              padding:'6px 16px', borderRadius:'100px',
-              border:'1.5px solid rgba(34,197,94,0.5)', background:'rgba(34,197,94,0.08)',
-              fontSize:'11px', fontWeight:700, color:'#22c55e', letterSpacing:'0.06em',
+              padding:'6px 18px', borderRadius:'100px',
+              border:'1px solid rgba(0,255,136,0.35)', background:'rgba(0,255,136,0.06)',
+              fontSize:'10px', fontWeight:700, color:'rgba(0,255,136,0.85)', letterSpacing:'0.10em',
             }}>
-              ⚡ O PALCO DIGITAL DO FUTEBOL BRASILEIRO
+              ⚽ FUTEBOL BRASILEIRO · DIGITAL
             </span>
 
-            <h1 style={{ fontSize:'clamp(52px,5.5vw,76px)', fontWeight:900, letterSpacing:'-0.04em', lineHeight:1.0, color:'white', margin:0 }}>
-              <span className="h-line-1" style={{ display:'block' }}>Você é</span>
-              <em className="h-line-2" style={{ display:'block', color:'#22c55e', fontStyle:'italic' }}>o próximo.</em>
+            <h1 style={{ margin:0, padding:0, lineHeight:1.05, letterSpacing:'-0.03em' }}>
+              <span className="h-line-1" style={{
+                display:'block', fontSize:'clamp(54px,6.2vw,90px)',
+                fontWeight:900, color:'white',
+              }}>O</span>
+              <span className="h-line-2 neon-word" style={{
+                display:'block', fontSize:'clamp(72px,9vw,128px)',
+                fontWeight:900, color:'#00FF88', lineHeight:0.95,
+              }}>FUTURO</span>
+              <span className="h-line-3" style={{
+                display:'block', fontSize:'clamp(30px,3.8vw,56px)',
+                fontWeight:800, color:'rgba(255,255,255,0.88)', letterSpacing:'-0.01em',
+                marginTop:'6px',
+              }}>DO FUTEBOL<br/>COMEÇA AQUI.</span>
             </h1>
 
-            <p className="h-sub" style={{ fontSize:'17px', color:'rgba(255,255,255,0.68)', lineHeight:1.65, margin:0, maxWidth:'420px' }}>
-              Crie seu perfil. Suba no ranking. Seja descoberto por quem importa.
+            <p className="h-sub" style={{
+              fontSize:'clamp(14px,1.25vw,17px)', color:'rgba(255,255,255,0.45)',
+              lineHeight:1.7, margin:0, maxWidth:'360px',
+              fontWeight:400, letterSpacing:'0.01em',
+            }}>
+              Crie seu perfil e faça parte da evolução.
             </p>
 
-            <div className="h-ctas" style={{ display:'flex', alignItems:'center', gap:'20px', flexWrap:'wrap' }}>
+            <div className="h-ctas" style={{ display:'flex', alignItems:'center', gap:'20px', flexWrap:'wrap', marginTop:'4px' }}>
               <Link href="/cadastro" style={{
-                display:'inline-flex', alignItems:'center', gap:'14px', width:'fit-content',
-                background:'#22c55e', color:'black', fontWeight:800, fontSize:'17px',
-                borderRadius:'14px', padding:'16px 32px', textDecoration:'none',
+                display:'inline-flex', alignItems:'center', gap:'12px', width:'fit-content',
+                background:'#00FF88', color:'#030805', fontWeight:800, fontSize:'16px',
+                borderRadius:'12px', padding:'16px 34px', textDecoration:'none',
+                letterSpacing:'0.01em',
+                boxShadow:'0 0 32px rgba(0,255,136,0.28), 0 4px 16px rgba(0,0,0,0.4)',
               }}>
-                <span style={{ width:'34px', height:'34px', borderRadius:'50%', background:'rgba(0,0,0,0.18)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'16px', flexShrink:0 }}>↗</span>
-                Criar meu perfil grátis
+                Criar meu perfil grátis →
               </Link>
               <a href="#ranking" style={{
-                fontSize:'14px', fontWeight:700, color:'rgba(255,255,255,0.65)',
-                textDecoration:'none', borderBottom:'1px solid rgba(255,255,255,0.25)',
-                paddingBottom:'2px', whiteSpace:'nowrap',
+                fontSize:'13px', fontWeight:600, color:'rgba(255,255,255,0.4)',
+                textDecoration:'none', letterSpacing:'0.04em', textTransform:'uppercase',
+                whiteSpace:'nowrap',
               }}>
-                Ver ranking por cidade →
+                Ver ranking →
               </a>
             </div>
           </div>
