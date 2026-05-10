@@ -5,9 +5,18 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 
-function formatarCPF(value: string) {
-  const nums = value.replace(/\D/g, '').slice(0, 11)
-  return nums
+function formatarDocumento(value: string, isEscola: boolean) {
+  const nums = value.replace(/\D/g, '')
+  if (isEscola && nums.length > 11) {
+    // CNPJ: XX.XXX.XXX/XXXX-XX
+    return nums.slice(0, 14)
+      .replace(/(\d{2})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1/$2')
+      .replace(/(\d{4})(\d{1,2})$/, '$1-$2')
+  }
+  // CPF: XXX.XXX.XXX-XX
+  return nums.slice(0, 11)
     .replace(/(\d{3})(\d)/, '$1.$2')
     .replace(/(\d{3})(\d)/, '$1.$2')
     .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
@@ -26,6 +35,26 @@ function validarCPF(cpf: string) {
   resto = (soma * 10) % 11
   if (resto === 10 || resto === 11) resto = 0
   return resto === parseInt(nums[10])
+}
+
+function validarCNPJ(cnpj: string) {
+  const nums = cnpj.replace(/\D/g, '')
+  if (nums.length !== 14 || /^(\d)\1+$/.test(nums)) return false
+  const calc = (n: string, peso: number[]) => {
+    const soma = peso.reduce((acc, p, i) => acc + parseInt(n[i]) * p, 0)
+    const r = soma % 11
+    return r < 2 ? 0 : 11 - r
+  }
+  const d1 = calc(nums, [5,4,3,2,9,8,7,6,5,4,3,2])
+  if (d1 !== parseInt(nums[12])) return false
+  const d2 = calc(nums, [6,5,4,3,2,9,8,7,6,5,4,3,2])
+  return d2 === parseInt(nums[13])
+}
+
+function validarDocumento(doc: string) {
+  const nums = doc.replace(/\D/g, '')
+  if (nums.length === 14) return validarCNPJ(doc)
+  return validarCPF(doc)
 }
 
 function calcularIdade(dataNasc: string) {
@@ -49,7 +78,7 @@ export default function CadastroForm({ isEscola }: { isEscola: boolean }) {
   const [loading, setLoading] = useState(false)
 
   function handleCpf(e: React.ChangeEvent<HTMLInputElement>) {
-    setCpf(formatarCPF(e.target.value))
+    setCpf(formatarDocumento(e.target.value, isEscola))
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -61,8 +90,8 @@ export default function CadastroForm({ isEscola }: { isEscola: boolean }) {
       setError('É necessário ter 18 anos ou mais.')
       return
     }
-    if (!validarCPF(cpf)) {
-      setError('CPF inválido. Verifique e tente novamente.')
+    if (!validarDocumento(cpf)) {
+      setError(`${isEscola ? 'CPF ou CNPJ' : 'CPF'} inválido. Verifique e tente novamente.`)
       return
     }
 
@@ -174,7 +203,7 @@ export default function CadastroForm({ isEscola }: { isEscola: boolean }) {
 
           {[
             { id: 'nome', label: 'Nome completo', type: 'text', value: nome, setter: setNome, placeholder: 'Seu nome' },
-            { id: 'cpf', label: 'CPF', type: 'text', value: cpf, setter: (v: string) => setCpf(v), placeholder: '000.000.000-00' },
+            { id: 'cpf', label: isEscola ? 'CPF ou CNPJ' : 'CPF', type: 'text', value: cpf, setter: (v: string) => setCpf(v), placeholder: isEscola ? 'CPF ou CNPJ da escola' : '000.000.000-00' },
             { id: 'email', label: 'Email', type: 'email', value: email, setter: setEmail, placeholder: 'seu@email.com' },
             { id: 'password', label: 'Senha', type: 'password', value: password, setter: setPassword, placeholder: 'Mínimo 6 caracteres' },
           ].map(f => (
