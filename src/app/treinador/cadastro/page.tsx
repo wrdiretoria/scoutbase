@@ -121,9 +121,15 @@ export default function TreinadorCadastroPage() {
         border: '1px solid rgba(255,255,255,0.08)',
         borderRadius: '20px', padding: '32px 28px',
       }}>
-        <Link href="/cadastro" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none', display: 'block', marginBottom: '20px' }}>
-          ← Voltar
-        </Link>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <Link href="/cadastro" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>
+            ← Voltar
+          </Link>
+          <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.3)' }}>
+            Já tem conta?{' '}
+            <Link href="/login" style={{ color: '#22c55e', textDecoration: 'none', fontWeight: 600 }}>Entrar →</Link>
+          </p>
+        </div>
         <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', color: '#22c55e', textTransform: 'uppercase' }}>Treinador</p>
         <h1 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: 800, color: 'white' }}>Criar conta</h1>
         <p style={{ margin: '0 0 24px', fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>Gerencie sua escolinha no MeuCraque.</p>
@@ -179,10 +185,6 @@ export default function TreinadorCadastroPage() {
           </button>
         </form>
 
-        <p style={{ margin: '20px 0 0', fontSize: '13px', textAlign: 'center', color: 'rgba(255,255,255,0.3)' }}>
-          Já tem conta?{' '}
-          <Link href="/login" style={{ color: '#22c55e', textDecoration: 'none', fontWeight: 600 }}>Entrar</Link>
-        </p>
       </div>
     </main>
   )
