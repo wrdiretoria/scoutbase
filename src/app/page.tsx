@@ -119,22 +119,18 @@ export default function LandingPage() {
               border:'1px solid rgba(0,255,136,0.35)', background:'rgba(0,255,136,0.06)',
               fontSize:'10px', fontWeight:700, color:'rgba(0,255,136,0.85)', letterSpacing:'0.10em',
             }}>
-              ⚽ A NOVA ERA DO FUTEBOL
+              AQUI JOGAMOS JUNTOS
             </span>
 
             <h1 style={{ margin:0, padding:0, lineHeight:1.08, letterSpacing:'-0.03em' }}>
               <span className="h-line-1" style={{
-                display:'block', fontSize:'clamp(48px,6vw,86px)',
+                display:'block', fontSize:'clamp(52px,7vw,96px)',
                 fontWeight:900, color:'white',
               }}>
                 O <span className="neon-word" style={{ color:'#00FF88' }}>FUTURO</span>
               </span>
               <span className="h-line-2" style={{
-                display:'block', fontSize:'clamp(48px,6vw,86px)',
-                fontWeight:900, color:'white',
-              }}>DO FUTEBOL</span>
-              <span className="h-line-3" style={{
-                display:'block', fontSize:'clamp(48px,6vw,86px)',
+                display:'block', fontSize:'clamp(52px,7vw,96px)',
                 fontWeight:900, color:'white',
               }}>COMEÇA AQUI.</span>
             </h1>
