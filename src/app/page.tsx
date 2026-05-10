@@ -70,17 +70,20 @@ export default function LandingPage() {
           .hero-grid {
             grid-template-columns: 1fr !important;
             padding: 0 24px !important;
-            align-items: center !important;
-            padding-top: 80px !important;
-            padding-bottom: 60px !important;
+            align-items: flex-start !important;
+            padding-top: 72px !important;
+            padding-bottom: 36px !important;
           }
           .hero-phones { display:none !important; }
           .hero-hud    { display:none !important; }
           .cards-grid { grid-template-columns: 1fr 1fr !important; }
           .card-item { border-right: none !important; border-bottom: 1px solid rgba(34,197,94,0.1); }
           .footer-inner { flex-direction: column !important; gap: 8px !important; text-align: center !important; }
-          .hero-section { height: auto !important; min-height: 0 !important; }
-          .hero-left { padding-bottom: 0 !important; }
+          .hero-section { height: 72svh !important; min-height: 0 !important; }
+          .hero-left { padding-bottom: 0 !important; gap: 16px !important; }
+          .hero-h1-line { font-size: clamp(30px,9vw,48px) !important; }
+          .hero-sub { display: none !important; }
+          .hero-badge { font-size: 9px !important; padding: 4px 12px !important; }
         }
         @media (max-width: 480px) {
           .cards-grid { grid-template-columns: 1fr !important; }
@@ -113,7 +116,7 @@ export default function LandingPage() {
 
           {/* LEFT */}
           <div className="hero-left" style={{ display:'flex', flexDirection:'column', gap:'32px', minWidth:0 }}>
-            <span className="h-badge" style={{
+            <span className="h-badge hero-badge" style={{
               display:'inline-flex', alignItems:'center', gap:'8px', width:'fit-content',
               padding:'6px 18px', borderRadius:'100px',
               border:'1px solid rgba(0,255,136,0.35)', background:'rgba(0,255,136,0.06)',
@@ -123,23 +126,23 @@ export default function LandingPage() {
             </span>
 
             <h1 style={{ margin:0, padding:0, lineHeight:1.08, letterSpacing:'-0.03em' }}>
-              <span className="h-line-1" style={{
+              <span className="h-line-1 hero-h1-line" style={{
                 display:'block', fontSize:'clamp(52px,7vw,96px)',
                 fontWeight:900, color:'white',
               }}>
                 AQUI É O <span className="neon-word" style={{ color:'#00FF88' }}>PALCO</span>
               </span>
-              <span className="h-line-2" style={{
+              <span className="h-line-2 hero-h1-line" style={{
                 display:'block', fontSize:'clamp(52px,7vw,96px)',
                 fontWeight:900, color:'white',
               }}>DE QUEM VIVE</span>
-              <span className="h-line-2" style={{
+              <span className="h-line-2 hero-h1-line" style={{
                 display:'block', fontSize:'clamp(52px,7vw,96px)',
                 fontWeight:900, color:'white',
               }}>FUTEBOL.</span>
             </h1>
 
-            <p className="h-sub" style={{
+            <p className="h-sub hero-sub" style={{
               fontSize:'clamp(14px,1.25vw,17px)', color:'rgba(255,255,255,0.45)',
               lineHeight:1.7, margin:0, maxWidth:'360px',
               fontWeight:400, letterSpacing:'0.01em',
