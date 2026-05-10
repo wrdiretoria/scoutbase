@@ -154,7 +154,7 @@ export default function LandingPage() {
               }}>
                 ENTRAR
               </Link>
-              <a href="#ranking" style={{
+              <Link href="/ranking" style={{
                 display:'inline-flex', alignItems:'center', justifyContent:'center',
                 width:'220px',
                 fontSize:'14px', fontWeight:700, color:'rgba(255,255,255,0.75)',
@@ -163,7 +163,7 @@ export default function LandingPage() {
                 borderRadius:'12px', padding:'14px 0',
               }}>
                 VER RANKING →
-              </a>
+              </Link>
             </div>
           </div>
 

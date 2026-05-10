@@ -23,11 +23,6 @@ function calcularCategoria(dataNasc: string): string {
   return 'Adulto'
 }
 
-function calcularOVR(nome: string): number {
-  const hash = nome.split('').reduce((a, c) => a + c.charCodeAt(0), 0)
-  return 68 + (hash % 13)
-}
-
 function getInitials(nome: string) {
   return nome.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase()
 }
@@ -66,36 +61,39 @@ export default async function RankingPage({ searchParams }: Props) {
   // 2. Filtra atletas
   const atletas = users.filter(u => u.user_metadata?.tipo === 'atleta')
 
-  // 3. Busca perfis com data_nascimento
+  // 3. Busca perfis com data_nascimento e currículo
   const ids = atletas.map(u => u.id)
   const { data: profiles } = await admin
     .from('profiles')
-    .select('id, data_nascimento')
+    .select('id, nome, data_nascimento, bio, altura, peso, clube_atual')
     .in('id', ids)
 
   const profileMap = new Map(
-    (profiles ?? []).map(p => [p.id, p.data_nascimento as string | null])
+    (profiles ?? []).map(p => [p.id, p])
   )
 
-  // 4. Monta e ordena ranking
+  // 4. Monta e ordena ranking por completude do perfil
   const ranking = atletas
     .map(u => {
       const meta = u.user_metadata as { nome?: string; posicao?: string; cidade?: string }
-      const nome = meta.nome ?? 'Atleta'
-      const dataNasc = profileMap.get(u.id) ?? null
+      const profile = profileMap.get(u.id)
+      const nome = profile?.nome ?? meta.nome ?? 'Atleta'
+      const dataNasc = profile?.data_nascimento ?? null
+      const completude = [dataNasc, meta.posicao, meta.cidade, profile?.bio, profile?.altura, profile?.clube_atual].filter(Boolean).length
       return {
         id: u.id,
         nome,
         posicao: meta.posicao ?? '',
         cidade: meta.cidade ?? '',
         dataNasc,
-        ovr: calcularOVR(nome),
+        completude,
         categoria: dataNasc ? calcularCategoria(dataNasc) : null,
         initials: getInitials(nome),
         pos: posAbrev(meta.posicao ?? ''),
       }
     })
-    .sort((a, b) => b.ovr - a.ovr)
+    .filter(a => a.dataNasc)
+    .sort((a, b) => b.completude - a.completude)
 
   // 5. Aplica filtro de categoria
   const filtered = categoriaFiltro
@@ -234,15 +232,16 @@ export default async function RankingPage({ searchParams }: Props) {
                   </p>
                 </div>
 
-                {/* OVR */}
-                <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                  <p style={{ margin: '0 0 1px', fontSize: '24px', fontWeight: 900, color: '#22c55e', lineHeight: 1 }}>
-                    {atleta.ovr}
-                  </p>
-                  <p style={{ margin: 0, fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                    OVR
-                  </p>
-                </div>
+                {/* Categoria */}
+                {atleta.categoria && (
+                  <span style={{
+                    padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700,
+                    background: 'rgba(34,197,94,0.1)', color: '#22c55e',
+                    border: '1px solid rgba(34,197,94,0.25)', flexShrink: 0,
+                  }}>
+                    {atleta.categoria}
+                  </span>
+                )}
 
                 {/* Seta */}
                 <div style={{ color: 'rgba(255,255,255,0.2)', fontSize: '16px', flexShrink: 0 }}>›</div>
