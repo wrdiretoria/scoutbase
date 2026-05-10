@@ -315,8 +315,26 @@ export default async function JogadorPublicoPage({ params }: Props) {
           </div>
         )}
 
-        {/* CTA final */}
-        <div style={{ marginTop: '24px', textAlign: 'center' }}>
+        {/* ── CTA Scout ── */}
+        <div style={{
+          marginTop: '20px', padding: '20px', borderRadius: '16px',
+          background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)',
+          textAlign: 'center',
+        }}>
+          <p style={{ margin: '0 0 4px', fontSize: '12px', color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>
+            Você é scout ou representa um clube?
+          </p>
+          <Link href="/scout/busca" style={{
+            display: 'inline-block', marginTop: '10px', padding: '11px 24px', borderRadius: '12px',
+            background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)',
+            color: '#22c55e', fontWeight: 700, fontSize: '13px', textDecoration: 'none',
+          }}>
+            🔍 Buscar mais atletas →
+          </Link>
+        </div>
+
+        {/* CTA atleta */}
+        <div style={{ marginTop: '16px', textAlign: 'center' }}>
           <Link href="/cadastro" style={{
             display: 'inline-block', padding: '13px 28px', borderRadius: '14px',
             background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)',

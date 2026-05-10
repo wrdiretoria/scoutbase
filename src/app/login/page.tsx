@@ -27,7 +27,9 @@ export default function LoginPage() {
     }
 
     const tipo = (data.user.user_metadata as { tipo?: string })?.tipo
-    router.push(tipo === 'atleta' ? '/atleta/perfil' : '/dashboard')
+    if (tipo === 'atleta') router.push('/atleta/perfil')
+    else if (tipo === 'scout') router.push('/scout/busca')
+    else router.push('/dashboard')
   }
 
   const inputStyle: React.CSSProperties = {
