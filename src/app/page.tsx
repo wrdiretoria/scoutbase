@@ -122,20 +122,21 @@ export default function LandingPage() {
               ⚽ FUTEBOL BRASILEIRO · DIGITAL
             </span>
 
-            <h1 style={{ margin:0, padding:0, lineHeight:1.05, letterSpacing:'-0.03em' }}>
+            <h1 style={{ margin:0, padding:0, lineHeight:1.08, letterSpacing:'-0.03em' }}>
               <span className="h-line-1" style={{
-                display:'block', fontSize:'clamp(54px,6.2vw,90px)',
+                display:'block', fontSize:'clamp(48px,6vw,86px)',
                 fontWeight:900, color:'white',
-              }}>O</span>
-              <span className="h-line-2 neon-word" style={{
-                display:'block', fontSize:'clamp(72px,9vw,128px)',
-                fontWeight:900, color:'#00FF88', lineHeight:0.95,
-              }}>FUTURO</span>
+              }}>
+                O <span className="neon-word" style={{ color:'#00FF88' }}>FUTURO</span>
+              </span>
+              <span className="h-line-2" style={{
+                display:'block', fontSize:'clamp(48px,6vw,86px)',
+                fontWeight:900, color:'white',
+              }}>DO FUTEBOL</span>
               <span className="h-line-3" style={{
-                display:'block', fontSize:'clamp(30px,3.8vw,56px)',
-                fontWeight:800, color:'rgba(255,255,255,0.88)', letterSpacing:'-0.01em',
-                marginTop:'6px',
-              }}>DO FUTEBOL<br/>COMEÇA AQUI.</span>
+                display:'block', fontSize:'clamp(48px,6vw,86px)',
+                fontWeight:900, color:'white',
+              }}>COMEÇA AQUI.</span>
             </h1>
 
             <p className="h-sub" style={{
