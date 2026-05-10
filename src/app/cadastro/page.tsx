@@ -62,18 +62,35 @@ export default function EscolhaPerfilPage() {
 
         {/* Treinador */}
         <Link href="/treinador/cadastro" className="perfil-card">
-          <div style={{ fontSize: '32px' }}>🧠</div>
+          <div style={{ fontSize: '32px' }}>👨‍🏫</div>
           <div>
             <p style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: 'white' }}>Sou treinador</p>
             <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>
-              Quero acompanhar, avaliar e validar atletas da minha escolinha.
+              Monte seu currículo, avalie atletas e seja encontrado por escolas.
             </p>
           </div>
           <div style={{
             marginTop: '4px', display: 'flex', alignItems: 'center', gap: '6px',
             fontSize: '13px', fontWeight: 700, color: 'rgba(255,255,255,0.4)',
           }}>
-            Acessar plataforma →
+            Criar meu perfil →
+          </div>
+        </Link>
+
+        {/* Escola de Futebol */}
+        <Link href="/treinador/cadastro?tipo=escola" className="perfil-card">
+          <div style={{ fontSize: '32px' }}>🏟️</div>
+          <div>
+            <p style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: 'white' }}>Tenho uma escola de futebol</p>
+            <p style={{ margin: '4px 0 0', fontSize: '13px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>
+              Gerencie turmas, atletas e professores da sua escolinha.
+            </p>
+          </div>
+          <div style={{
+            marginTop: '4px', display: 'flex', alignItems: 'center', gap: '6px',
+            fontSize: '13px', fontWeight: 700, color: 'rgba(255,255,255,0.4)',
+          }}>
+            Cadastrar minha escola →
           </div>
         </Link>
       </div>
