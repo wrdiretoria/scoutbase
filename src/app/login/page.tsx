@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 
-type Area = 'atleta' | 'escola' | null
+type Area = 'atleta' | 'escola' | 'treinador' | null
 
 export default function LoginPage() {
   const router = useRouter()
@@ -53,6 +53,7 @@ export default function LoginPage() {
     const tipo = (data.user.user_metadata as { tipo?: string })?.tipo
     if (tipo === 'atleta') router.push('/atleta/perfil')
     else if (tipo === 'scout') router.push('/scout/busca')
+    else if (tipo === 'treinador') router.push('/treinador/perfil')
     else router.push('/dashboard')
   }
 
@@ -127,6 +128,37 @@ export default function LoginPage() {
                 <span style={{ marginLeft: 'auto', fontSize: '18px', color: 'rgba(255,255,255,0.25)', flexShrink: 0 }}>›</span>
               </button>
 
+              {/* Treinador */}
+              <button
+                onClick={() => setArea('treinador')}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '18px',
+                  padding: '22px 24px', borderRadius: '16px', border: 'none',
+                  background: 'rgba(255,255,255,0.04)',
+                  outline: '1.5px solid rgba(255,255,255,0.1)',
+                  cursor: 'pointer', textAlign: 'left', width: '100%',
+                  transition: 'all .2s',
+                }}
+                onMouseEnter={e => (e.currentTarget.style.outline = '1.5px solid rgba(0,255,136,0.5)')}
+                onMouseLeave={e => (e.currentTarget.style.outline = '1.5px solid rgba(255,255,255,0.1)')}
+              >
+                <span style={{
+                  width: '48px', height: '48px', borderRadius: '14px', flexShrink: 0,
+                  background: 'rgba(0,255,136,0.1)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '22px',
+                }}>👨‍🏫</span>
+                <div>
+                  <p style={{ margin: '0 0 4px', fontSize: '16px', fontWeight: 800, color: 'white' }}>
+                    Treinador
+                  </p>
+                  <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.4 }}>
+                    Monte seu currículo e gerencie seus atletas
+                  </p>
+                </div>
+                <span style={{ marginLeft: 'auto', fontSize: '18px', color: 'rgba(255,255,255,0.25)', flexShrink: 0 }}>›</span>
+              </button>
+
               {/* Minha Escola de Futebol */}
               <button
                 onClick={() => setArea('escola')}
@@ -192,9 +224,11 @@ export default function LoginPage() {
               background: 'rgba(0,255,136,0.06)', border: '1px solid rgba(0,255,136,0.2)',
               marginBottom: '28px',
             }}>
-              <span style={{ fontSize: '18px' }}>{area === 'atleta' ? '⚡' : '🏟️'}</span>
+              <span style={{ fontSize: '18px' }}>
+                {area === 'atleta' ? '⚡' : area === 'treinador' ? '👨‍🏫' : '🏟️'}
+              </span>
               <span style={{ fontSize: '14px', fontWeight: 700, color: 'rgba(255,255,255,0.8)' }}>
-                {area === 'atleta' ? 'Atleta e Responsável' : 'Minha Escola de Futebol'}
+                {area === 'atleta' ? 'Atleta e Responsável' : area === 'treinador' ? 'Treinador' : 'Minha Escola de Futebol'}
               </span>
             </div>
 
@@ -205,6 +239,7 @@ export default function LoginPage() {
               <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.35)' }}>
                 {area === 'atleta' ? 'Entre com seu ID e senha' : 'Entre com seu email e senha'}
               </p>
+
             </div>
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
