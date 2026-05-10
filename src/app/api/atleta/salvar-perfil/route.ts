@@ -8,18 +8,18 @@ async function gerarAthleteId(admin: ReturnType<typeof createAdminClient>): Prom
     const { data } = await admin.from('profiles').select('id').eq('athlete_id', id).maybeSingle()
     if (!data) return id
   }
-  // fallback: timestamp garante unicidade
   return `MC-${Date.now().toString().slice(-5)}`
 }
 
 export async function POST(req: Request) {
   try {
-    const { userId, dataNascimento, nome, email, escolaId } = await req.json() as {
+    const { userId, dataNascimento, nome, escolaId, athleteId: preGeneratedId, recoveryEmail } = await req.json() as {
       userId?: string
       dataNascimento?: string
       nome?: string
-      email?: string
       escolaId?: string
+      athleteId?: string
+      recoveryEmail?: string | null
     }
 
     if (!userId || !dataNascimento) {
@@ -28,14 +28,14 @@ export async function POST(req: Request) {
 
     const admin = createAdminClient()
 
-    // Verifica se já tem athlete_id (evita gerar um novo em upsert)
+    // Usa o ID pré-gerado se vier do cadastro, senão busca ou gera um novo
     const { data: existente } = await admin
       .from('profiles')
       .select('athlete_id')
       .eq('id', userId)
       .maybeSingle()
 
-    const athleteId = existente?.athlete_id ?? await gerarAthleteId(admin)
+    const athleteId = existente?.athlete_id ?? preGeneratedId ?? await gerarAthleteId(admin)
 
     const { error } = await admin
       .from('profiles')
@@ -45,9 +45,9 @@ export async function POST(req: Request) {
           data_nascimento: dataNascimento,
           athlete_id: athleteId,
           tipo: 'atleta',
-          ...(nome     && { nome }),
-          ...(email    && { email }),
-          ...(escolaId && { escola_id: escolaId }),
+          ...(nome          && { nome }),
+          ...(escolaId      && { escola_id: escolaId }),
+          ...(recoveryEmail && { recovery_email: recoveryEmail }),
         },
         { onConflict: 'id' }
       )

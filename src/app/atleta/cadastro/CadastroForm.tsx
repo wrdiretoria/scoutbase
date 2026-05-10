@@ -23,7 +23,7 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
   const [posicao, setPosicao] = useState('')
   const [cidade, setCidade] = useState('')
   const [dataNasc, setDataNasc] = useState('')
-  const [email, setEmail] = useState('')
+  const [recoveryEmail, setRecoveryEmail] = useState('')
   const [password, setPassword] = useState('')
   const [consent, setConsent] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -45,9 +45,15 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
     setError(null)
     setLoading(true)
 
+    // 1. Gerar ID único antes do signUp
+    const idRes = await fetch('/api/atleta/gerar-id', { method: 'POST' })
+    const { athleteId } = await idRes.json() as { athleteId: string }
+
+    // 2. Criar conta com email interno baseado no ID
+    const internalEmail = `${athleteId.toLowerCase()}@meucraque.app`
     const supabase = createClient()
     const { data, error: signUpErr } = await supabase.auth.signUp({
-      email,
+      email: internalEmail,
       password,
       options: {
         data: { nome, posicao, cidade, tipo: 'atleta' },
@@ -55,27 +61,24 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
     })
 
     if (signUpErr || !data.user) {
-      setError(signUpErr?.message === 'User already registered'
-        ? 'Este email já está cadastrado.'
-        : 'Não foi possível criar a conta. Tente novamente.')
+      setError('Não foi possível criar a conta. Tente novamente.')
       setLoading(false)
       return
     }
 
-    // Salva perfil (data de nascimento + escola se vier de convite) e recebe o ID gerado
-    const salvarRes = await fetch('/api/atleta/salvar-perfil', {
+    // 3. Salvar perfil com o ID pré-gerado e email de recuperação
+    await fetch('/api/atleta/salvar-perfil', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         userId: data.user.id,
         dataNascimento: dataNasc,
         nome,
-        email,
+        athleteId,
+        recoveryEmail: recoveryEmail.trim().toLowerCase() || null,
         ...(escolaId ? { escolaId } : {}),
       }),
     })
-    const salvarData = await salvarRes.json() as { ok?: boolean; athleteId?: string }
-    const athleteId = salvarData.athleteId ?? ''
 
     const params = new URLSearchParams({ nome, posicao, cidade, dataNasc, uid: data.user.id, athleteId })
     router.push(`/atleta/bem-vindo?${params.toString()}`)
@@ -114,7 +117,7 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
             </p>
           </div>
 
-          {/* Banner de escola (só aparece se vier de convite) */}
+          {/* Banner de escola */}
           {escolaId && escolaNome && (
             <div style={{
               marginBottom: '20px', padding: '12px 16px', borderRadius: '12px',
@@ -153,7 +156,7 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
           <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.4)' }}>
             {step === 1
               ? 'Essas informações constroem sua identidade no ranking.'
-              : 'Crie seu acesso e entre no jogo.'}
+              : 'Crie uma senha e pronto — seu ID é gerado automaticamente.'}
           </p>
         </div>
 
@@ -214,13 +217,6 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
         {/* STEP 2 — Acesso */}
         {step === 2 && (
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-            <div>
-              <label style={labelStyle}>Email</label>
-              <input
-                type="email" required value={email} onChange={e => setEmail(e.target.value)}
-                placeholder="seu@email.com" style={inputStyle}
-              />
-            </div>
 
             <div>
               <label style={labelStyle}>Senha</label>
@@ -228,6 +224,26 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
                 type="password" required minLength={6} value={password} onChange={e => setPassword(e.target.value)}
                 placeholder="Mínimo 6 caracteres" style={inputStyle}
               />
+              <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.25)' }}>
+                O login é feito pelo ID gerado automaticamente + esta senha.
+              </p>
+            </div>
+
+            <div>
+              <label style={labelStyle}>
+                Email de recuperação{' '}
+                <span style={{ fontWeight: 400, color: 'rgba(255,255,255,0.3)', textTransform: 'none', letterSpacing: 0 }}>
+                  (opcional)
+                </span>
+              </label>
+              <input
+                type="email" value={recoveryEmail} onChange={e => setRecoveryEmail(e.target.value)}
+                placeholder="email do responsável"
+                style={inputStyle}
+              />
+              <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.25)', lineHeight: 1.5 }}>
+                Se esquecer o ID, use este email para recuperar. Um pai pode colocar o mesmo email nos filhos.
+              </p>
             </div>
 
             {/* Consentimento */}
