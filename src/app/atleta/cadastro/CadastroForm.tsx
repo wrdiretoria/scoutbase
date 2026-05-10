@@ -62,8 +62,8 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
       return
     }
 
-    // Salva perfil (data de nascimento + escola se vier de convite)
-    await fetch('/api/atleta/salvar-perfil', {
+    // Salva perfil (data de nascimento + escola se vier de convite) e recebe o ID gerado
+    const salvarRes = await fetch('/api/atleta/salvar-perfil', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -74,8 +74,10 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
         ...(escolaId ? { escolaId } : {}),
       }),
     })
+    const salvarData = await salvarRes.json() as { ok?: boolean; athleteId?: string }
+    const athleteId = salvarData.athleteId ?? ''
 
-    const params = new URLSearchParams({ nome, posicao, cidade, dataNasc, uid: data.user.id })
+    const params = new URLSearchParams({ nome, posicao, cidade, dataNasc, uid: data.user.id, athleteId })
     router.push(`/atleta/bem-vindo?${params.toString()}`)
   }
 

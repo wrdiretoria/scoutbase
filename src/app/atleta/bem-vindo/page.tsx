@@ -18,11 +18,6 @@ function calcularCategoria(dataNasc: string): string {
   return 'Adulto'
 }
 
-function calcularOVR(nome: string): number {
-  const hash = nome.split('').reduce((a, c) => a + c.charCodeAt(0), 0)
-  return 68 + (hash % 13)
-}
-
 function getInitials(nome: string) {
   return nome.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase()
 }
@@ -38,20 +33,20 @@ function posLabel(pos: string): string {
 }
 
 function BemVindoContent() {
-  const params   = useSearchParams()
-  const nome     = params.get('nome')     ?? 'Atleta'
-  const posicao  = params.get('posicao')  ?? ''
-  const cidade   = params.get('cidade')   ?? ''
-  const dataNasc = params.get('dataNasc') ?? ''
-  const uid      = params.get('uid')      ?? ''
+  const params    = useSearchParams()
+  const nome      = params.get('nome')      ?? 'Atleta'
+  const posicao   = params.get('posicao')   ?? ''
+  const cidade    = params.get('cidade')    ?? ''
+  const dataNasc  = params.get('dataNasc')  ?? ''
+  const uid       = params.get('uid')       ?? ''
+  const athleteId = params.get('athleteId') ?? ''
 
-  const ovr      = calcularOVR(nome)
   const categoria = dataNasc ? calcularCategoria(dataNasc) : ''
   const initials  = getInitials(nome)
   const posAbrev  = posLabel(posicao)
   const cardUrl   = uid
-    ? `https://scoutbase-eta.vercel.app/jogador/${uid}`
-    : 'https://scoutbase-eta.vercel.app'
+    ? `https://meucraque.com.br/jogador/${uid}`
+    : 'https://meucraque.com.br'
 
   return (
     <main style={{
@@ -65,9 +60,9 @@ function BemVindoContent() {
           from { opacity:0; transform:translateY(36px) scale(0.96) }
           to   { opacity:1; transform:translateY(0)    scale(1) }
         }
-        @keyframes ovrPop {
-          0%   { opacity:0; transform:scale(0.6) }
-          65%  { transform:scale(1.06) }
+        @keyframes idPop {
+          0%   { opacity:0; transform:scale(0.88) }
+          65%  { transform:scale(1.04) }
           100% { opacity:1; transform:scale(1) }
         }
         @keyframes fadeUp {
@@ -75,14 +70,14 @@ function BemVindoContent() {
           to   { opacity:1; transform:translateY(0) }
         }
         @keyframes glowPulse {
-          0%,100% { text-shadow: 0 0 24px rgba(34,197,94,0.55), 0 0 48px rgba(34,197,94,0.25) }
-          50%     { text-shadow: 0 0 36px rgba(34,197,94,0.80), 0 0 72px rgba(34,197,94,0.40) }
+          0%,100% { box-shadow: 0 0 0 0 rgba(0,255,136,0.0), 0 0 24px rgba(0,255,136,0.25) }
+          50%     { box-shadow: 0 0 0 6px rgba(0,255,136,0.08), 0 0 40px rgba(0,255,136,0.45) }
         }
 
         .card-wrap  { animation: cardReveal 0.55s cubic-bezier(.22,.68,0,1.2) forwards; }
-        .ovr-num    { animation: ovrPop 0.5s cubic-bezier(.22,.68,0,1.2) forwards 0.35s, glowPulse 3s ease-in-out infinite 1s; opacity:0; }
-        .name-row   { animation: fadeUp 0.5s ease forwards 0.55s; opacity:0; }
-        .actions    { animation: fadeUp 0.5s ease forwards 0.72s; opacity:0; }
+        .id-block   { animation: idPop 0.5s cubic-bezier(.22,.68,0,1.2) forwards 0.3s, glowPulse 3s ease-in-out infinite 1s; opacity:0; }
+        .name-row   { animation: fadeUp 0.4s ease forwards 0.15s; opacity:0; }
+        .actions    { animation: fadeUp 0.4s ease forwards 0.65s; opacity:0; }
 
         .share-btn {
           width:100%; padding:14px; border-radius:14px; border:none;
@@ -100,7 +95,7 @@ function BemVindoContent() {
       `}</style>
 
       {/* Headline emocional */}
-      <div className="name-row" style={{ textAlign:'center', marginBottom:'28px' }}>
+      <div className="name-row" style={{ textAlign:'center', marginBottom:'24px' }}>
         <p style={{ margin:'0 0 6px', fontSize:'12px', fontWeight:700, letterSpacing:'0.12em', color:'#22c55e', textTransform:'uppercase' }}>
           ⚡ perfil criado
         </p>
@@ -110,26 +105,48 @@ function BemVindoContent() {
         </h1>
       </div>
 
-      {/* Card */}
+      {/* ── BLOCO DO ID ── */}
+      {athleteId && (
+        <div className="id-block" style={{ width:'100%', maxWidth:'320px', marginBottom:'20px' }}>
+          <div style={{
+            borderRadius:'18px', padding:'20px 24px',
+            background:'rgba(0,255,136,0.06)',
+            border:'1.5px solid rgba(0,255,136,0.3)',
+            textAlign:'center',
+          }}>
+            <p style={{ margin:'0 0 8px', fontSize:'11px', fontWeight:700, letterSpacing:'0.14em', color:'rgba(0,255,136,0.7)', textTransform:'uppercase' }}>
+              Seu ID de Atleta
+            </p>
+            <p style={{ margin:'0 0 10px', fontSize:'38px', fontWeight:900, color:'#00FF88', letterSpacing:'0.08em', lineHeight:1 }}>
+              {athleteId}
+            </p>
+            <p style={{ margin:0, fontSize:'12px', color:'rgba(255,255,255,0.45)', lineHeight:1.5 }}>
+              Este é o seu ID único na plataforma.<br />
+              <span style={{ color:'rgba(255,200,0,0.8)', fontWeight:700 }}>⚠️ Guarde com cuidado</span> — você vai usar para entrar.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Card do atleta */}
       <div className="card-wrap" style={{ width:'100%', maxWidth:'320px', marginBottom:'20px' }}>
         <div style={{
           borderRadius:'22px', overflow:'hidden',
           background:'#0b1610',
           border:'1px solid rgba(34,197,94,0.22)',
-          boxShadow:'0 0 56px rgba(34,197,94,0.18), 0 24px 64px rgba(0,0,0,0.65)',
+          boxShadow:'0 0 56px rgba(34,197,94,0.12), 0 24px 64px rgba(0,0,0,0.65)',
         }}>
 
           {/* ── TOPO ── */}
           <div style={{
-            position:'relative', minHeight:'156px',
+            position:'relative', minHeight:'120px',
             background:'linear-gradient(160deg,#166534 0%,#052e16 100%)',
             display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
             padding:'20px 16px 0',
-            // Grid tático sutil
             backgroundImage:'linear-gradient(160deg,#166534 0%,#052e16 100%), repeating-linear-gradient(0deg,rgba(255,255,255,0.025) 0px,rgba(255,255,255,0.025) 1px,transparent 1px,transparent 28px), repeating-linear-gradient(90deg,rgba(255,255,255,0.025) 0px,rgba(255,255,255,0.025) 1px,transparent 1px,transparent 28px)',
           }}>
 
-            {/* Badges — flex row, evita clipping no mobile */}
+            {/* Badges */}
             <div style={{
               position:'absolute', top:'14px', left:'14px', right:'14px',
               display:'flex', justifyContent:'space-between', alignItems:'center',
@@ -153,25 +170,9 @@ function BemVindoContent() {
                 : <div />
               }
             </div>
-
-            {/* OVR — número grande com glow */}
-            <div style={{ textAlign:'center', marginTop:'12px' }}>
-              <div className="ovr-num" style={{
-                fontSize:'76px', fontWeight:900, color:'white', lineHeight:1,
-                letterSpacing:'-0.05em',
-              }}>
-                {ovr}
-              </div>
-              <div style={{
-                fontSize:'10px', fontWeight:700, letterSpacing:'0.18em',
-                color:'rgba(255,255,255,0.45)', textTransform:'uppercase', marginTop:'4px',
-              }}>
-                Overall
-              </div>
-            </div>
           </div>
 
-          {/* Avatar — flutuante */}
+          {/* Avatar flutuante */}
           <div style={{ display:'flex', justifyContent:'center', marginTop:'-34px', position:'relative', zIndex:2 }}>
             <div style={{
               width:'68px', height:'68px', borderRadius:'50%',
@@ -188,14 +189,12 @@ function BemVindoContent() {
           {/* ── BAIXO ── */}
           <div style={{ padding:'12px 20px 22px', textAlign:'center' }}>
             <p style={{ margin:'0 0 2px', fontSize:'17px', fontWeight:800, color:'white' }}>{nome}</p>
-            <p style={{ margin:'0 0 18px', fontSize:'12px', color:'rgba(255,255,255,0.38)' }}>
+            <p style={{ margin:'0 0 16px', fontSize:'12px', color:'rgba(255,255,255,0.38)' }}>
               {posicao}{cidade ? ` · ${cidade}` : ''}
             </p>
 
-            {/* Separador */}
-            <div style={{ height:'1px', background:'rgba(255,255,255,0.06)', marginBottom:'16px' }} />
+            <div style={{ height:'1px', background:'rgba(255,255,255,0.06)', marginBottom:'14px' }} />
 
-            {/* Frase emocional */}
             <p style={{ margin:0, fontSize:'12px', color:'rgba(255,255,255,0.4)', lineHeight:1.6, fontStyle:'italic' }}>
               "Todo craque teve um começo.<br />O seu é hoje."
             </p>
@@ -210,8 +209,8 @@ function BemVindoContent() {
           onClick={() => {
             if (navigator.share) {
               navigator.share({
-                title: `${nome} · ${ovr} OVR · MeuCraque`,
-                text: `Acabei de entrar no MeuCraque! Meu Overall é ${ovr}. Você é o próximo?`,
+                title: `${nome} · MeuCraque`,
+                text: `Acabei de criar meu perfil no MeuCraque! Meu ID é ${athleteId}. Você é o próximo?`,
                 url: cardUrl,
               })
             } else {
