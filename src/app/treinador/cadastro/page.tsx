@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 
@@ -48,9 +48,8 @@ export default function TreinadorCadastroPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  const isEscola = typeof window !== 'undefined'
-    ? new URLSearchParams(window.location.search).get('tipo') === 'escola'
-    : false
+  const searchParams = useSearchParams()
+  const isEscola = searchParams.get('tipo') === 'escola'
 
   function handleCpf(e: React.ChangeEvent<HTMLInputElement>) {
     setCpf(formatarCPF(e.target.value))
