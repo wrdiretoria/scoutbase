@@ -218,100 +218,152 @@ function BemVindoContent() {
         {/* ══════════════════════════════════════
             CARD FIFA PREMIUM
         ══════════════════════════════════════ */}
-        <div className="anim-card card-glow" style={{
-          width: '260px',
-          borderRadius: '22px',
-          overflow: 'hidden',
-          background: 'linear-gradient(160deg,#112218 0%,#0a1a10 45%,#060e08 100%)',
-          position: 'relative',
-        }}>
+        <div className="anim-card" style={{ width:'100%', display:'flex', justifyContent:'center' }}>
+          <div className="card-glow" style={{
+            width: '300px',
+            borderRadius: '24px',
+            overflow: 'hidden',
+            position: 'relative',
+            background: 'linear-gradient(175deg,#0f2018 0%,#091510 40%,#040c07 100%)',
+            boxShadow: '0 0 0 1px rgba(0,255,136,0.18), 0 40px 80px rgba(0,0,0,0.9), 0 0 60px rgba(0,255,136,0.1)',
+          }}>
 
-          {/* Linha de brilho animada no topo */}
-          <div style={{ position:'absolute', top:0, left:0, right:0, height:'1px', background:'linear-gradient(90deg,transparent,rgba(0,255,136,0.8),transparent)', zIndex:10, overflow:'hidden' }}>
-            <div style={{ width:'30%', height:'100%', background:'white', opacity:0.6, animation:'shimmerLine 3s ease-in-out infinite 1.5s' }} />
-          </div>
+            {/* ── Textura de grade esportiva sutil ── */}
+            <div style={{
+              position:'absolute', inset:0, zIndex:0, opacity:0.04,
+              backgroundImage:'repeating-linear-gradient(0deg,rgba(255,255,255,1) 0px,rgba(255,255,255,1) 1px,transparent 1px,transparent 32px), repeating-linear-gradient(90deg,rgba(255,255,255,1) 0px,rgba(255,255,255,1) 1px,transparent 1px,transparent 32px)',
+            }} />
 
-          {/* ── FOTO / AVATAR ── */}
-          <div style={{ position:'relative', height:'240px', overflow:'hidden' }}>
-            {avatarUrl ? (
-              <img src={avatarUrl} alt={nome} style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center top' }} />
-            ) : (
-              <div style={{
-                width:'100%', height:'100%',
-                background:'linear-gradient(160deg,#1a3a26,#0d2218,#060e08)',
-                display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'12px',
-              }}>
-                {/* Silhueta premium */}
+            {/* ── Linha de brilho topo ── */}
+            <div style={{ position:'absolute', top:0, left:0, right:0, height:'1px', zIndex:10, background:'linear-gradient(90deg,transparent 0%,rgba(0,255,136,0.9) 50%,transparent 100%)', overflow:'hidden' }}>
+              <div style={{ position:'absolute', top:0, left:0, width:'40%', height:'100%', background:'linear-gradient(90deg,transparent,rgba(255,255,255,0.9),transparent)', animation:'shimmerLine 2.8s ease-in-out infinite 1.8s' }} />
+            </div>
+
+            {/* ── ÁREA DA FOTO — heroica ── */}
+            <div style={{ position:'relative', height:'300px', overflow:'hidden', zIndex:1 }}>
+
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl} alt={nome}
+                  style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center 15%', display:'block' }}
+                />
+              ) : (
+                /* Sem foto: fundo premium com iniciais */
                 <div style={{
-                  width:'90px', height:'90px', borderRadius:'50%',
-                  background:'linear-gradient(135deg,#15803d 0%,#4ade80 100%)',
+                  width:'100%', height:'100%',
+                  background:'linear-gradient(160deg,#183024 0%,#0d2018 55%,#040c07 100%)',
                   display:'flex', alignItems:'center', justifyContent:'center',
-                  fontSize:'28px', fontWeight:900, color:'white',
-                  boxShadow:'0 0 40px rgba(0,255,136,0.5), 0 0 80px rgba(0,255,136,0.2)',
                 }}>
-                  {initials}
+                  <div style={{
+                    width:'110px', height:'110px', borderRadius:'50%',
+                    background:'linear-gradient(145deg,#166534,#4ade80)',
+                    display:'flex', alignItems:'center', justifyContent:'center',
+                    fontSize:'36px', fontWeight:900, color:'white',
+                    boxShadow:'0 0 60px rgba(0,255,136,0.55), 0 0 120px rgba(0,255,136,0.2)',
+                    letterSpacing:'-0.02em',
+                  }}>
+                    {initials}
+                  </div>
+                </div>
+              )}
+
+              {/* Overlay: gradiente cinematográfico */}
+              <div style={{
+                position:'absolute', inset:0,
+                background:'linear-gradient(to top, rgba(4,12,7,1) 0%, rgba(4,12,7,0.7) 30%, rgba(4,12,7,0.1) 60%, transparent 100%)',
+              }} />
+              {/* Overlay lateral esquerdo sutil */}
+              <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, rgba(4,12,7,0.4) 0%, transparent 50%)' }} />
+
+              {/* ── OVR — dominante, top-left ── */}
+              <div style={{ position:'absolute', top:'18px', left:'18px', zIndex:3 }}>
+                <div style={{
+                  fontSize:'76px', fontWeight:900, lineHeight:0.9,
+                  color:'white', letterSpacing:'-0.06em',
+                  textShadow:'0 0 40px rgba(0,255,136,0.5), 0 0 80px rgba(0,255,136,0.2), 0 6px 20px rgba(0,0,0,0.9)',
+                  fontVariantNumeric:'tabular-nums',
+                }}>
+                  {ovrAnim}
+                </div>
+                <div style={{
+                  fontSize:'9px', fontWeight:800, letterSpacing:'0.22em',
+                  color:'rgba(0,255,136,0.7)', textTransform:'uppercase',
+                  marginTop:'4px', textShadow:'0 0 12px rgba(0,255,136,0.5)',
+                }}>
+                  OVR
                 </div>
               </div>
-            )}
 
-            {/* Overlay gradiente sobre a foto */}
-            <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(6,14,8,1) 0%, rgba(6,14,8,0.4) 50%, rgba(6,14,8,0.1) 100%)' }} />
+              {/* ── Categoria — top right ── */}
+              {categoria && (
+                <div style={{
+                  position:'absolute', top:'18px', right:'18px', zIndex:3,
+                  background:'rgba(0,0,0,0.5)', backdropFilter:'blur(12px)',
+                  border:'1px solid rgba(0,255,136,0.35)',
+                  borderRadius:'10px', padding:'5px 12px',
+                  fontSize:'10px', fontWeight:800, color:'#00FF88',
+                  letterSpacing:'0.08em', textShadow:'0 0 10px rgba(0,255,136,0.5)',
+                }}>
+                  {categoria}
+                </div>
+              )}
 
-            {/* OVR — número grande */}
-            <div style={{ position:'absolute', top:'14px', left:'14px', textAlign:'left' }}>
-              <div style={{
-                fontSize:'56px', fontWeight:900, lineHeight:1,
-                color:'white',
-                textShadow:'0 0 30px rgba(0,255,136,0.4), 0 4px 12px rgba(0,0,0,0.8)',
-                letterSpacing:'-0.04em',
-              }}>
-                {ovrAnim}
-              </div>
-              <div style={{ fontSize:'10px', fontWeight:700, letterSpacing:'0.12em', color:'rgba(255,255,255,0.5)', textTransform:'uppercase', marginTop:'2px' }}>
-                OVR
+              {/* ── Nome sobre a foto (bottom) ── */}
+              <div style={{ position:'absolute', bottom:0, left:0, right:0, zIndex:3, padding:'0 20px 20px' }}>
+                <p style={{
+                  margin:'0 0 1px',
+                  fontSize:'28px', fontWeight:900, color:'white',
+                  letterSpacing:'-0.03em', lineHeight:1,
+                  textShadow:'0 2px 12px rgba(0,0,0,0.8)',
+                }}>
+                  {primeiroNome}
+                </p>
+                {sobrenome && (
+                  <p style={{
+                    margin:0, fontSize:'13px', fontWeight:700,
+                    color:'rgba(255,255,255,0.45)',
+                    textTransform:'uppercase', letterSpacing:'0.1em',
+                    textShadow:'0 1px 8px rgba(0,0,0,0.8)',
+                  }}>
+                    {sobrenome}
+                  </p>
+                )}
               </div>
             </div>
 
-            {/* Categoria — top right */}
-            {categoria && (
-              <div style={{
-                position:'absolute', top:'14px', right:'14px',
-                background:'rgba(0,255,136,0.15)', backdropFilter:'blur(8px)',
-                border:'1px solid rgba(0,255,136,0.4)',
-                borderRadius:'8px', padding:'4px 10px',
-                fontSize:'10px', fontWeight:800, color:'#00FF88', letterSpacing:'0.06em',
-              }}>
-                {categoria}
+            {/* ── FAIXA INFERIOR ── */}
+            <div style={{ position:'relative', zIndex:1, padding:'16px 20px 20px' }}>
+
+              {/* Linha divisória com glow */}
+              <div style={{ height:'1px', background:'linear-gradient(90deg,transparent,rgba(0,255,136,0.3),transparent)', marginBottom:'14px' }} />
+
+              {/* Posição + Cidade */}
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                <div style={{
+                  display:'inline-flex', alignItems:'center', gap:'6px',
+                  background:'rgba(0,255,136,0.08)',
+                  border:'1px solid rgba(0,255,136,0.2)',
+                  borderRadius:'8px', padding:'5px 12px',
+                }}>
+                  <span style={{ fontSize:'12px', fontWeight:900, color:'#00FF88', letterSpacing:'0.08em' }}>{posAbrev}</span>
+                </div>
+
+                {cidade && (
+                  <span style={{ fontSize:'11px', color:'rgba(255,255,255,0.3)', fontWeight:500 }}>
+                    📍 {cidade}
+                  </span>
+                )}
               </div>
-            )}
 
-            {/* Posição — bottom left */}
-            <div style={{
-              position:'absolute', bottom:'14px', left:'14px',
-              background:'rgba(0,0,0,0.6)', backdropFilter:'blur(8px)',
-              border:'1px solid rgba(255,255,255,0.12)',
-              borderRadius:'8px', padding:'4px 10px',
-              fontSize:'11px', fontWeight:800, color:'white', letterSpacing:'0.08em',
-            }}>
-              {posAbrev}
+              {/* Linha inferior com logo */}
+              <div style={{ marginTop:'14px', display:'flex', alignItems:'center', justifyContent:'center', gap:'6px' }}>
+                <div style={{ flex:1, height:'1px', background:'rgba(255,255,255,0.06)' }} />
+                <span style={{ fontSize:'9px', fontWeight:800, letterSpacing:'0.16em', color:'rgba(255,255,255,0.18)', textTransform:'uppercase' }}>
+                  MEU CRAQUE
+                </span>
+                <div style={{ flex:1, height:'1px', background:'rgba(255,255,255,0.06)' }} />
+              </div>
             </div>
-          </div>
-
-          {/* ── INFO BOTTOM ── */}
-          <div style={{ padding:'16px 18px 20px', textAlign:'center' }}>
-            <p style={{ margin:'0 0 2px', fontSize:'20px', fontWeight:900, color:'white', letterSpacing:'-0.02em', lineHeight:1 }}>
-              {primeiroNome}
-            </p>
-            {sobrenome && (
-              <p style={{ margin:'0 0 4px', fontSize:'12px', fontWeight:700, color:'rgba(255,255,255,0.4)', textTransform:'uppercase', letterSpacing:'0.08em' }}>
-                {sobrenome}
-              </p>
-            )}
-            {cidade && (
-              <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.3)' }}>
-                📍 {cidade}
-              </p>
-            )}
           </div>
         </div>
 
