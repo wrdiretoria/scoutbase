@@ -272,24 +272,7 @@ function BemVindoContent() {
               {/* Overlay lateral esquerdo sutil */}
               <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, rgba(4,12,7,0.4) 0%, transparent 50%)' }} />
 
-              {/* ── OVR — dominante, top-left ── */}
-              <div style={{ position:'absolute', top:'18px', left:'18px', zIndex:3 }}>
-                <div style={{
-                  fontSize:'76px', fontWeight:900, lineHeight:0.9,
-                  color:'white', letterSpacing:'-0.06em',
-                  textShadow:'0 0 40px rgba(0,255,136,0.5), 0 0 80px rgba(0,255,136,0.2), 0 6px 20px rgba(0,0,0,0.9)',
-                  fontVariantNumeric:'tabular-nums',
-                }}>
-                  {ovrAnim}
-                </div>
-                <div style={{
-                  fontSize:'9px', fontWeight:800, letterSpacing:'0.22em',
-                  color:'rgba(0,255,136,0.7)', textTransform:'uppercase',
-                  marginTop:'4px', textShadow:'0 0 12px rgba(0,255,136,0.5)',
-                }}>
-                  OVR
-                </div>
-              </div>
+              {/* OVR removido da foto — exibido na faixa inferior como progresso de perfil */}
 
               {/* ── Categoria — top right ── */}
               {categoria && (
@@ -352,8 +335,25 @@ function BemVindoContent() {
                 )}
               </div>
 
+              {/* ── Progresso do perfil — cabeçalho + OVR total ── */}
+              <div style={{ marginTop:'14px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                <span style={{
+                  fontSize:'9px', fontWeight:800, letterSpacing:'0.14em',
+                  color:'rgba(255,255,255,0.3)', textTransform:'uppercase',
+                }}>
+                  Progresso do perfil
+                </span>
+                <span style={{
+                  fontSize:'13px', fontWeight:900,
+                  color:'#00FF88', fontVariantNumeric:'tabular-nums',
+                  textShadow:'0 0 10px rgba(0,255,136,0.4)',
+                }}>
+                  {ovrAnim}<span style={{ fontSize:'9px', fontWeight:700, color:'rgba(255,255,255,0.25)', marginLeft:'2px' }}>/100</span>
+                </span>
+              </div>
+
               {/* ── OVR Breakdown bars ── */}
-              <div style={{ marginTop:'14px', display:'flex', flexDirection:'column', gap:'8px' }}>
+              <div style={{ marginTop:'8px', display:'flex', flexDirection:'column', gap:'8px' }}>
                 {/* Perfil */}
                 <div style={{ display:'flex', flexDirection:'column', gap:'4px' }}>
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
