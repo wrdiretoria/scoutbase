@@ -34,32 +34,28 @@ function getInitials(nome: string) {
   return nome.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase()
 }
 
-function getAtributos(posicao: string) {
-  const map: Record<string, { vel: number; vis: number; for: number; fin: number }> = {
-    'Goleiro':          { vel: 58, vis: 72, for: 74, fin: 52 },
-    'Lateral Direito':  { vel: 78, vis: 68, for: 65, fin: 58 },
-    'Lateral Esquerdo': { vel: 78, vis: 68, for: 65, fin: 58 },
-    'Zagueiro':         { vel: 62, vis: 70, for: 80, fin: 54 },
-    'Volante':          { vel: 68, vis: 73, for: 72, fin: 60 },
-    'Meia':             { vel: 70, vis: 80, for: 62, fin: 68 },
-    'Meia-Atacante':    { vel: 73, vis: 78, for: 60, fin: 72 },
-    'Ponta Direita':    { vel: 84, vis: 66, for: 58, fin: 70 },
-    'Ponta Esquerda':   { vel: 84, vis: 66, for: 58, fin: 70 },
-    'Atacante':         { vel: 76, vis: 65, for: 64, fin: 78 },
-    'Centro-Avante':    { vel: 66, vis: 64, for: 76, fin: 82 },
-  }
-  return map[posicao] ?? { vel: 65, vis: 65, for: 65, fin: 65 }
+/**
+ * OVR = Perfil (0–50) + Avaliação (0–50)
+ *
+ * Pesos de preenchimento do perfil (soma = 100%):
+ *   nome       15%  | posicao  15%  | cidade    10%
+ *   dataNasc   10%  | foto     15%  | bio       15%
+ *   fisico     10%  | clube    10%
+ *
+ * No pós-cadastro o atleta tem: nome + posicao + cidade + dataNasc (50%)
+ * Com foto: +15% → 65%
+ * OVR inicial = completude% × 0.5  (escala 0–50)
+ */
+function calcularOVRPerfil(temFoto: boolean): number {
+  const base = 0.50          // nome + posicao + cidade + dataNasc
+  const foto = temFoto ? 0.15 : 0
+  const completude = base + foto   // 0.50 ou 0.65
+  return Math.round(completude * 50)
 }
 
-function calcularOVR(posicao: string, temFoto: boolean): number {
-  const a = getAtributos(posicao)
-  const media = Math.round((a.vel + a.vis + a.for + a.fin) / 4)
-  return Math.min(media + (temFoto ? 3 : 0), 82)
-}
-
-function getStatus(ovr: number): string {
-  if (ovr >= 78) return 'Talento em destaque'
-  if (ovr >= 72) return 'Atleta em ascensão'
+function getStatus(ovrPerfil: number): string {
+  if (ovrPerfil >= 30) return 'Perfil em destaque'
+  if (ovrPerfil >= 25) return 'Atleta em evolução'
   return 'Perfil em desenvolvimento'
 }
 
@@ -132,8 +128,9 @@ function BemVindoContent() {
   const categoria  = dataNasc ? calcularCategoria(dataNasc) : ''
   const initials   = getInitials(nome)
   const posAbrev   = posLabel(posicao)
-  const ovr        = calcularOVR(posicao, !!avatarUrl)
-  const status     = getStatus(ovr)
+  const ovrPerfil  = calcularOVRPerfil(!!avatarUrl)
+  const ovr        = ovrPerfil   // total = perfil + avaliação; avaliação=0 agora
+  const status     = getStatus(ovrPerfil)
   const ovrAnim    = useCounter(ovr, 700, 900)
   const cardUrl    = uid ? `https://meucraque.com.br/jogador/${uid}` : 'https://meucraque.com.br'
 
@@ -353,6 +350,44 @@ function BemVindoContent() {
                     📍 {cidade}
                   </span>
                 )}
+              </div>
+
+              {/* ── OVR Breakdown bars ── */}
+              <div style={{ marginTop:'14px', display:'flex', flexDirection:'column', gap:'8px' }}>
+                {/* Perfil */}
+                <div style={{ display:'flex', flexDirection:'column', gap:'4px' }}>
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                    <span style={{ fontSize:'9px', fontWeight:700, letterSpacing:'0.10em', color:'rgba(255,255,255,0.35)', textTransform:'uppercase' }}>
+                      Perfil
+                    </span>
+                    <span style={{ fontSize:'10px', fontWeight:900, color:'#00FF88', fontVariantNumeric:'tabular-nums' }}>
+                      {ovrPerfil}/50
+                    </span>
+                  </div>
+                  <div style={{ height:'3px', background:'rgba(255,255,255,0.08)', borderRadius:'2px', overflow:'hidden' }}>
+                    <div style={{
+                      height:'100%', borderRadius:'2px',
+                      background:'linear-gradient(90deg,#00FF88,#22c55e)',
+                      width:`${(ovrPerfil / 50) * 100}%`,
+                      transition:'width 1s cubic-bezier(.22,1,.36,1)',
+                      boxShadow:'0 0 6px rgba(0,255,136,0.5)',
+                    }} />
+                  </div>
+                </div>
+                {/* Avaliação */}
+                <div style={{ display:'flex', flexDirection:'column', gap:'4px' }}>
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                    <span style={{ fontSize:'9px', fontWeight:700, letterSpacing:'0.10em', color:'rgba(255,255,255,0.2)', textTransform:'uppercase' }}>
+                      Avaliação
+                    </span>
+                    <span style={{ fontSize:'10px', fontWeight:900, color:'rgba(255,255,255,0.2)', fontVariantNumeric:'tabular-nums' }}>
+                      0/50
+                    </span>
+                  </div>
+                  <div style={{ height:'3px', background:'rgba(255,255,255,0.08)', borderRadius:'2px', overflow:'hidden' }}>
+                    <div style={{ height:'100%', borderRadius:'2px', background:'rgba(255,255,255,0.12)', width:'0%' }} />
+                  </div>
+                </div>
               </div>
 
               {/* Linha inferior com logo */}
