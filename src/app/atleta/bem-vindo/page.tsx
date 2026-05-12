@@ -132,7 +132,6 @@ function BemVindoContent() {
   const categoria  = dataNasc ? calcularCategoria(dataNasc) : ''
   const initials   = getInitials(nome)
   const posAbrev   = posLabel(posicao)
-  const atributos  = getAtributos(posicao)
   const ovr        = calcularOVR(posicao, !!avatarUrl)
   const status     = getStatus(ovr)
   const ovrAnim    = useCounter(ovr, 700, 900)
@@ -317,29 +316,66 @@ function BemVindoContent() {
         </div>
 
         {/* ══════════════════════════════════════
-            ATRIBUTOS
+            ATRIBUTOS — BLOQUEADO
         ══════════════════════════════════════ */}
         <div className="anim-attrs" style={{
           width:'100%',
-          background:'rgba(255,255,255,0.03)',
+          background:'rgba(255,255,255,0.02)',
           border:'1px solid rgba(255,255,255,0.07)',
           borderRadius:'18px',
-          padding:'18px 20px',
-          display:'flex', flexDirection:'column', gap:'14px',
+          padding:'20px',
+          display:'flex', flexDirection:'column', gap:'16px',
+          position:'relative', overflow:'hidden',
         }}>
-          <p style={{ margin:'0 0 4px', fontSize:'10px', fontWeight:700, letterSpacing:'0.12em', color:'rgba(255,255,255,0.25)', textTransform:'uppercase' }}>
-            Atributos iniciais
-          </p>
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'14px 24px' }}>
-            <AtributoBar label="Velocidade" value={atributos.vel} delay={1000} />
-            <AtributoBar label="Visão"      value={atributos.vis} delay={1100} />
-            <AtributoBar label="Força"      value={atributos.for} delay={1200} />
-            <AtributoBar label="Finalização" value={atributos.fin} delay={1300} />
+          {/* Blur overlay premium */}
+          <div style={{
+            position:'absolute', inset:0, zIndex:2,
+            backdropFilter:'blur(3px)',
+            background:'rgba(4,12,7,0.55)',
+            borderRadius:'18px',
+            display:'flex', flexDirection:'column',
+            alignItems:'center', justifyContent:'center',
+            gap:'10px', padding:'20px', textAlign:'center',
+          }}>
+            <div style={{
+              width:'44px', height:'44px', borderRadius:'50%',
+              background:'rgba(255,255,255,0.05)',
+              border:'1px solid rgba(255,255,255,0.1)',
+              display:'flex', alignItems:'center', justifyContent:'center',
+              fontSize:'20px',
+            }}>🔒</div>
+            <p style={{ margin:0, fontSize:'13px', fontWeight:800, color:'rgba(255,255,255,0.75)', letterSpacing:'0.01em' }}>
+              Atributos técnicos
+            </p>
+            <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.35)', lineHeight:1.6, maxWidth:'220px' }}>
+              Disponíveis após avaliação oficial de um treinador certificado
+            </p>
           </div>
-          <p style={{ margin:0, fontSize:'10px', color:'rgba(255,255,255,0.18)', textAlign:'center' }}>
-            Evoluem com avaliações reais
+
+          {/* Conteúdo fantasma por baixo */}
+          <p style={{ margin:0, fontSize:'10px', fontWeight:700, letterSpacing:'0.12em', color:'rgba(255,255,255,0.15)', textTransform:'uppercase' }}>
+            Atributos técnicos
           </p>
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'14px 24px', opacity:0.2 }}>
+            {['Velocidade','Visão','Força','Finalização'].map(label => (
+              <div key={label} style={{ display:'flex', flexDirection:'column', gap:'5px' }}>
+                <div style={{ display:'flex', justifyContent:'space-between' }}>
+                  <span style={{ fontSize:'10px', fontWeight:700, color:'rgba(255,255,255,0.4)', letterSpacing:'0.10em', textTransform:'uppercase' }}>{label}</span>
+                  <span style={{ fontSize:'14px', fontWeight:900, color:'rgba(255,255,255,0.3)' }}>??</span>
+                </div>
+                <div style={{ height:'3px', background:'rgba(255,255,255,0.08)', borderRadius:'2px' }} />
+              </div>
+            ))}
+          </div>
         </div>
+
+        {/* Microcopy emocional */}
+        <p className="anim-status" style={{
+          margin:0, fontSize:'12px', color:'rgba(255,255,255,0.3)',
+          textAlign:'center', lineHeight:1.6,
+        }}>
+          Receba sua primeira avaliação oficial<br />e desbloqueie seus atributos técnicos.
+        </p>
 
         {/* ── Status ── */}
         <div className="anim-status" style={{
