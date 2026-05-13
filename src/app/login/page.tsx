@@ -93,10 +93,20 @@ export default function LoginPage() {
       return
     }
 
-    const tipo = (data.user.user_metadata as { tipo?: string })?.tipo
-    if (tipo === 'atleta') router.push('/atleta/perfil')
-    else if (tipo === 'treinador') router.push('/treinador/perfil')
-    else router.push('/dashboard')
+    // ── Redirect por tipo — cada usuário entra no seu universo ──
+    const tipo = (data.user.user_metadata as { tipo?: string })?.tipo ?? ''
+
+    if (tipo === 'atleta') {
+      router.push('/atleta/perfil')
+    } else if (tipo === 'treinador' || tipo === 'escola') {
+      router.push('/treinador/dashboard')
+    } else if (area === 'atleta') {
+      // tipo ausente no metadata, mas usuário entrou como atleta
+      router.push('/atleta/perfil')
+    } else {
+      // treinador/escola sem metadata definido — dashboard é seguro
+      router.push('/treinador/dashboard')
+    }
   }
 
   const inputStyle: React.CSSProperties = {
