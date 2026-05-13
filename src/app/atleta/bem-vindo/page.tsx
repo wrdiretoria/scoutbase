@@ -3,6 +3,7 @@
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -116,6 +117,7 @@ function AtributoBar({ label, value, delay }: { label: string; value: number; de
 // ── Main content ──────────────────────────────────────────────────────────────
 
 function BemVindoContent() {
+  const router    = useRouter()
   const params    = useSearchParams()
   const nome      = params.get('nome')      ?? 'Atleta'
   const posicao   = params.get('posicao')   ?? ''
@@ -624,13 +626,10 @@ function BemVindoContent() {
           <button
             className="share-btn"
             onClick={() => {
-              const texto = `Acabei de criar meu perfil no MeuCraque! OVR ${ovr} · ${posicao} · ${cidade}. Você é o próximo? 🔥`
-              if (navigator.share) {
-                navigator.share({ title: `${nome} · MeuCraque`, text: texto, url: cardUrl })
-              } else {
-                navigator.clipboard.writeText(cardUrl)
-                alert('Link copiado!')
-              }
+              const q = new URLSearchParams({
+                nome, posicao, cidade, dataNasc, uid, athleteId, avatarUrl,
+              })
+              router.push(`/atleta/compartilhar?${q.toString()}`)
             }}
           >
             📲 Compartilhar meu card
