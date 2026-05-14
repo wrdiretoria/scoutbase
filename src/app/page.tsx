@@ -383,7 +383,7 @@ export default function LandingPage() {
               boxShadow:'0 0 18px rgba(0,255,136,0.14), inset 0 1px 0 rgba(255,255,255,0.06)',
               fontSize:'10px', fontWeight:700, color:'rgba(0,255,136,0.88)', letterSpacing:'0.18em',
             }}>
-              JOGANDO JUNTO COM VOCÊ
+              É MAIS QUE FUTEBOL.
             </span>
 
             {/* Accent rule — visible only on mobile, between badge and headline */}
@@ -394,23 +394,13 @@ export default function LandingPage() {
                 display:'block', fontSize:'clamp(46px,6vw,86px)',
                 fontWeight:900, color:'white',
               }}>
-                AQUI É O
+                É SEU TALENTO
               </span>
               <span className="h-line-2 hero-h1-line" style={{
                 display:'block', fontSize:'clamp(46px,6vw,86px)',
                 fontWeight:900,
               }}>
-                <span className="neon-word" style={{ color:'#00FF88' }}>PALCO</span>
-              </span>
-              <span className="h-line-3 hero-h1-line" style={{
-                display:'block', fontSize:'clamp(46px,6vw,86px)',
-                fontWeight:900, color:'white',
-              }}>DE QUEM VIVE</span>
-              <span className="h-line-3 hero-h1-line" style={{
-                display:'block', fontSize:'clamp(46px,6vw,86px)',
-                fontWeight:900, color:'white',
-              }}>
-                FUTEBOL<span style={{ color:'#00FF88' }}>.</span>
+                <span className="neon-word" style={{ color:'#00FF88' }}>GANHANDO O MUNDO.</span>
               </span>
             </h1>
 
