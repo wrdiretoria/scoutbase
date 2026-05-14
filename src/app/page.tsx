@@ -62,8 +62,8 @@ export default function LandingPage() {
         @keyframes floatBack { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)}  }
         @keyframes heroFadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
         @keyframes glowPulse  {
-          0%,100%{text-shadow:0 0 40px rgba(0,255,136,0.45),0 0 80px rgba(0,255,136,0.18)}
-          50%    {text-shadow:0 0 60px rgba(0,255,136,0.65),0 0 120px rgba(0,255,136,0.28)}
+          0%,100%{text-shadow:0 0 30px rgba(0,255,136,0.55),0 0 70px rgba(0,255,136,0.22),0 0 110px rgba(0,255,136,0.08)}
+          50%    {text-shadow:0 0 50px rgba(0,255,136,0.75),0 0 110px rgba(0,255,136,0.32),0 0 160px rgba(0,255,136,0.12)}
         }
         @keyframes glowBreathe {
           0%,100% { opacity:0.75; transform:scale(1)    }
@@ -92,6 +92,8 @@ export default function LandingPage() {
         .h-social { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards 0.95s; opacity:0; }
         .neon-word { animation:glowPulse 3.5s ease-in-out infinite; }
         .hero-hud  { display:block; }
+        .hero-h1-line { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+        .hero-badge   { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
 
         /* Mobile-only elements — hidden on desktop */
         .hero-particles, .hero-mob-sub, .hero-social { display:none; }
@@ -218,9 +220,9 @@ export default function LandingPage() {
           /* ── TOP CLUSTER: badge → rule → headline ── */
 
           .hero-badge {
-            font-size:8.5px !important;
-            padding:5px 13px !important;
-            letter-spacing:0.16em !important;
+            font-size:8px !important;
+            padding:5px 14px !important;
+            letter-spacing:0.20em !important;
             margin-bottom:12px !important;
             border-color:rgba(0,255,136,0.40) !important;
             background:rgba(0,255,136,0.07) !important;
@@ -244,8 +246,8 @@ export default function LandingPage() {
           /* ── POSTER HEADLINE — giant, dramatic, poster-grade ── */
           .hero-h1-line {
             font-size:clamp(52px,11vw,78px) !important;
-            letter-spacing:-0.054em !important;
-            line-height:0.92 !important;
+            letter-spacing:-0.058em !important;
+            line-height:0.90 !important;
             text-shadow:
               0 4px 44px rgba(0,0,0,0.95),
               0 2px 12px rgba(0,0,0,0.80),
@@ -260,12 +262,12 @@ export default function LandingPage() {
           /* Mobile sub */
           .hero-mob-sub {
             display:block !important;
-            font-size:12.5px !important;
-            color:rgba(255,255,255,0.68) !important;
-            line-height:1.58 !important;
+            font-size:13px !important;
+            color:rgba(255,255,255,0.64) !important;
+            line-height:1.62 !important;
             margin:0 0 16px !important;
             font-weight:400 !important;
-            letter-spacing:0.006em !important;
+            letter-spacing:0.010em !important;
             max-width:290px !important;
           }
 
@@ -440,7 +442,7 @@ export default function LandingPage() {
 
         @media (max-width: 480px) {
           .cards-grid  { grid-template-columns:1fr !important; }
-          .hero-h1-line { font-size:clamp(44px,11vw,64px) !important; }
+          .hero-h1-line { font-size:clamp(42px,11vw,62px) !important; }
           .hero-mob-sub { font-size:12px !important; max-width:260px !important; }
         }
       `}</style>
@@ -488,7 +490,7 @@ export default function LandingPage() {
               border:'1px solid rgba(0,255,136,0.38)', background:'rgba(0,255,136,0.07)',
               backdropFilter:'blur(10px)', WebkitBackdropFilter:'blur(10px)',
               boxShadow:'0 0 18px rgba(0,255,136,0.14), inset 0 1px 0 rgba(255,255,255,0.06)',
-              fontSize:'10px', fontWeight:700, color:'rgba(0,255,136,0.88)', letterSpacing:'0.18em',
+              fontSize:'9.5px', fontWeight:700, color:'rgba(0,255,136,0.88)', letterSpacing:'0.22em',
             }}>
               É MAIS QUE FUTEBOL.
             </span>
@@ -496,7 +498,7 @@ export default function LandingPage() {
             {/* Accent rule — visible only on mobile, between badge and headline */}
             <div className="hero-rule" />
 
-            <h1 style={{ margin:0, padding:0, lineHeight:0.96, letterSpacing:'-0.045em' }}>
+            <h1 style={{ margin:0, padding:0, lineHeight:0.90, letterSpacing:'-0.050em' }}>
               <span className="h-line-1 hero-h1-line" style={{
                 display:'block', fontSize:'clamp(52px,5.5vw,78px)',
                 fontWeight:900, color:'white',
@@ -512,9 +514,9 @@ export default function LandingPage() {
             </h1>
 
             <p className="h-sub hero-sub" style={{
-              fontSize:'clamp(14px,1.15vw,16px)', color:'rgba(255,255,255,0.82)',
-              lineHeight:1.72, margin:0, maxWidth:'380px',
-              fontWeight:400, letterSpacing:'0.008em',
+              fontSize:'clamp(13.5px,1.05vw,15px)', color:'rgba(255,255,255,0.76)',
+              lineHeight:1.70, margin:0, maxWidth:'380px',
+              fontWeight:400, letterSpacing:'0.014em',
             }}>
               Crie seu perfil, compartilhe seu talento e conecte-se com treinadores,
               clubes e{' '}
