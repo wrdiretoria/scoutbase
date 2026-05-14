@@ -98,6 +98,29 @@ export default function LandingPage() {
         .hero-bolt  { display:none; }
         .hero-rule  { display:none; }
 
+        /* ── Desktop CTA hover states ── */
+        .hero-cta-primary {
+          transition:filter .18s ease, transform .15s ease, box-shadow .18s ease !important;
+        }
+        .hero-cta-primary:hover {
+          filter:brightness(1.10) !important;
+          transform:translateY(-1px) !important;
+          box-shadow:
+            0 0 0 1px rgba(0,255,136,0.48),
+            0 0 36px rgba(0,255,136,0.44),
+            0 0 72px rgba(0,255,136,0.16),
+            0 6px 22px rgba(0,0,0,0.46),
+            inset 0 1px 0 rgba(255,255,255,0.28) !important;
+        }
+        .hero-cta-secondary {
+          transition:border-color .2s ease, box-shadow .2s ease, color .2s ease !important;
+        }
+        .hero-cta-secondary:hover {
+          border-color:rgba(0,255,136,0.36) !important;
+          box-shadow:0 0 18px rgba(0,255,136,0.14) !important;
+          color:rgba(255,255,255,0.94) !important;
+        }
+
         /* Stats panel glass shine — top-edge highlight */
         .hero-stats-panel { position:relative; overflow:hidden; }
         .hero-stats-panel::before {
@@ -257,55 +280,67 @@ export default function LandingPage() {
             align-self:stretch !important;
           }
 
-          /* Primary CTA — pill, full-width, premium neon */
+          /* Primary CTA — pill, full-width, neon gradient */
           .hero-cta-primary {
             position:relative !important;
             overflow:hidden !important;
             width:100% !important;
-            font-size:12.5px !important;
-            padding:12px 22px !important;
+            font-size:13px !important;
+            padding:13px 22px !important;
             border-radius:100px !important;
-            letter-spacing:0.10em !important;
-            gap:6px !important;
+            letter-spacing:0.09em !important;
+            gap:7px !important;
             flex-shrink:0 !important;
             -webkit-tap-highlight-color:transparent !important;
+            background:linear-gradient(160deg,#00FF99 0%,#00E07A 52%,#00CC66 100%) !important;
+            color:#020c05 !important;
+            font-weight:800 !important;
             box-shadow:
-              0 0 0 1px rgba(0,255,136,0.50),
-              0 0 24px rgba(0,255,136,0.38),
-              0 0 50px rgba(0,255,136,0.10),
-              0 4px 14px rgba(0,0,0,0.70) !important;
-            transition:transform .15s, opacity .15s !important;
+              0 0 0 1px rgba(0,255,136,0.42),
+              0 0 22px rgba(0,255,136,0.36),
+              0 0 50px rgba(0,255,136,0.12),
+              0 4px 16px rgba(0,0,0,0.55),
+              inset 0 1px 0 rgba(255,255,255,0.26) !important;
+            transition:transform .15s ease, box-shadow .18s ease, filter .15s ease !important;
           }
           .hero-cta-primary:active {
-            transform:scale(0.94) !important;
-            opacity:0.86 !important;
+            transform:scale(0.95) !important;
+            filter:brightness(0.92) !important;
+            box-shadow:
+              0 0 0 1px rgba(0,255,136,0.32),
+              0 0 12px rgba(0,255,136,0.22),
+              0 2px 8px rgba(0,0,0,0.50) !important;
           }
           .hero-cta-primary::after {
             content:'';
             position:absolute; top:0; bottom:0; width:45%;
-            background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent);
+            background:linear-gradient(90deg,transparent,rgba(255,255,255,0.22),transparent);
             transform:skewX(-18deg);
             animation:shimmerFlow 3.5s ease-in-out infinite 1.8s;
           }
           .hero-bolt { display:inline-block !important; font-style:normal; font-size:11px !important; }
 
-          /* Secondary CTA — minimal ghost pill */
+          /* Secondary CTA — glass pill */
           .hero-cta-secondary {
             width:100% !important;
-            font-size:12px !important;
+            font-size:12.5px !important;
             padding:12px 16px !important;
             border-radius:100px !important;
             text-align:center !important;
-            background:transparent !important;
-            border:1px solid rgba(255,255,255,0.16) !important;
-            backdrop-filter:blur(8px) !important;
-            -webkit-backdrop-filter:blur(8px) !important;
+            background:rgba(255,255,255,0.06) !important;
+            border:1px solid rgba(255,255,255,0.18) !important;
+            backdrop-filter:blur(12px) !important;
+            -webkit-backdrop-filter:blur(12px) !important;
             -webkit-tap-highlight-color:transparent !important;
             white-space:nowrap !important;
-            transition:border-color .2s !important;
+            color:rgba(255,255,255,0.80) !important;
+            font-weight:600 !important;
+            letter-spacing:0.06em !important;
+            transition:border-color .2s ease, box-shadow .2s ease !important;
           }
           .hero-cta-secondary:active {
-            border-color:rgba(0,255,136,0.35) !important;
+            border-color:rgba(0,255,136,0.42) !important;
+            box-shadow:0 0 16px rgba(0,255,136,0.14) !important;
           }
 
           /* Social proof — premium glassmorphism with green tint */
@@ -496,11 +531,13 @@ export default function LandingPage() {
             <div className="h-ctas hero-ctas-wrap" style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', gap:'14px', marginTop:'4px' }}>
               <Link href="/login" className="hero-cta-primary" style={{
                 display:'inline-flex', alignItems:'center', justifyContent:'center',
-                width:'220px',
-                background:'#00FF88', color:'#030805', fontWeight:800, fontSize:'16px',
-                borderRadius:'12px', padding:'16px 0', textDecoration:'none',
-                letterSpacing:'0.06em',
-                boxShadow:'0 0 32px rgba(0,255,136,0.28), 0 4px 16px rgba(0,0,0,0.4)',
+                position:'relative', overflow:'hidden',
+                gap:'6px', width:'220px',
+                background:'linear-gradient(160deg,#00FF99 0%,#00E07A 52%,#00CC66 100%)',
+                color:'#020c05', fontWeight:800, fontSize:'14px',
+                borderRadius:'100px', padding:'13px 0', textDecoration:'none',
+                letterSpacing:'0.08em',
+                boxShadow:'0 0 0 1px rgba(0,255,136,0.38),0 0 24px rgba(0,255,136,0.32),0 0 52px rgba(0,255,136,0.10),0 4px 18px rgba(0,0,0,0.42),inset 0 1px 0 rgba(255,255,255,0.26)',
               }}>
                 <span className="hero-bolt" aria-hidden>⚡</span>
                 ENTRAR
@@ -508,10 +545,12 @@ export default function LandingPage() {
               <Link href="/ranking" className="hero-cta-secondary" style={{
                 display:'inline-flex', alignItems:'center', justifyContent:'center',
                 width:'220px',
-                fontSize:'14px', fontWeight:700, color:'rgba(255,255,255,0.75)',
+                fontSize:'13.5px', fontWeight:600, color:'rgba(255,255,255,0.76)',
                 textDecoration:'none', letterSpacing:'0.06em',
-                border:'1.5px solid rgba(255,255,255,0.2)',
-                borderRadius:'12px', padding:'14px 0',
+                background:'rgba(255,255,255,0.05)',
+                backdropFilter:'blur(10px)', WebkitBackdropFilter:'blur(10px)',
+                border:'1px solid rgba(255,255,255,0.18)',
+                borderRadius:'100px', padding:'12px 0',
               }}>
                 VER RANKING →
               </Link>
