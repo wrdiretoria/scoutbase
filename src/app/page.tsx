@@ -109,31 +109,46 @@ export default function LandingPage() {
 
           /* ── OVERLAY RECOMPOSITION ── */
 
-          /* 1 — bottom fog: athlete open in upper 55%, dark at base for text */
+          /* 1 — bottom fog: athlete open in upper 55%, deep dark at base */
           .hero-ov1 {
-            background:linear-gradient(
-              to top,
-              rgba(2,6,3,1.00) 0%,
-              rgba(2,6,3,0.98) 24%,
-              rgba(2,6,3,0.62) 46%,
-              rgba(2,6,3,0.10) 62%,
-              transparent      74%
-            ) !important;
+            background:
+              linear-gradient(to top,
+                rgba(1,5,2,1.00) 0%,
+                rgba(1,5,2,0.97) 22%,
+                rgba(1,5,2,0.60) 44%,
+                rgba(1,5,2,0.08) 62%,
+                transparent      74%
+              ),
+              linear-gradient(to right, rgba(0,0,0,0.45) 0%, transparent 50%) !important;
           }
 
-          /* 2 — top shade (headline legibility) + left depth shadow */
+          /* 2 — cinematic vignette: top shade + left depth */
           .hero-ov2 {
             background:
-              linear-gradient(to bottom, rgba(2,6,3,0.82) 0%, rgba(2,6,3,0.38) 22%, transparent 42%),
-              linear-gradient(to right,  rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.12) 40%, transparent 58%) !important;
+              linear-gradient(to bottom, rgba(1,5,2,0.86) 0%, rgba(1,5,2,0.36) 20%, transparent 40%),
+              radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(0,0,0,0.60) 100%) !important;
           }
 
-          /* 3 — neon glow (mid-bottom), breathing */
+          /* 3 — neon green glow, layered, breathing */
           .hero-ov3 {
             background:
-              radial-gradient(ellipse at 40% 76%, rgba(0,255,136,0.24) 0%, transparent 50%),
-              radial-gradient(ellipse at 16% 96%, rgba(0,255,136,0.10) 0%, transparent 40%) !important;
+              radial-gradient(ellipse at 35% 72%, rgba(0,255,136,0.28) 0%, rgba(0,255,136,0.10) 28%, transparent 52%),
+              radial-gradient(ellipse at 14% 92%, rgba(0,255,136,0.12) 0%, transparent 36%),
+              radial-gradient(ellipse at 60% 88%, rgba(0,200,100,0.06) 0%, transparent 28%) !important;
             animation:glowBreathe 4s ease-in-out infinite !important;
+          }
+
+          /* 4 — stadium light: single warm-white radial from top, subtle */
+          .hero-ov4 {
+            background:
+              radial-gradient(ellipse at 55% -6%, rgba(220,255,240,0.10) 0%, transparent 50%) !important;
+          }
+
+          /* 5 — ground fog: deepen the field base with green tint */
+          .hero-ov5 {
+            background:
+              linear-gradient(to top, rgba(0,12,5,0.68) 0%, rgba(0,12,5,0.18) 16%, transparent 36%),
+              radial-gradient(ellipse at 50% 104%, rgba(0,255,136,0.10) 0%, transparent 40%) !important;
           }
 
           /* ── POSTER GRID — full-height flex column ── */
@@ -378,12 +393,16 @@ export default function LandingPage() {
           alt="" aria-hidden
           style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', objectPosition:'center center', zIndex:0 }}
         />
-        {/* Overlay 1 — direcional: escuro à esquerda, abre à direita */}
-        <div className="hero-ov1" style={{ position:'absolute', inset:0, zIndex:1, background:'linear-gradient(105deg, rgba(3,8,5,0.93) 0%, rgba(3,8,5,0.78) 42%, rgba(3,8,5,0.22) 100%)' }} />
-        {/* Overlay 2 — vinheta: bordas mais escuras */}
-        <div className="hero-ov2" style={{ position:'absolute', inset:0, zIndex:1, background:'radial-gradient(ellipse at 68% 50%, transparent 35%, rgba(0,0,0,0.55) 100%)' }} />
-        {/* Overlay 3 — neon glow verde no canto esquerdo/baixo, sutil */}
-        <div className="hero-ov3" style={{ position:'absolute', inset:0, zIndex:1, background:'radial-gradient(ellipse at 10% 85%, rgba(0,255,136,0.07) 0%, transparent 55%)' }} />
+        {/* Overlay 1 — cinematic dark: left shadow + bottom base + top edge */}
+        <div className="hero-ov1" style={{ position:'absolute', inset:0, zIndex:1, background:'linear-gradient(108deg, rgba(2,7,4,0.97) 0%, rgba(2,7,4,0.82) 36%, rgba(2,7,4,0.10) 70%, transparent 100%), linear-gradient(to top, rgba(1,5,2,0.75) 0%, rgba(1,5,2,0.28) 26%, transparent 50%), linear-gradient(to bottom, rgba(1,5,2,0.62) 0%, transparent 20%)' }} />
+        {/* Overlay 2 — radial vignette: frame dark, centre opens */}
+        <div className="hero-ov2" style={{ position:'absolute', inset:0, zIndex:1, background:'radial-gradient(ellipse at 58% 50%, transparent 26%, rgba(0,0,0,0.46) 60%, rgba(0,0,0,0.82) 100%)' }} />
+        {/* Overlay 3 — green neon atmosphere: layered radials + breathing */}
+        <div className="hero-ov3" style={{ position:'absolute', inset:0, zIndex:1, background:'radial-gradient(ellipse at 8% 78%, rgba(0,255,136,0.22) 0%, rgba(0,255,136,0.08) 28%, transparent 55%), radial-gradient(ellipse at 24% 96%, rgba(0,255,136,0.10) 0%, transparent 34%), radial-gradient(ellipse at 3% 54%, rgba(0,200,100,0.06) 0%, transparent 28%)', animation:'glowBreathe 4.5s ease-in-out infinite' }} />
+        {/* Overlay 4 — stadium lights: warm-white radials from top */}
+        <div className="hero-ov4" style={{ position:'absolute', inset:0, zIndex:1, pointerEvents:'none', background:'radial-gradient(ellipse at 62% -8%, rgba(235,255,245,0.13) 0%, rgba(200,240,220,0.05) 32%, transparent 60%), radial-gradient(ellipse at 78% -4%, rgba(255,255,255,0.05) 0%, transparent 40%), radial-gradient(ellipse at 44% -14%, rgba(200,255,225,0.07) 0%, transparent 38%)' }} />
+        {/* Overlay 5 — ground fog + depth: bottom haze with green tint */}
+        <div className="hero-ov5" style={{ position:'absolute', inset:0, zIndex:1, pointerEvents:'none', background:'linear-gradient(to top, rgba(0,16,7,0.72) 0%, rgba(0,16,7,0.22) 18%, transparent 40%), radial-gradient(ellipse at 50% 102%, rgba(0,255,136,0.08) 0%, transparent 42%)' }} />
 
         {/* Floating particles — mobile only, hidden on desktop via CSS */}
         <div className="hero-particles" aria-hidden>
