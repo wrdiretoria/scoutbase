@@ -4,6 +4,10 @@ import ActivityTicker from './components/ActivityTicker'
 import TeamOfWeekSection from './components/TeamOfWeekSection'
 import ProspectsSection from './components/ProspectsSection'
 import RankingSection from './components/RankingSection'
+import CardCraqueSection from './components/CardCraqueSection'
+import FeaturesSection from './components/FeaturesSection'
+import ParaQuemSection from './components/ParaQuemSection'
+import StatsBar from './components/StatsBar'
 
 const cards = [
   {
@@ -310,6 +314,23 @@ export default function LandingPage() {
             line-height:1.44 !important;
           }
           .hero-social-txt strong { color:rgba(255,255,255,0.92) !important; font-weight:800 !important; }
+
+          /* ── Hero stats panel (mobile right) ── */
+          .hero-stats-panel {
+            display:flex !important;
+            flex-direction:column !important;
+            gap:10px !important;
+            right:14px !important;
+            top:42% !important;
+            transform:translateY(-50%) !important;
+            padding:12px 14px !important;
+            background:rgba(0,0,0,0.55) !important;
+            border:1px solid rgba(0,255,136,0.18) !important;
+            border-radius:14px !important;
+            backdrop-filter:blur(16px) !important;
+            -webkit-backdrop-filter:blur(16px) !important;
+            box-shadow:0 0 24px rgba(0,255,136,0.08), 0 8px 24px rgba(0,0,0,0.6) !important;
+          }
 
           /* ── Floating particles ── */
           .hero-particles {
@@ -686,6 +707,24 @@ export default function LandingPage() {
           </div>
         </div>
 
+        {/* Stats panel — mobile only, absolute right side */}
+        <div className="hero-stats-panel" style={{ display:'none', position:'absolute', right:0, top:'50%', transform:'translateY(-50%)', zIndex:3 }}>
+          {[
+            { icon:'⚽', label:'ATLETAS', value:'GRÁTIS' },
+            { icon:'★',  label:'RANKING', value:'AO VIVO' },
+            { icon:'🛡', label:'DADOS',   value:'SEGUROS' },
+            { icon:'🌎', label:'BRASIL',  value:'26 ESTADOS' },
+          ].map(s => (
+            <div key={s.label} style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+              <span style={{ fontSize:'14px' }}>{s.icon}</span>
+              <div>
+                <div style={{ fontSize:'7px', fontWeight:700, letterSpacing:'0.12em', color:'rgba(255,255,255,0.42)' }}>{s.label}</div>
+                <div style={{ fontSize:'11px', fontWeight:900, color:'white', lineHeight:1.2 }}>{s.value}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
         {/* HUD sutil — ranking ao vivo, decorativo, oculto no mobile */}
         <div className="hero-hud" style={{
           position:'absolute', right:'72px', top:'50%', transform:'translateY(-50%)',
@@ -703,9 +742,17 @@ export default function LandingPage() {
 
       <ActivityTicker />
 
+      <CardCraqueSection />
+
       <TeamOfWeekSection />
 
+      <FeaturesSection />
+
+      <ParaQuemSection />
+
       <ProspectsSection />
+
+      <StatsBar />
 
       <RankingSection />
 
