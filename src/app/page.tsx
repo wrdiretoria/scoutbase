@@ -105,7 +105,7 @@ export default function LandingPage() {
           .hero-section { height:100dvh !important; min-height:0 !important; }
 
           /* ── Player: upper body prominent, slightly right ── */
-          .hero-player-img { object-position:56% 18% !important; }
+          .hero-player-img { object-position:55% 12% !important; }
 
           /* ── OVERLAY RECOMPOSITION ── */
 
@@ -156,10 +156,10 @@ export default function LandingPage() {
             display:flex !important;
             flex-direction:column !important;
             gap:0 !important;
-            padding-top:calc(16dvh + env(safe-area-inset-top)) !important;
-            padding-bottom:calc(28px + env(safe-area-inset-bottom)) !important;
-            padding-left:22px !important;
-            padding-right:22px !important;
+            padding-top:calc(11dvh + env(safe-area-inset-top)) !important;
+            padding-bottom:calc(32px + env(safe-area-inset-bottom)) !important;
+            padding-left:24px !important;
+            padding-right:24px !important;
             min-width:0 !important;
             flex:1 !important;
           }
@@ -192,9 +192,9 @@ export default function LandingPage() {
 
           /* ── POSTER HEADLINE — giant, dramatic, poster-grade ── */
           .hero-h1-line {
-            font-size:clamp(52px,15vw,68px) !important;
+            font-size:clamp(52px,11vw,78px) !important;
             letter-spacing:-0.054em !important;
-            line-height:0.88 !important;
+            line-height:0.92 !important;
             text-shadow:
               0 4px 44px rgba(0,0,0,0.95),
               0 2px 12px rgba(0,0,0,0.80),
@@ -211,11 +211,11 @@ export default function LandingPage() {
             display:block !important;
             font-size:12.5px !important;
             color:rgba(255,255,255,0.68) !important;
-            line-height:1.56 !important;
-            margin:0 0 14px !important;
+            line-height:1.58 !important;
+            margin:0 0 16px !important;
             font-weight:400 !important;
             letter-spacing:0.006em !important;
-            max-width:280px !important;
+            max-width:290px !important;
           }
 
           /* CTAs — vertical stack, full width */
@@ -362,7 +362,7 @@ export default function LandingPage() {
 
         @media (max-width: 480px) {
           .cards-grid  { grid-template-columns:1fr !important; }
-          .hero-h1-line { font-size:clamp(48px,14vw,62px) !important; }
+          .hero-h1-line { font-size:clamp(44px,11vw,64px) !important; }
           .hero-mob-sub { font-size:12px !important; max-width:260px !important; }
         }
       `}</style>
@@ -399,7 +399,7 @@ export default function LandingPage() {
         }}>
 
           {/* LEFT */}
-          <div className="hero-left" style={{ display:'flex', flexDirection:'column', gap:'32px', minWidth:0 }}>
+          <div className="hero-left" style={{ display:'flex', flexDirection:'column', gap:'22px', minWidth:0 }}>
             <span className="h-badge hero-badge" style={{
               display:'inline-flex', alignItems:'center', gap:'8px', width:'fit-content',
               padding:'6px 20px', borderRadius:'100px',
@@ -414,15 +414,15 @@ export default function LandingPage() {
             {/* Accent rule — visible only on mobile, between badge and headline */}
             <div className="hero-rule" />
 
-            <h1 style={{ margin:0, padding:0, lineHeight:1.02, letterSpacing:'-0.045em' }}>
+            <h1 style={{ margin:0, padding:0, lineHeight:0.96, letterSpacing:'-0.045em' }}>
               <span className="h-line-1 hero-h1-line" style={{
-                display:'block', fontSize:'clamp(46px,6vw,86px)',
+                display:'block', fontSize:'clamp(52px,5.5vw,78px)',
                 fontWeight:900, color:'white',
               }}>
                 É SEU TALENTO
               </span>
               <span className="h-line-2 hero-h1-line" style={{
-                display:'block', fontSize:'clamp(46px,6vw,86px)',
+                display:'block', fontSize:'clamp(52px,5.5vw,78px)',
                 fontWeight:900,
               }}>
                 <span className="neon-word" style={{ color:'#00FF88' }}>GANHANDO O MUNDO.</span>
