@@ -143,15 +143,18 @@ function BemVindoContent() {
   return (
     <main style={{
       background: '#030a05',
-      minHeight: '100svh',
+      minHeight: '100dvh',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'flex-start',
-      padding: '32px 20px 48px',
+      padding: '32px 20px',
+      paddingTop: 'max(32px, env(safe-area-inset-top))',
+      paddingBottom: 'max(48px, env(safe-area-inset-bottom))',
       fontFamily: 'system-ui, sans-serif',
       position: 'relative',
       overflow: 'hidden',
+      overscrollBehaviorY: 'none',
     }}>
 
       <style>{`
@@ -186,24 +189,26 @@ function BemVindoContent() {
         .card-glow { animation: pulseGlow 4.5s ease-in-out infinite 1.5s }
 
         .share-btn {
-          width:100%; padding:16px; border-radius:14px; border:none;
+          width:100%; padding:17px; border-radius:14px; border:none;
           background: linear-gradient(135deg,#00e87a,#00FF88 50%,#22c55e);
           color:#020d04; font-weight:900; font-size:16px;
           cursor:pointer; font-family:system-ui,sans-serif;
-          letter-spacing:0.04em;
+          letter-spacing:0.04em; min-height:56px;
           box-shadow: 0 0 40px rgba(0,255,136,0.35), 0 4px 20px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.25);
-          transition: opacity .2s, transform .15s;
+          transition: opacity .1s, transform .08s;
         }
-        .share-btn:active { opacity:.88; transform:scale(0.98); }
+        .share-btn:active { opacity:.88; transform:scale(0.97); }
 
         .ghost-btn {
-          width:100%; padding:13px; border-radius:14px;
+          width:100%; padding:15px; border-radius:14px;
           border:1px solid rgba(255,255,255,0.1); background:transparent;
           color:rgba(255,255,255,0.45); font-size:14px; font-weight:600;
           cursor:pointer; font-family:system-ui,sans-serif;
-          transition: border-color .2s, color .2s;
+          min-height:52px;
+          transition: border-color .2s, color .2s, transform .08s;
         }
-        .ghost-btn:hover { border-color:rgba(255,255,255,0.22); color:rgba(255,255,255,0.65); }
+        .ghost-btn:hover  { border-color:rgba(255,255,255,0.22); color:rgba(255,255,255,0.65); }
+        .ghost-btn:active { transform:scale(.98); opacity:.85; }
       `}</style>
 
       {/* ── Background atmosphere — 3 camadas ── */}
@@ -651,8 +656,12 @@ function BemVindoContent() {
 export default function BemVindoPage() {
   return (
     <Suspense fallback={
-      <main style={{ background:'#030a05', minHeight:'100svh', display:'flex', alignItems:'center', justifyContent:'center' }}>
-        <p style={{ color:'rgba(255,255,255,0.3)', fontFamily:'system-ui' }}>Carregando…</p>
+      <main style={{ background:'#030a05', minHeight:'100dvh', display:'flex', alignItems:'center', justifyContent:'center' }}>
+        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:12 }}>
+          <div className="skel" style={{ width:64, height:64, borderRadius:'50%' }} />
+          <div className="skel" style={{ width:140, height:14, borderRadius:6, marginTop:4 }} />
+          <div className="skel" style={{ width:200, height:100, borderRadius:20, marginTop:8 }} />
+        </div>
       </main>
     }>
       <BemVindoContent />

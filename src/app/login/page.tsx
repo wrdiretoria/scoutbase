@@ -110,9 +110,10 @@ export default function LoginPage() {
   }
 
   const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '12px 16px', borderRadius: '12px', boxSizing: 'border-box',
+    width: '100%', padding: '14px 16px', borderRadius: '12px', boxSizing: 'border-box',
     background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-    color: 'white', fontSize: '15px', outline: 'none', fontFamily: 'system-ui, sans-serif',
+    color: 'white', fontSize: '16px', outline: 'none', fontFamily: 'system-ui, sans-serif',
+    transition: 'border-color .2s, box-shadow .2s',
   }
   const labelStyle: React.CSSProperties = {
     display: 'block', fontSize: '12px', fontWeight: 700,
@@ -122,10 +123,21 @@ export default function LoginPage() {
 
   return (
     <main style={{
-      background: '#06100a', minHeight: '100vh',
+      background: '#06100a', minHeight: '100dvh',
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      padding: '24px', fontFamily: 'system-ui, sans-serif',
+      padding: '24px',
+      paddingTop: 'max(24px, env(safe-area-inset-top))',
+      paddingBottom: 'max(24px, env(safe-area-inset-bottom))',
+      fontFamily: 'system-ui, sans-serif',
+      overscrollBehaviorY: 'none',
     }}>
+      <style>{`
+        /* Login — active press states */
+        button:active  { transform:scale(.97); opacity:.88; transition:transform .08s,opacity .08s; }
+        a[href]:active { opacity:.8; transition:opacity .1s; }
+        input:focus    { border-color:rgba(0,255,136,0.3) !important; box-shadow:0 0 0 3px rgba(0,255,136,0.08) !important; outline:none; }
+        select option  { background:#06100a; }
+      `}</style>
       <div style={{ width: '100%', maxWidth: '400px' }}>
 
         {/* Logo */}
@@ -155,6 +167,7 @@ export default function LoginPage() {
                     background: 'rgba(255,255,255,0.04)',
                     outline: '1.5px solid rgba(255,255,255,0.1)',
                     cursor: 'pointer', textAlign: 'left', width: '100%',
+                    minHeight: '72px',
                   }}
                   onMouseEnter={e => (e.currentTarget.style.outline = '1.5px solid rgba(0,255,136,0.4)')}
                   onMouseLeave={e => (e.currentTarget.style.outline = '1.5px solid rgba(255,255,255,0.1)')}
@@ -202,10 +215,12 @@ export default function LoginPage() {
               <button
                 onClick={() => setStep(2)}
                 style={{
-                  padding: '18px 22px', borderRadius: '14px', border: 'none',
+                  padding: '19px 22px', borderRadius: '14px', border: 'none',
                   background: '#00FF88', color: '#030805', fontWeight: 800,
                   fontSize: '15px', cursor: 'pointer', width: '100%',
                   boxShadow: '0 0 24px rgba(0,255,136,0.2)',
+                  minHeight: '58px',
+                  transition: 'transform .08s, opacity .1s',
                 }}
               >
                 {areaInfo.loginLabel} →
@@ -215,10 +230,11 @@ export default function LoginPage() {
               <Link
                 href={areaInfo.cadastroHref}
                 style={{
-                  display: 'block', padding: '18px 22px', borderRadius: '14px',
+                  display: 'block', padding: '19px 22px', borderRadius: '14px',
                   border: '1.5px solid rgba(255,255,255,0.12)',
                   color: 'rgba(255,255,255,0.7)', fontWeight: 700,
                   fontSize: '15px', textDecoration: 'none', textAlign: 'center',
+                  minHeight: '58px', lineHeight: '20px',
                 }}
               >
                 {areaInfo.cadastroLabel}
@@ -302,10 +318,13 @@ export default function LoginPage() {
               <button
                 type="submit" disabled={loading}
                 style={{
-                  padding: '14px', borderRadius: '14px', border: 'none',
+                  padding: '17px', borderRadius: '14px', border: 'none',
                   cursor: loading ? 'not-allowed' : 'pointer',
                   background: '#22c55e', color: 'black', fontWeight: 800,
                   fontSize: '16px', opacity: loading ? 0.6 : 1,
+                  minHeight: '56px',
+                  transition: 'transform .08s, opacity .15s',
+                  boxShadow: '0 0 32px rgba(34,197,94,0.2)',
                 }}
               >
                 {loading ? 'Entrando…' : 'Entrar →'}

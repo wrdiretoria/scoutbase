@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meu Craque — Mapa do Produto</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #06100a;
+    font-family: system-ui, -apple-system, sans-serif;
+    color: white;
+    padding: 40px 24px;
+    min-height: 100vh;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 13px;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 48px;
+  }
+
+  /* ── Grid principal ── */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 16px;
+    max-width: 1100px;
+    margin: 0 auto 40px;
+    align-items: start;
+  }
+
+  /* ── Coluna ── */
+  .col-header {
+    text-align: center;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+  .col-header.green  { background: rgba(34,197,94,0.15);  color: #4ade80; }
+  .col-header.blue   { background: rgba(59,130,246,0.15); color: #60a5fa; }
+  .col-header.purple { background: rgba(168,85,247,0.15); color: #c084fc; }
+  .col-header.orange { background: rgba(251,146,60,0.15); color: #fb923c; }
+
+  /* ── Card ── */
+  .card {
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .card.green  { background: rgba(34,197,94,0.07);  border: 1px solid rgba(34,197,94,0.2); }
+  .card.blue   { background: rgba(59,130,246,0.07); border: 1px solid rgba(59,130,246,0.2); }
+  .card.purple { background: rgba(168,85,247,0.07); border: 1px solid rgba(168,85,247,0.2); }
+  .card.orange { background: rgba(251,146,60,0.07); border: 1px solid rgba(251,146,60,0.2); }
+  .card.dark   { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); }
+
+  .card-title {
+    font-size: 12px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .card-title.green  { color: #4ade80; }
+  .card-title.blue   { color: #60a5fa; }
+  .card-title.purple { color: #c084fc; }
+  .card-title.orange { color: #fb923c; }
+
+  .item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.7);
+    font-size: 12px;
+  }
+  .item:last-child { border-bottom: none; }
+  .item .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    flex-shrink: 0; margin-top: 5px;
+  }
+  .dot.green  { background: #4ade80; }
+  .dot.blue   { background: #60a5fa; }
+  .dot.purple { background: #c084fc; }
+  .dot.orange { background: #fb923c; }
+  .dot.gray   { background: rgba(255,255,255,0.2); }
+
+  .badge {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 10px;
+    margin-left: 4px;
+    vertical-align: middle;
+  }
+  .badge.free   { background: rgba(34,197,94,0.2);  color: #4ade80; }
+  .badge.paid   { background: rgba(251,146,60,0.2); color: #fb923c; }
+
+  /* ── Hierarquia escola ── */
+  .escola-box {
+    max-width: 1100px;
+    margin: 0 auto 40px;
+    border-radius: 20px;
+    border: 1px solid rgba(34,197,94,0.25);
+    background: rgba(34,197,94,0.04);
+    padding: 24px;
+  }
+  .escola-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #4ade80;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .escola-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 0;
+    align-items: center;
+    justify-items: center;
+  }
+  .escola-node {
+    border-radius: 14px;
+    padding: 14px 20px;
+    text-align: center;
+    width: 100%;
+  }
+  .escola-node.ceo {
+    background: rgba(34,197,94,0.15);
+    border: 2px solid rgba(34,197,94,0.4);
+  }
+  .escola-node.prof {
+    background: rgba(34,197,94,0.07);
+    border: 1px solid rgba(34,197,94,0.2);
+  }
+  .escola-node.turma {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    font-size: 11px;
+    padding: 8px 12px;
+  }
+  .escola-node-title {
+    font-size: 13px;
+    font-weight: 900;
+    color: #4ade80;
+    margin-bottom: 4px;
+  }
+  .escola-node-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.4;
+  }
+  .arrow {
+    font-size: 20px;
+    color: rgba(34,197,94,0.4);
+    padding: 0 8px;
+  }
+
+  .prof-col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+  }
+
+  /* ── Loop viral ── */
+  .loop-box {
+    max-width: 1100px;
+    margin: 0 auto 40px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.02);
+    padding: 24px;
+  }
+  .loop-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .loop-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0;
+  }
+  .loop-step {
+    text-align: center;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: rgba(34,197,94,0.08);
+    border: 1px solid rgba(34,197,94,0.2);
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+    min-width: 110px;
+  }
+  .loop-step span {
+    display: block;
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+  .loop-arrow {
+    font-size: 18px;
+    color: rgba(34,197,94,0.4);
+    padding: 0 6px;
+  }
+
+  /* ── Monetização ── */
+  .mono-box {
+    max-width: 1100px;
+    margin: 0 auto 40px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+  .mono-card {
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+  }
+  .mono-card.c1 { background: rgba(34,197,94,0.08);  border: 1px solid rgba(34,197,94,0.25); }
+  .mono-card.c2 { background: rgba(251,146,60,0.08); border: 1px solid rgba(251,146,60,0.25); }
+  .mono-card.c3 { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.25); }
+  .mono-price {
+    font-size: 28px;
+    font-weight: 900;
+    margin-bottom: 4px;
+  }
+  .mono-card.c1 .mono-price { color: #4ade80; }
+  .mono-card.c2 .mono-price { color: #fb923c; }
+  .mono-card.c3 .mono-price { color: #60a5fa; }
+  .mono-label {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+    color: rgba(255,255,255,0.5);
+  }
+  .mono-desc {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.5;
+  }
+
+  .section-label {
+    max-width: 1100px;
+    margin: 0 auto 12px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.25);
+  }
+</style>
+</head>
+<body>
+
+<h1>⚽ MEU CRAQUE — Mapa do Produto</h1>
+<p class="subtitle">Visão completa do ecossistema</p>
+
+<!-- ── HIERARQUIA DA ESCOLA ── -->
+<p class="section-label">Estrutura da escolinha</p>
+<div class="escola-box">
+  <p class="escola-title">Como a escola está organizada</p>
+  <div class="escola-grid">
+
+    <!-- CEO -->
+    <div class="escola-node ceo">
+      <div class="escola-node-title">👑 CEO / Dono</div>
+      <div class="escola-node-sub">
+        Login próprio<br>
+        Vê tudo da escola<br>
+        Gerencia professores<br>
+        Acessa relatórios<br>
+        Controla plano e pagamento
+      </div>
+    </div>
+
+    <div class="arrow">→</div>
+
+    <!-- Professores -->
+    <div class="prof-col">
+      <div class="escola-node prof">
+        <div class="escola-node-title">🧠 Professor 1</div>
+        <div class="escola-node-sub">Login próprio · Vê só suas turmas</div>
+      </div>
+      <div class="escola-node prof">
+        <div class="escola-node-title">🧠 Professor 2</div>
+        <div class="escola-node-sub">Login próprio · Vê só suas turmas</div>
+      </div>
+      <div class="escola-node prof" style="opacity:0.4; font-size:11px; text-align:center; padding: 8px;">
+        + quantos precisar (plano pago)
+      </div>
+    </div>
+
+    <div class="arrow">→</div>
+
+    <!-- Turmas -->
+    <div class="prof-col">
+      <div class="escola-node turma">⚽ Sub-13 · 20 atletas</div>
+      <div class="escola-node turma">⚽ Sub-15 · 18 atletas</div>
+      <div class="escola-node turma">⚽ Sub-17 · 22 atletas</div>
+      <div class="escola-node turma">⚽ Feminino Sub-15</div>
+      <div class="escola-node turma" style="opacity:0.4;">+ turmas ilimitadas (pago)</div>
+    </div>
+
+  </div>
+
+  <!-- Planos -->
+  <div style="display:flex; gap:12px; margin-top:20px; justify-content:center; flex-wrap:wrap;">
+    <div style="background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.25); border-radius:12px; padding:12px 20px; text-align:center;">
+      <div style="font-size:11px; font-weight:800; color:#4ade80; margin-bottom:4px;">GRÁTIS</div>
+      <div style="font-size:12px; color:rgba(255,255,255,0.5);">1 professor · até 5 turmas · 20 atletas cada</div>
+    </div>
+    <div style="background:rgba(251,146,60,0.1); border:1px solid rgba(251,146,60,0.25); border-radius:12px; padding:12px 20px; text-align:center;">
+      <div style="font-size:11px; font-weight:800; color:#fb923c; margin-bottom:4px;">R$9,90 / mês</div>
+      <div style="font-size:12px; color:rgba(255,255,255,0.5);">Múltiplos professores · turmas ilimitadas</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 4 MUNDOS ── -->
+<p class="section-label">Os 4 lados do produto</p>
+<div class="grid">
+
+  <!-- TREINADOR -->
+  <div>
+    <div class="col-header green">🧠 Treinador</div>
+
+    <div class="card green">
+      <div class="card-title green">Dashboard CEO</div>
+      <div class="item"><div class="dot green"></div>Ver todas as turmas</div>
+      <div class="item"><div class="dot green"></div>Gerenciar professores</div>
+      <div class="item"><div class="dot green"></div>Relatórios da escola</div>
+      <div class="item"><div class="dot green"></div>Controlar plano</div>
+    </div>
+
+    <div class="card green">
+      <div class="card-title green">Dashboard Professor</div>
+      <div class="item"><div class="dot green"></div>Suas turmas e atletas</div>
+      <div class="item"><div class="dot green"></div>Controle de presença</div>
+      <div class="item"><div class="dot green"></div>Avaliar atletas (OVR real)</div>
+      <div class="item"><div class="dot green"></div>Gerar card de avaliação</div>
+      <div class="item"><div class="dot green"></div>Link de convite da escola</div>
+    </div>
+
+    <div class="card dark">
+      <div class="item"><div class="dot green"></div>
+        <span>Tudo grátis <span class="badge free">FREE</span></span>
+      </div>
+      <div class="item"><div class="dot orange"></div>
+        <span>+professores/turmas <span class="badge paid">R$9,90</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ATLETA -->
+  <div>
+    <div class="col-header blue">⚽ Atleta</div>
+
+    <div class="card blue">
+      <div class="card-title blue">Perfil gratuito</div>
+      <div class="item"><div class="dot blue"></div>Currículo completo</div>
+      <div class="item"><div class="dot blue"></div>OVR real (avaliado)</div>
+      <div class="item"><div class="dot blue"></div>Aparece no ranking</div>
+      <div class="item"><div class="dot blue"></div>Link compartilhável</div>
+      <div class="item"><div class="dot blue"></div>Ver visitas ao perfil</div>
+    </div>
+
+    <div class="card blue">
+      <div class="card-title blue">Card de avaliação</div>
+      <div class="item"><div class="dot blue"></div>Visual estilo FIFA</div>
+      <div class="item"><div class="dot blue"></div>5 atributos reais</div>
+      <div class="item"><div class="dot blue"></div>Nome do treinador</div>
+      <div class="item"><div class="dot blue"></div>Feito para story</div>
+    </div>
+
+    <div class="card blue">
+      <div class="card-title blue">Promoção de perfil</div>
+      <div class="item"><div class="dot blue"></div>Aparece 1º na busca</div>
+      <div class="item"><div class="dot blue"></div>Destaque no ranking</div>
+      <div class="item"><div class="dot blue"></div>Badge "Em destaque"</div>
+    </div>
+
+    <div class="card dark">
+      <div class="item"><div class="dot blue"></div>
+        <span>Perfil <span class="badge free">FREE</span></span>
+      </div>
+      <div class="item"><div class="dot orange"></div>
+        <span>Card avaliação <span class="badge paid">R$5</span></span>
+      </div>
+      <div class="item"><div class="dot orange"></div>
+        <span>Promoção <span class="badge paid">R$19–49</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCOUT -->
+  <div>
+    <div class="col-header purple">🔍 Scout / Clube</div>
+
+    <div class="card purple">
+      <div class="card-title purple">Acesso livre</div>
+      <div class="item"><div class="dot purple"></div>Sem login necessário</div>
+      <div class="item"><div class="dot purple"></div>Busca por posição</div>
+      <div class="item"><div class="dot purple"></div>Busca por categoria</div>
+      <div class="item"><div class="dot purple"></div>Busca por cidade</div>
+      <div class="item"><div class="dot purple"></div>Ver currículo completo</div>
+      <div class="item"><div class="dot purple"></div>Ver OVR e avaliações</div>
+    </div>
+
+    <div class="card purple">
+      <div class="card-title purple">O que gera valor</div>
+      <div class="item"><div class="dot purple"></div>Cada visita é contada</div>
+      <div class="item"><div class="dot purple"></div>Atleta vê quem olhou</div>
+      <div class="item"><div class="dot purple"></div>Dados reais de treinadores</div>
+    </div>
+
+    <div class="card dark">
+      <div class="item"><div class="dot green"></div>
+        <span>Tudo grátis <span class="badge free">FREE</span></span>
+      </div>
+      <div class="item"><div class="dot gray"></div>
+        <span style="color:rgba(255,255,255,0.35); font-size:11px;">Futuramente: contato direto pago</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAI -->
+  <div>
+    <div class="col-header orange">👨‍👩‍👦 Pai / Mãe</div>
+
+    <div class="card orange">
+      <div class="card-title orange">Acompanhamento</div>
+      <div class="item"><div class="dot orange"></div>Ver perfil do filho</div>
+      <div class="item"><div class="dot orange"></div>Ver evolução do OVR</div>
+      <div class="item"><div class="dot orange"></div>Ver frequência</div>
+      <div class="item"><div class="dot orange"></div>Ver avaliações</div>
+    </div>
+
+    <div class="card orange">
+      <div class="card-title orange">Card de avaliação</div>
+      <div class="item"><div class="dot orange"></div>Pai recebe o card</div>
+      <div class="item"><div class="dot orange"></div>Documento esportivo</div>
+      <div class="item"><div class="dot orange"></div>Compartilha no status</div>
+      <div class="item"><div class="dot orange"></div>Orgulho + viralidade</div>
+    </div>
+
+    <div class="card dark">
+      <div class="item"><div class="dot orange"></div>
+        <span>Card avaliação <span class="badge paid">R$5</span></span>
+      </div>
+      <div class="item"><div class="dot gray"></div>
+        <span style="color:rgba(255,255,255,0.35); font-size:11px;">Compra no pico emocional</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── LOOP VIRAL ── -->
+<p class="section-label">O loop de crescimento</p>
+<div class="loop-box">
+  <p class="loop-title">Como o produto cresce sozinho</p>
+  <div class="loop-steps">
+    <div class="loop-step"><span>🧠</span>Treinador cadastra escola</div>
+    <div class="loop-arrow">→</div>
+    <div class="loop-step"><span>🔗</span>Manda link para atletas</div>
+    <div class="loop-arrow">→</div>
+    <div class="loop-step"><span>⚽</span>Atletas se cadastram</div>
+    <div class="loop-arrow">→</div>
+    <div class="loop-step"><span>📊</span>Treinador avalia</div>
+    <div class="loop-arrow">→</div>
+    <div class="loop-step"><span>🃏</span>Card gerado</div>
+    <div class="loop-arrow">→</div>
+    <div class="loop-step"><span>📲</span>Atleta posta no story</div>
+    <div class="loop-arrow">→</div>
+    <div class="loop-step"><span>👀</span>Amigos veem</div>
+    <div class="loop-arrow">→</div>
+    <div class="loop-step"><span>🔁</span>Novos atletas entram</div>
+  </div>
+</div>
+
+<!-- ── MONETIZAÇÃO ── -->
+<p class="section-label">Monetização</p>
+<div class="mono-box">
+  <div class="mono-card c1">
+    <div class="mono-label">Escola — turmas extras</div>
+    <div class="mono-price">R$9,90</div>
+    <div class="mono-desc">por mês<br>Múltiplos professores<br>Turmas ilimitadas</div>
+  </div>
+  <div class="mono-card c2">
+    <div class="mono-label">Card de avaliação</div>
+    <div class="mono-price">R$5</div>
+    <div class="mono-desc">por card<br>Pai paga no pico emocional<br>Atleta compartilha no story</div>
+  </div>
+  <div class="mono-card c3">
+    <div class="mono-label">Promoção de perfil</div>
+    <div class="mono-price">R$19–49</div>
+    <div class="mono-desc">por mês<br>Atleta vê visitas<br>Paga para aparecer mais</div>
+  </div>
+</div>
+
+<div style="text-align:center; margin-top:20px; font-size:11px; color:rgba(255,255,255,0.2); letter-spacing:0.06em;">
+  ⚽ MEU CRAQUE · Ecossistema do futebol de base
+</div>
+
+</body>
+</html>

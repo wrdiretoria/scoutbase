@@ -49,44 +49,296 @@ export default function LandingPage() {
     <div style={{ background: '#06100a', color: 'white', minHeight: '100vh', fontFamily: 'system-ui, sans-serif' }}>
 
       <style>{`
-        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
-        @keyframes floatBack { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
-        @keyframes heroFadeUp { from { opacity:0; transform:translateY(22px) } to { opacity:1; transform:translateY(0) } }
-        @keyframes glowPulse { 0%,100%{text-shadow:0 0 40px rgba(0,255,136,0.45),0 0 80px rgba(0,255,136,0.18)} 50%{text-shadow:0 0 60px rgba(0,255,136,0.65),0 0 120px rgba(0,255,136,0.28)} }
+        /* ─── DESKTOP / GLOBAL ─── */
+        @keyframes float     { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+        @keyframes floatBack { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)}  }
+        @keyframes heroFadeUp { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes glowPulse  {
+          0%,100%{text-shadow:0 0 40px rgba(0,255,136,0.45),0 0 80px rgba(0,255,136,0.18)}
+          50%    {text-shadow:0 0 60px rgba(0,255,136,0.65),0 0 120px rgba(0,255,136,0.28)}
+        }
+        @keyframes glowBreathe {
+          0%,100% { opacity:0.75; transform:scale(1)    }
+          50%     { opacity:1;    transform:scale(1.06) }
+        }
+        @keyframes particleRise {
+          0%   { transform:translateY(0)     scale(1);   opacity:0   }
+          15%  { opacity:0.55 }
+          75%  { opacity:0.25 }
+          100% { transform:translateY(-110px) scale(0.5); opacity:0  }
+        }
+        @keyframes shimmerFlow {
+          0%   { left:-70% }
+          100% { left:140% }
+        }
+
         .card-item { transition:background .2s; cursor:default; }
         .card-item:hover { background:rgba(34,197,94,0.06); }
 
-        .h-badge  { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards; animation-delay:0.08s; opacity:0; }
-        .h-line-1 { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards; animation-delay:0.22s; opacity:0; }
-        .h-line-2 { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards; animation-delay:0.36s; opacity:0; }
-        .h-line-3 { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards; animation-delay:0.50s; opacity:0; }
-        .h-sub    { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards; animation-delay:0.66s; opacity:0; }
-        .h-ctas   { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards; animation-delay:0.80s; opacity:0; }
+        .h-badge  { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards 0.08s; opacity:0; }
+        .h-line-1 { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards 0.22s; opacity:0; }
+        .h-line-2 { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards 0.36s; opacity:0; }
+        .h-line-3 { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards 0.50s; opacity:0; }
+        .h-sub    { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards 0.66s; opacity:0; }
+        .h-ctas   { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards 0.80s; opacity:0; }
+        .h-social { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards 0.95s; opacity:0; }
         .neon-word { animation:glowPulse 3.5s ease-in-out infinite; }
-        .hero-hud { display:block; }
+        .hero-hud  { display:block; }
 
-        /* ── MOBILE ── */
+        /* Mobile-only elements — hidden on desktop */
+        .hero-particles, .hero-mob-sub, .hero-social { display:none; }
+        .hero-bolt  { display:none; }
+        .hero-rule  { display:none; }
+
+        /* ─── MOBILE HERO — Poster / Nike Football / EA Sports FC ─── */
         @media (max-width: 768px) {
+
+          /* ── Full bleed ── */
+          .hero-section { height:100dvh !important; min-height:0 !important; }
+
+          /* ── Player: upper body prominent, slightly right ── */
+          .hero-player-img { object-position:56% 18% !important; }
+
+          /* ── OVERLAY RECOMPOSITION ── */
+
+          /* 1 — bottom fog: athlete open in upper 55%, dark at base for text */
+          .hero-ov1 {
+            background:linear-gradient(
+              to top,
+              rgba(2,6,3,1.00) 0%,
+              rgba(2,6,3,0.98) 24%,
+              rgba(2,6,3,0.62) 46%,
+              rgba(2,6,3,0.10) 62%,
+              transparent      74%
+            ) !important;
+          }
+
+          /* 2 — top shade (headline legibility) + left depth shadow */
+          .hero-ov2 {
+            background:
+              linear-gradient(to bottom, rgba(2,6,3,0.82) 0%, rgba(2,6,3,0.38) 22%, transparent 42%),
+              linear-gradient(to right,  rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.12) 40%, transparent 58%) !important;
+          }
+
+          /* 3 — neon glow (mid-bottom), breathing */
+          .hero-ov3 {
+            background:
+              radial-gradient(ellipse at 40% 76%, rgba(0,255,136,0.24) 0%, transparent 50%),
+              radial-gradient(ellipse at 16% 96%, rgba(0,255,136,0.10) 0%, transparent 40%) !important;
+            animation:glowBreathe 4s ease-in-out infinite !important;
+          }
+
+          /* ── POSTER GRID — full-height flex column ── */
           .hero-grid {
-            grid-template-columns: 1fr !important;
-            padding: 0 24px !important;
-            align-items: flex-start !important;
-            padding-top: 72px !important;
-            padding-bottom: 36px !important;
+            display:flex !important;
+            flex-direction:column !important;
+            align-items:stretch !important;
+            justify-content:flex-start !important;
+            grid-template-columns:none !important;
+            padding:0 !important;
+            gap:0 !important;
+            height:100% !important;
+            width:100% !important;
           }
           .hero-phones { display:none !important; }
           .hero-hud    { display:none !important; }
-          .cards-grid { grid-template-columns: 1fr 1fr !important; }
-          .card-item { border-right: none !important; border-bottom: 1px solid rgba(34,197,94,0.1); }
-          .footer-inner { flex-direction: column !important; gap: 8px !important; text-align: center !important; }
-          .hero-section { height: 72svh !important; min-height: 0 !important; }
-          .hero-left { padding-bottom: 0 !important; gap: 16px !important; }
-          .hero-h1-line { font-size: clamp(30px,9vw,48px) !important; }
-          .hero-sub { display: none !important; }
-          .hero-badge { font-size: 9px !important; padding: 4px 12px !important; }
+
+          /* ── LEFT = full-height poster column ── */
+          .hero-left {
+            display:flex !important;
+            flex-direction:column !important;
+            gap:0 !important;
+            padding-top:calc(16dvh + env(safe-area-inset-top)) !important;
+            padding-bottom:calc(28px + env(safe-area-inset-bottom)) !important;
+            padding-left:22px !important;
+            padding-right:22px !important;
+            min-width:0 !important;
+            flex:1 !important;
+          }
+
+          /* ── TOP CLUSTER: badge → rule → headline ── */
+
+          .hero-badge {
+            font-size:8.5px !important;
+            padding:5px 13px !important;
+            letter-spacing:0.16em !important;
+            margin-bottom:12px !important;
+            border-color:rgba(0,255,136,0.40) !important;
+            background:rgba(0,255,136,0.07) !important;
+            align-self:flex-start !important;
+          }
+
+          .hero-rule {
+            display:block !important;
+            width:32px; height:2px;
+            background:linear-gradient(90deg,#00FF88,rgba(0,255,136,0.18));
+            border-radius:2px;
+            box-shadow:0 0 14px rgba(0,255,136,0.90);
+            margin:0 0 16px !important;
+          }
+
+          /* H1 with auto margin — creates the "athlete window" below headline */
+          .hero-left h1 {
+            margin-bottom:auto !important;
+          }
+
+          /* ── POSTER HEADLINE — giant, dramatic, poster-grade ── */
+          .hero-h1-line {
+            font-size:clamp(52px,15vw,68px) !important;
+            letter-spacing:-0.054em !important;
+            line-height:0.88 !important;
+            text-shadow:
+              0 4px 44px rgba(0,0,0,0.95),
+              0 2px 12px rgba(0,0,0,0.80),
+              0 0 80px rgba(0,0,0,0.5) !important;
+          }
+
+          /* ── BOTTOM CLUSTER — pushed to base by h1 margin-bottom:auto ── */
+
+          /* Desktop sub hidden */
+          .hero-sub { display:none !important; }
+
+          /* Mobile sub */
+          .hero-mob-sub {
+            display:block !important;
+            font-size:12.5px !important;
+            color:rgba(255,255,255,0.68) !important;
+            line-height:1.56 !important;
+            margin:0 0 14px !important;
+            font-weight:400 !important;
+            letter-spacing:0.006em !important;
+            max-width:280px !important;
+          }
+
+          /* CTAs — horizontal row, compact pill style */
+          .hero-ctas-wrap {
+            flex-direction:row !important;
+            align-items:center !important;
+            gap:10px !important;
+            margin-top:0 !important;
+            margin-bottom:14px !important;
+            width:auto !important;
+            align-self:flex-start !important;
+          }
+
+          /* Primary CTA — pill, compact, premium neon */
+          .hero-cta-primary {
+            position:relative !important;
+            overflow:hidden !important;
+            width:auto !important;
+            font-size:12.5px !important;
+            padding:12px 22px !important;
+            border-radius:100px !important;
+            letter-spacing:0.10em !important;
+            gap:6px !important;
+            flex-shrink:0 !important;
+            -webkit-tap-highlight-color:transparent !important;
+            box-shadow:
+              0 0 0 1px rgba(0,255,136,0.50),
+              0 0 24px rgba(0,255,136,0.38),
+              0 0 50px rgba(0,255,136,0.10),
+              0 4px 14px rgba(0,0,0,0.70) !important;
+            transition:transform .15s, opacity .15s !important;
+          }
+          .hero-cta-primary:active {
+            transform:scale(0.94) !important;
+            opacity:0.86 !important;
+          }
+          .hero-cta-primary::after {
+            content:'';
+            position:absolute; top:0; bottom:0; width:45%;
+            background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent);
+            transform:skewX(-18deg);
+            animation:shimmerFlow 3.5s ease-in-out infinite 1.8s;
+          }
+          .hero-bolt { display:inline-block !important; font-style:normal; font-size:11px !important; }
+
+          /* Secondary CTA — minimal ghost pill */
+          .hero-cta-secondary {
+            width:auto !important;
+            font-size:12px !important;
+            padding:12px 16px !important;
+            border-radius:100px !important;
+            text-align:center !important;
+            background:transparent !important;
+            border:1px solid rgba(255,255,255,0.16) !important;
+            backdrop-filter:blur(8px) !important;
+            -webkit-backdrop-filter:blur(8px) !important;
+            -webkit-tap-highlight-color:transparent !important;
+            white-space:nowrap !important;
+            transition:border-color .2s !important;
+          }
+          .hero-cta-secondary:active {
+            border-color:rgba(0,255,136,0.35) !important;
+          }
+
+          /* Social proof — premium glassmorphism with green tint */
+          .hero-social {
+            display:flex !important;
+            align-items:center !important;
+            gap:10px !important;
+            padding:10px 14px !important;
+            border-radius:14px !important;
+            align-self:flex-start !important;
+            background:rgba(4,10,6,0.52) !important;
+            border:1px solid rgba(0,255,136,0.13) !important;
+            backdrop-filter:blur(22px) !important;
+            -webkit-backdrop-filter:blur(22px) !important;
+            box-shadow:
+              0 0 28px rgba(0,255,136,0.06),
+              0 8px 28px rgba(0,0,0,0.50),
+              inset 0 1px 0 rgba(255,255,255,0.06),
+              inset 0 0 0 1px rgba(0,255,136,0.05) !important;
+          }
+          .hero-avatars {
+            display:flex !important;
+            flex-direction:row-reverse !important;
+            flex-shrink:0 !important;
+          }
+          .hero-av {
+            width:23px !important; height:23px !important;
+            border-radius:50% !important;
+            border:2px solid rgba(3,8,4,0.92) !important;
+            margin-left:-6px !important;
+            display:flex !important; align-items:center !important; justify-content:center !important;
+            font-size:6.5px !important; font-weight:800 !important; color:white !important;
+          }
+          .hero-social-txt {
+            margin:0 !important;
+            font-size:10.5px !important;
+            color:rgba(255,255,255,0.52) !important;
+            line-height:1.44 !important;
+          }
+          .hero-social-txt strong { color:rgba(255,255,255,0.92) !important; font-weight:800 !important; }
+
+          /* ── Floating particles ── */
+          .hero-particles {
+            display:block !important; position:absolute !important;
+            inset:0 !important; z-index:1 !important;
+            pointer-events:none !important; overflow:hidden !important;
+          }
+          .hp {
+            position:absolute !important; display:block !important;
+            border-radius:50% !important; background:#00FF88 !important;
+            opacity:0 !important; box-shadow:0 0 4px rgba(0,255,136,0.8) !important;
+          }
+          .hp1 { width:3px; height:3px; left:11%; bottom:42%; animation:particleRise 6.2s ease-in-out infinite 0.0s; }
+          .hp2 { width:2px; height:2px; left:32%; bottom:34%; animation:particleRise 7.4s ease-in-out infinite 1.3s; }
+          .hp3 { width:3px; height:3px; left:60%; bottom:48%; animation:particleRise 5.8s ease-in-out infinite 0.8s; }
+          .hp4 { width:2px; height:2px; left:74%; bottom:26%; animation:particleRise 8.1s ease-in-out infinite 2.2s; }
+          .hp5 { width:2px; height:2px; left:22%; bottom:56%; animation:particleRise 6.7s ease-in-out infinite 3.5s; }
+          .hp6 { width:3px; height:3px; left:84%; bottom:40%; animation:particleRise 7.8s ease-in-out infinite 1.9s; }
+
+          /* ── Rest of page ── */
+          .cards-grid   { grid-template-columns:1fr 1fr !important; }
+          .card-item    { border-right:none !important; border-bottom:1px solid rgba(34,197,94,0.1); }
+          .footer-inner { flex-direction:column !important; gap:8px !important; text-align:center !important; }
         }
+
         @media (max-width: 480px) {
-          .cards-grid { grid-template-columns: 1fr !important; }
+          .cards-grid  { grid-template-columns:1fr !important; }
+          .hero-h1-line { font-size:clamp(48px,14vw,62px) !important; }
+          .hero-mob-sub { font-size:12px !important; max-width:260px !important; }
         }
       `}</style>
 
@@ -96,16 +348,23 @@ export default function LandingPage() {
       <section className="hero-section" style={{ position:'relative', height:'100svh', overflow:'hidden' }}>
         {/* BG */}
         <img
+          className="hero-player-img"
           src="/images/hero-player.png"
           alt="" aria-hidden
           style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', objectPosition:'center center', zIndex:0 }}
         />
         {/* Overlay 1 — direcional: escuro à esquerda, abre à direita */}
-        <div style={{ position:'absolute', inset:0, zIndex:1, background:'linear-gradient(105deg, rgba(3,8,5,0.93) 0%, rgba(3,8,5,0.78) 42%, rgba(3,8,5,0.22) 100%)' }} />
+        <div className="hero-ov1" style={{ position:'absolute', inset:0, zIndex:1, background:'linear-gradient(105deg, rgba(3,8,5,0.93) 0%, rgba(3,8,5,0.78) 42%, rgba(3,8,5,0.22) 100%)' }} />
         {/* Overlay 2 — vinheta: bordas mais escuras */}
-        <div style={{ position:'absolute', inset:0, zIndex:1, background:'radial-gradient(ellipse at 68% 50%, transparent 35%, rgba(0,0,0,0.55) 100%)' }} />
+        <div className="hero-ov2" style={{ position:'absolute', inset:0, zIndex:1, background:'radial-gradient(ellipse at 68% 50%, transparent 35%, rgba(0,0,0,0.55) 100%)' }} />
         {/* Overlay 3 — neon glow verde no canto esquerdo/baixo, sutil */}
-        <div style={{ position:'absolute', inset:0, zIndex:1, background:'radial-gradient(ellipse at 10% 85%, rgba(0,255,136,0.07) 0%, transparent 55%)' }} />
+        <div className="hero-ov3" style={{ position:'absolute', inset:0, zIndex:1, background:'radial-gradient(ellipse at 10% 85%, rgba(0,255,136,0.07) 0%, transparent 55%)' }} />
+
+        {/* Floating particles — mobile only, hidden on desktop via CSS */}
+        <div className="hero-particles" aria-hidden>
+          <span className="hp hp1"/><span className="hp hp2"/><span className="hp hp3"/>
+          <span className="hp hp4"/><span className="hp hp5"/><span className="hp hp6"/>
+        </div>
 
         {/* Grid */}
         <div className="hero-grid" style={{
@@ -118,40 +377,56 @@ export default function LandingPage() {
           <div className="hero-left" style={{ display:'flex', flexDirection:'column', gap:'32px', minWidth:0 }}>
             <span className="h-badge hero-badge" style={{
               display:'inline-flex', alignItems:'center', gap:'8px', width:'fit-content',
-              padding:'6px 18px', borderRadius:'100px',
-              border:'1px solid rgba(0,255,136,0.35)', background:'rgba(0,255,136,0.06)',
-              fontSize:'10px', fontWeight:700, color:'rgba(0,255,136,0.85)', letterSpacing:'0.10em',
+              padding:'6px 20px', borderRadius:'100px',
+              border:'1px solid rgba(0,255,136,0.38)', background:'rgba(0,255,136,0.07)',
+              backdropFilter:'blur(10px)', WebkitBackdropFilter:'blur(10px)',
+              boxShadow:'0 0 18px rgba(0,255,136,0.14), inset 0 1px 0 rgba(255,255,255,0.06)',
+              fontSize:'10px', fontWeight:700, color:'rgba(0,255,136,0.88)', letterSpacing:'0.18em',
             }}>
               JOGANDO JUNTO COM VOCÊ
             </span>
 
-            <h1 style={{ margin:0, padding:0, lineHeight:1.08, letterSpacing:'-0.03em' }}>
+            {/* Accent rule — visible only on mobile, between badge and headline */}
+            <div className="hero-rule" />
+
+            <h1 style={{ margin:0, padding:0, lineHeight:1.02, letterSpacing:'-0.045em' }}>
               <span className="h-line-1 hero-h1-line" style={{
-                display:'block', fontSize:'clamp(52px,7vw,96px)',
+                display:'block', fontSize:'clamp(46px,6vw,86px)',
                 fontWeight:900, color:'white',
               }}>
-                AQUI É O <span className="neon-word" style={{ color:'#00FF88' }}>PALCO</span>
+                É MAIS QUE FUTEBOL.
               </span>
               <span className="h-line-2 hero-h1-line" style={{
-                display:'block', fontSize:'clamp(52px,7vw,96px)',
+                display:'block', fontSize:'clamp(46px,6vw,86px)',
                 fontWeight:900, color:'white',
-              }}>DE QUEM VIVE</span>
+              }}>É SEU TALENTO</span>
               <span className="h-line-2 hero-h1-line" style={{
-                display:'block', fontSize:'clamp(52px,7vw,96px)',
-                fontWeight:900, color:'white',
-              }}>FUTEBOL.</span>
+                display:'block', fontSize:'clamp(46px,6vw,86px)',
+                fontWeight:900,
+              }}>
+                <span className="neon-word" style={{ color:'#00FF88' }}>GANHANDO O MUNDO.</span>
+              </span>
             </h1>
 
             <p className="h-sub hero-sub" style={{
-              fontSize:'clamp(14px,1.25vw,17px)', color:'rgba(255,255,255,0.45)',
-              lineHeight:1.7, margin:0, maxWidth:'360px',
-              fontWeight:400, letterSpacing:'0.01em',
+              fontSize:'clamp(14px,1.15vw,16px)', color:'rgba(255,255,255,0.82)',
+              lineHeight:1.72, margin:0, maxWidth:'380px',
+              fontWeight:400, letterSpacing:'0.008em',
             }}>
-              Crie seu perfil e faça parte da evolução.
+              Crie seu perfil, compartilhe seus melhores momentos e conecte-se com treinadores,
+              clubes e{' '}
+              <span style={{ color:'#00FF88', fontWeight:500 }}>oportunidades reais.</span>
             </p>
 
-            <div className="h-ctas" style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', gap:'14px', marginTop:'4px' }}>
-              <Link href="/login" style={{
+            {/* Mobile subtitle — hidden on desktop, shown via CSS */}
+            <p className="hero-mob-sub">
+              Crie seu perfil, compartilhe seus melhores momentos e conecte-se com treinadores,
+              clubes e{' '}
+              <span style={{ color:'#00FF88', fontWeight:500 }}>oportunidades reais.</span>
+            </p>
+
+            <div className="h-ctas hero-ctas-wrap" style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', gap:'14px', marginTop:'4px' }}>
+              <Link href="/login" className="hero-cta-primary" style={{
                 display:'inline-flex', alignItems:'center', justifyContent:'center',
                 width:'220px',
                 background:'#00FF88', color:'#030805', fontWeight:800, fontSize:'16px',
@@ -159,9 +434,10 @@ export default function LandingPage() {
                 letterSpacing:'0.06em',
                 boxShadow:'0 0 32px rgba(0,255,136,0.28), 0 4px 16px rgba(0,0,0,0.4)',
               }}>
+                <span className="hero-bolt" aria-hidden>⚡</span>
                 ENTRAR
               </Link>
-              <Link href="/ranking" style={{
+              <Link href="/ranking" className="hero-cta-secondary" style={{
                 display:'inline-flex', alignItems:'center', justifyContent:'center',
                 width:'220px',
                 fontSize:'14px', fontWeight:700, color:'rgba(255,255,255,0.75)',
@@ -171,6 +447,24 @@ export default function LandingPage() {
               }}>
                 VER RANKING →
               </Link>
+            </div>
+
+            {/* Social proof card — mobile only, hidden on desktop via CSS */}
+            <div className="hero-social h-social">
+              <div className="hero-avatars">
+                {[
+                  { init:'RF', bg:'#1a6b3c' },
+                  { init:'MC', bg:'#1e3a5f' },
+                  { init:'LS', bg:'#5f1e3a' },
+                  { init:'PA', bg:'#3a5f1e' },
+                  { init:'GV', bg:'#3a1e5f' },
+                ].map(({ init, bg }) => (
+                  <div key={init} className="hero-av" style={{ background: bg }}>{init}</div>
+                ))}
+              </div>
+              <p className="hero-social-txt">
+                Mais de <strong>25.000</strong> atletas já estão no MeuCraque
+              </p>
             </div>
           </div>
 

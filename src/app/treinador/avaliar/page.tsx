@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
+import TreinadorBottomNav from '@/components/TreinadorBottomNav'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -305,14 +306,17 @@ export default function AvaliarPage() {
   return (
     <main style={{
       background: '#030a05',
-      minHeight: '100svh',
+      minHeight: '100dvh',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      padding: '28px 20px 60px',
+      padding: '28px 20px',
+      paddingTop: 'max(28px, env(safe-area-inset-top))',
+      paddingBottom: 'calc(80px + env(safe-area-inset-bottom))',
       fontFamily: 'system-ui, sans-serif',
       position: 'relative',
       overflow: 'hidden',
+      overscrollBehaviorY: 'none',
     }}>
 
       <style>{`
@@ -344,25 +348,27 @@ export default function AvaliarPage() {
         .seg-btn:hover { filter: brightness(1.25); }
 
         .btn-primary {
-          width:100%; padding:16px; border-radius:14px; border:none;
+          width:100%; padding:17px; border-radius:14px; border:none;
           background: linear-gradient(135deg,#00e87a,#00FF88 55%,#22c55e);
-          color:#020d04; font-weight:900; font-size:16px;
+          color:#020d04; font-weight:900; font-size:16px; min-height:56px;
           cursor:pointer; font-family:system-ui,sans-serif; letter-spacing:0.04em;
           box-shadow:0 0 40px rgba(0,255,136,0.3),0 4px 16px rgba(0,0,0,0.4),
                      inset 0 1px 0 rgba(255,255,255,0.25);
           transition:opacity .2s,transform .15s;
         }
         .btn-primary:disabled { opacity:.45; cursor:not-allowed; }
-        .btn-primary:active:not(:disabled) { opacity:.88; transform:scale(0.98); }
+        .btn-primary:active:not(:disabled) { opacity:.88; transform:scale(0.97); transition:transform .08s,opacity .08s; }
 
         .btn-ghost {
-          width:100%; padding:13px; border-radius:13px;
+          width:100%; padding:15px; border-radius:13px;
           border:1px solid rgba(255,255,255,0.09); background:transparent;
           color:rgba(255,255,255,0.4); font-size:14px; font-weight:600;
           cursor:pointer; font-family:system-ui,sans-serif;
-          transition:border-color .2s,color .2s;
+          min-height:52px;
+          transition:border-color .2s,color .2s,transform .08s;
         }
-        .btn-ghost:hover { border-color:rgba(255,255,255,0.2); color:rgba(255,255,255,0.65); }
+        .btn-ghost:hover  { border-color:rgba(255,255,255,0.2); color:rgba(255,255,255,0.65); }
+        .btn-ghost:active { transform:scale(.98); opacity:.85; }
       `}</style>
 
       {/* Atmosphere */}
@@ -759,8 +765,8 @@ export default function AvaliarPage() {
                   boxSizing:'border-box', borderRadius:'14px',
                   background:'rgba(255,255,255,0.04)',
                   border:'1px solid rgba(255,255,255,0.09)',
-                  color:'rgba(255,255,255,0.75)', fontSize:'14px', lineHeight:1.7,
-                  fontFamily:'system-ui, sans-serif',
+                  color:'rgba(255,255,255,0.75)', fontSize:'16px', lineHeight:1.7,
+                  fontFamily:'system-ui, sans-serif', transition:'border-color .2s',
                 }}
               />
             </div>
@@ -952,6 +958,7 @@ export default function AvaliarPage() {
         )}
 
       </div>
+      <TreinadorBottomNav />
     </main>
   )
 }

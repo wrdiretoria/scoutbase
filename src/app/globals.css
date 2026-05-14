@@ -24,3 +24,72 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ─────────────────────────────────────────────────────────────
+   Mobile polish — applies globally to all MeuCraque pages
+───────────────────────────────────────────────────────────── */
+
+/* Tap highlight — remove the blue flash on iOS/Android */
+*, *::before, *::after {
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+html {
+  /* Smooth anchor scrolling */
+  scroll-behavior: smooth;
+  /* Prevent iOS auto-zoom on orientation change */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  /* Prevent overscroll rubber-band bleed on dark pages */
+  overscroll-behavior-y: none;
+  /* Crisp text everywhere */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Hide scrollbars — cleaner mobile feel */
+::-webkit-scrollbar { display: none; }
+* { scrollbar-width: none; }
+
+/* Instant touch response — no 300ms delay */
+button, a, [role="button"] {
+  touch-action: manipulation;
+}
+
+/* ── Skeleton shimmer ───────────────────────────────────────
+   Use className="skel" on placeholder divs during loading.
+   No additional props needed — radius via inline style.
+─────────────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -300% 0 }
+  100% { background-position: 300% 0 }
+}
+
+.skel {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.03)  0%,
+    rgba(255,255,255,0.08)  50%,
+    rgba(255,255,255,0.03)  100%
+  );
+  background-size: 300% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+/* ── Fade-reveal — reusable entry animation ─────────────── */
+@keyframes fadeReveal {
+  from { opacity: 0; transform: translateY(8px) }
+  to   { opacity: 1; transform: translateY(0) }
+}
+
+/* ── Press feedback — works on all interactive elements ─── */
+.press:active {
+  transform: scale(0.97);
+  opacity: 0.88;
+  transition: transform 0.08s ease, opacity 0.08s ease;
+}

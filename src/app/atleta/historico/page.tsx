@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
+import AtletaBottomNav from '@/components/AtletaBottomNav'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -35,6 +36,18 @@ type AvaliacaoCompleta = {
   treinador_nome:      string
 }
 
+type Plataforma = 'youtube' | 'tiktok' | 'instagram' | 'vimeo'
+
+type Highlight = {
+  id:            string
+  url:           string
+  plataforma:    Plataforma
+  titulo:        string | null
+  thumbnail_url: string | null
+  video_id:      string
+  created_at:    string
+}
+
 type EventoCriacao = {
   tipo:    'criacao'
   date:    string
@@ -47,7 +60,27 @@ type EventoAvaliacao = {
   ovrAvDepois: number
   isFirst:     boolean
 }
-type Evento = EventoCriacao | EventoAvaliacao
+type EventoHighlight = {
+  tipo: 'highlight'
+  date: string
+  hl:   Highlight
+}
+type Evento = EventoCriacao | EventoAvaliacao | EventoHighlight
+
+function getPlatformInfo(p: Plataforma): { label: string; bg: string } {
+  return {
+    youtube:   { label: 'YouTube',   bg: '#FF0000' },
+    tiktok:    { label: 'TikTok',    bg: '#010101' },
+    instagram: { label: 'Instagram', bg: '#E1306C' },
+    vimeo:     { label: 'Vimeo',     bg: '#1AB7EA' },
+  }[p]
+}
+
+function getThumbnail(hl: Highlight): string {
+  if (hl.thumbnail_url) return hl.thumbnail_url
+  if (hl.plataforma === 'youtube') return `https://img.youtube.com/vi/${hl.video_id}/hqdefault.jpg`
+  return ''
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -112,6 +145,7 @@ export default function AtletaHistoricoPage() {
 
   const [dados,      setDados]      = useState<DadosPerfil | null>(null)
   const [avaliacoes, setAvaliacoes] = useState<AvaliacaoCompleta[]>([])
+  const [highlights, setHighlights] = useState<Highlight[]>([])
   const [loading,    setLoading]    = useState(true)
 
   useEffect(() => {
@@ -169,6 +203,16 @@ export default function AtletaHistoricoPage() {
         }
       } catch { /* tabela ainda não criada */ }
 
+      // ── Highlights ──
+      try {
+        const res = await fetch('/api/atleta/highlights')
+        if (res.ok) {
+          const json = await res.json() as { highlights: Highlight[] }
+          // API retorna em DESC, vamos deixar em ASC para misturar na timeline
+          setHighlights((json.highlights ?? []).reverse())
+        }
+      } catch { /* tabela highlights não criada ainda */ }
+
       setLoading(false)
     }
     load()
@@ -183,11 +227,43 @@ export default function AtletaHistoricoPage() {
 
   const animOvr = useCounter(ovrTotal, 400, 1000)
 
-  // ── Loading ───────────────────────────────────────────────────────────────
+  // ── Loading — skeleton ───────────────────────────────────────────────────
   if (loading) {
     return (
-      <main style={{ background:'#06100a', minHeight:'100svh', display:'flex', alignItems:'center', justifyContent:'center' }}>
-        <p style={{ color:'rgba(255,255,255,0.25)', fontFamily:'system-ui', fontSize:'14px' }}>Carregando trajetória…</p>
+      <main style={{ background:'#06100a', minHeight:'100dvh', fontFamily:'system-ui, sans-serif' }}>
+        {/* Nav */}
+        <nav style={{ padding:'16px 20px', paddingTop:'calc(16px + env(safe-area-inset-top))', display:'flex', alignItems:'center', borderBottom:'1px solid rgba(255,255,255,0.06)' }}>
+          <div className="skel" style={{ width:52, height:14, borderRadius:6, marginRight:'auto' }} />
+          <div className="skel" style={{ width:72, height:16, borderRadius:6, margin:'0 auto', position:'absolute', left:'50%', transform:'translateX(-50%)' }} />
+          <div style={{ width:60 }} />
+        </nav>
+        <div style={{ maxWidth:'480px', margin:'0 auto', padding:'32px 20px 88px' }}>
+          {/* Hero OVR */}
+          <div style={{ textAlign:'center', marginBottom:44 }}>
+            <div className="skel" style={{ width:60, height:60, borderRadius:'50%', margin:'0 auto 14px' }} />
+            <div className="skel" style={{ width:120, height:14, borderRadius:6, margin:'0 auto 8px' }} />
+            <div className="skel" style={{ width:180, height:26, borderRadius:8, margin:'0 auto 24px' }} />
+            <div className="skel" style={{ width:200, height:108, borderRadius:22, margin:'0 auto', display:'inline-block' }} />
+          </div>
+          {/* Divider */}
+          <div className="skel" style={{ height:1, marginBottom:32 }} />
+          {/* Timeline event 1 */}
+          <div style={{ display:'flex', gap:20, marginBottom:28 }}>
+            <div className="skel" style={{ width:10, height:10, borderRadius:'50%', marginTop:6, flexShrink:0 }} />
+            <div style={{ flex:1 }}>
+              <div className="skel" style={{ width:'40%', height:12, borderRadius:6, marginBottom:8 }} />
+              <div className="skel" style={{ height:90, borderRadius:16 }} />
+            </div>
+          </div>
+          {/* Timeline event 2 */}
+          <div style={{ display:'flex', gap:20, marginBottom:28 }}>
+            <div className="skel" style={{ width:16, height:16, borderRadius:'50%', marginTop:4, flexShrink:0 }} />
+            <div style={{ flex:1 }}>
+              <div className="skel" style={{ width:'35%', height:12, borderRadius:6, marginBottom:8 }} />
+              <div className="skel" style={{ height:220, borderRadius:18 }} />
+            </div>
+          </div>
+        </div>
       </main>
     )
   }
@@ -209,6 +285,13 @@ export default function AtletaHistoricoPage() {
     })
   })
 
+  highlights.forEach(hl => {
+    eventos.push({ tipo: 'highlight', date: hl.created_at, hl })
+  })
+
+  // Ordena cronológico (exceto o criacao que fica no início garantido)
+  eventos.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
   // Profile milestones (unlocked achievements on the profile card)
   const milestones = [
     dados.temFoto   && { icon: '📸', label: 'Foto adicionada' },
@@ -219,7 +302,7 @@ export default function AtletaHistoricoPage() {
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <main style={{ background:'#06100a', minHeight:'100svh', fontFamily:'system-ui, sans-serif', color:'white' }}>
+    <main style={{ background:'#06100a', minHeight:'100dvh', fontFamily:'system-ui, sans-serif', color:'white', overscrollBehaviorY:'none' }}>
 
       <style>{`
         @keyframes fadeUp {
@@ -264,11 +347,13 @@ export default function AtletaHistoricoPage() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 8px 12px;
+          padding: 9px 12px;
           border-radius: 10px;
           background: rgba(255,255,255,0.03);
           border: 1px solid rgba(255,255,255,0.06);
         }
+        /* ── Back link press ── */
+        a[href="/atleta/perfil"]:active { opacity:.7; transition:opacity .1s; }
 
         .bar-track {
           height: 3px;
@@ -298,6 +383,7 @@ export default function AtletaHistoricoPage() {
       <nav style={{
         position:'relative', zIndex:1,
         padding:'16px 20px',
+        paddingTop:'calc(16px + env(safe-area-inset-top))',
         display:'flex', alignItems:'center',
         borderBottom:'1px solid rgba(255,255,255,0.06)',
       }}>
@@ -318,7 +404,7 @@ export default function AtletaHistoricoPage() {
         <div style={{ width:'60px' }} />
       </nav>
 
-      <div style={{ position:'relative', zIndex:1, maxWidth:'480px', margin:'0 auto', padding:'32px 20px 88px' }}>
+      <div style={{ position:'relative', zIndex:1, maxWidth:'480px', margin:'0 auto', padding:'32px 20px', paddingBottom:'calc(88px + env(safe-area-inset-bottom))' }}>
 
         {/* ══════════════════════════════════════
             HERO — OVR + Identidade
@@ -706,6 +792,91 @@ export default function AtletaHistoricoPage() {
                 )
               }
 
+              /* ── HIGHLIGHT ── */
+              if (ev.tipo === 'highlight') {
+                const { hl } = ev
+                const platform = getPlatformInfo(hl.plataforma)
+                const thumb = getThumbnail(hl)
+
+                return (
+                  <div key={`hl-${hl.id}`} className={evClass} style={{ display:'flex', gap:'20px', paddingBottom:'28px' }}>
+
+                    {/* Dot — médio, colorido com a cor da plataforma */}
+                    <div style={{ flexShrink:0, width:'28px', display:'flex', justifyContent:'center', paddingTop:'4px' }}>
+                      <div style={{
+                        width:'12px', height:'12px', borderRadius:'50%',
+                        background: platform.bg,
+                        border:`2px solid ${platform.bg}66`,
+                        boxShadow:`0 0 10px ${platform.bg}55`,
+                      }} />
+                    </div>
+
+                    {/* Card */}
+                    <div style={{ flex:1 }}>
+                      <p style={{ margin:'0 0 6px', fontSize:'11px', fontWeight:600, color:'rgba(255,255,255,0.28)', letterSpacing:'0.03em' }}>
+                        {formatarData(hl.created_at)}
+                      </p>
+
+                      <a href={hl.url} target="_blank" rel="noreferrer" style={{ textDecoration:'none', display:'block' }}>
+                        <div style={{
+                          borderRadius:'14px', overflow:'hidden',
+                          background:'rgba(255,255,255,0.025)',
+                          border:'1px solid rgba(255,255,255,0.08)',
+                          transition:'border-color .2s',
+                        }}>
+                          {/* Thumbnail compacta */}
+                          <div style={{ position:'relative', aspectRatio:'16/9', background:'#0a120e', maxHeight:'120px', overflow:'hidden' }}>
+                            {thumb ? (
+                              <img src={thumb} alt={hl.titulo ?? platform.label} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                            ) : (
+                              <div style={{
+                                width:'100%', height:'100%',
+                                background:`linear-gradient(135deg,${platform.bg}22,rgba(0,0,0,0.5))`,
+                                display:'flex', alignItems:'center', justifyContent:'center',
+                                fontSize:'28px',
+                              }}>
+                                🎬
+                              </div>
+                            )}
+                            {/* Platform badge */}
+                            <div style={{
+                              position:'absolute', top:'6px', left:'6px',
+                              padding:'2px 7px', borderRadius:'100px', background: platform.bg,
+                            }}>
+                              <span style={{ fontSize:'9px', fontWeight:800, color:'white' }}>{platform.label}</span>
+                            </div>
+                            {/* Play icon overlay */}
+                            <div style={{
+                              position:'absolute', inset:0,
+                              display:'flex', alignItems:'center', justifyContent:'center',
+                              background:'rgba(0,0,0,0.2)',
+                            }}>
+                              <div style={{
+                                width:'32px', height:'32px', borderRadius:'50%',
+                                background:'rgba(0,0,0,0.6)',
+                                display:'flex', alignItems:'center', justifyContent:'center',
+                                border:'1px solid rgba(255,255,255,0.2)',
+                              }}>
+                                <span style={{ fontSize:'12px', marginLeft:'2px' }}>▶</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Footer */}
+                          <div style={{ padding:'8px 12px', display:'flex', alignItems:'center', gap:'8px' }}>
+                            <div style={{ width:'6px', height:'6px', borderRadius:'50%', background: platform.bg, flexShrink:0 }} />
+                            <p style={{ margin:0, flex:1, fontSize:'11px', fontWeight:600, color:'rgba(255,255,255,0.42)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+                              {hl.titulo ?? `Highlight · ${platform.label}`}
+                            </p>
+                            <span style={{ fontSize:'12px', color:'rgba(255,255,255,0.2)', flexShrink:0 }}>↗</span>
+                          </div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                )
+              }
+
               return null
             })}
 
@@ -791,6 +962,7 @@ export default function AtletaHistoricoPage() {
         </p>
 
       </div>
+      <AtletaBottomNav />
     </main>
   )
 }

@@ -117,9 +117,10 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
   }
 
   const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '12px 16px', borderRadius: '12px', boxSizing: 'border-box',
+    width: '100%', padding: '14px 16px', borderRadius: '12px', boxSizing: 'border-box',
     background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-    color: 'white', fontSize: '15px', outline: 'none', fontFamily: 'system-ui, sans-serif',
+    color: 'white', fontSize: '16px', outline: 'none', fontFamily: 'system-ui, sans-serif',
+    transition: 'border-color .2s, box-shadow .2s',
   }
   const labelStyle: React.CSSProperties = {
     display: 'block', fontSize: '12px', fontWeight: 700,
@@ -129,9 +130,13 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
 
   return (
     <main style={{
-      background: '#06100a', minHeight: '100vh',
+      background: '#06100a', minHeight: '100dvh',
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      padding: '24px', fontFamily: 'system-ui, sans-serif',
+      padding: '24px',
+      paddingTop: 'max(24px, env(safe-area-inset-top))',
+      paddingBottom: 'max(32px, env(safe-area-inset-bottom))',
+      fontFamily: 'system-ui, sans-serif',
+      overscrollBehaviorY: 'none',
     }}>
       <div style={{ width: '100%', maxWidth: '380px' }}>
 
@@ -345,8 +350,10 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
             {error && <p style={{ margin: 0, padding: '10px 14px', borderRadius: '10px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '13px', color: '#f87171' }}>{error}</p>}
 
             <button type="submit" style={{
-              padding: '14px', borderRadius: '14px', border: 'none', cursor: 'pointer',
+              padding: '16px', borderRadius: '14px', border: 'none', cursor: 'pointer',
               background: '#22c55e', color: 'black', fontWeight: 800, fontSize: '16px', marginTop: '4px',
+              minHeight: '56px', transition: 'transform .08s, opacity .1s',
+              boxShadow: '0 0 28px rgba(34,197,94,0.2)',
             }}>
               Continuar →
             </button>
@@ -406,10 +413,12 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
             <button
               type="submit" disabled={loading}
               style={{
-                padding: '14px', borderRadius: '14px', border: 'none',
+                padding: '16px', borderRadius: '14px', border: 'none',
                 cursor: loading ? 'not-allowed' : 'pointer',
                 background: '#22c55e', color: 'black', fontWeight: 800, fontSize: '16px',
                 opacity: loading ? 0.6 : 1, marginTop: '4px',
+                minHeight: '56px', transition: 'transform .08s, opacity .15s',
+                boxShadow: '0 0 28px rgba(34,197,94,0.2)',
               }}
             >
               {loading ? 'Criando perfil…' : '🔥 Entrar no jogo'}

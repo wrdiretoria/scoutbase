@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
+import AtletaBottomNav from '@/components/AtletaBottomNav'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -125,6 +126,59 @@ type Avaliacao = {
   treinador_id:        string
 }
 
+// ── Highlights ────────────────────────────────────────────────────────────────
+
+type Plataforma = 'youtube' | 'tiktok' | 'instagram' | 'vimeo'
+
+type Highlight = {
+  id:            string
+  url:           string
+  plataforma:    Plataforma
+  titulo:        string | null
+  thumbnail_url: string | null
+  video_id:      string
+  created_at:    string
+}
+
+type ParsedVideo = { plataforma: Plataforma; videoId: string; thumbnail: string }
+
+function parseVideoUrl(raw: string): ParsedVideo | null {
+  const url = raw.trim()
+  const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
+  if (yt) return { plataforma: 'youtube', videoId: yt[1], thumbnail: `https://img.youtube.com/vi/${yt[1]}/hqdefault.jpg` }
+  const vi = url.match(/vimeo\.com\/(?:video\/)?(\d+)/)
+  if (vi) return { plataforma: 'vimeo', videoId: vi[1], thumbnail: '' }
+  const tt = url.match(/tiktok\.com\/@[\w.]+\/video\/(\d+)/)
+  if (tt) return { plataforma: 'tiktok', videoId: tt[1], thumbnail: '' }
+  const ig = url.match(/instagram\.com\/(?:reel|p|tv)\/([a-zA-Z0-9_-]+)/)
+  if (ig) return { plataforma: 'instagram', videoId: ig[1], thumbnail: '' }
+  return null
+}
+
+function getEmbedUrl(plataforma: Plataforma, videoId: string): string {
+  switch (plataforma) {
+    case 'youtube':   return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`
+    case 'vimeo':     return `https://player.vimeo.com/video/${videoId}?autoplay=1`
+    case 'tiktok':    return `https://www.tiktok.com/embed/v2/${videoId}`
+    case 'instagram': return `https://www.instagram.com/p/${videoId}/embed/`
+  }
+}
+
+function getPlatformInfo(p: Plataforma): { label: string; bg: string } {
+  return {
+    youtube:   { label: 'YouTube',   bg: '#FF0000' },
+    tiktok:    { label: 'TikTok',    bg: '#010101' },
+    instagram: { label: 'Instagram', bg: '#E1306C' },
+    vimeo:     { label: 'Vimeo',     bg: '#1AB7EA' },
+  }[p]
+}
+
+function getThumbnail(hl: Highlight): string {
+  if (hl.thumbnail_url) return hl.thumbnail_url
+  if (hl.plataforma === 'youtube') return `https://img.youtube.com/vi/${hl.video_id}/hqdefault.jpg`
+  return ''
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function AtletaPerfilPage() {
@@ -147,6 +201,16 @@ export default function AtletaPerfilPage() {
   const [saving,  setSaving]  = useState(false)
   const [saved,   setSaved]   = useState(false)
   const [saveErr, setSaveErr] = useState<string | null>(null)
+
+  // ── Highlights state ──
+  const [highlights,    setHighlights]    = useState<Highlight[]>([])
+  const [showAddHL,     setShowAddHL]     = useState(false)
+  const [hlUrl,         setHlUrl]         = useState('')
+  const [hlParsed,      setHlParsed]      = useState<ParsedVideo | null>(null)
+  const [addingHL,      setAddingHL]      = useState(false)
+  const [hlError,       setHlError]       = useState<string | null>(null)
+  const [playingHlId,   setPlayingHlId]   = useState<string | null>(null)
+  const [deletingHlId,  setDeletingHlId]  = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -206,6 +270,15 @@ export default function AtletaPerfilPage() {
         }
       } catch { /* tabela avaliacoes não criada ainda — ignorar */ }
 
+      // ── Highlights ──
+      try {
+        const res = await fetch('/api/atleta/highlights')
+        if (res.ok) {
+          const json = await res.json() as { highlights: Highlight[] }
+          setHighlights(json.highlights ?? [])
+        }
+      } catch { /* tabela highlights não criada ainda — ignorar */ }
+
       setLoading(false)
     }
     load()
@@ -223,12 +296,47 @@ export default function AtletaPerfilPage() {
 
   // ── Próximo Passo — sugestões baseadas no estado do perfil ────
   const passos: { icon: string; titulo: string; sub: string }[] = []
-  if (!avaliacao)  passos.push({ icon: '📋', titulo: 'Receba uma avaliação oficial',  sub: 'Compartilhe seu ID com um treinador certificado' })
-  if (!temFoto)    passos.push({ icon: '📸', titulo: 'Adicione uma foto ao perfil',   sub: 'Perfis com foto têm muito mais visibilidade' })
-  if (!temBio)     passos.push({ icon: '📝', titulo: 'Escreva sua apresentação',       sub: 'Conte quem você é como atleta' })
-  if (!temFisico)  passos.push({ icon: '💪', titulo: 'Complete seus dados físicos',    sub: 'Altura, peso e pé dominante' })
-  if (!temClube)   passos.push({ icon: '⚽', titulo: 'Informe seu clube atual',        sub: 'Mostre onde você joga agora' })
+  if (!avaliacao)           passos.push({ icon: '📋', titulo: 'Receba uma avaliação oficial',  sub: 'Compartilhe seu ID com um treinador certificado' })
+  if (highlights.length === 0) passos.push({ icon: '🎬', titulo: 'Adicione um highlight',       sub: 'Cole o link de um vídeo seu no YouTube, TikTok ou Instagram' })
+  if (!temFoto)             passos.push({ icon: '📸', titulo: 'Adicione uma foto ao perfil',   sub: 'Perfis com foto têm muito mais visibilidade' })
+  if (!temBio)              passos.push({ icon: '📝', titulo: 'Escreva sua apresentação',       sub: 'Conte quem você é como atleta' })
+  if (!temFisico)           passos.push({ icon: '💪', titulo: 'Complete seus dados físicos',    sub: 'Altura, peso e pé dominante' })
+  if (!temClube)            passos.push({ icon: '⚽', titulo: 'Informe seu clube atual',        sub: 'Mostre onde você joga agora' })
   const passosPrioritarios = passos.slice(0, 2)
+
+  // ── Highlights handlers ──────────────────────────────────────
+  function handleHlUrlChange(v: string) {
+    setHlUrl(v)
+    setHlError(null)
+    setHlParsed(parseVideoUrl(v))
+  }
+
+  async function handleAddHL() {
+    if (!hlParsed) { setHlError('URL não reconhecida. Use YouTube, TikTok, Instagram ou Vimeo.'); return }
+    setAddingHL(true); setHlError(null)
+    try {
+      const res = await fetch('/api/atleta/highlights', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: hlUrl }),
+      })
+      const json = await res.json() as { highlight?: Highlight; error?: string }
+      if (!res.ok || !json.highlight) { setHlError(json.error ?? 'Erro ao adicionar.'); return }
+      setHighlights(prev => [json.highlight!, ...prev])
+      setHlUrl(''); setHlParsed(null); setShowAddHL(false)
+    } catch { setHlError('Erro de conexão. Tente novamente.') }
+    finally { setAddingHL(false) }
+  }
+
+  async function handleDeleteHL(id: string) {
+    setDeletingHlId(id)
+    try {
+      await fetch(`/api/atleta/highlights/${id}`, { method: 'DELETE' })
+      setHighlights(prev => prev.filter(h => h.id !== id))
+      if (playingHlId === id) setPlayingHlId(null)
+    } catch { /* silencia */ }
+    finally { setDeletingHlId(null) }
+  }
 
   // ── Salvar currículo ──────────────────────────────────────────
   async function handleSave(e: React.FormEvent) {
@@ -255,11 +363,40 @@ export default function AtletaPerfilPage() {
     setSaving(false)
   }
 
-  // ── Loading ──────────────────────────────────────────────────
+  // ── Loading — skeleton ───────────────────────────────────────
   if (loading) {
     return (
-      <main style={{ background: '#06100a', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p style={{ color: 'rgba(255,255,255,0.3)', fontFamily: 'system-ui' }}>Carregando perfil…</p>
+      <main style={{ background: '#06100a', minHeight: '100dvh', fontFamily: 'system-ui, sans-serif' }}>
+        {/* Nav */}
+        <nav style={{ padding: '16px 24px', paddingTop: 'calc(16px + env(safe-area-inset-top))', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <span style={{ fontSize: '16px', fontWeight: 800, color: 'white' }}>⚽ MEU <span style={{ color: '#22c55e' }}>CRAQUE</span></span>
+          <div className="skel" style={{ width: 32, height: 12, borderRadius: 6 }} />
+        </nav>
+        <div style={{ maxWidth: '480px', margin: '0 auto', padding: '28px 20px 80px' }}>
+          {/* Header card */}
+          <div style={{ borderRadius: '20px', background: '#0b1610', border: '1px solid rgba(34,197,94,0.08)', marginBottom: 16, overflow: 'hidden' }}>
+            <div className="skel" style={{ height: 110, borderRadius: 0 }} />
+            <div style={{ padding: '28px 20px 22px' }}>
+              <div className="skel" style={{ width: '52%', height: 20, marginBottom: 10 }} />
+              <div className="skel" style={{ width: '36%', height: 13, marginBottom: 24 }} />
+              <div className="skel" style={{ width: '100%', height: 5, borderRadius: 3, marginBottom: 8 }} />
+              <div className="skel" style={{ width: '100%', height: 5, borderRadius: 3 }} />
+            </div>
+          </div>
+          {/* ID card */}
+          <div className="skel" style={{ height: 76, borderRadius: 16, marginBottom: 16 }} />
+          {/* Stats grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 24 }}>
+            <div className="skel" style={{ height: 80, borderRadius: 14 }} />
+            <div className="skel" style={{ height: 80, borderRadius: 14 }} />
+          </div>
+          {/* Trajectory button */}
+          <div className="skel" style={{ height: 66, borderRadius: 16, marginBottom: 24 }} />
+          {/* Form area */}
+          <div className="skel" style={{ height: 44, borderRadius: 10, marginBottom: 16 }} />
+          <div className="skel" style={{ height: 44, borderRadius: 10, marginBottom: 16 }} />
+          <div className="skel" style={{ height: 52, borderRadius: 14, marginBottom: 8 }} />
+        </div>
       </main>
     )
   }
@@ -270,9 +407,10 @@ export default function AtletaPerfilPage() {
   const pos       = posAbrev(meta.posicao)
 
   const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '11px 14px', borderRadius: '10px', boxSizing: 'border-box',
+    width: '100%', padding: '13px 14px', borderRadius: '10px', boxSizing: 'border-box',
     background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)',
-    color: 'white', fontSize: '14px', outline: 'none', fontFamily: 'system-ui, sans-serif',
+    color: 'white', fontSize: '16px', outline: 'none', fontFamily: 'system-ui, sans-serif',
+    transition: 'border-color .2s, box-shadow .2s',
   }
   const labelStyle: React.CSSProperties = {
     display: 'block', fontSize: '11px', fontWeight: 700,
@@ -283,10 +421,10 @@ export default function AtletaPerfilPage() {
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <main style={{ background: '#06100a', minHeight: '100vh', fontFamily: 'system-ui, sans-serif', color: 'white' }}>
+    <main style={{ background: '#06100a', minHeight: '100dvh', fontFamily: 'system-ui, sans-serif', color: 'white', overscrollBehaviorY: 'none' }}>
       <style>{`
         @keyframes barGrow  { from{width:0} to{width:var(--w)} }
-        @keyframes fadeUp   { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes fadeUp   { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
         @keyframes glowPulse {
           0%,100%{ box-shadow:0 0 0 2px rgba(0,255,136,0.15) }
           50%    { box-shadow:0 0 0 2px rgba(0,255,136,0.38), 0 0 24px rgba(0,255,136,0.12) }
@@ -295,47 +433,75 @@ export default function AtletaPerfilPage() {
           0%,100%{ opacity:1; transform:scale(1)  }
           50%    { opacity:.4; transform:scale(.65)}
         }
-        .avaliacao-card { animation: fadeUp .5s ease forwards; }
+        .avaliacao-card { animation: fadeUp .45s ease forwards; }
         .action-btn {
-          display:flex; align-items:center; gap:10px; padding:14px 18px; border-radius:14px;
+          display:flex; align-items:center; gap:10px; padding:15px 18px; border-radius:14px;
           border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.03);
           color:white; text-decoration:none; font-size:14px; font-weight:600;
           transition:border-color 0.2s,background 0.2s; cursor:pointer;
+          min-height:52px;
         }
-        .action-btn:hover { border-color:rgba(34,197,94,0.3); background:rgba(34,197,94,0.05); }
+        .action-btn:hover  { border-color:rgba(34,197,94,0.3); background:rgba(34,197,94,0.05); }
+        .action-btn:active { transform:scale(.98); opacity:.88; transition:transform .08s,opacity .08s; }
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance:none; }
         select option { background:#0b1610; }
         textarea { resize:none; }
-        textarea:focus,input:focus,select:focus { border-color:rgba(0,255,136,0.25) !important; outline:none; }
+        textarea:focus,input:focus,select:focus { border-color:rgba(0,255,136,0.3) !important; outline:none; box-shadow:0 0 0 3px rgba(0,255,136,0.08) !important; }
         @keyframes revealUp {
-          from { opacity:0; transform:translateY(10px) }
+          from { opacity:0; transform:translateY(8px) }
           to   { opacity:1; transform:translateY(0) }
         }
         .traj-btn {
-          display:flex; align-items:center; gap:14px; padding:14px 18px; border-radius:16px;
+          display:flex; align-items:center; gap:14px; padding:15px 18px; border-radius:16px;
           border:1px solid rgba(255,255,255,0.09); background:rgba(255,255,255,0.025);
           color:white; text-decoration:none; width:100%; box-sizing:border-box;
           transition:border-color .2s, background .2s;
+          min-height:58px;
         }
-        .traj-btn:hover { border-color:rgba(0,255,136,0.28); background:rgba(0,255,136,0.04); }
+        .traj-btn:hover  { border-color:rgba(0,255,136,0.28); background:rgba(0,255,136,0.04); }
+        .traj-btn:active { transform:scale(.98); opacity:.9; transition:transform .08s,opacity .08s; }
         .share-btn {
-          width:100%; padding:16px 18px; border-radius:14px;
+          width:100%; padding:17px 18px; border-radius:14px;
           border:1.5px solid rgba(0,255,136,0.28); background:rgba(0,255,136,0.06);
-          color:white; font-weight:700; font-size:14px; cursor:pointer;
+          color:white; font-weight:700; font-size:15px; cursor:pointer;
           font-family:system-ui,sans-serif;
           display:flex; align-items:center; gap:12px;
           transition:border-color .2s, background .2s, box-shadow .2s;
+          min-height:56px;
         }
-        .share-btn:hover { border-color:rgba(0,255,136,0.45); background:rgba(0,255,136,0.1); box-shadow:0 0 28px rgba(0,255,136,0.1); }
-        .share-btn:active { transform:scale(.98); }
+        .share-btn:hover  { border-color:rgba(0,255,136,0.45); background:rgba(0,255,136,0.1); box-shadow:0 0 28px rgba(0,255,136,0.1); }
+        .share-btn:active { transform:scale(.97); opacity:.9; transition:transform .08s,opacity .08s; }
         .passo-item {
-          display:flex; align-items:center; gap:14px; padding:14px 16px;
+          display:flex; align-items:center; gap:14px; padding:15px 16px;
           border-radius:14px; transition:border-color .2s, background .2s;
         }
+        .passo-item:active { transform:scale(.99); opacity:.9; }
+        @keyframes hlReveal {
+          from { opacity:0; transform:translateY(8px) }
+          to   { opacity:1; transform:translateY(0) }
+        }
+        .hl-card { animation: hlReveal .35s ease forwards; }
+        .hl-del-btn {
+          background:none; border:none; cursor:pointer; padding:6px 8px; border-radius:8px;
+          color:rgba(255,255,255,0.22); font-size:14px; line-height:1;
+          transition:color .15s, background .15s;
+        }
+        .hl-del-btn:hover { color:#ef4444; background:rgba(239,68,68,0.1); }
+        .hl-add-input {
+          width:100%; padding:11px 14px; border-radius:10px; box-sizing:border-box;
+          background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1);
+          color:white; font-size:16px; outline:none; font-family:system-ui,sans-serif;
+          transition:border-color .2s;
+        }
+        .hl-add-input:focus { border-color:rgba(0,255,136,0.3); }
+        .hl-add-input::placeholder { color:rgba(255,255,255,0.2); }
+        .hl-add-input:focus { border-color:rgba(0,255,136,0.3); box-shadow:0 0 0 3px rgba(0,255,136,0.08); }
+        /* Save button */
+        button[type=submit]:active { transform:scale(.98); opacity:.88; transition:transform .08s; }
       `}</style>
 
       {/* ── Nav ── */}
-      <nav style={{ padding:'16px 24px', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'1px solid rgba(255,255,255,0.06)' }}>
+      <nav style={{ padding:'16px 24px', paddingTop:'calc(16px + env(safe-area-inset-top))', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'1px solid rgba(255,255,255,0.06)' }}>
         <Link href="/" style={{ fontSize:'16px', fontWeight:800, color:'white', textDecoration:'none', letterSpacing:'0.03em' }}>
           ⚽ MEU <span style={{ color:'#22c55e' }}>CRAQUE</span>
         </Link>
@@ -347,7 +513,7 @@ export default function AtletaPerfilPage() {
         </button>
       </nav>
 
-      <div style={{ maxWidth:'480px', margin:'0 auto', padding:'28px 20px 80px' }}>
+      <div style={{ maxWidth:'480px', margin:'0 auto', padding:'28px 20px', paddingBottom:'calc(80px + env(safe-area-inset-bottom))' }}>
 
         {/* ── Header card ── */}
         <div style={{
@@ -869,7 +1035,6 @@ export default function AtletaPerfilPage() {
                 Premium — em breve
               </p>
               {[
-                { icon:'🎬', label:'Vídeo destaque',           desc:'Seus melhores momentos em campo' },
                 { icon:'📊', label:'Estatísticas da temporada', desc:'Gols, assistências, jogos disputados' },
                 { icon:'✅', label:'Badge verificado',          desc:'Selo que scouts e clubes confiam' },
               ].map(item => (
@@ -904,12 +1069,214 @@ export default function AtletaPerfilPage() {
               cursor:saving ? 'not-allowed' : 'pointer',
               background:saved ? '#16a34a' : '#22c55e',
               color:'black', fontWeight:800, fontSize:'15px',
+              minHeight:'48px',
               opacity:saving ? 0.7 : 1, transition:'background 0.2s', marginBottom:'24px',
             }}
           >
             {saving ? 'Salvando…' : saved ? '✓ Salvo!' : 'Salvar currículo'}
           </button>
         </form>
+
+        {/* ══════════════════════════════════════════
+            HIGHLIGHTS — vídeos via link
+        ══════════════════════════════════════════ */}
+        <div style={{ marginBottom:'24px' }}>
+
+          {/* Header */}
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'12px' }}>
+            <div>
+              <p style={{ margin:'0 0 2px', fontSize:'12px', fontWeight:700, color:'rgba(255,255,255,0.4)', letterSpacing:'0.08em', textTransform:'uppercase' }}>
+                Highlights
+              </p>
+              <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.2)' }}>
+                {highlights.length === 0 ? 'Seus melhores momentos em campo' : `${highlights.length} vídeo${highlights.length > 1 ? 's' : ''} adicionado${highlights.length > 1 ? 's' : ''}`}
+              </p>
+            </div>
+            <button
+              onClick={() => { setShowAddHL(v => !v); setHlUrl(''); setHlParsed(null); setHlError(null) }}
+              style={{
+                padding:'7px 14px', borderRadius:'10px', border:'1px solid rgba(0,255,136,0.3)',
+                background: showAddHL ? 'rgba(0,255,136,0.12)' : 'rgba(0,255,136,0.06)',
+                color:'#00FF88', fontWeight:700, fontSize:'13px', cursor:'pointer',
+                fontFamily:'system-ui,sans-serif',
+              }}
+            >
+              {showAddHL ? '✕ Cancelar' : '＋ Adicionar'}
+            </button>
+          </div>
+
+          {/* Formulário de adição */}
+          {showAddHL && (
+            <div style={{
+              marginBottom:'14px', padding:'16px', borderRadius:'16px',
+              background:'rgba(0,255,136,0.04)', border:'1px solid rgba(0,255,136,0.18)',
+              animation:'revealUp .3s ease forwards',
+            }}>
+              <p style={{ margin:'0 0 10px', fontSize:'11px', fontWeight:700, color:'rgba(255,255,255,0.35)', letterSpacing:'0.06em', textTransform:'uppercase' }}>
+                Cole o link do vídeo
+              </p>
+              <input
+                className="hl-add-input"
+                type="url"
+                value={hlUrl}
+                onChange={e => handleHlUrlChange(e.target.value)}
+                placeholder="YouTube, TikTok, Instagram ou Vimeo…"
+                autoFocus
+              />
+
+              {/* Platform detection badge */}
+              {hlParsed && (
+                <div style={{
+                  marginTop:'8px', display:'inline-flex', alignItems:'center', gap:'6px',
+                  padding:'4px 10px', borderRadius:'100px',
+                  background: getPlatformInfo(hlParsed.plataforma).bg + '22',
+                  border:`1px solid ${getPlatformInfo(hlParsed.plataforma).bg}44`,
+                }}>
+                  <div style={{ width:'6px', height:'6px', borderRadius:'50%', background: getPlatformInfo(hlParsed.plataforma).bg }} />
+                  <span style={{ fontSize:'11px', fontWeight:700, color:'rgba(255,255,255,0.6)' }}>
+                    {getPlatformInfo(hlParsed.plataforma).label} detectado
+                  </span>
+                </div>
+              )}
+
+              {hlError && (
+                <p style={{ margin:'8px 0 0', fontSize:'12px', color:'#f87171' }}>{hlError}</p>
+              )}
+
+              <button
+                onClick={handleAddHL}
+                disabled={addingHL || !hlParsed}
+                style={{
+                  marginTop:'12px', width:'100%', padding:'11px', borderRadius:'10px', border:'none',
+                  background: hlParsed ? '#00FF88' : 'rgba(255,255,255,0.1)',
+                  color: hlParsed ? '#020d04' : 'rgba(255,255,255,0.25)',
+                  fontWeight:800, fontSize:'14px',
+                  cursor: (addingHL || !hlParsed) ? 'not-allowed' : 'pointer',
+                  fontFamily:'system-ui,sans-serif',
+                  opacity: addingHL ? 0.7 : 1,
+                }}
+              >
+                {addingHL ? 'Adicionando…' : 'Adicionar highlight →'}
+              </button>
+            </div>
+          )}
+
+          {/* Cards de highlights */}
+          {highlights.length > 0 && (
+            <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
+              {highlights.map(hl => {
+                const thumb = getThumbnail(hl)
+                const platform = getPlatformInfo(hl.plataforma)
+                const isPlaying = playingHlId === hl.id
+                const isDeleting = deletingHlId === hl.id
+
+                return (
+                  <div key={hl.id} className="hl-card" style={{
+                    borderRadius:'16px', overflow:'hidden',
+                    background:'#0b1610', border:'1px solid rgba(255,255,255,0.08)',
+                  }}>
+                    {/* Thumbnail / embed area — 16:9 */}
+                    <div style={{ position:'relative', aspectRatio:'16/9', background:'#0a120e', cursor:'pointer' }}
+                      onClick={() => !isPlaying && setPlayingHlId(hl.id)}
+                    >
+                      {isPlaying ? (
+                        <iframe
+                          src={getEmbedUrl(hl.plataforma, hl.video_id)}
+                          style={{ width:'100%', height:'100%', border:'none' }}
+                          allow="autoplay; fullscreen; picture-in-picture"
+                          allowFullScreen
+                        />
+                      ) : (
+                        <>
+                          {thumb ? (
+                            <img src={thumb} alt={hl.titulo ?? platform.label} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                          ) : (
+                            <div style={{
+                              width:'100%', height:'100%',
+                              background:`linear-gradient(135deg,${platform.bg}22,rgba(0,0,0,0.6))`,
+                              display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:'6px',
+                            }}>
+                              <div style={{
+                                width:'42px', height:'42px', borderRadius:'50%',
+                                background: platform.bg,
+                                display:'flex', alignItems:'center', justifyContent:'center',
+                                fontSize:'20px',
+                              }}>
+                                ▶
+                              </div>
+                              <span style={{ fontSize:'12px', fontWeight:700, color:'rgba(255,255,255,0.5)' }}>{platform.label}</span>
+                            </div>
+                          )}
+                          {/* Play overlay */}
+                          <div style={{
+                            position:'absolute', inset:0,
+                            display:'flex', alignItems:'center', justifyContent:'center',
+                            background:'rgba(0,0,0,0.25)',
+                          }}>
+                            <div style={{
+                              width:'48px', height:'48px', borderRadius:'50%',
+                              background:'rgba(0,0,0,0.65)', backdropFilter:'blur(6px)',
+                              display:'flex', alignItems:'center', justifyContent:'center',
+                              border:'1.5px solid rgba(255,255,255,0.25)',
+                            }}>
+                              <span style={{ fontSize:'18px', marginLeft:'3px' }}>▶</span>
+                            </div>
+                          </div>
+                          {/* Platform badge */}
+                          <div style={{
+                            position:'absolute', top:'8px', left:'8px',
+                            padding:'3px 8px', borderRadius:'100px',
+                            background: platform.bg,
+                          }}>
+                            <span style={{ fontSize:'9px', fontWeight:800, color:'white', letterSpacing:'0.05em' }}>{platform.label}</span>
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Footer */}
+                    <div style={{ padding:'10px 12px', display:'flex', alignItems:'center', gap:'10px' }}>
+                      <p style={{ margin:0, flex:1, fontSize:'12px', fontWeight:600, color:'rgba(255,255,255,0.5)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+                        {hl.titulo ?? platform.label}
+                      </p>
+                      <a href={hl.url} target="_blank" rel="noreferrer"
+                        style={{ fontSize:'13px', color:'rgba(255,255,255,0.22)', textDecoration:'none', flexShrink:0 }}
+                        title="Abrir original"
+                      >
+                        ↗
+                      </a>
+                      <button
+                        className="hl-del-btn"
+                        onClick={() => handleDeleteHL(hl.id)}
+                        disabled={isDeleting}
+                        title="Remover highlight"
+                      >
+                        {isDeleting ? '…' : '✕'}
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
+          {/* Empty state */}
+          {highlights.length === 0 && !showAddHL && (
+            <div style={{
+              padding:'20px', borderRadius:'16px',
+              background:'rgba(255,255,255,0.02)', border:'1px dashed rgba(255,255,255,0.1)',
+              textAlign:'center',
+            }}>
+              <p style={{ margin:'0 0 6px', fontSize:'20px' }}>🎬</p>
+              <p style={{ margin:'0 0 4px', fontSize:'13px', fontWeight:700, color:'rgba(255,255,255,0.45)' }}>
+                Nenhum highlight ainda
+              </p>
+              <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.2)', lineHeight:1.6 }}>
+                Cole links do YouTube, TikTok, Instagram ou Vimeo
+              </p>
+            </div>
+          )}
+        </div>
 
         {/* ── Ações ── */}
         <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
@@ -940,6 +1307,7 @@ export default function AtletaPerfilPage() {
           </Link>
         </div>
       </div>
+      <AtletaBottomNav />
     </main>
   )
 }

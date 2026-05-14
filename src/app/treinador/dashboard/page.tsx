@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
+import TreinadorBottomNav from '@/components/TreinadorBottomNav'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -196,11 +197,38 @@ export default function TreinadorDashboardPage() {
   const animAt   = useCounter(metricas.totalAtletas)
   const animDest = useCounter(metricas.totalDestaques)
 
-  // ── Loading ────────────────────────────────────────────────────────────────
+  // ── Loading — skeleton ────────────────────────────────────────────────────
   if (loading) {
     return (
-      <main style={{ background:'#030a05', minHeight:'100svh', display:'flex', alignItems:'center', justifyContent:'center' }}>
-        <p style={{ color:'rgba(255,255,255,0.25)', fontFamily:'system-ui', fontSize:'14px' }}>Carregando…</p>
+      <main style={{ background:'#030a05', minHeight:'100dvh', fontFamily:'system-ui, sans-serif' }}>
+        <div style={{ maxWidth:'420px', margin:'0 auto', padding:'0 20px' }}>
+          {/* Nav */}
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'26px 0 20px', paddingTop:'calc(26px + env(safe-area-inset-top))' }}>
+            <div className="skel" style={{ width:130, height:18, borderRadius:6 }} />
+            <div className="skel" style={{ width:38, height:38, borderRadius:'50%' }} />
+          </div>
+          {/* Welcome */}
+          <div style={{ marginBottom:30 }}>
+            <div className="skel" style={{ width:'65%', height:32, borderRadius:8, marginBottom:10 }} />
+            <div className="skel" style={{ width:'45%', height:16, borderRadius:6 }} />
+          </div>
+          {/* 2×2 metrics grid */}
+          <div style={{ marginBottom:22 }}>
+            <div className="skel" style={{ height:12, width:140, borderRadius:6, marginBottom:12 }} />
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1px', borderRadius:20, overflow:'hidden' }}>
+              {[0,1,2,3].map(i => (
+                <div key={i} className="skel" style={{ height:100, borderRadius:0 }} />
+              ))}
+            </div>
+          </div>
+          {/* CTA */}
+          <div className="skel" style={{ height:64, borderRadius:18, marginBottom:32 }} />
+          {/* Recent athletes */}
+          <div className="skel" style={{ height:12, width:160, borderRadius:6, marginBottom:12 }} />
+          {[0,1,2].map(i => (
+            <div key={i} className="skel" style={{ height:68, borderRadius:16, marginBottom:8 }} />
+          ))}
+        </div>
       </main>
     )
   }
@@ -220,14 +248,16 @@ export default function TreinadorDashboardPage() {
   return (
     <main style={{
       background:    '#030a05',
-      minHeight:     '100svh',
+      minHeight:     '100dvh',
       display:       'flex',
       flexDirection: 'column',
       alignItems:    'center',
       padding:       '0 0 72px',
+      paddingBottom: 'calc(80px + env(safe-area-inset-bottom))',
       fontFamily:    'system-ui, sans-serif',
       position:      'relative',
       overflow:      'hidden',
+      overscrollBehaviorY: 'none',
     }}>
 
       <style>{`
@@ -277,42 +307,41 @@ export default function TreinadorDashboardPage() {
           align-items: center;
           justify-content: space-between;
           gap: 10px;
-          transition: transform .15s, opacity .2s;
+          transition: transform .1s, opacity .15s;
           text-decoration: none;
+          min-height: 64px;
         }
-        .cta-btn:active { transform: scale(0.98); opacity: .9 }
-        .cta-btn:hover  { text-decoration: none }
+        .cta-btn:active { transform: scale(0.97); opacity: .88; transition: transform .08s, opacity .08s; }
+        .cta-btn:hover  { text-decoration: none; }
 
         .card-atleta {
           display: flex;
           align-items: center;
           gap: 14px;
-          padding: 13px 15px;
+          padding: 14px 15px;
           background: rgba(255,255,255,0.025);
           border: 1px solid rgba(255,255,255,0.07);
           border-radius: 16px;
           transition: background .2s, border-color .2s;
+          min-height: 72px;
         }
-        .card-atleta:hover {
-          background: rgba(255,255,255,0.05);
-          border-color: rgba(255,255,255,0.11);
-        }
+        .card-atleta:hover  { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.11); }
+        .card-atleta:active { transform: scale(.99); opacity: .88; transition: transform .08s; }
 
         .quick-link {
           display: flex;
           align-items: center;
           gap: 14px;
-          padding: 14px 16px;
+          padding: 15px 16px;
           background: rgba(255,255,255,0.025);
           border: 1px solid rgba(255,255,255,0.07);
           border-radius: 16px;
           text-decoration: none;
           transition: background .2s, border-color .2s;
+          min-height: 60px;
         }
-        .quick-link:hover {
-          background: rgba(255,255,255,0.05);
-          border-color: rgba(0,255,136,0.18);
-        }
+        .quick-link:hover  { background: rgba(255,255,255,0.05); border-color: rgba(0,255,136,0.18); }
+        .quick-link:active { transform: scale(.98); opacity: .88; transition: transform .08s; }
       `}</style>
 
       {/* ── Atmosfera ── */}
@@ -348,6 +377,7 @@ export default function TreinadorDashboardPage() {
         <div className="a1" style={{
           display:'flex', alignItems:'center', justifyContent:'space-between',
           padding:'26px 0 20px',
+          paddingTop:'calc(26px + env(safe-area-inset-top))',
         }}>
           {/* Logo */}
           <span style={{ fontSize:'16px', fontWeight:900, color:'white', letterSpacing:'-0.02em' }}>
@@ -710,6 +740,7 @@ export default function TreinadorDashboardPage() {
         </div>
 
       </div>
+      <TreinadorBottomNav />
     </main>
   )
 }

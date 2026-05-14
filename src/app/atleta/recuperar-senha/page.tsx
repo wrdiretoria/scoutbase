@@ -89,7 +89,7 @@ export default function RecuperarSenhaPage() {
 
   return (
     <main style={{
-      background: '#06100a', minHeight: '100vh',
+      background: '#06100a', minHeight: '100dvh',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: '24px', fontFamily: 'system-ui, sans-serif',
     }}>

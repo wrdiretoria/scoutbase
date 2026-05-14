@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import AtletaBottomNav from '@/components/AtletaBottomNav'
 
 // ── Helpers (espelhados do bem-vindo) ─────────────────────────────────────────
 
@@ -145,12 +146,14 @@ function CompartilharContent() {
   return (
     <main style={{
       background: '#030a05',
-      minHeight: '100svh',
+      minHeight: '100dvh',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'flex-start',
-      padding: '28px 20px 52px',
+      padding: '28px 20px',
+      paddingTop: 'max(28px, env(safe-area-inset-top))',
+      paddingBottom: 'calc(80px + env(safe-area-inset-bottom))',
       fontFamily: 'system-ui, sans-serif',
       position: 'relative',
       overflow: 'hidden',
@@ -594,6 +597,7 @@ function CompartilharContent() {
           ⚽ MEU <span style={{ color:'rgba(0,255,136,0.3)' }}>CRAQUE</span> · Você é o próximo.
         </p>
       </div>
+      <AtletaBottomNav />
     </main>
   )
 }
@@ -601,7 +605,7 @@ function CompartilharContent() {
 export default function CompartilharPage() {
   return (
     <Suspense fallback={
-      <main style={{ background:'#030a05', minHeight:'100svh', display:'flex', alignItems:'center', justifyContent:'center' }}>
+      <main style={{ background:'#030a05', minHeight:'100dvh', display:'flex', alignItems:'center', justifyContent:'center' }}>
         <p style={{ color:'rgba(255,255,255,0.3)', fontFamily:'system-ui' }}>Carregando…</p>
       </main>
     }>

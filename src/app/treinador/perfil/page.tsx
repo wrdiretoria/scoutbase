@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
+import TreinadorBottomNav from '@/components/TreinadorBottomNav'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -125,8 +126,13 @@ export default function TreinadorPerfilPage() {
 
   if (loading) {
     return (
-      <main style={{ background:'#030a05', minHeight:'100svh', display:'flex', alignItems:'center', justifyContent:'center' }}>
-        <p style={{ color:'rgba(255,255,255,0.3)', fontFamily:'system-ui' }}>Carregando…</p>
+      <main style={{ background:'#030a05', minHeight:'100dvh', display:'flex', alignItems:'center', justifyContent:'center' }}>
+        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:12 }}>
+          <div className="skel" style={{ width:90, height:90, borderRadius:'50%' }} />
+          <div className="skel" style={{ width:160, height:18, borderRadius:8, marginTop:4 }} />
+          <div className="skel" style={{ width:110, height:14, borderRadius:6 }} />
+          <div className="skel" style={{ width:240, height:52, borderRadius:16, marginTop:8 }} />
+        </div>
       </main>
     )
   }
@@ -143,14 +149,17 @@ export default function TreinadorPerfilPage() {
   return (
     <main style={{
       background: '#030a05',
-      minHeight: '100svh',
+      minHeight: '100dvh',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      padding: '28px 20px 56px',
+      padding: '28px 20px',
+      paddingTop: 'max(28px, env(safe-area-inset-top))',
+      paddingBottom: 'calc(80px + env(safe-area-inset-bottom))',
       fontFamily: 'system-ui, sans-serif',
       position: 'relative',
       overflow: 'hidden',
+      overscrollBehaviorY: 'none',
     }}>
 
       <style>{`
@@ -184,24 +193,25 @@ export default function TreinadorPerfilPage() {
         .badge-pulse { animation: badgePulse 2.5s ease-in-out infinite }
 
         .btn-share {
-          width:100%; padding:16px; border-radius:14px; border:none;
+          width:100%; padding:17px; border-radius:14px; border:none;
           background: linear-gradient(135deg,#00e87a,#00FF88 55%,#22c55e);
-          color:#020d04; font-weight:900; font-size:16px;
+          color:#020d04; font-weight:900; font-size:16px; min-height:56px;
           cursor:pointer; font-family:system-ui,sans-serif; letter-spacing:0.03em;
           box-shadow: 0 0 40px rgba(0,255,136,0.3),0 4px 16px rgba(0,0,0,0.4),
                       inset 0 1px 0 rgba(255,255,255,0.25);
-          transition: opacity .2s, transform .15s;
+          transition: opacity .1s, transform .08s;
         }
-        .btn-share:active { opacity:.88; transform:scale(0.98); }
+        .btn-share:active { opacity:.88; transform:scale(0.97); }
 
         .btn-ghost {
-          width:100%; padding:13px; border-radius:14px;
+          width:100%; padding:15px; border-radius:14px;
           border:1px solid rgba(255,255,255,0.09); background:transparent;
           color:rgba(255,255,255,0.4); font-size:14px; font-weight:600;
-          cursor:pointer; font-family:system-ui,sans-serif;
-          transition: border-color .2s, color .2s;
+          cursor:pointer; font-family:system-ui,sans-serif; min-height:52px;
+          transition: border-color .2s, color .2s, transform .08s;
         }
-        .btn-ghost:hover { border-color:rgba(255,255,255,0.2); color:rgba(255,255,255,0.65); }
+        .btn-ghost:hover  { border-color:rgba(255,255,255,0.2); color:rgba(255,255,255,0.65); }
+        .btn-ghost:active { transform:scale(.98); opacity:.85; }
       `}</style>
 
       {/* ── Atmosfera ── */}
@@ -226,7 +236,7 @@ export default function TreinadorPerfilPage() {
           display:'flex', alignItems:'center', justifyContent:'space-between',
           marginBottom:'36px',
         }}>
-          <Link href="/dashboard" style={{ fontSize:'13px', color:'rgba(255,255,255,0.32)', textDecoration:'none', fontWeight:600 }}>
+          <Link href="/treinador/dashboard" style={{ fontSize:'13px', color:'rgba(255,255,255,0.32)', textDecoration:'none', fontWeight:600 }}>
             ← Início
           </Link>
           <Link href="/" style={{ fontSize:'14px', fontWeight:800, color:'white', textDecoration:'none', opacity:0.55 }}>
@@ -543,6 +553,7 @@ export default function TreinadorPerfilPage() {
           ⚽ MEU <span style={{ color:'rgba(0,255,136,0.3)' }}>CRAQUE</span> · Construindo o futebol brasileiro.
         </p>
       </div>
+      <TreinadorBottomNav />
     </main>
   )
 }
