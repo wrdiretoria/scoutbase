@@ -210,22 +210,22 @@ export default function LandingPage() {
             max-width:280px !important;
           }
 
-          /* CTAs — horizontal row, compact pill style */
+          /* CTAs — vertical stack, full width */
           .hero-ctas-wrap {
-            flex-direction:row !important;
-            align-items:center !important;
+            flex-direction:column !important;
+            align-items:stretch !important;
             gap:10px !important;
             margin-top:0 !important;
             margin-bottom:14px !important;
-            width:auto !important;
-            align-self:flex-start !important;
+            width:100% !important;
+            align-self:stretch !important;
           }
 
-          /* Primary CTA — pill, compact, premium neon */
+          /* Primary CTA — pill, full-width, premium neon */
           .hero-cta-primary {
             position:relative !important;
             overflow:hidden !important;
-            width:auto !important;
+            width:100% !important;
             font-size:12.5px !important;
             padding:12px 22px !important;
             border-radius:100px !important;
@@ -255,7 +255,7 @@ export default function LandingPage() {
 
           /* Secondary CTA — minimal ghost pill */
           .hero-cta-secondary {
-            width:auto !important;
+            width:100% !important;
             font-size:12px !important;
             padding:12px 16px !important;
             border-radius:100px !important;
@@ -394,17 +394,23 @@ export default function LandingPage() {
                 display:'block', fontSize:'clamp(46px,6vw,86px)',
                 fontWeight:900, color:'white',
               }}>
-                É MAIS QUE FUTEBOL.
+                AQUI É O
               </span>
-              <span className="h-line-2 hero-h1-line" style={{
-                display:'block', fontSize:'clamp(46px,6vw,86px)',
-                fontWeight:900, color:'white',
-              }}>É SEU TALENTO</span>
               <span className="h-line-2 hero-h1-line" style={{
                 display:'block', fontSize:'clamp(46px,6vw,86px)',
                 fontWeight:900,
               }}>
-                <span className="neon-word" style={{ color:'#00FF88' }}>GANHANDO O MUNDO.</span>
+                <span className="neon-word" style={{ color:'#00FF88' }}>PALCO</span>
+              </span>
+              <span className="h-line-3 hero-h1-line" style={{
+                display:'block', fontSize:'clamp(46px,6vw,86px)',
+                fontWeight:900, color:'white',
+              }}>DE QUEM VIVE</span>
+              <span className="h-line-3 hero-h1-line" style={{
+                display:'block', fontSize:'clamp(46px,6vw,86px)',
+                fontWeight:900, color:'white',
+              }}>
+                FUTEBOL<span style={{ color:'#00FF88' }}>.</span>
               </span>
             </h1>
 
@@ -413,14 +419,14 @@ export default function LandingPage() {
               lineHeight:1.72, margin:0, maxWidth:'380px',
               fontWeight:400, letterSpacing:'0.008em',
             }}>
-              Crie seu perfil, compartilhe seus melhores momentos e conecte-se com treinadores,
+              Crie seu perfil, compartilhe seu talento e conecte-se com treinadores,
               clubes e{' '}
               <span style={{ color:'#00FF88', fontWeight:500 }}>oportunidades reais.</span>
             </p>
 
             {/* Mobile subtitle — hidden on desktop, shown via CSS */}
             <p className="hero-mob-sub">
-              Crie seu perfil, compartilhe seus melhores momentos e conecte-se com treinadores,
+              Crie seu perfil, compartilhe seu talento e conecte-se com treinadores,
               clubes e{' '}
               <span style={{ color:'#00FF88', fontWeight:500 }}>oportunidades reais.</span>
             </p>
