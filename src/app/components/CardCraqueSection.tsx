@@ -304,16 +304,18 @@ export default function CardCraqueSection() {
             </div>
           ))}
 
-          {/* MC ID tag */}
-          <div style={{
-            marginTop: '8px', padding: '10px 14px',
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: '10px',
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          }}>
-            <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em' }}>ID MEUCRAQUE</span>
-            <span style={{ fontSize: '11px', fontWeight: 900, color: tier.ovr, letterSpacing: '0.08em' }}>MC-04729</span>
+          {/* Atleta ID */}
+          <div style={{ marginTop: '8px' }}>
+            <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>Atleta ID</span>
+            <div style={{
+              padding: '10px 14px',
+              background: 'rgba(255,255,255,0.03)',
+              border: `1px solid ${tier.border}`,
+              borderRadius: '10px',
+              textAlign: 'center',
+            }}>
+              <span style={{ fontSize: '15px', fontWeight: 900, color: tier.ovr, letterSpacing: '0.12em' }}>04729</span>
+            </div>
           </div>
         </div>
 
