@@ -98,6 +98,19 @@ export default function LandingPage() {
         .hero-bolt  { display:none; }
         .hero-rule  { display:none; }
 
+        /* Stats panel glass shine — top-edge highlight */
+        .hero-stats-panel { position:relative; overflow:hidden; }
+        .hero-stats-panel::before {
+          content:'';
+          position:absolute;
+          top:0; left:0; right:0; height:52%;
+          background:linear-gradient(180deg,rgba(255,255,255,0.07) 0%,transparent 100%);
+          border-radius:18px 18px 0 0;
+          pointer-events:none;
+          z-index:0;
+        }
+        .hero-stats-panel > * { position:relative; z-index:1; }
+
         /* ─── MOBILE HERO — Poster / Nike Football / EA Sports FC ─── */
         @media (max-width: 768px) {
 
@@ -334,21 +347,36 @@ export default function LandingPage() {
           }
           .hero-social-txt strong { color:rgba(255,255,255,0.92) !important; font-weight:800 !important; }
 
-          /* ── Hero stats panel (mobile right) ── */
+          /* ── Hero stats panel — premium glassmorphism ── */
           .hero-stats-panel {
             display:flex !important;
             flex-direction:column !important;
-            gap:10px !important;
+            gap:13px !important;
             right:14px !important;
             top:42% !important;
             transform:translateY(-50%) !important;
-            padding:12px 14px !important;
-            background:rgba(0,0,0,0.55) !important;
-            border:1px solid rgba(0,255,136,0.18) !important;
-            border-radius:14px !important;
-            backdrop-filter:blur(16px) !important;
-            -webkit-backdrop-filter:blur(16px) !important;
-            box-shadow:0 0 24px rgba(0,255,136,0.08), 0 8px 24px rgba(0,0,0,0.6) !important;
+            padding:14px 16px !important;
+
+            /* Glass: transparent dark green tint */
+            background:rgba(2,18,8,0.28) !important;
+            backdrop-filter:blur(22px) saturate(170%) !important;
+            -webkit-backdrop-filter:blur(22px) saturate(170%) !important;
+
+            /* Border: subtle green, top brighter for glass refraction */
+            border:1px solid rgba(0,255,136,0.20) !important;
+            border-top:1px solid rgba(0,255,136,0.36) !important;
+            border-radius:18px !important;
+
+            /* Shadow: outer glow + depth + inner shine */
+            box-shadow:
+              0 0 0 1px rgba(0,255,136,0.06),
+              0 0 28px rgba(0,255,136,0.18),
+              0 0 60px rgba(0,255,136,0.07),
+              0 16px 40px rgba(0,0,0,0.50),
+              inset 0 0 18px rgba(0,255,136,0.04) !important;
+
+            /* Float */
+            animation:float 5s ease-in-out infinite !important;
           }
 
           /* ── Floating particles ── */
@@ -738,11 +766,11 @@ export default function LandingPage() {
             { icon:'🛡', label:'DADOS',   value:'SEGUROS' },
             { icon:'🌎', label:'BRASIL',  value:'26 ESTADOS' },
           ].map(s => (
-            <div key={s.label} style={{ display:'flex', alignItems:'center', gap:'8px' }}>
-              <span style={{ fontSize:'14px' }}>{s.icon}</span>
+            <div key={s.label} style={{ display:'flex', alignItems:'center', gap:'10px' }}>
+              <span style={{ fontSize:'15px', filter:'drop-shadow(0 0 6px rgba(0,255,136,0.5))' }}>{s.icon}</span>
               <div>
-                <div style={{ fontSize:'7px', fontWeight:700, letterSpacing:'0.12em', color:'rgba(255,255,255,0.42)' }}>{s.label}</div>
-                <div style={{ fontSize:'11px', fontWeight:900, color:'white', lineHeight:1.2 }}>{s.value}</div>
+                <div style={{ fontSize:'7px', fontWeight:700, letterSpacing:'0.14em', color:'rgba(0,255,136,0.55)' }}>{s.label}</div>
+                <div style={{ fontSize:'12px', fontWeight:900, color:'rgba(255,255,255,0.95)', lineHeight:1.2, letterSpacing:'0.01em' }}>{s.value}</div>
               </div>
             </div>
           ))}
