@@ -14,8 +14,8 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Meu Craque — Gestão de Escolinhas de Futebol",
-  description: "Organize sua base. Gerencie com dados. Evolua com resultados.",
+  title: "MeuCraque — Seu talento ganhando o mundo",
+  description: "Crie seu perfil, receba avaliações de treinadores e seja descoberto por scouts e clubes de todo o Brasil.",
 };
 
 export default function RootLayout({

@@ -1,18 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server'
+﻿import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient, createAdminClient } from '@/lib/supabase'
 
-const ADMIN_EMAIL = 'wrdiretoria@gmail.com'
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? 'wrdiretoria@gmail.com'
 
 export async function POST(req: NextRequest) {
   const supabase = await createServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user || user.email !== ADMIN_EMAIL) {
-    return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
+    return NextResponse.json({ error: 'NÃ£o autorizado' }, { status: 403 })
   }
 
   const { userId, novaSenha } = await req.json()
   if (!userId || !novaSenha || novaSenha.length < 6) {
-    return NextResponse.json({ error: 'Dados inválidos' }, { status: 400 })
+    return NextResponse.json({ error: 'Dados invÃ¡lidos' }, { status: 400 })
   }
 
   const admin = createAdminClient()

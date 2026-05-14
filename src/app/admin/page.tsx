@@ -1,8 +1,8 @@
-import { redirect } from 'next/navigation'
+﻿import { redirect } from 'next/navigation'
 import { createServerClient, createAdminClient } from '@/lib/supabase'
 import AdminClient from './AdminClient'
 
-const ADMIN_EMAIL = 'wrdiretoria@gmail.com'
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? 'wrdiretoria@gmail.com'
 
 export default async function AdminPage() {
   const supabase = await createServerClient()
@@ -12,7 +12,7 @@ export default async function AdminPage() {
 
   const admin = createAdminClient()
 
-  // ── Usuários cadastrados (auth) ──
+  // â”€â”€ UsuÃ¡rios cadastrados (auth) â”€â”€
   const { data: usersData } = await admin.auth.admin.listUsers({ perPage: 1000 })
   const users = (usersData?.users ?? []).map((u) => ({
     id: u.id,
@@ -25,18 +25,18 @@ export default async function AdminPage() {
     last_sign_in_at: u.last_sign_in_at ?? null,
   }))
 
-  // ── Atletas ──
+  // â”€â”€ Atletas â”€â”€
   const { data: atletas } = await admin
     .from('alunos')
     .select('id, nome, posicao, scout_id, ativo, professor_id, data_nascimento, turmas(nome)')
     .order('nome')
 
-  // ── Avaliações (count) ──
+  // â”€â”€ AvaliaÃ§Ãµes (count) â”€â”€
   const { count: totalAvaliacoes } = await admin
     .from('avaliacoes')
     .select('id', { count: 'exact', head: true })
 
-  // ── Presenças (count) ──
+  // â”€â”€ PresenÃ§as (count) â”€â”€
   const { count: totalPresencas } = await admin
     .from('presencas')
     .select('id', { count: 'exact', head: true })

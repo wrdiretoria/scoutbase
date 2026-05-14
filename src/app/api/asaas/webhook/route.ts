@@ -22,7 +22,12 @@ export async function POST(req: NextRequest) {
     const webhookToken = req.headers.get('asaas-access-token')
     const expectedToken = process.env.ASAAS_WEBHOOK_SECRET
 
-    if (expectedToken && webhookToken !== expectedToken) {
+    if (!expectedToken) {
+      console.error('ASAAS_WEBHOOK_SECRET não configurado — webhook rejeitado.')
+      return NextResponse.json({ error: 'Configuração de segurança ausente.' }, { status: 500 })
+    }
+
+    if (webhookToken !== expectedToken) {
       return NextResponse.json({ error: 'Token inválido.' }, { status: 401 })
     }
 

@@ -17,7 +17,8 @@ const cards = [
       </svg>
     ),
     title: 'Para treinadores',
-    desc: 'Gestão completa da sua equipe e evolução dos atletas.',
+    desc: 'Avalie atletas, construa reputação e seja reconhecido no futebol de base.',
+    href: '/treinador/cadastro',
   },
   {
     icon: (
@@ -27,6 +28,7 @@ const cards = [
     ),
     title: 'Para atletas',
     desc: 'Evolua seu jogo, ganhe destaque e seja visto por quem importa.',
+    href: '/atleta/cadastro',
   },
   {
     icon: (
@@ -36,6 +38,7 @@ const cards = [
     ),
     title: 'Para responsáveis',
     desc: 'Acompanhe cada passo do seu filho com segurança e clareza.',
+    href: '/pais/entrar',
   },
   {
     icon: (
@@ -45,6 +48,7 @@ const cards = [
     ),
     title: 'Para scouts',
     desc: 'Encontre novos talentos de forma rápida e eficiente.',
+    href: '/scout/busca',
   },
 ]
 
@@ -767,7 +771,7 @@ export default function LandingPage() {
               <div style={{ marginBottom:'12px' }}>{c.icon}</div>
               <p style={{ margin:'0 0 6px', fontSize:'15px', fontWeight:700, color:'#22c55e' }}>{c.title}</p>
               <p style={{ margin:'0 0 12px', fontSize:'13px', color:'rgba(255,255,255,0.5)', lineHeight:1.55 }}>{c.desc}</p>
-              <a href="#" style={{ fontSize:'13px', color:'#22c55e', fontWeight:600, textDecoration:'none' }}>Saiba mais &gt;</a>
+              <a href={c.href} style={{ fontSize:'13px', color:'#22c55e', fontWeight:600, textDecoration:'none' }}>Saiba mais &gt;</a>
             </div>
           ))}
         </div>

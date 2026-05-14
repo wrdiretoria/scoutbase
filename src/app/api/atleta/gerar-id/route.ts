@@ -15,6 +15,13 @@ export async function POST() {
     if (!data) return NextResponse.json({ athleteId: id })
   }
 
-  // fallback com timestamp
-  return NextResponse.json({ athleteId: `MC-${Date.now().toString().slice(-5)}` })
+  // fallback: tenta mais 5 vezes com número aleatório maior para evitar colisão
+  for (let tentativa = 0; tentativa < 5; tentativa++) {
+    const num = Math.floor(Math.random() * 900000 + 100000).toString().slice(0, 5)
+    const id = `MC-${num}`
+    const { data } = await admin.from('profiles').select('id').eq('athlete_id', id).maybeSingle()
+    if (!data) return NextResponse.json({ athleteId: id })
+  }
+
+  return NextResponse.json({ error: 'Não foi possível gerar ID único. Tente novamente.' }, { status: 503 })
 }

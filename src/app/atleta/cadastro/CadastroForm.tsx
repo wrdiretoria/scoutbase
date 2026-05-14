@@ -91,11 +91,13 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
           .from('avatars')
           .getPublicUrl(`${userId}.${ext}`)
         avatarUrl = publicUrl
+      } else {
+        console.warn('Foto não salva, continuando sem avatar:', uploadErr.message)
       }
     }
 
     // 4. Salvar perfil
-    await fetch('/api/atleta/salvar-perfil', {
+    const saveRes = await fetch('/api/atleta/salvar-perfil', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -108,6 +110,12 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
         ...(escolaId ? { escolaId } : {}),
       }),
     })
+
+    if (!saveRes.ok) {
+      setError('Erro ao salvar perfil. Tente novamente.')
+      setLoading(false)
+      return
+    }
 
     const params = new URLSearchParams({
       nome, posicao, cidade, dataNasc, uid: userId, athleteId,

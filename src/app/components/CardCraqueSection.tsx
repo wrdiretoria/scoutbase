@@ -32,8 +32,8 @@ export default function CardCraqueSection() {
     }}>
       <style>{`
         @keyframes cardFloat {
-          0%,100% { transform: translateY(0) rotate(-1.5deg); }
-          50%      { transform: translateY(-14px) rotate(-1.5deg); }
+          0%,100% { transform: translateY(0); }
+          50%      { transform: translateY(-14px); }
         }
         @keyframes cardShimmer {
           0%   { left: -80% }
