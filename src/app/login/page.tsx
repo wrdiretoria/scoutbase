@@ -217,19 +217,6 @@ export default function LoginPage() {
                 {areaInfo.loginLabel} →
               </button>
 
-              {/* Criar perfil */}
-              <Link
-                href={areaInfo.cadastroHref}
-                style={{
-                  display: 'block', padding: '19px 22px', borderRadius: '14px',
-                  border: '1.5px solid rgba(255,255,255,0.12)',
-                  color: 'rgba(255,255,255,0.7)', fontWeight: 700,
-                  fontSize: '15px', textDecoration: 'none', textAlign: 'center',
-                  minHeight: '58px', lineHeight: '20px',
-                }}
-              >
-                {areaInfo.cadastroLabel}
-              </Link>
             </div>
           </>
         )}
