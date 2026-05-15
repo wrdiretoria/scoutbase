@@ -58,10 +58,12 @@ export default function LoginPage() {
     let emailParaLogin = identifier
 
     if (area === 'atleta') {
+      const raw = identifier.trim().toUpperCase()
+      const athleteId = raw.startsWith('MC-') ? raw : `MC-${raw}`
       const res = await fetch('/api/auth/buscar-por-id', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ athleteId: identifier }),
+        body: JSON.stringify({ athleteId }),
       })
       if (!res.ok) {
         setError('ID não encontrado. Verifique e tente novamente.')
@@ -258,7 +260,7 @@ export default function LoginPage() {
                   required
                   value={identifier}
                   onChange={e => setIdentifier(e.target.value)}
-                  placeholder={area === 'atleta' ? 'Ex: MC-00123' : 'seu@email.com'}
+                  placeholder={area === 'atleta' ? 'Ex: 00123' : 'seu@email.com'}
                   style={{ ...inputStyle, textTransform: area === 'atleta' ? 'uppercase' : 'none' }}
                 />
                 {area === 'atleta' && (

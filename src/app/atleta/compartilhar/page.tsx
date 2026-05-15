@@ -5,6 +5,7 @@ import { Suspense, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import AtletaBottomNav from '@/components/AtletaBottomNav'
+import html2canvas from 'html2canvas'
 
 // ── Helpers (espelhados do bem-vindo) ─────────────────────────────────────────
 
@@ -85,6 +86,8 @@ function CompartilharContent() {
   const sobrenome    = nome.split(' ').slice(1).join(' ')
   const cardUrl      = uid ? `https://meucraque.com.br/jogador/${uid}` : 'https://meucraque.com.br'
 
+  const cardRef = useRef<HTMLDivElement>(null)
+
   const [copied,       setCopied]       = useState(false)
   const [downloading,  setDownloading]  = useState(false)
   const [shareStatus,  setShareStatus]  = useState<'idle'|'sharing'|'done'>('idle')
@@ -92,41 +95,75 @@ function CompartilharContent() {
   // ── Ações ──────────────────────────────────────────────────────────────────
 
   async function handleShare() {
+    if (!cardRef.current) return
     setShareStatus('sharing')
-    const texto = `🏆 ${nome} no MeuCraque\n${posicao}${cidade ? ` · ${cidade}` : ''}\nProgresso: ${ovr}/100\n\nVeja meu card oficial 👇\n${cardUrl}`
     try {
-      if (navigator.share) {
-        await navigator.share({ title: `${nome} · MeuCraque`, text: texto, url: cardUrl })
+      // 1. Captura o card como canvas
+      const canvas = await html2canvas(cardRef.current, {
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: null,
+        scale: 2,
+        logging: false,
+        imageTimeout: 8000,
+      })
+
+      // 2. Converte para Blob
+      const blob: Blob = await new Promise(resolve =>
+        canvas.toBlob(b => resolve(b!), 'image/png')
+      )
+      const file = new File([blob], `${nome.replace(/\s+/g, '_')}_MeuCraque.png`, { type: 'image/png' })
+
+      // 3a. Web Share API nível 2 — abre a gaveta nativa do celular com a imagem
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: `${nome} · Meu Craque`,
+          text: `⚽ Meu card oficial no Meu Craque! ${posicao}${cidade ? ` · ${cidade}` : ''}`,
+        })
+      } else if (navigator.share) {
+        // 3b. Share API sem suporte a arquivos — manda texto
+        await navigator.share({
+          title: `${nome} · Meu Craque`,
+          text: `⚽ Meu card oficial no Meu Craque! ${posicao}${cidade ? ` · ${cidade}` : ''}`,
+        })
       } else {
-        await navigator.clipboard.writeText(cardUrl)
-        setCopied(true)
-        setTimeout(() => setCopied(false), 3000)
+        // 3c. Fallback desktop — baixa a imagem direto
+        const url = URL.createObjectURL(blob)
+        const a   = document.createElement('a')
+        a.href    = url
+        a.download = file.name
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
       }
     } catch { /* cancelado pelo usuário */ }
     setShareStatus('idle')
   }
 
   async function handleDownload() {
-    if (!avatarUrl) {
-      // Sem foto: compartilha o link
-      handleShare()
-      return
-    }
+    if (!cardRef.current) return
     setDownloading(true)
     try {
-      const res  = await fetch(avatarUrl)
-      const blob = await res.blob()
-      const url  = URL.createObjectURL(blob)
-      const a    = document.createElement('a')
-      a.href     = url
-      a.download = `${nome.replace(/\s+/g, '_')}_MeuCraque.jpg`
+      const canvas = await html2canvas(cardRef.current, {
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: null,
+        scale: 2,                   // 2× para alta resolução
+        logging: false,
+        imageTimeout: 8000,
+      })
+      const dataUrl = canvas.toDataURL('image/png')
+      const a       = document.createElement('a')
+      a.href        = dataUrl
+      a.download    = `${nome.replace(/\s+/g, '_')}_MeuCraque.png`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
-      URL.revokeObjectURL(url)
     } catch {
-      // Fallback: abre a imagem num nova aba
-      window.open(avatarUrl, '_blank')
+      // Fallback: share o link se captura falhar
+      handleShare()
     }
     setDownloading(false)
   }
@@ -309,7 +346,7 @@ function CompartilharContent() {
             }} />
 
             {/* Wrapper para corner accents */}
-            <div style={{ position:'relative', width:'min(300px,88vw)', zIndex:1 }}>
+            <div ref={cardRef} style={{ position:'relative', width:'min(300px,88vw)', zIndex:1 }}>
 
               {/* Corner accents */}
               <div style={{ position:'absolute', top:-1, left:-1, width:'22px', height:'22px', zIndex:20, pointerEvents:'none', borderTop:'1.5px solid rgba(0,255,136,0.7)', borderLeft:'1.5px solid rgba(0,255,136,0.7)', borderTopLeftRadius:'28px' }} />
@@ -374,6 +411,7 @@ function CompartilharContent() {
                   {avatarUrl ? (
                     <img
                       src={avatarUrl} alt={nome}
+                      crossOrigin="anonymous"
                       style={{
                         width:'100%', height:'100%',
                         objectFit:'cover', objectPosition:'center 18%',
