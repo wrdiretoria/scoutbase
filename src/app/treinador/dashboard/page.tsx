@@ -468,6 +468,20 @@ export default function TreinadorDashboardPage() {
           <TrainerCard perfil={perfil} av={animAv} at={animAt} dest={animDest} />
         </div>
 
+        {/* ── Compartilhar card ── */}
+        <div className="a4" style={{ marginBottom: '14px' }}>
+          <Link href="/treinador/compartilhar" style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+            padding: '13px', borderRadius: '16px', textDecoration: 'none',
+            background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)',
+            fontSize: '14px', fontWeight: 800, color: '#fbbf24',
+            transition: 'background .2s',
+          }}>
+            <span>📲</span>
+            <span>Compartilhar meu card</span>
+          </Link>
+        </div>
+
         {/* ── Complete profile nudge ── */}
         {!profileComplete && (
           <div className="a4" style={{ marginBottom: '20px' }}>
