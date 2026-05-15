@@ -401,7 +401,7 @@ function CompartilharContent() {
             background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.07)',
           }}>
             <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,.25)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>ID</span>
-            <span style={{ fontSize: '14px', fontWeight: 900, color: 'rgba(255,255,255,.55)', letterSpacing: '0.14em', fontVariantNumeric: 'tabular-nums' }}>MC-{idNumerico}</span>
+            <span style={{ fontSize: '14px', fontWeight: 900, color: 'rgba(255,255,255,.55)', letterSpacing: '0.14em', fontVariantNumeric: 'tabular-nums' }}>{idNumerico}</span>
           </div>
         )}
 
