@@ -219,6 +219,23 @@ export default function LoginPage() {
                 {areaInfo.loginLabel} →
               </button>
 
+              {/* Criar perfil — só para treinador */}
+              {area === 'treinador' && (
+                <Link
+                  href={areaInfo.cadastroHref}
+                  style={{
+                    display: 'block', padding: '17px 22px', borderRadius: '14px',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    background: 'rgba(255,255,255,0.04)',
+                    color: 'rgba(255,255,255,0.65)', fontWeight: 700,
+                    fontSize: '15px', textAlign: 'center', textDecoration: 'none',
+                    minHeight: '58px', lineHeight: '24px',
+                    transition: 'border-color .2s, background .2s',
+                  }}
+                >
+                  {areaInfo.cadastroLabel}
+                </Link>
+              )}
             </div>
           </>
         )}
