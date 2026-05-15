@@ -442,13 +442,6 @@ export default function AvaliarPage() {
                 </label>
 
                 <div style={{ position:'relative' }}>
-                  <div style={{
-                    position:'absolute', left:'16px', top:'50%', transform:'translateY(-50%)',
-                    fontSize:'13px', fontWeight:800, color:'rgba(0,255,136,0.5)',
-                    letterSpacing:'0.08em', pointerEvents:'none',
-                  }}>
-                    MC-
-                  </div>
                   <input
                     ref={inputRef}
                     type="text"
@@ -458,7 +451,7 @@ export default function AvaliarPage() {
                     placeholder="00000"
                     maxLength={5}
                     style={{
-                      width:'100%', padding:'16px 16px 16px 52px',
+                      width:'100%', padding:'16px',
                       boxSizing:'border-box', borderRadius:'14px',
                       background:'rgba(255,255,255,0.05)',
                       border:'1px solid rgba(255,255,255,0.1)',
