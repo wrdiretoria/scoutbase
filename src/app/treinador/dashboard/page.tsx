@@ -13,6 +13,7 @@ type PerfilBasico = {
   nome:         string
   avatar_url?:  string
   especialidade?: string
+  cidade?:      string
   created_at?:  string
 }
 
@@ -112,12 +113,13 @@ export default function TreinadorDashboardPage() {
         .eq('id', user.id)
         .single()
 
+      const p = profile as Record<string, unknown> | null
       setPerfil({
         id:           user.id,
         nome:         profile?.nome ?? user.user_metadata?.nome ?? 'Treinador',
         avatar_url:   profile?.avatar_url,
-        especialidade:(profile as Record<string, unknown>)?.especialidade as string | undefined
-                      ?? user.user_metadata?.especialidade,
+        especialidade:(p?.especialidade as string | undefined) ?? user.user_metadata?.especialidade,
+        cidade:       p?.cidade as string | undefined,
         created_at:   user.created_at,
       })
 
@@ -284,7 +286,8 @@ export default function TreinadorDashboardPage() {
 
         .a1 { animation: fadeUp .4s ease forwards 0s;    opacity:0 }
         .a2 { animation: fadeUp .4s ease forwards .08s;  opacity:0 }
-        .a3 { animation: fadeUp .4s ease forwards .18s;  opacity:0 }
+        .a2b{ animation: fadeUp .4s ease forwards .15s;  opacity:0 }
+        .a3 { animation: fadeUp .4s ease forwards .26s;  opacity:0 }
         .a4 { animation: fadeUp .4s ease forwards .30s;  opacity:0 }
         .a5 { animation: fadeUp .4s ease forwards .45s;  opacity:0 }
         .a6 { animation: fadeUp .4s ease forwards .60s;  opacity:0 }
@@ -427,6 +430,85 @@ export default function TreinadorDashboardPage() {
               {semanaLabel}
             </p>
           </div>
+        </div>
+
+        {/* ══════════════════════════════════════
+            TRAINER CARD
+        ══════════════════════════════════════ */}
+        <div className="a2b" style={{ marginBottom:'20px' }}>
+          <Link href="/treinador/perfil" style={{ textDecoration:'none' }}>
+            <div style={{
+              background:'linear-gradient(135deg,#1c1200 0%,#2a1a00 100%)',
+              border:'1px solid rgba(251,191,36,0.2)',
+              borderRadius:'20px',
+              overflow:'hidden',
+              position:'relative',
+              transition:'border-color .2s',
+            }}>
+              {/* Gold stripe */}
+              <div style={{ height:'3px', background:'linear-gradient(90deg,#92400e,#fbbf24 50%,#92400e)' }} />
+
+              <div style={{ padding:'16px', display:'flex', alignItems:'center', gap:'14px' }}>
+                {/* Avatar */}
+                <div style={{
+                  width:'60px', height:'60px', borderRadius:'50%', flexShrink:0,
+                  overflow:'hidden', border:'2px solid rgba(251,191,36,0.45)',
+                  background:'linear-gradient(135deg,#92400e,#d97706)',
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                  boxShadow:'0 0 18px rgba(251,191,36,0.2)',
+                }}>
+                  {perfil.avatar_url
+                    ? <img src={perfil.avatar_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                    : <span style={{ fontSize:'20px', fontWeight:900, color:'white' }}>{initials}</span>
+                  }
+                </div>
+
+                {/* Info */}
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ marginBottom:'5px' }}>
+                    <span style={{
+                      fontSize:'8px', fontWeight:800, letterSpacing:'0.14em',
+                      color:'#fbbf24', textTransform:'uppercase',
+                      background:'rgba(251,191,36,0.12)', padding:'2px 8px',
+                      borderRadius:'100px', border:'1px solid rgba(251,191,36,0.18)',
+                    }}>
+                      ⚡ Treinador
+                    </span>
+                  </div>
+                  <p style={{ margin:'0 0 3px', fontSize:'16px', fontWeight:800, color:'white',
+                    whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis',
+                  }}>
+                    {perfil.nome}
+                  </p>
+                  <p style={{ margin:0, fontSize:'12px', color:'rgba(255,255,255,0.38)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+                    {perfil.especialidade
+                      ? `${perfil.especialidade}${perfil.cidade ? ` · ${perfil.cidade}` : ''}`
+                      : 'Especialidade não definida'}
+                  </p>
+                </div>
+
+                <span style={{ color:'rgba(251,191,36,0.35)', fontSize:'20px', flexShrink:0 }}>›</span>
+              </div>
+
+              {/* Nudge: complete perfil */}
+              {!perfil.avatar_url && (
+                <div style={{
+                  margin:'0 16px 14px',
+                  padding:'9px 14px',
+                  background:'rgba(251,191,36,0.06)',
+                  border:'1px solid rgba(251,191,36,0.14)',
+                  borderRadius:'12px',
+                  fontSize:'11px', fontWeight:600,
+                  color:'rgba(251,191,36,0.65)',
+                  display:'flex', alignItems:'center', gap:'7px',
+                }}>
+                  <span>✦</span>
+                  <span>Complete seu perfil para ser encontrado por escolas</span>
+                  <span style={{ marginLeft:'auto', opacity:.6 }}>→</span>
+                </div>
+              )}
+            </div>
+          </Link>
         </div>
 
         {/* ══════════════════════════════════════
