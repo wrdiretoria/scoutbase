@@ -2,6 +2,16 @@ import { createHash } from 'crypto'
 import { createAdminClient } from '@/lib/supabase'
 import { NextResponse } from 'next/server'
 
+async function gerarTreinadorId(admin: ReturnType<typeof createAdminClient>): Promise<string> {
+  for (let t = 0; t < 10; t++) {
+    const num = Math.floor(Math.random() * 100000).toString().padStart(5, '0')
+    const id = `TR-${num}`
+    const { data } = await admin.from('profiles').select('id').eq('athlete_id', id).maybeSingle()
+    if (!data) return id
+  }
+  return `TR-${Date.now().toString().slice(-5)}`
+}
+
 export async function POST(req: Request) {
   try {
     const { userId, cpf, dataNascimento, nome, tipo, email } = await req.json() as {
@@ -26,7 +36,13 @@ export async function POST(req: Request) {
 
     const admin = createAdminClient()
 
-    // Upsert profile row — tipo fica só no user_metadata do Auth (não é coluna de profiles)
+    // Gera ID único para treinadores (TR-XXXXX), salvo em athlete_id
+    let treinadorId: string | undefined
+    if (tipo === 'treinador') {
+      const { data: existente } = await admin.from('profiles').select('athlete_id').eq('id', userId).maybeSingle()
+      treinadorId = existente?.athlete_id ?? await gerarTreinadorId(admin)
+    }
+
     const { error } = await admin
       .from('profiles')
       .upsert(
@@ -34,14 +50,14 @@ export async function POST(req: Request) {
           id: userId,
           cpf_hash: hash,
           data_nascimento: dataNascimento,
-          ...(nome  && { nome }),
-          ...(email && { email }),
+          ...(nome        && { nome }),
+          ...(email       && { email }),
+          ...(treinadorId && { athlete_id: treinadorId }),
         },
         { onConflict: 'id' }
       )
 
     if (error) {
-      // Unique constraint violation on cpf_hash
       if (error.code === '23505') {
         return NextResponse.json({ error: 'CPF já cadastrado.' }, { status: 409 })
       }
@@ -49,7 +65,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Erro ao salvar perfil.' }, { status: 500 })
     }
 
-    return NextResponse.json({ ok: true })
+    return NextResponse.json({ ok: true, ...(treinadorId && { treinadorId }) })
   } catch (err) {
     console.error('[salvar-perfil] unexpected', err)
     return NextResponse.json({ error: 'Erro interno.' }, { status: 500 })

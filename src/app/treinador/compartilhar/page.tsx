@@ -8,7 +8,7 @@ import html2canvas from 'html2canvas'
 
 // ── Types / Helpers ───────────────────────────────────────────────────────────
 
-type Treinador = { nome: string; avatar_url?: string; especialidade?: string; cidade?: string }
+type Treinador = { nome: string; avatar_url?: string; especialidade?: string; cidade?: string; treinadorId?: string }
 type Stats     = { av: number; at: number; dest: number }
 
 function getInitials(nome: string) {
@@ -69,6 +69,7 @@ export default function TreinadorCompartilharPage() {
         avatar_url:    p?.avatar_url as string | undefined,
         especialidade: (p?.especialidade as string) ?? user.user_metadata?.especialidade,
         cidade:        p?.cidade as string | undefined,
+        treinadorId:   p?.athlete_id as string | undefined,
       })
 
       try {
@@ -395,6 +396,20 @@ export default function TreinadorCompartilharPage() {
             </div>{/* end cardRef */}
           </div>
         </div>
+
+        {/* TR- ID abaixo do card */}
+        {treinador.treinadorId && (
+          <div className="a4" style={{
+            display: 'flex', alignItems: 'center', gap: '8px',
+            padding: '8px 18px', borderRadius: '100px', marginBottom: '16px',
+            background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.18)',
+          }}>
+            <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,.25)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>ID</span>
+            <span style={{ fontSize: '14px', fontWeight: 900, color: 'rgba(251,191,36,.7)', letterSpacing: '0.14em', fontVariantNumeric: 'tabular-nums' }}>
+              {treinador.treinadorId}
+            </span>
+          </div>
+        )}
 
         {/* Stats abaixo do card */}
         {(stats.av > 0 || stats.at > 0) && (

@@ -14,6 +14,7 @@ type Perfil = {
   avatar_url?:   string
   especialidade?: string
   cidade?:       string
+  treinadorId?:  string
   created_at?:   string
 }
 
@@ -78,7 +79,7 @@ function useCounter(target: number, duration = 1000): number {
 
 // ── Trainer Card ──────────────────────────────────────────────────────────────
 
-function TrainerCard({ perfil, av, at, dest }: { perfil: Perfil; av: number; at: number; dest: number }) {
+function TrainerCard({ perfil, av, at, dest }: { perfil: Perfil; av: number; at: number; dest: number; }) {
   const initials = getInitials(perfil.nome)
   const firstName = perfil.nome.split(' ')[0]
   const lastName  = perfil.nome.split(' ').slice(1).join(' ')
@@ -236,7 +237,7 @@ function TrainerCard({ perfil, av, at, dest }: { perfil: Perfil; av: number; at:
             ))}
           </div>
 
-          {/* Bottom watermark */}
+          {/* Bottom watermark + ID */}
           <div style={{
             padding: '10px 20px',
             borderTop: '1px solid rgba(251,191,36,0.07)',
@@ -245,7 +246,11 @@ function TrainerCard({ perfil, av, at, dest }: { perfil: Perfil; av: number; at:
             <span style={{ fontSize: '8px', fontWeight: 800, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.08)', textTransform: 'uppercase' }}>
               Meu Craque
             </span>
-            <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.06)' }}>Brasil · {new Date().getFullYear()}</span>
+            {perfil.treinadorId && (
+              <span style={{ fontSize: '9px', fontWeight: 900, color: 'rgba(251,191,36,0.35)', letterSpacing: '0.12em' }}>
+                {perfil.treinadorId}
+              </span>
+            )}
           </div>
 
         </div>
@@ -279,6 +284,7 @@ export default function TreinadorDashboardPage() {
         avatar_url:    p?.avatar_url as string | undefined,
         especialidade: (p?.especialidade as string | undefined) ?? user.user_metadata?.especialidade,
         cidade:        p?.cidade as string | undefined,
+        treinadorId:   p?.athlete_id as string | undefined,
         created_at:    user.created_at,
       })
 
