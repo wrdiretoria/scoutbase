@@ -554,7 +554,7 @@ export default function LandingPage() {
                 border:'1px solid rgba(255,255,255,0.18)',
                 borderRadius:'100px', padding:'12px 0',
               }}>
-                Já tenho conta →
+                Entrar →
               </Link>
             </div>
 
