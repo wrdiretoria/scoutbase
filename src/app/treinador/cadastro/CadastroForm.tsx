@@ -132,7 +132,7 @@ export default function CadastroForm({ isEscola }: { isEscola: boolean }) {
     const salvar = await fetch('/api/cadastro/salvar-perfil', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: data.user.id, cpf, dataNascimento: dataNasc }),
+      body: JSON.stringify({ userId: data.user.id, cpf, dataNascimento: dataNasc, nome, email, tipo: isEscola ? 'escola' : 'treinador' }),
     })
 
     if (!salvar.ok) {

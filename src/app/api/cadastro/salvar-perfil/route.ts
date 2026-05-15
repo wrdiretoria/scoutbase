@@ -4,10 +4,13 @@ import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
   try {
-    const { userId, cpf, dataNascimento } = await req.json() as {
+    const { userId, cpf, dataNascimento, nome, tipo, email } = await req.json() as {
       userId?: string
       cpf?: string
       dataNascimento?: string
+      nome?: string
+      tipo?: string
+      email?: string
     }
 
     if (!userId || !cpf || !dataNascimento) {
@@ -15,7 +18,7 @@ export async function POST(req: Request) {
     }
 
     const digits = cpf.replace(/\D/g, '')
-    if (digits.length !== 11) {
+    if (digits.length !== 11 && digits.length !== 14) {
       return NextResponse.json({ error: 'CPF inválido.' }, { status: 400 })
     }
 
@@ -23,11 +26,17 @@ export async function POST(req: Request) {
 
     const admin = createAdminClient()
 
-    // Upsert profile row (may already exist from trigger)
+    // Upsert profile row — tipo fica só no user_metadata do Auth (não é coluna de profiles)
     const { error } = await admin
       .from('profiles')
       .upsert(
-        { id: userId, cpf_hash: hash, data_nascimento: dataNascimento },
+        {
+          id: userId,
+          cpf_hash: hash,
+          data_nascimento: dataNascimento,
+          ...(nome  && { nome }),
+          ...(email && { email }),
+        },
         { onConflict: 'id' }
       )
 

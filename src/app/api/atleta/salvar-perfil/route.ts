@@ -45,7 +45,6 @@ export async function POST(req: Request) {
           id: userId,
           data_nascimento: dataNascimento,
           athlete_id: athleteId,
-          tipo: 'atleta',
           ...(nome          && { nome }),
           ...(escolaId      && { escola_id: escolaId }),
           ...(recoveryEmail && { recovery_email: recoveryEmail }),
