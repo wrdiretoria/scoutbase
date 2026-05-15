@@ -122,7 +122,7 @@ export default function RecuperarSenhaPage() {
                 <input
                   type="text" required value={athleteId}
                   onChange={e => setAthleteId(e.target.value.toUpperCase())}
-                  placeholder="MC-00123"
+                  placeholder="00123"
                   style={{ ...inputStyle, textTransform: 'uppercase', letterSpacing: '0.06em' }}
                 />
               </div>
