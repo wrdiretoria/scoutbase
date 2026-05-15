@@ -531,7 +531,7 @@ export default function LandingPage() {
             </p>
 
             <div className="h-ctas hero-ctas-wrap" style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', gap:'14px', marginTop:'4px' }}>
-              <Link href="/login" className="hero-cta-primary" style={{
+              <Link href="/atleta/cadastro" className="hero-cta-primary" style={{
                 display:'inline-flex', alignItems:'center', justifyContent:'center',
                 position:'relative', overflow:'hidden',
                 gap:'6px', width:'220px',
@@ -541,10 +541,10 @@ export default function LandingPage() {
                 letterSpacing:'0.08em',
                 boxShadow:'0 0 0 1px rgba(0,255,136,0.38),0 0 24px rgba(0,255,136,0.32),0 0 52px rgba(0,255,136,0.10),0 4px 18px rgba(0,0,0,0.42),inset 0 1px 0 rgba(255,255,255,0.26)',
               }}>
-                <span className="hero-bolt" aria-hidden>⚡</span>
-                ENTRAR
+                <span className="hero-bolt" aria-hidden>⚽</span>
+                CRIAR MEU CARD
               </Link>
-              <Link href="/ranking" className="hero-cta-secondary" style={{
+              <Link href="/login" className="hero-cta-secondary" style={{
                 display:'inline-flex', alignItems:'center', justifyContent:'center',
                 width:'220px',
                 fontSize:'13.5px', fontWeight:600, color:'rgba(255,255,255,0.76)',
@@ -554,7 +554,7 @@ export default function LandingPage() {
                 border:'1px solid rgba(255,255,255,0.18)',
                 borderRadius:'100px', padding:'12px 0',
               }}>
-                VER RANKING →
+                Já tenho conta →
               </Link>
             </div>
 
