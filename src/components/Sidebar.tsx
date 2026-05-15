@@ -6,15 +6,9 @@ import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
 const navItems = [
-  { label: 'Dashboard',    href: '/dashboard' },
-  { label: 'Atletas',      href: '/alunos' },
-  { label: 'Equipes',      href: '/turmas' },
-  { label: 'Frequência',   href: '/presencas' },
-  { label: 'Agenda',       href: '/agenda' },
-  { label: 'Desempenho',   href: '/alunos' },
-  { label: 'Relatórios',   href: '/relatorios' },
-  { label: 'Financeiro',   href: '/financeiro' },
-  { label: 'Configurações',href: '/configuracoes' },
+  { label: 'Dashboard',      href: '/treinador/dashboard' },
+  { label: 'Avaliar atleta', href: '/treinador/avaliar'   },
+  { label: 'Meu perfil',     href: '/treinador/perfil'    },
 ]
 
 export default function Sidebar() {

@@ -142,7 +142,7 @@ export default function CadastroForm({ isEscola }: { isEscola: boolean }) {
       return
     }
 
-    router.push('/dashboard')
+    router.push('/treinador/dashboard')
   }
 
   const fieldStyle = {
