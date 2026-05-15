@@ -8,22 +8,13 @@ import TreinadorBottomNav from '@/components/TreinadorBottomNav'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type PerfilBasico = {
-  id:           string
-  nome:         string
-  avatar_url?:  string
-  especialidade?: string
-  cidade?:      string
-  created_at?:  string
-}
-
-type AvaliacaoRecente = {
+type Perfil = {
   id:            string
-  nota_geral:    number
-  created_at:    string
-  atleta_nome:   string
-  atleta_posicao:string
-  atleta_avatar?:string
+  nome:          string
+  avatar_url?:   string
+  especialidade?: string
+  cidade?:       string
+  created_at?:   string
 }
 
 type Metricas = {
@@ -33,59 +24,234 @@ type Metricas = {
   semanaCount:     number
 }
 
+type AvaliacaoRecente = {
+  id:             string
+  nota_geral:     number
+  created_at:     string
+  atleta_nome:    string
+  atleta_posicao: string
+  atleta_avatar?: string
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function getInitials(nome: string) {
   return nome.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase()
 }
 
-function formatarTempo(dateStr?: string): string {
-  if (!dateStr) return 'Novo'
-  const dias = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86_400_000)
-  if (dias < 2)   return 'Novo'
-  if (dias < 30)  return `${dias}d`
-  if (dias < 365) return `${Math.floor(dias / 30)}m`
-  return `${Math.floor(dias / 365)}a`
-}
-
-function formatarDataRelativa(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime()
-  const dias  = Math.floor(diff / 86_400_000)
-  if (dias === 0) return 'Hoje'
-  if (dias === 1) return 'Ontem'
-  if (dias <  7)  return `${dias}d atrás`
-  return new Date(dateStr).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
-}
-
-function notaColor(nota: number): string {
+function notaColor(nota: number) {
   if (nota >= 75) return '#00FF88'
   if (nota >= 60) return '#fbbf24'
   if (nota >= 45) return '#f97316'
   return '#ef4444'
 }
 
-function notaLabel(nota: number): string {
+function notaLabel(nota: number) {
   if (nota >= 75) return 'Destaque'
   if (nota >= 60) return 'Bom'
   if (nota >= 45) return 'Regular'
   return 'Iniciante'
 }
 
-// Animated counter hook
-function useCounter(target: number, duration = 900): number {
+function formatarDataRelativa(dateStr: string) {
+  const dias = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86_400_000)
+  if (dias === 0) return 'Hoje'
+  if (dias === 1) return 'Ontem'
+  if (dias < 7)  return `${dias}d atrás`
+  return new Date(dateStr).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
+}
+
+function useCounter(target: number, duration = 1000): number {
   const [value, setValue] = useState(0)
   useEffect(() => {
     if (target === 0) { setValue(0); return }
     const start = Date.now()
     const timer = setInterval(() => {
-      const progress = Math.min((Date.now() - start) / duration, 1)
-      const eased    = 1 - Math.pow(1 - progress, 3) // ease-out cubic
-      setValue(Math.round(eased * target))
-      if (progress >= 1) clearInterval(timer)
+      const p = Math.min((Date.now() - start) / duration, 1)
+      setValue(Math.round((1 - Math.pow(1 - p, 3)) * target))
+      if (p >= 1) clearInterval(timer)
     }, 16)
     return () => clearInterval(timer)
   }, [target, duration])
   return value
+}
+
+// ── Trainer Card ──────────────────────────────────────────────────────────────
+
+function TrainerCard({ perfil, av, at, dest }: { perfil: Perfil; av: number; at: number; dest: number }) {
+  const initials = getInitials(perfil.nome)
+  const firstName = perfil.nome.split(' ')[0]
+  const lastName  = perfil.nome.split(' ').slice(1).join(' ')
+
+  return (
+    <div style={{ position: 'relative', width: '260px', margin: '0 auto' }}>
+
+      {/* Ambient glow behind card */}
+      <div style={{
+        position: 'absolute', top: '50%', left: '50%',
+        transform: 'translate(-50%,-50%)',
+        width: '340px', height: '440px',
+        background: 'radial-gradient(ellipse, rgba(251,191,36,0.28) 0%, rgba(217,119,6,0.12) 40%, transparent 70%)',
+        animation: 'cardGlow 4s ease-in-out infinite',
+        pointerEvents: 'none',
+        borderRadius: '50%',
+      }} />
+
+      {/* Border gradient wrapper */}
+      <div style={{
+        padding: '1.5px',
+        background: 'linear-gradient(160deg, #fbbf24 0%, #92400e 40%, #fbbf24 70%, #78350f 100%)',
+        borderRadius: '22px',
+        boxShadow: '0 40px 100px rgba(0,0,0,0.8), 0 0 60px rgba(251,191,36,0.18)',
+        animation: 'cardFloat 5s ease-in-out infinite',
+        position: 'relative',
+      }}>
+        {/* Card body */}
+        <div style={{
+          background: 'linear-gradient(165deg, #1a0c00 0%, #2e1800 35%, #1a0c00 70%, #0d0700 100%)',
+          borderRadius: '20px',
+          overflow: 'hidden',
+          position: 'relative',
+        }}>
+
+          {/* Shimmer sweep */}
+          <div style={{
+            position: 'absolute', inset: 0, pointerEvents: 'none',
+            background: 'linear-gradient(105deg, transparent 35%, rgba(255,210,80,0.07) 50%, transparent 65%)',
+            backgroundSize: '200% 100%',
+            animation: 'shimmer 4s linear infinite',
+          }} />
+
+          {/* Inner corner lights */}
+          <div style={{
+            position: 'absolute', top: 0, left: 0, right: 0, height: '120px',
+            background: 'radial-gradient(ellipse at 50% -20%, rgba(251,191,36,0.12) 0%, transparent 70%)',
+            pointerEvents: 'none',
+          }} />
+
+          {/* Gold top stripe */}
+          <div style={{ height: '3px', background: 'linear-gradient(90deg, #78350f, #fbbf24 25%, #f59e0b 75%, #78350f)' }} />
+
+          {/* Header: level badge */}
+          <div style={{ padding: '16px 20px 0', display: 'flex', justifyContent: 'center' }}>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: '5px',
+              background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.25)',
+              borderRadius: '100px', padding: '4px 14px',
+            }}>
+              <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#fbbf24', boxShadow: '0 0 6px #fbbf24', display: 'inline-block', animation: 'dotPulse 2s ease-in-out infinite' }} />
+              <span style={{ fontSize: '8px', fontWeight: 900, letterSpacing: '0.2em', color: '#fbbf24', textTransform: 'uppercase' }}>
+                Treinador de Futebol
+              </span>
+            </div>
+          </div>
+
+          {/* Photo */}
+          <div style={{ padding: '18px 20px 0', display: 'flex', justifyContent: 'center' }}>
+            <div style={{
+              width: '110px', height: '110px', borderRadius: '50%',
+              background: perfil.avatar_url ? 'transparent' : 'linear-gradient(135deg, #78350f 0%, #d97706 50%, #fbbf24 100%)',
+              border: '3px solid rgba(251,191,36,0.55)',
+              boxShadow: '0 0 0 6px rgba(251,191,36,0.06), 0 20px 40px rgba(0,0,0,0.6)',
+              overflow: 'hidden',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              position: 'relative',
+            }}>
+              {perfil.avatar_url
+                ? <img src={perfil.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                : (
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '28px', fontWeight: 900, color: 'white', lineHeight: 1 }}>{initials}</div>
+                    <div style={{ fontSize: '8px', color: 'rgba(255,255,255,0.35)', marginTop: '4px' }}>sem foto</div>
+                  </div>
+                )
+              }
+            </div>
+          </div>
+
+          {/* Name */}
+          <div style={{ padding: '16px 20px 0', textAlign: 'center' }}>
+            <p style={{ margin: '0 0 2px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.14em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>
+              {firstName}
+            </p>
+            <h2 style={{
+              margin: '0 0 6px', fontSize: lastName.length > 10 ? '20px' : '24px',
+              fontWeight: 900, letterSpacing: '-0.03em', lineHeight: 1.05,
+              color: 'white',
+              textShadow: '0 0 30px rgba(251,191,36,0.15)',
+            }}>
+              {lastName || firstName}
+            </h2>
+            <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255,255,255,0.32)', letterSpacing: '0.02em' }}>
+              {perfil.especialidade
+                ? <>
+                    <span style={{ color: 'rgba(251,191,36,0.55)', fontWeight: 600 }}>{perfil.especialidade}</span>
+                    {perfil.cidade ? <span style={{ color: 'rgba(255,255,255,0.2)' }}> · {perfil.cidade}</span> : null}
+                  </>
+                : <span style={{ color: 'rgba(255,255,255,0.18)' }}>Especialidade não definida</span>
+              }
+            </p>
+          </div>
+
+          {/* Divider */}
+          <div style={{ margin: '18px 20px', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(251,191,36,0.18), transparent)' }} />
+
+          {/* Stats row */}
+          <div style={{ padding: '0 16px 24px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+            {[
+              { val: av,   label: 'Avaliações' },
+              { val: at,   label: 'Atletas'    },
+              { val: dest, label: 'Destaques'  },
+            ].map((s, i) => (
+              <div key={i} style={{
+                background: 'rgba(0,0,0,0.35)',
+                border: '1px solid rgba(251,191,36,0.09)',
+                borderRadius: '12px',
+                padding: '10px 6px',
+                textAlign: 'center',
+                position: 'relative',
+                overflow: 'hidden',
+              }}>
+                {s.val > 0 && (
+                  <div style={{
+                    position: 'absolute', top: 0, left: 0, right: 0, height: '2px',
+                    background: 'linear-gradient(90deg, transparent, #fbbf24, transparent)',
+                  }} />
+                )}
+                <div style={{
+                  fontSize: '26px', fontWeight: 900, lineHeight: 1,
+                  letterSpacing: '-0.04em',
+                  color: s.val > 0 ? '#fbbf24' : 'rgba(255,255,255,0.15)',
+                  textShadow: s.val > 0 ? '0 0 20px rgba(251,191,36,0.6)' : 'none',
+                }}>
+                  {s.val}
+                </div>
+                <div style={{
+                  fontSize: '7.5px', fontWeight: 800, letterSpacing: '0.08em',
+                  color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase', marginTop: '5px',
+                }}>
+                  {s.label}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Bottom watermark */}
+          <div style={{
+            padding: '10px 20px',
+            borderTop: '1px solid rgba(251,191,36,0.07)',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          }}>
+            <span style={{ fontSize: '8px', fontWeight: 800, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.08)', textTransform: 'uppercase' }}>
+              Meu Craque
+            </span>
+            <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.06)' }}>Brasil · {new Date().getFullYear()}</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  )
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
@@ -93,10 +259,8 @@ function useCounter(target: number, duration = 900): number {
 export default function TreinadorDashboardPage() {
   const router = useRouter()
 
-  const [perfil,   setPerfil]   = useState<PerfilBasico | null>(null)
-  const [metricas, setMetricas] = useState<Metricas>({
-    totalAvaliacoes: 0, totalAtletas: 0, totalDestaques: 0, semanaCount: 0,
-  })
+  const [perfil,   setPerfil]   = useState<Perfil | null>(null)
+  const [metricas, setMetricas] = useState<Metricas>({ totalAvaliacoes: 0, totalAtletas: 0, totalDestaques: 0, semanaCount: 0 })
   const [recentes, setRecentes] = useState<AvaliacaoRecente[]>([])
   const [loading,  setLoading]  = useState(true)
 
@@ -106,24 +270,18 @@ export default function TreinadorDashboardPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
 
-      // ── Perfil ──
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single()
-
+      const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
       const p = profile as Record<string, unknown> | null
+
       setPerfil({
-        id:           user.id,
-        nome:         profile?.nome ?? user.user_metadata?.nome ?? 'Treinador',
-        avatar_url:   profile?.avatar_url,
-        especialidade:(p?.especialidade as string | undefined) ?? user.user_metadata?.especialidade,
-        cidade:       p?.cidade as string | undefined,
-        created_at:   user.created_at,
+        id:            user.id,
+        nome:          (p?.nome as string) ?? user.user_metadata?.nome ?? 'Treinador',
+        avatar_url:    p?.avatar_url as string | undefined,
+        especialidade: (p?.especialidade as string | undefined) ?? user.user_metadata?.especialidade,
+        cidade:        p?.cidade as string | undefined,
+        created_at:    user.created_at,
       })
 
-      // ── Métricas & Recentes — graceful fallback ──
       try {
         const semanaPast = new Date(Date.now() - 7 * 86_400_000).toISOString()
 
@@ -133,625 +291,284 @@ export default function TreinadorDashboardPage() {
           { count: totDest },
           { count: semana },
         ] = await Promise.all([
-          supabase.from('avaliacoes')
-            .select('*', { count: 'exact', head: true })
-            .eq('treinador_id', user.id),
-          supabase.from('avaliacoes')
-            .select('profile_id')
-            .eq('treinador_id', user.id),
-          supabase.from('avaliacoes')
-            .select('*', { count: 'exact', head: true })
-            .eq('treinador_id', user.id)
-            .gte('nota_geral', 75),
-          supabase.from('avaliacoes')
-            .select('*', { count: 'exact', head: true })
-            .eq('treinador_id', user.id)
-            .gte('created_at', semanaPast),
+          supabase.from('avaliacoes').select('*', { count: 'exact', head: true }).eq('treinador_id', user.id),
+          supabase.from('avaliacoes').select('profile_id').eq('treinador_id', user.id),
+          supabase.from('avaliacoes').select('*', { count: 'exact', head: true }).eq('treinador_id', user.id).gte('nota_geral', 75),
+          supabase.from('avaliacoes').select('*', { count: 'exact', head: true }).eq('treinador_id', user.id).gte('created_at', semanaPast),
         ])
 
         const uniqueAtletas = new Set((profileIdRows ?? []).map(r => r.profile_id)).size
+        setMetricas({ totalAvaliacoes: totAv ?? 0, totalAtletas: uniqueAtletas, totalDestaques: totDest ?? 0, semanaCount: semana ?? 0 })
 
-        setMetricas({
-          totalAvaliacoes: totAv     ?? 0,
-          totalAtletas:    uniqueAtletas,
-          totalDestaques:  totDest   ?? 0,
-          semanaCount:     semana    ?? 0,
-        })
-
-        // ── Avaliações recentes ──
         const { data: avRecentes } = await supabase
-          .from('avaliacoes')
-          .select('id, nota_geral, created_at, profile_id')
-          .eq('treinador_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(6)
+          .from('avaliacoes').select('id, nota_geral, created_at, profile_id')
+          .eq('treinador_id', user.id).order('created_at', { ascending: false }).limit(5)
 
-        if (avRecentes && avRecentes.length > 0) {
-          const pIds = avRecentes.map(a => a.profile_id)
+        if (avRecentes?.length) {
           const { data: atletaProfiles } = await supabase
-            .from('profiles')
-            .select('id, nome, avatar_url, posicao')
-            .in('id', pIds)
-
+            .from('profiles').select('id, nome, avatar_url, posicao').in('id', avRecentes.map(a => a.profile_id))
           const map = new Map((atletaProfiles ?? []).map(p => [p.id, p]))
-
           setRecentes(avRecentes.map(av => {
             const at = map.get(av.profile_id) as Record<string, unknown> | undefined
             return {
-              id:             av.id,
-              nota_geral:     av.nota_geral,
-              created_at:     av.created_at,
+              id: av.id, nota_geral: av.nota_geral, created_at: av.created_at,
               atleta_nome:    (at?.nome    as string) ?? 'Atleta',
               atleta_posicao: (at?.posicao as string) ?? '',
               atleta_avatar:  (at?.avatar_url as string) ?? undefined,
             }
           }))
         }
-      } catch { /* avaliacoes table not yet created — zeros are honest */ }
+      } catch { /* avaliacoes table may not exist yet */ }
 
       setLoading(false)
     }
     load()
   }, [router])
 
-  // ── Animated counters ─────────────────────────────────────────────────────
-  const animAv   = useCounter(metricas.totalAvaliacoes)
-  const animAt   = useCounter(metricas.totalAtletas)
-  const animDest = useCounter(metricas.totalDestaques)
+  const animAv   = useCounter(metricas.totalAvaliacoes, 1200)
+  const animAt   = useCounter(metricas.totalAtletas,    1200)
+  const animDest = useCounter(metricas.totalDestaques,  1200)
 
-  // ── Loading — skeleton ────────────────────────────────────────────────────
+  // ── Skeleton ──────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <main style={{ background:'#030a05', minHeight:'100dvh', fontFamily:'system-ui, sans-serif' }}>
-        <div style={{ maxWidth:'420px', margin:'0 auto', padding:'0 20px' }}>
-          {/* Nav */}
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'26px 0 20px', paddingTop:'calc(26px + env(safe-area-inset-top))' }}>
-            <div className="skel" style={{ width:130, height:18, borderRadius:6 }} />
-            <div className="skel" style={{ width:38, height:38, borderRadius:'50%' }} />
-          </div>
-          {/* Welcome */}
-          <div style={{ marginBottom:30 }}>
-            <div className="skel" style={{ width:'65%', height:32, borderRadius:8, marginBottom:10 }} />
-            <div className="skel" style={{ width:'45%', height:16, borderRadius:6 }} />
-          </div>
-          {/* 2×2 metrics grid */}
-          <div style={{ marginBottom:22 }}>
-            <div className="skel" style={{ height:12, width:140, borderRadius:6, marginBottom:12 }} />
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1px', borderRadius:20, overflow:'hidden' }}>
-              {[0,1,2,3].map(i => (
-                <div key={i} className="skel" style={{ height:100, borderRadius:0 }} />
-              ))}
-            </div>
-          </div>
-          {/* CTA */}
-          <div className="skel" style={{ height:64, borderRadius:18, marginBottom:32 }} />
-          {/* Recent athletes */}
-          <div className="skel" style={{ height:12, width:160, borderRadius:6, marginBottom:12 }} />
-          {[0,1,2].map(i => (
-            <div key={i} className="skel" style={{ height:68, borderRadius:16, marginBottom:8 }} />
-          ))}
+      <main style={{ background: '#080400', minHeight: '100dvh', fontFamily: 'system-ui, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <style>{`.skel{background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%);background-size:200% 100%;animation:skelShimmer 1.4s infinite}.@keyframes skelShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}`}</style>
+        <div style={{ width: '260px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+          <div className="skel" style={{ width: '260px', height: '420px', borderRadius: '22px' }} />
+          <div className="skel" style={{ width: '100%', height: '64px', borderRadius: '18px' }} />
         </div>
       </main>
     )
   }
   if (!perfil) return null
 
-  const primeiroNome = perfil.nome.split(' ')[0]
-  const initials     = getInitials(perfil.nome)
-  const tempoNaPlat  = formatarTempo(perfil.created_at)
-
-  const semanaLabel = metricas.semanaCount === 0
-    ? 'Nenhuma avaliação esta semana'
-    : metricas.semanaCount === 1
-    ? '1 atleta avaliado esta semana'
-    : `${metricas.semanaCount} atletas avaliados esta semana`
+  const primeiroNome  = perfil.nome.split(' ')[0]
+  const profileComplete = !!(perfil.avatar_url && perfil.especialidade)
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <main style={{
-      background:    '#030a05',
-      minHeight:     '100dvh',
-      display:       'flex',
-      flexDirection: 'column',
-      alignItems:    'center',
-      padding:       '0 0 72px',
-      paddingBottom: 'calc(80px + env(safe-area-inset-bottom))',
-      fontFamily:    'system-ui, sans-serif',
-      position:      'relative',
-      overscrollBehaviorY: 'none',
+      background: '#080400',
+      minHeight: '100dvh',
+      display: 'flex', flexDirection: 'column', alignItems: 'center',
+      padding: '0 0 calc(80px + env(safe-area-inset-bottom))',
+      fontFamily: 'system-ui, sans-serif',
     }}>
 
       <style>{`
-        @keyframes fadeUp {
-          from { opacity:0; transform:translateY(14px) }
-          to   { opacity:1; transform:translateY(0) }
+        @keyframes fadeUp    { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes cardFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+        @keyframes cardGlow  { 0%,100%{opacity:.7} 50%{opacity:1} }
+        @keyframes shimmer   { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+        @keyframes dotPulse  { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.65)} }
+        @keyframes ctaPulse  {
+          0%,100%{box-shadow:0 0 40px rgba(251,191,36,0.25),0 8px 32px rgba(0,0,0,0.6)}
+          50%    {box-shadow:0 0 70px rgba(251,191,36,0.45),0 8px 32px rgba(0,0,0,0.6)}
         }
-        @keyframes glowBreathe {
-          0%,100% { opacity:.65 }
-          50%     { opacity:1 }
-        }
-        @keyframes dotPulse {
-          0%,100% { opacity:1;  transform:scale(1)   }
-          50%     { opacity:.4; transform:scale(.65) }
-        }
-        @keyframes ctaGlow {
-          0%,100% { box-shadow: 0 0 40px rgba(0,255,136,0.28), 0 6px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.25) }
-          50%     { box-shadow: 0 0 72px rgba(0,255,136,0.50), 0 6px 24px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.25) }
-        }
-        @keyframes cardReveal {
-          from { opacity:0; transform:translateY(8px) }
-          to   { opacity:1; transform:translateY(0) }
-        }
+        @keyframes cardReveal { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
 
-        .a1 { animation: fadeUp .4s ease forwards 0s;    opacity:0 }
-        .a2 { animation: fadeUp .4s ease forwards .08s;  opacity:0 }
-        .a2b{ animation: fadeUp .4s ease forwards .15s;  opacity:0 }
-        .a3 { animation: fadeUp .4s ease forwards .26s;  opacity:0 }
-        .a4 { animation: fadeUp .4s ease forwards .30s;  opacity:0 }
-        .a5 { animation: fadeUp .4s ease forwards .45s;  opacity:0 }
-        .a6 { animation: fadeUp .4s ease forwards .60s;  opacity:0 }
-        .a7 { animation: fadeUp .4s ease forwards .78s;  opacity:0 }
+        .a1  { animation:fadeUp .5s ease forwards 0s;    opacity:0 }
+        .a2  { animation:fadeUp .5s ease forwards .1s;   opacity:0 }
+        .a3  { animation:fadeUp .5s ease forwards .25s;  opacity:0 }
+        .a4  { animation:fadeUp .5s ease forwards .42s;  opacity:0 }
+        .a5  { animation:fadeUp .5s ease forwards .60s;  opacity:0 }
+        .a6  { animation:fadeUp .5s ease forwards .78s;  opacity:0 }
 
-        .cta-btn {
-          width: 100%;
-          padding: 20px 24px;
-          border-radius: 18px;
-          border: none;
-          background: linear-gradient(135deg, #00e87a, #00FF88 55%, #22c55e);
-          color: #020d04;
-          font-weight: 900;
-          font-size: 17px;
-          cursor: pointer;
-          font-family: system-ui, sans-serif;
-          letter-spacing: 0.025em;
-          animation: ctaGlow 3.5s ease-in-out infinite;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 10px;
-          transition: transform .1s, opacity .15s;
-          text-decoration: none;
-          min-height: 64px;
-        }
-        .cta-btn:active { transform: scale(0.97); opacity: .88; transition: transform .08s, opacity .08s; }
-        .cta-btn:hover  { text-decoration: none; }
+        .skel{background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%);background-size:200% 100%;animation:skelShimmer 1.4s infinite}
+        @keyframes skelShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-        .card-atleta {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-          padding: 14px 15px;
-          background: rgba(255,255,255,0.025);
-          border: 1px solid rgba(255,255,255,0.07);
-          border-radius: 16px;
-          transition: background .2s, border-color .2s;
-          min-height: 72px;
+        .cta-avaliar {
+          display:flex; align-items:center; justify-content:space-between; gap:12px;
+          width:100%; padding:20px 24px; border-radius:18px; border:none;
+          background:linear-gradient(135deg, #d97706 0%, #fbbf24 50%, #d97706 100%);
+          color:#1a0800; font-weight:900; font-size:17px; cursor:pointer;
+          font-family:system-ui,sans-serif; text-decoration:none;
+          animation:ctaPulse 3s ease-in-out infinite;
+          transition:transform .1s, opacity .15s;
+          min-height:64px;
         }
-        .card-atleta:hover  { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.11); }
-        .card-atleta:active { transform: scale(.99); opacity: .88; transition: transform .08s; }
+        .cta-avaliar:active { transform:scale(0.97); opacity:.88; transition:transform .08s; }
 
-        .quick-link {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-          padding: 15px 16px;
-          background: rgba(255,255,255,0.025);
-          border: 1px solid rgba(255,255,255,0.07);
-          border-radius: 16px;
-          text-decoration: none;
-          transition: background .2s, border-color .2s;
-          min-height: 60px;
+        .av-card {
+          display:flex; align-items:center; gap:14px;
+          padding:14px 15px; background:rgba(255,255,255,0.025);
+          border:1px solid rgba(255,255,255,0.07); border-radius:16px;
+          transition:background .2s, border-color .2s; min-height:72px;
         }
-        .quick-link:hover  { background: rgba(255,255,255,0.05); border-color: rgba(0,255,136,0.18); }
-        .quick-link:active { transform: scale(.98); opacity: .88; transition: transform .08s; }
+        .av-card:hover  { background:rgba(255,255,255,0.045); border-color:rgba(251,191,36,0.18); }
+        .av-card:active { transform:scale(.99); opacity:.88; transition:transform .08s; }
+
+        .quick-btn {
+          display:flex; align-items:center; gap:14px;
+          padding:15px 16px; background:rgba(255,255,255,0.025);
+          border:1px solid rgba(255,255,255,0.07); border-radius:16px;
+          text-decoration:none;
+          transition:background .2s, border-color .2s; min-height:56px;
+        }
+        .quick-btn:hover  { background:rgba(255,255,255,0.05); border-color:rgba(251,191,36,0.2); }
+        .quick-btn:active { transform:scale(.98); opacity:.88; transition:transform .08s; }
       `}</style>
 
-      {/* ── Atmosfera ── */}
-      <div style={{ position:'fixed', inset:0, zIndex:0, pointerEvents:'none' }}>
-        {/* glow top-center */}
+      {/* ── Atmospheric background ── */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
         <div style={{
-          position:'absolute', top:'-22%', left:'50%', transform:'translateX(-50%)',
-          width:'900px', height:'700px', borderRadius:'50%',
-          background:'radial-gradient(ellipse,rgba(0,255,136,0.09) 0%,transparent 60%)',
-          animation:'glowBreathe 7s ease-in-out infinite',
+          position: 'absolute', top: '-30%', left: '50%', transform: 'translateX(-50%)',
+          width: '900px', height: '800px', borderRadius: '50%',
+          background: 'radial-gradient(ellipse, rgba(251,191,36,0.07) 0%, rgba(217,119,6,0.04) 40%, transparent 65%)',
         }} />
-        {/* glow bottom-right */}
         <div style={{
-          position:'absolute', bottom:'-15%', right:'-30%',
-          width:'600px', height:'600px', borderRadius:'50%',
-          background:'radial-gradient(ellipse,rgba(0,255,136,0.04) 0%,transparent 65%)',
-        }} />
-        {/* tactical grid */}
-        <div style={{
-          position:'absolute', inset:0,
+          position: 'absolute', inset: 0,
           backgroundImage:
-            'linear-gradient(rgba(0,255,136,0.018) 1px,transparent 1px),' +
-            'linear-gradient(90deg,rgba(0,255,136,0.018) 1px,transparent 1px)',
-          backgroundSize:'52px 52px',
+            'linear-gradient(rgba(251,191,36,0.015) 1px, transparent 1px),' +
+            'linear-gradient(90deg, rgba(251,191,36,0.015) 1px, transparent 1px)',
+          backgroundSize: '52px 52px',
         }} />
       </div>
 
-      <div style={{ position:'relative', zIndex:1, width:'100%', maxWidth:'420px', padding:'0 20px' }}>
+      <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '420px', padding: '0 20px' }}>
 
-        {/* ══════════════════════════════════════
-            TOP NAV
-        ══════════════════════════════════════ */}
+        {/* ── Top nav ── */}
         <div className="a1" style={{
-          display:'flex', alignItems:'center', justifyContent:'space-between',
-          padding:'26px 0 20px',
-          paddingTop:'calc(26px + env(safe-area-inset-top))',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          paddingTop: 'calc(26px + env(safe-area-inset-top))', paddingBottom: '20px',
         }}>
-          {/* Logo */}
-          <span style={{ fontSize:'16px', fontWeight:900, color:'white', letterSpacing:'-0.02em' }}>
-            ⚽ MEU <span style={{ color:'#22c55e' }}>CRAQUE</span>
+          <span style={{ fontSize: '15px', fontWeight: 900, color: 'white', letterSpacing: '-0.02em' }}>
+            ⚽ MEU <span style={{ color: '#fbbf24' }}>CRAQUE</span>
           </span>
-
-          {/* Avatar → perfil */}
           <Link href="/treinador/perfil" style={{
-            display:'flex', alignItems:'center', justifyContent:'center',
-            width:'38px', height:'38px', borderRadius:'50%',
-            overflow:'hidden', flexShrink:0,
-            border:'2px solid rgba(0,255,136,0.35)',
-            background: perfil.avatar_url ? 'transparent' : 'linear-gradient(135deg,#166534,#22c55e)',
-            textDecoration:'none',
-            boxShadow:'0 0 14px rgba(0,255,136,0.2)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: '36px', height: '36px', borderRadius: '50%', overflow: 'hidden',
+            border: '2px solid rgba(251,191,36,0.4)', textDecoration: 'none', flexShrink: 0,
+            background: perfil.avatar_url ? 'transparent' : 'linear-gradient(135deg,#92400e,#d97706)',
+            boxShadow: '0 0 14px rgba(251,191,36,0.2)',
           }}>
             {perfil.avatar_url
-              ? <img src={perfil.avatar_url} alt={perfil.nome} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
-              : <span style={{ fontSize:'13px', fontWeight:900, color:'white' }}>{initials}</span>
+              ? <img src={perfil.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              : <span style={{ fontSize: '12px', fontWeight: 900, color: 'white' }}>{getInitials(perfil.nome)}</span>
             }
           </Link>
         </div>
 
-        {/* ══════════════════════════════════════
-            WELCOME
-        ══════════════════════════════════════ */}
-        <div className="a2" style={{ marginBottom:'30px' }}>
-          <h1 style={{
-            margin:'0 0 8px',
-            fontSize:'30px', fontWeight:900, letterSpacing:'-0.035em', lineHeight:1.08, color:'white',
-          }}>
-            Bem-vindo de volta,<br />
-            <span style={{ color:'#00FF88' }}>{primeiroNome}.</span>
+        {/* ── Welcome ── */}
+        <div className="a2" style={{ textAlign: 'center', marginBottom: '28px' }}>
+          <p style={{ margin: '0 0 4px', fontSize: '13px', color: 'rgba(255,255,255,0.3)', fontWeight: 500 }}>
+            {metricas.semanaCount > 0
+              ? `🔥 ${metricas.semanaCount} avaliação${metricas.semanaCount > 1 ? 'ões' : ''} essa semana`
+              : 'Bem-vindo de volta'}
+          </p>
+          <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 900, letterSpacing: '-0.035em', color: 'white', lineHeight: 1.1 }}>
+            {primeiroNome},<br />
+            <span style={{ color: '#fbbf24' }}>este é seu cartão.</span>
           </h1>
-          <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
-            {metricas.semanaCount > 0 && (
-              <span style={{
-                display:'inline-block', width:'6px', height:'6px', borderRadius:'50%',
-                background:'#00FF88', boxShadow:'0 0 8px #00FF88',
-                animation:'dotPulse 2.2s ease-in-out infinite', flexShrink:0,
-              }} />
-            )}
-            <p style={{
-              margin:0, fontSize:'14px', fontWeight:500,
-              color: metricas.semanaCount > 0 ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.28)',
-            }}>
-              {semanaLabel}
-            </p>
-          </div>
         </div>
 
-        {/* ══════════════════════════════════════
-            TRAINER CARD
-        ══════════════════════════════════════ */}
-        <div className="a2b" style={{ marginBottom:'20px' }}>
-          <Link href="/treinador/perfil" style={{ textDecoration:'none' }}>
-            <div style={{
-              background:'linear-gradient(135deg,#1c1200 0%,#2a1a00 100%)',
-              border:'1px solid rgba(251,191,36,0.2)',
-              borderRadius:'20px',
-              overflow:'hidden',
-              position:'relative',
-              transition:'border-color .2s',
+        {/* ── THE CARD ── */}
+        <div className="a3" style={{ marginBottom: '32px' }}>
+          <TrainerCard perfil={perfil} av={animAv} at={animAt} dest={animDest} />
+        </div>
+
+        {/* ── Complete profile nudge ── */}
+        {!profileComplete && (
+          <div className="a4" style={{ marginBottom: '20px' }}>
+            <Link href="/treinador/configurar" style={{
+              display: 'flex', alignItems: 'center', gap: '12px',
+              padding: '14px 18px',
+              background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.18)',
+              borderRadius: '16px', textDecoration: 'none',
+              transition: 'background .2s',
             }}>
-              {/* Gold stripe */}
-              <div style={{ height:'3px', background:'linear-gradient(90deg,#92400e,#fbbf24 50%,#92400e)' }} />
-
-              <div style={{ padding:'16px', display:'flex', alignItems:'center', gap:'14px' }}>
-                {/* Avatar */}
-                <div style={{
-                  width:'60px', height:'60px', borderRadius:'50%', flexShrink:0,
-                  overflow:'hidden', border:'2px solid rgba(251,191,36,0.45)',
-                  background:'linear-gradient(135deg,#92400e,#d97706)',
-                  display:'flex', alignItems:'center', justifyContent:'center',
-                  boxShadow:'0 0 18px rgba(251,191,36,0.2)',
-                }}>
-                  {perfil.avatar_url
-                    ? <img src={perfil.avatar_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
-                    : <span style={{ fontSize:'20px', fontWeight:900, color:'white' }}>{initials}</span>
-                  }
-                </div>
-
-                {/* Info */}
-                <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ marginBottom:'5px' }}>
-                    <span style={{
-                      fontSize:'8px', fontWeight:800, letterSpacing:'0.14em',
-                      color:'#fbbf24', textTransform:'uppercase',
-                      background:'rgba(251,191,36,0.12)', padding:'2px 8px',
-                      borderRadius:'100px', border:'1px solid rgba(251,191,36,0.18)',
-                    }}>
-                      ⚡ Treinador
-                    </span>
-                  </div>
-                  <p style={{ margin:'0 0 3px', fontSize:'16px', fontWeight:800, color:'white',
-                    whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis',
-                  }}>
-                    {perfil.nome}
-                  </p>
-                  <p style={{ margin:0, fontSize:'12px', color:'rgba(255,255,255,0.38)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
-                    {perfil.especialidade
-                      ? `${perfil.especialidade}${perfil.cidade ? ` · ${perfil.cidade}` : ''}`
-                      : 'Especialidade não definida'}
-                  </p>
-                </div>
-
-                <span style={{ color:'rgba(251,191,36,0.35)', fontSize:'20px', flexShrink:0 }}>›</span>
+              <span style={{ fontSize: '20px', flexShrink: 0 }}>✦</span>
+              <div style={{ flex: 1 }}>
+                <p style={{ margin: '0 0 2px', fontSize: '13px', fontWeight: 700, color: 'rgba(251,191,36,0.8)' }}>Complete seu perfil</p>
+                <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.25)' }}>Adicione foto, especialidade e bio para ser encontrado por escolas</p>
               </div>
+              <span style={{ color: 'rgba(251,191,36,0.35)', fontSize: '18px', flexShrink: 0 }}>›</span>
+            </Link>
+          </div>
+        )}
 
-              {/* Nudge: complete perfil */}
-              {!perfil.avatar_url && (
-                <div style={{
-                  margin:'0 16px 14px',
-                  padding:'9px 14px',
-                  background:'rgba(251,191,36,0.06)',
-                  border:'1px solid rgba(251,191,36,0.14)',
-                  borderRadius:'12px',
-                  fontSize:'11px', fontWeight:600,
-                  color:'rgba(251,191,36,0.65)',
-                  display:'flex', alignItems:'center', gap:'7px',
-                }}>
-                  <span>✦</span>
-                  <span>Complete seu perfil para ser encontrado por escolas</span>
-                  <span style={{ marginLeft:'auto', opacity:.6 }}>→</span>
-                </div>
-              )}
-            </div>
+        {/* ── CTA: avaliar atleta ── */}
+        <div className="a4" style={{ marginBottom: '32px' }}>
+          <Link href="/treinador/avaliar" className="cta-avaliar">
+            <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '22px' }}>🔍</span>
+              <span>Avaliar novo atleta</span>
+            </span>
+            <span style={{ fontSize: '22px', opacity: .45 }}>→</span>
           </Link>
         </div>
 
-        {/* ══════════════════════════════════════
-            CARD DE REPUTAÇÃO
-        ══════════════════════════════════════ */}
-        <div className="a3" style={{ marginBottom:'22px' }}>
-
-          {/* Label */}
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'12px' }}>
-            <p style={{
-              margin:0, fontSize:'9px', fontWeight:800, letterSpacing:'0.16em',
-              color:'rgba(255,255,255,0.22)', textTransform:'uppercase',
-            }}>
-              Reputação no futebol
-            </p>
-            {metricas.totalAvaliacoes > 0 && (
-              <div style={{
-                display:'inline-flex', alignItems:'center', gap:'5px',
-                padding:'3px 10px', borderRadius:'100px',
-                background:'rgba(0,255,136,0.08)', border:'1px solid rgba(0,255,136,0.2)',
-              }}>
-                <span style={{
-                  width:'4px', height:'4px', borderRadius:'50%',
-                  background:'#00FF88', boxShadow:'0 0 5px #00FF88',
-                  animation:'dotPulse 2s ease-in-out infinite',
-                  display:'inline-block',
-                }} />
-                <span style={{ fontSize:'9px', fontWeight:800, color:'#00FF88', letterSpacing:'0.1em', textTransform:'uppercase' }}>
-                  Ativo
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* 2×2 grid */}
-          <div style={{
-            display:'grid', gridTemplateColumns:'1fr 1fr',
-            gap:'1px',
-            background:'rgba(255,255,255,0.07)',
-            border:'1px solid rgba(255,255,255,0.07)',
-            borderRadius:'20px',
-            overflow:'hidden',
-          }}>
-            {[
-              {
-                value:   animAv,
-                label:   'Avaliações',
-                sub:     'realizadas',
-                accent:  metricas.totalAvaliacoes > 0,
-                icon:    '📋',
-                isText:  false,
-              },
-              {
-                value:   animAt,
-                label:   'Atletas',
-                sub:     'descobertos',
-                accent:  metricas.totalAtletas > 0,
-                icon:    '⚽',
-                isText:  false,
-              },
-              {
-                value:   animDest,
-                label:   'Destaques',
-                sub:     '≥ 75 de nota',
-                accent:  metricas.totalDestaques > 0,
-                icon:    '⭐',
-                isText:  false,
-              },
-              {
-                value:   tempoNaPlat,
-                label:   'Na plataforma',
-                sub:     '',
-                accent:  false,
-                icon:    '🏆',
-                isText:  true,
-              },
-            ].map((m, i) => (
-              <div key={i} style={{
-                background:'#060f09', padding:'20px 18px',
-                display:'flex', flexDirection:'column',
-                position:'relative', overflow:'hidden',
-              }}>
-                {/* accent line when value > 0 */}
-                {m.accent && (
-                  <div style={{
-                    position:'absolute', top:0, left:0, right:0, height:'2px',
-                    background:'linear-gradient(90deg,transparent,#00FF88,transparent)',
-                  }} />
-                )}
-                <span style={{ fontSize:'16px', marginBottom:'8px', opacity:.65 }}>{m.icon}</span>
-                <span style={{
-                  fontSize:           m.isText ? '20px' : '36px',
-                  fontWeight:         900,
-                  color:              m.accent ? '#00FF88' : 'white',
-                  fontVariantNumeric: 'tabular-nums',
-                  lineHeight:         1,
-                  letterSpacing:      '-0.03em',
-                  textShadow:         m.accent ? '0 0 24px rgba(0,255,136,0.45)' : 'none',
-                  marginBottom:       '6px',
-                }}>
-                  {m.value}
-                </span>
-                <span style={{
-                  fontSize:'10px', fontWeight:700, letterSpacing:'0.08em',
-                  color:'rgba(255,255,255,0.32)', textTransform:'uppercase',
-                }}>
-                  {m.label}
-                </span>
-                {m.sub && (
-                  <span style={{ fontSize:'10px', color:'rgba(255,255,255,0.16)', marginTop:'2px' }}>
-                    {m.sub}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Zero-state message */}
+        {/* ── Zero state ── */}
         {metricas.totalAvaliacoes === 0 && (
-          <div className="a3" style={{
-            display:'flex', alignItems:'center', gap:'12px',
-            padding:'14px 18px',
-            background:'rgba(0,255,136,0.04)',
-            border:'1px solid rgba(0,255,136,0.10)',
-            borderRadius:'14px',
-            marginBottom:'22px',
+          <div className="a5" style={{
+            padding: '16px 20px', background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px', marginBottom: '28px',
+            display: 'flex', gap: '14px', alignItems: 'center',
           }}>
-            <span style={{ fontSize:'20px', flexShrink:0 }}>🎯</span>
-            <p style={{ margin:0, fontSize:'12px', color:'rgba(255,255,255,0.36)', lineHeight:1.65 }}>
-              Faça sua primeira avaliação para começar a{' '}
-              <span style={{ color:'rgba(0,255,136,0.65)', fontWeight:700 }}>construir reputação no futebol.</span>
+            <span style={{ fontSize: '24px', flexShrink: 0 }}>🎯</span>
+            <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255,255,255,0.28)', lineHeight: 1.7 }}>
+              Faça sua primeira avaliação e comece a{' '}
+              <span style={{ color: 'rgba(251,191,36,0.6)', fontWeight: 700 }}>construir sua reputação no futebol.</span>
+              {' '}Cada nota conta.
             </p>
           </div>
         )}
 
-        {/* ══════════════════════════════════════
-            BOTÃO PRINCIPAL — CTA
-        ══════════════════════════════════════ */}
-        <div className="a4" style={{ marginBottom:'32px' }}>
-          <Link href="/treinador/avaliar" className="cta-btn">
-            <span style={{ display:'flex', alignItems:'center', gap:'10px' }}>
-              <span style={{ fontSize:'22px' }}>🔍</span>
-              <span>Avaliar novo atleta</span>
-            </span>
-            <span style={{ fontSize:'22px', opacity:.55 }}>→</span>
-          </Link>
-        </div>
-
-        {/* ══════════════════════════════════════
-            AVALIADOS RECENTEMENTE
-        ══════════════════════════════════════ */}
+        {/* ── Recentes ── */}
         {recentes.length > 0 && (
-          <div className="a5" style={{ marginBottom:'28px' }}>
-            <div style={{
-              display:'flex', alignItems:'center', justifyContent:'space-between',
-              marginBottom:'14px',
-            }}>
-              <p style={{
-                margin:0, fontSize:'9px', fontWeight:800, letterSpacing:'0.16em',
-                color:'rgba(255,255,255,0.22)', textTransform:'uppercase',
-              }}>
+          <div className="a5" style={{ marginBottom: '28px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+              <p style={{ margin: 0, fontSize: '9px', fontWeight: 800, letterSpacing: '0.16em', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase' }}>
                 Avaliados recentemente
               </p>
-              <span style={{ fontSize:'11px', color:'rgba(255,255,255,0.16)', fontWeight:600 }}>
-                {recentes.length} {recentes.length === 1 ? 'atleta' : 'atletas'}
+              <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.14)', fontWeight: 600 }}>
+                {recentes.length} atleta{recentes.length > 1 ? 's' : ''}
               </span>
             </div>
-
-            <div style={{ display:'flex', flexDirection:'column', gap:'8px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {recentes.map((av, idx) => {
-                const cor       = notaColor(av.nota_geral)
-                const label     = notaLabel(av.nota_geral)
-                const dataRel   = formatarDataRelativa(av.created_at)
-                const atletaIn  = getInitials(av.atleta_nome)
-                const delay     = `${0.48 + idx * 0.06}s`
-
+                const cor      = notaColor(av.nota_geral)
+                const label    = notaLabel(av.nota_geral)
+                const dataRel  = formatarDataRelativa(av.created_at)
+                const atInit   = getInitials(av.atleta_nome)
                 return (
-                  <div
-                    key={av.id}
-                    className="card-atleta"
-                    style={{ animation:`cardReveal .4s ease forwards ${delay}`, opacity:0 }}
-                  >
-                    {/* Foto / Iniciais */}
+                  <div key={av.id} className="av-card"
+                    style={{ animation: `cardReveal .4s ease forwards ${0.6 + idx * 0.06}s`, opacity: 0 }}>
                     <div style={{
-                      width:'46px', height:'46px', borderRadius:'50%', flexShrink:0,
-                      background: av.atleta_avatar ? 'transparent' : 'linear-gradient(145deg,#166534,#22c55e,#4ade80)',
-                      overflow:'hidden',
-                      border:`1.5px solid ${cor}40`,
-                      display:'flex', alignItems:'center', justifyContent:'center',
+                      width: '46px', height: '46px', borderRadius: '50%', flexShrink: 0,
+                      background: av.atleta_avatar ? 'transparent' : 'linear-gradient(145deg,#166534,#22c55e)',
+                      overflow: 'hidden', border: `1.5px solid ${cor}40`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>
                       {av.atleta_avatar
-                        ? <img src={av.atleta_avatar} alt={av.atleta_nome} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
-                        : <span style={{ fontSize:'14px', fontWeight:900, color:'white' }}>{atletaIn}</span>
+                        ? <img src={av.atleta_avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        : <span style={{ fontSize: '14px', fontWeight: 900, color: 'white' }}>{atInit}</span>
                       }
                     </div>
-
-                    {/* Info */}
-                    <div style={{ flex:1, minWidth:0 }}>
-                      <p style={{
-                        margin:'0 0 4px', fontSize:'14px', fontWeight:700, color:'white',
-                        whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis',
-                      }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ margin: '0 0 4px', fontSize: '14px', fontWeight: 700, color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {av.atleta_nome}
                       </p>
-                      <div style={{ display:'flex', alignItems:'center', gap:'7px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         {av.atleta_posicao && (
-                          <span style={{
-                            fontSize:'10px', fontWeight:700,
-                            color:'rgba(255,255,255,0.35)',
-                            textTransform:'uppercase', letterSpacing:'0.06em',
-                          }}>
+                          <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                             {av.atleta_posicao}
                           </span>
                         )}
-                        {av.atleta_posicao && (
-                          <span style={{ color:'rgba(255,255,255,0.12)', fontSize:'10px' }}>·</span>
-                        )}
-                        <span style={{ fontSize:'11px', color:'rgba(255,255,255,0.22)', fontWeight:500 }}>
-                          {dataRel}
-                        </span>
+                        {av.atleta_posicao && <span style={{ color: 'rgba(255,255,255,0.1)', fontSize: '10px' }}>·</span>}
+                        <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)' }}>{dataRel}</span>
                       </div>
                     </div>
-
-                    {/* Nota badge */}
                     <div style={{
-                      flexShrink:0,
-                      width:'50px', height:'50px', borderRadius:'13px',
-                      background:`${cor}14`,
-                      border:`1px solid ${cor}35`,
-                      display:'flex', flexDirection:'column',
-                      alignItems:'center', justifyContent:'center', gap:'2px',
+                      flexShrink: 0, width: '50px', height: '50px', borderRadius: '13px',
+                      background: `${cor}14`, border: `1px solid ${cor}35`,
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px',
                     }}>
-                      <span style={{
-                        fontSize:'18px', fontWeight:900, color:cor, lineHeight:1,
-                        letterSpacing:'-0.03em',
-                        textShadow:`0 0 14px ${cor}55`,
-                      }}>
+                      <span style={{ fontSize: '18px', fontWeight: 900, color: cor, lineHeight: 1, letterSpacing: '-0.03em', textShadow: `0 0 14px ${cor}55` }}>
                         {av.nota_geral}
                       </span>
-                      <span style={{
-                        fontSize:'7px', fontWeight:800, letterSpacing:'0.04em',
-                        color:`${cor}99`, textTransform:'uppercase',
-                      }}>
+                      <span style={{ fontSize: '7px', fontWeight: 800, color: `${cor}99`, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                         {label}
                       </span>
                     </div>
@@ -762,65 +579,42 @@ export default function TreinadorDashboardPage() {
           </div>
         )}
 
-        {/* ══════════════════════════════════════
-            ACESSO RÁPIDO
-        ══════════════════════════════════════ */}
-        <div className="a6" style={{ marginBottom:'28px' }}>
-          <p style={{
-            margin:'0 0 12px', fontSize:'9px', fontWeight:800, letterSpacing:'0.16em',
-            color:'rgba(255,255,255,0.22)', textTransform:'uppercase',
-          }}>
+        {/* ── Quick actions ── */}
+        <div className="a6" style={{ marginBottom: '28px' }}>
+          <p style={{ margin: '0 0 12px', fontSize: '9px', fontWeight: 800, letterSpacing: '0.16em', color: 'rgba(255,255,255,0.18)', textTransform: 'uppercase' }}>
             Acesso rápido
           </p>
-          <div style={{ display:'flex', flexDirection:'column', gap:'8px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {[
-              {
-                icon:  '👤',
-                label: 'Meu currículo',
-                sub:   'Perfil, bio e credenciais',
-                href:  '/treinador/perfil',
-                glow:  false,
-              },
-              {
-                icon:  '📊',
-                label: 'Nova avaliação',
-                sub:   'Avaliar atleta por ID',
-                href:  '/treinador/avaliar',
-                glow:  true,
-              },
+              { icon: '👤', label: 'Meu currículo', sub: 'Perfil, bio e credenciais', href: '/treinador/perfil' },
+              { icon: '📊', label: 'Nova avaliação', sub: 'Avaliar atleta pelo ID',   href: '/treinador/avaliar' },
             ].map((item, i) => (
-              <Link key={i} href={item.href} className="quick-link">
+              <Link key={i} href={item.href} className="quick-btn">
                 <div style={{
-                  width:'42px', height:'42px', borderRadius:'13px', flexShrink:0,
-                  background: item.glow ? 'rgba(0,255,136,0.1)' : 'rgba(255,255,255,0.04)',
-                  border:     item.glow ? '1px solid rgba(0,255,136,0.22)' : '1px solid rgba(255,255,255,0.08)',
-                  display:'flex', alignItems:'center', justifyContent:'center',
-                  fontSize:'20px',
+                  width: '40px', height: '40px', borderRadius: '12px', flexShrink: 0,
+                  background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.15)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px',
                 }}>
                   {item.icon}
                 </div>
-                <div style={{ flex:1 }}>
-                  <p style={{ margin:'0 0 2px', fontSize:'13px', fontWeight:700, color:'rgba(255,255,255,0.72)' }}>
-                    {item.label}
-                  </p>
-                  <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.24)' }}>
-                    {item.sub}
-                  </p>
+                <div style={{ flex: 1 }}>
+                  <p style={{ margin: '0 0 2px', fontSize: '13px', fontWeight: 700, color: 'rgba(255,255,255,0.7)' }}>{item.label}</p>
+                  <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.22)' }}>{item.sub}</p>
                 </div>
-                <span style={{ color:'rgba(255,255,255,0.18)', fontSize:'20px', flexShrink:0 }}>›</span>
+                <span style={{ color: 'rgba(255,255,255,0.15)', fontSize: '20px', flexShrink: 0 }}>›</span>
               </Link>
             ))}
           </div>
         </div>
 
-        {/* ── Footer ── */}
-        <div className="a7" style={{ textAlign:'center', paddingTop:'4px' }}>
-          <p style={{ margin:0, fontSize:'10px', color:'rgba(255,255,255,0.1)' }}>
-            ⚽ MEU <span style={{ color:'rgba(0,255,136,0.3)' }}>CRAQUE</span> · Construindo o futebol brasileiro.
+        <div style={{ textAlign: 'center', paddingTop: '4px' }}>
+          <p style={{ margin: 0, fontSize: '9px', color: 'rgba(255,255,255,0.06)', letterSpacing: '0.1em' }}>
+            ⚽ MEU CRAQUE · CONSTRUINDO O FUTEBOL BRASILEIRO
           </p>
         </div>
 
       </div>
+
       <TreinadorBottomNav />
     </main>
   )
