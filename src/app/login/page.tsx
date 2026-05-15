@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 
-type Area = 'atleta' | 'treinador' | 'escola' | null
+type Area = 'atleta' | 'treinador' | null
 
 const areas = [
   {
@@ -25,15 +25,6 @@ const areas = [
     loginLabel: 'Entrar como treinador',
     cadastroLabel: 'Criar perfil de treinador',
     cadastroHref: '/treinador/cadastro',
-  },
-  {
-    id: 'escola' as Area,
-    icon: '🏟️',
-    title: 'Minha Escola',
-    desc: 'Entre ou cadastre sua escola',
-    loginLabel: 'Entrar como dono',
-    cadastroLabel: 'Cadastrar minha escola',
-    cadastroHref: '/treinador/cadastro?tipo=escola',
   },
 ]
 
