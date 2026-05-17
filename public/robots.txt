@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+# Bloqueia rotas privadas
+Disallow: /atleta/perfil
+Disallow: /atleta/avaliacoes
+Disallow: /atleta/promover
+Disallow: /atleta/carta
+Disallow: /treinador/dashboard
+Disallow: /treinador/avaliar
+Disallow: /scout/dashboard
+Disallow: /scout/favoritos
+Disallow: /api/
+
+Sitemap: https://meucraque.com.br/sitemap.xml

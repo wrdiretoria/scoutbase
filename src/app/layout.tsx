@@ -33,20 +33,13 @@ export const metadata: Metadata = {
     siteName: "Meu Craque",
     title: "Meu Craque — Perfil Oficial de Atleta de Futebol",
     description: "Crie seu perfil gratuito e seja descoberto por scouts e clubes de todo o Brasil.",
-    images: [
-      {
-        url: "/og-default.png",
-        width: 1200,
-        height: 630,
-        alt: "Meu Craque — Perfil Oficial de Atleta",
-      },
-    ],
+    images: ["/opengraph-image"],
   },
   twitter: {
     card: "summary_large_image",
     title: "Meu Craque — Perfil Oficial de Atleta",
     description: "Crie seu perfil e seja descoberto por scouts e clubes.",
-    images: ["/og-default.png"],
+    images: ["/opengraph-image"],
   },
   manifest: "/manifest.json",
   appleWebApp: {
