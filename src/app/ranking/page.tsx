@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase'
 import { fetchOvrMap } from '@/lib/ovr'
+import RankingFiltros from './RankingFiltros'
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -48,10 +49,10 @@ const RANK_COLORS: Record<number, { bg: string; text: string; border: string }> 
 
 // ── Page ────────────────────────────────────────────────────────────────────
 
-type Props = { searchParams: Promise<{ categoria?: string }> }
+type Props = { searchParams: Promise<{ categoria?: string; posicao?: string; cidade?: string }> }
 
 export default async function RankingPage({ searchParams }: Props) {
-  const { categoria: categoriaFiltro } = await searchParams
+  const { categoria: categoriaFiltro, posicao: posicaoFiltro, cidade: cidadeFiltro } = await searchParams
 
   const admin = createAdminClient()
 
@@ -106,10 +107,13 @@ export default async function RankingPage({ searchParams }: Props) {
     .filter((a): a is RankingItem => a !== null)
     .sort((a, b) => b.ovr - a.ovr)
 
-  // 5. Aplica filtro de categoria
-  const filtered = categoriaFiltro
-    ? ranking.filter(a => a.categoria === categoriaFiltro)
-    : ranking
+  // 5. Aplica filtros
+  const filtered = ranking.filter(a => {
+    if (categoriaFiltro && a.categoria !== categoriaFiltro) return false
+    if (posicaoFiltro   && a.posicao   !== posicaoFiltro)   return false
+    if (cidadeFiltro    && !a.cidade.toLowerCase().includes(cidadeFiltro.toLowerCase())) return false
+    return true
+  })
 
   return (
     <main style={{
@@ -150,29 +154,45 @@ export default async function RankingPage({ searchParams }: Props) {
             Os melhores do Brasil
           </h1>
           <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.4)' }}>
-            {filtered.length} atleta{filtered.length !== 1 ? 's' : ''}{categoriaFiltro ? ` · ${categoriaFiltro}` : ' · todos'}
+            {filtered.length} atleta{filtered.length !== 1 ? 's' : ''}
+            {categoriaFiltro ? ` · ${categoriaFiltro}` : ''}
+            {posicaoFiltro   ? ` · ${posicaoFiltro}`   : ''}
+            {cidadeFiltro    ? ` · ${cidadeFiltro}`     : ''}
+            {!categoriaFiltro && !posicaoFiltro && !cidadeFiltro ? ' · ranking geral' : ''}
           </p>
         </div>
 
-        {/* Filtros de categoria */}
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '24px' }}>
-          <Link
-            href="/ranking"
-            className="filter-pill"
-            style={{
-              padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 700,
-              textDecoration: 'none', border: '1px solid',
-              background: !categoriaFiltro ? '#22c55e' : 'transparent',
-              color: !categoriaFiltro ? 'black' : 'rgba(255,255,255,0.45)',
-              borderColor: !categoriaFiltro ? '#22c55e' : 'rgba(255,255,255,0.12)',
-            }}
-          >
-            Todos
-          </Link>
-          {CATEGORIAS.map(cat => (
+        {/* Filtros de categoria (pills) */}
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
+          {(() => {
+            const extra = new URLSearchParams()
+            if (posicaoFiltro) extra.set('posicao', posicaoFiltro)
+            if (cidadeFiltro)  extra.set('cidade',  cidadeFiltro)
+            const extraStr = extra.toString()
+            return (
+              <Link
+                href={extraStr ? `/ranking?${extraStr}` : '/ranking'}
+                className="filter-pill"
+                style={{
+                  padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 700,
+                  textDecoration: 'none', border: '1px solid',
+                  background: !categoriaFiltro ? '#22c55e' : 'transparent',
+                  color: !categoriaFiltro ? 'black' : 'rgba(255,255,255,0.45)',
+                  borderColor: !categoriaFiltro ? '#22c55e' : 'rgba(255,255,255,0.12)',
+                }}
+              >
+                Todos
+              </Link>
+            )
+          })()}
+          {CATEGORIAS.map(cat => {
+            const q = new URLSearchParams({ categoria: cat })
+            if (posicaoFiltro) q.set('posicao', posicaoFiltro)
+            if (cidadeFiltro)  q.set('cidade',  cidadeFiltro)
+            return (
             <Link
               key={cat}
-              href={`/ranking?categoria=${cat}`}
+              href={`/ranking?${q.toString()}`}
               className="filter-pill"
               style={{
                 padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 700,
@@ -184,8 +204,15 @@ export default async function RankingPage({ searchParams }: Props) {
             >
               {cat}
             </Link>
-          ))}
+          )})}
         </div>
+
+        {/* Filtros de posição + cidade (client component) */}
+        <RankingFiltros
+          categoriaFiltro={categoriaFiltro}
+          posicaoFiltro={posicaoFiltro}
+          cidadeFiltro={cidadeFiltro}
+        />
 
         {/* Lista de atletas */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -197,7 +224,8 @@ export default async function RankingPage({ searchParams }: Props) {
           )}
 
           {filtered.map((atleta, i) => {
-            const rankNum = ranking.indexOf(atleta) + 1 // posição no ranking geral
+            // Posição no ranking filtrado (começa em #1 dentro do filtro)
+            const rankNum = i + 1
             const rc = RANK_COLORS[rankNum]
             return (
               <Link

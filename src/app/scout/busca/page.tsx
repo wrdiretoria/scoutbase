@@ -132,11 +132,18 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
           }}>
             ⭐ Favoritos
           </Link>
-          <Link href="/scout/cadastro" style={{
+          <Link href="/scout/dashboard" style={{
+            padding: '7px 14px', borderRadius: '8px',
+            background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
+            color: 'rgba(255,255,255,0.7)', fontWeight: 700, fontSize: '12px', textDecoration: 'none',
+          }}>
+            Meu painel
+          </Link>
+          <Link href="/scout/entrar" style={{
             padding: '7px 14px', borderRadius: '8px', background: '#22c55e',
             color: 'black', fontWeight: 800, fontSize: '12px', textDecoration: 'none',
           }}>
-            Criar conta
+            Entrar
           </Link>
         </div>
       </nav>
