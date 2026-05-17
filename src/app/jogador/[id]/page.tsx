@@ -5,6 +5,7 @@
 
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { createAdminClient } from '@/lib/supabase'
 import { fetchOvrSingle } from '@/lib/ovr'
 import VisitTracker from './VisitTracker'
@@ -12,6 +13,42 @@ import CopiarLink from './CopiarLink'
 import FavoritoButton from './FavoritoButton'
 
 type Props = { params: Promise<{ id: string }> }
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params
+  const admin = createAdminClient()
+  const { data: { user } } = await admin.auth.admin.getUserById(id)
+  const meta = user?.user_metadata as { nome?: string; posicao?: string; cidade?: string; tipo?: string } | undefined
+
+  if (!user || meta?.tipo !== 'atleta') {
+    return { title: 'Atleta — Meu Craque' }
+  }
+
+  const nome    = meta.nome    ?? 'Atleta'
+  const posicao = meta.posicao ? ` · ${meta.posicao}` : ''
+  const cidade  = meta.cidade  ? ` · ${meta.cidade}` : ''
+  const title   = `${nome}${posicao}${cidade} — Meu Craque`
+  const description = `Confira o perfil completo de ${nome} no Meu Craque: OVR, avaliações de treinadores certificados, físico e currículo completo.`
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `https://meucraque.com.br/jogador/${id}`,
+      type: 'profile',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+    alternates: {
+      canonical: `/jogador/${id}`,
+    },
+  }
+}
 
 function calcularCategoria(dataNasc: string): string {
   const hoje = new Date()
