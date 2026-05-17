@@ -1,15 +1,15 @@
-﻿{
-  "name": "Meu Craque — Gestão de Escolinhas",
+{
+  "name": "Meu Craque — Perfil Oficial de Atleta",
   "short_name": "Meu Craque",
-  "description": "Organize sua base. Gerencie com dados. Evolua com resultados.",
-  "start_url": "/dashboard",
+  "description": "Crie seu perfil, receba avaliações de treinadores e seja descoberto por scouts e clubes de todo o Brasil.",
+  "start_url": "/atleta/perfil",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#16a34a",
+  "background_color": "#06100a",
+  "theme_color": "#22c55e",
   "orientation": "portrait-primary",
   "lang": "pt-BR",
-  "categories": ["sports", "productivity", "business"],
+  "categories": ["sports", "social"],
   "icons": [
     {
       "src": "/icons/icon.svg",
@@ -24,22 +24,21 @@
       "purpose": "maskable"
     }
   ],
-  "screenshots": [],
   "shortcuts": [
     {
-      "name": "Atletas",
-      "url": "/alunos",
-      "description": "Gerenciar atletas"
+      "name": "Meu perfil",
+      "url": "/atleta/perfil",
+      "description": "Ver e editar meu perfil de atleta"
     },
     {
-      "name": "Agenda",
-      "url": "/agenda",
-      "description": "Ver agenda da equipe"
+      "name": "Ranking",
+      "url": "/ranking",
+      "description": "Ranking nacional de atletas"
     },
     {
-      "name": "Frequência",
-      "url": "/presencas",
-      "description": "Registrar presenças"
+      "name": "Buscar atletas",
+      "url": "/scout/busca",
+      "description": "Encontrar talentos"
     }
   ]
 }
