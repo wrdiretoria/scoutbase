@@ -45,6 +45,98 @@ export async function sendEmail(payload: EmailPayload): Promise<void> {
 
 // ── Templates ─────────────────────────────────────────────────────────────────
 
+interface ResumSemanalParams {
+  atletaNome:    string
+  atletaId:      string   // auth UUID
+  visitCount:    number
+  favoritoCount: number
+  ovr:           number | null
+  proximoPasso:  string   // sugestão personalizada
+}
+
+export function emailResumSemanal(p: ResumSemanalParams): string {
+  const perfilUrl = `https://meucraque.com.br/jogador/${p.atletaId}`
+  const meuPerfilUrl = `https://meucraque.com.br/atleta/perfil`
+  const ovrColor = p.ovr
+    ? (p.ovr >= 80 ? '#22c55e' : p.ovr >= 60 ? '#f59e0b' : '#94a3b8')
+    : '#94a3b8'
+
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f0fdf4;font-family:system-ui,-apple-system,sans-serif;">
+  <div style="max-width:500px;margin:32px auto;background:white;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#030c05,#0a1a0c);padding:28px 32px;text-align:center;">
+      <div style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.4);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:6px;">
+        Resumo da semana
+      </div>
+      <div style="font-size:20px;font-weight:900;color:white;">
+        ⚽ MEU <span style="color:#22c55e;">CRAQUE</span>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:28px 32px;">
+      <h1 style="margin:0 0 6px;font-size:20px;font-weight:900;color:#111;">
+        E aí, ${p.atletaNome.split(' ')[0]}! 👋
+      </h1>
+      <p style="margin:0 0 24px;color:#555;font-size:14px;line-height:1.6;">
+        Veja como foi o seu perfil esta semana no Meu Craque.
+      </p>
+
+      <!-- Stats -->
+      <div style="display:flex;gap:12px;margin-bottom:24px;">
+        <div style="flex:1;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:16px;text-align:center;">
+          <div style="font-size:32px;font-weight:900;color:#15803d;line-height:1;">${p.visitCount.toLocaleString('pt-BR')}</div>
+          <div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;">visitas no perfil</div>
+        </div>
+        <div style="flex:1;background:#fffbeb;border:1px solid #fde68a;border-radius:14px;padding:16px;text-align:center;">
+          <div style="font-size:32px;font-weight:900;color:#d97706;line-height:1;">${p.favoritoCount > 0 ? p.favoritoCount : '—'}</div>
+          <div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;">scouts te salvaram</div>
+        </div>
+        <div style="flex:1;background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:16px;text-align:center;">
+          <div style="font-size:32px;font-weight:900;color:${ovrColor};line-height:1;">${p.ovr ?? '—'}</div>
+          <div style="font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:0.08em;margin-top:4px;">OVR atual</div>
+        </div>
+      </div>
+
+      <!-- Próximo passo -->
+      <div style="background:#fafafa;border:1px solid #e5e7eb;border-radius:14px;padding:16px;margin-bottom:24px;display:flex;gap:12px;align-items:flex-start;">
+        <div style="font-size:22px;flex-shrink:0;">💡</div>
+        <div>
+          <p style="margin:0 0 4px;font-size:13px;font-weight:800;color:#111;">Próximo passo</p>
+          <p style="margin:0;font-size:13px;color:#555;line-height:1.5;">${p.proximoPasso}</p>
+        </div>
+      </div>
+
+      <!-- CTAs -->
+      <a href="${meuPerfilUrl}" style="display:block;background:#22c55e;color:white;text-align:center;padding:14px;border-radius:12px;font-weight:900;font-size:15px;text-decoration:none;margin-bottom:10px;">
+        Ver meu perfil →
+      </a>
+      <a href="${perfilUrl}" style="display:block;background:#f0fdf4;color:#15803d;text-align:center;padding:12px;border-radius:12px;font-weight:700;font-size:13px;text-decoration:none;border:1px solid #bbf7d0;">
+        🔗 Compartilhar meu perfil público
+      </a>
+    </div>
+
+    <!-- Footer -->
+    <div style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:16px 32px;text-align:center;">
+      <p style="margin:0;font-size:11px;color:#9ca3af;line-height:1.6;">
+        Meu Craque · O futebol começa aqui<br>
+        <a href="https://meucraque.com.br" style="color:#22c55e;text-decoration:none;">meucraque.com.br</a>
+        &nbsp;·&nbsp;
+        <a href="${meuPerfilUrl}" style="color:#9ca3af;text-decoration:none;">Desativar emails</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+  `.trim()
+}
+
+
 interface AvaliacaoEmailParams {
   atletaNome: string
   atletaEmail: string
