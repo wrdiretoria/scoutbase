@@ -56,6 +56,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true, event, tipo: 'carta' })
     }
 
+    // ── Promoção de destaque (30 dias no topo da busca) ──
+    if (
+      (event === 'PAYMENT_RECEIVED' || event === 'PAYMENT_CONFIRMED') &&
+      payment.externalReference?.startsWith('promover:')
+    ) {
+      const userId = payment.externalReference.replace('promover:', '')
+      if (userId) {
+        const adminClient = createAdminClient()
+        const promovido_ate = new Date()
+        promovido_ate.setDate(promovido_ate.getDate() + 30)
+        await adminClient.auth.admin.updateUserById(userId, {
+          user_metadata: { promovido_ate: promovido_ate.toISOString() },
+        })
+        console.log(`[webhook] Promoção ativada para userId=${userId} até ${promovido_ate.toISOString()}`)
+      }
+      return NextResponse.json({ ok: true, event, tipo: 'promover' })
+    }
+
     // ── ScoutBase: pagamentos de mensalidade ──
     // Idempotência: verifica se o evento já foi processado
     const { data: pagamento } = await supabase

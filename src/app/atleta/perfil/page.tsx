@@ -865,6 +865,26 @@ function AtletaPerfilContent() {
           </div>
         )}
 
+        {/* ── Promoção — destaque na busca ── */}
+        <Link href="/atleta/promover" className="traj-btn" style={{ marginBottom:'12px', display:'flex', borderColor:'rgba(34,197,94,0.25)', background:'rgba(34,197,94,0.04)' }}>
+          <div style={{
+            width:'40px', height:'40px', borderRadius:'12px', flexShrink:0,
+            background:'rgba(34,197,94,0.12)', border:'1px solid rgba(34,197,94,0.3)',
+            display:'flex', alignItems:'center', justifyContent:'center', fontSize:'20px',
+          }}>
+            🚀
+          </div>
+          <div style={{ flex:1 }}>
+            <p style={{ margin:'0 0 2px', fontSize:'13px', fontWeight:700, color:'#22c55e' }}>
+              Aparecer em destaque
+            </p>
+            <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.35)' }}>
+              Topo da busca de scouts · R$ 9,90 · 30 dias
+            </p>
+          </div>
+          <span style={{ color:'rgba(34,197,94,0.4)', fontSize:'18px', flexShrink:0, alignSelf:'center' }}>›</span>
+        </Link>
+
         {/* ── Carta de Avaliação ── */}
         <Link href="/atleta/carta" className="traj-btn" style={{ marginBottom:'12px', display:'flex', borderColor:'rgba(0,255,136,0.2)', background:'rgba(0,255,136,0.03)' }}>
           <div style={{

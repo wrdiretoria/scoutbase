@@ -54,6 +54,7 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
   const admin = createAdminClient()
 
   const { data: { users } } = await admin.auth.admin.listUsers({ perPage: 1000 })
+  const agora = new Date()
   const atletaUsers = users.filter(u => u.user_metadata?.tipo === 'atleta')
 
   const ids = atletaUsers.map(u => u.id)
@@ -69,18 +70,20 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
 
   const atletas = atletaUsers
     .map(u => {
-      const meta = u.user_metadata as { nome?: string; posicao?: string; cidade?: string }
+      const meta = u.user_metadata as { nome?: string; posicao?: string; cidade?: string; promovido_ate?: string }
       const nome = meta.nome ?? 'Atleta'
       const p = profileMap.get(u.id)
       const dataNasc   = (p?.data_nascimento as string | null) ?? null
       const athleteId  = (p?.athlete_id as string | null) ?? null
       const ovr        = athleteId ? (ovrMap.get(athleteId) ?? null) : null
+      const promovido  = meta.promovido_ate ? new Date(meta.promovido_ate) > agora : false
       return {
         id: u.id,
         nome,
         posicao:     meta.posicao ?? '',
         cidade:      meta.cidade  ?? '',
         ovr,
+        promovido,
         pos:         posAbrev(meta.posicao ?? ''),
         categoria:   dataNasc ? calcularCategoria(dataNasc) : null,
         idade:       dataNasc ? calcularIdade(dataNasc) : null,
@@ -93,7 +96,12 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
         initials:    getInitials(nome),
       }
     })
-    .sort((a, b) => (b.ovr ?? 0) - (a.ovr ?? 0))
+    // Promovidos primeiro, depois por OVR
+    .sort((a, b) => {
+      if (a.promovido && !b.promovido) return -1
+      if (!a.promovido && b.promovido) return 1
+      return (b.ovr ?? 0) - (a.ovr ?? 0)
+    })
 
   // Aplica filtros
   const filtered = atletas.filter(a => {
@@ -187,10 +195,27 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
                 className="scout-card"
                 style={{
                   display: 'block', textDecoration: 'none', color: 'white',
-                  background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
+                  background: atleta.promovido
+                    ? 'linear-gradient(135deg, rgba(34,197,94,0.07), rgba(34,197,94,0.03))'
+                    : '#0b1610',
+                  border: atleta.promovido
+                    ? '1px solid rgba(34,197,94,0.3)'
+                    : '1px solid rgba(255,255,255,0.07)',
                   borderRadius: '16px', padding: '18px 20px',
+                  boxShadow: atleta.promovido ? '0 4px 20px rgba(34,197,94,0.1)' : 'none',
+                  position: 'relative',
                 }}
               >
+                {atleta.promovido && (
+                  <div style={{
+                    position: 'absolute', top: 12, right: 12,
+                    fontSize: '10px', fontWeight: 800, color: '#22c55e',
+                    background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)',
+                    borderRadius: '20px', padding: '2px 8px', letterSpacing: '0.06em',
+                  }}>
+                    ⚡ Em Destaque
+                  </div>
+                )}
                 <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
 
                   {/* Avatar + OVR */}
