@@ -225,7 +225,7 @@ export default function AtletaPromoverPage() {
                     onClick={handleCopiar}
                     className="copy-btn"
                     style={{
-                      width:'100%', padding:'11px', borderRadius:10, border:'none', cursor:'pointer',
+                      width:'100%', padding:'11px', borderRadius:10, cursor:'pointer',
                       background: copiado ? 'rgba(34,197,94,0.2)' : '#22c55e',
                       color: copiado ? '#22c55e' : 'black',
                       fontWeight:800, fontSize:14, fontFamily:'system-ui, sans-serif',

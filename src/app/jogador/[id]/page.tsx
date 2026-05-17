@@ -137,14 +137,17 @@ export default async function JogadorPublicoPage({ params }: Props) {
     Promise.resolve(dataNasc ? calcularCategoria(dataNasc) : null),
     athleteId ? fetchOvrSingle(admin, athleteId) : Promise.resolve(null),
     // Última avaliação com atributos detalhados (via auth UUID direto)
-    admin.from('avaliacoes')
-      .select('velocidade, visao_jogo, forca, finalizacao, posicionamento, tecnica, scout_score, observacao, professor_id, created_at')
-      .eq('aluno_id', id)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle()
-      .then(r => r.data as AvaliacaoDetalhada | null)
-      .catch(() => null),
+    (async () => {
+      try {
+        const r = await admin.from('avaliacoes')
+          .select('velocidade, visao_jogo, forca, finalizacao, posicionamento, tecnica, scout_score, observacao, professor_id, created_at')
+          .eq('aluno_id', id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+        return r.data as AvaliacaoDetalhada | null
+      } catch { return null }
+    })(),
   ])
 
   // Nome do treinador que fez a avaliação
