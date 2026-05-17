@@ -7,11 +7,11 @@ export async function POST(req: NextRequest) {
   const supabase = await createServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user || user.email !== ADMIN_EMAIL) {
-    return NextResponse.json({ error: 'NÃ£o autorizado' }, { status: 403 })
+    return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
   }
 
   const { atletaId } = await req.json()
-  if (!atletaId) return NextResponse.json({ error: 'atletaId obrigatÃ³rio' }, { status: 400 })
+  if (!atletaId) return NextResponse.json({ error: 'atletaId obrigatório' }, { status: 400 })
 
   const admin = createAdminClient()
   const { error } = await admin.from('alunos').delete().eq('id', atletaId)

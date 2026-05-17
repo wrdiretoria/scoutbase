@@ -7,12 +7,12 @@ export async function POST(req: NextRequest) {
   const supabase = await createServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user || user.email !== ADMIN_EMAIL) {
-    return NextResponse.json({ error: 'NÃ£o autorizado' }, { status: 403 })
+    return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
   }
 
   const { userId, novaSenha } = await req.json()
   if (!userId || !novaSenha || novaSenha.length < 6) {
-    return NextResponse.json({ error: 'Dados invÃ¡lidos' }, { status: 400 })
+    return NextResponse.json({ error: 'Dados inválidos' }, { status: 400 })
   }
 
   const admin = createAdminClient()

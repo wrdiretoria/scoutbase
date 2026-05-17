@@ -4,11 +4,11 @@ import { useState } from 'react'
 import Link from 'next/link'
 
 const navLinks = [
-  { label: 'ðŸ† Ranking', href: '/ranking' },
-  { label: 'Para atletas', href: '/atleta/cadastro' },
-  { label: 'Para escolas', href: '/treinador/cadastro' },
-  { label: 'ðŸ” Para scouts', href: '/scout/busca' },
-  { label: 'Planos', href: '#' },
+  { label: '🏆 Ranking',    href: '/ranking' },
+  { label: 'Para atletas',  href: '/atleta/cadastro' },
+  { label: 'Para escolas',  href: '/treinador/cadastro' },
+  { label: '🔍 Para scouts', href: '/scout/busca' },
+  { label: 'Planos',        href: '#' },
 ]
 
 export default function NavBar() {
@@ -29,7 +29,7 @@ export default function NavBar() {
         }
       `}</style>
 
-      {/* â”€â”€â”€ MAIN NAV BAR â”€â”€â”€ */}
+      {/* ─── MAIN NAV BAR ─── */}
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200,
         height: '64px',
@@ -44,7 +44,7 @@ export default function NavBar() {
         }}>
           {/* Logo */}
           <Link href="/" style={{ textDecoration: 'none', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '22px' }}>âš½</span>
+            <span style={{ fontSize: '22px' }}>⚽</span>
             <span style={{ fontSize: '19px', fontWeight: 800, letterSpacing: '0.04em', color: 'white' }}>MEU </span>
             <span style={{ fontSize: '19px', fontWeight: 800, letterSpacing: '0.04em', color: '#22c55e' }}>CRAQUE</span>
           </Link>
@@ -69,11 +69,11 @@ export default function NavBar() {
               padding: '8px 20px', fontSize: '14px', fontWeight: 700,
               color: 'black', background: '#22c55e', borderRadius: '10px', textDecoration: 'none',
             }}>
-              ComeÃ§ar agora
+              Começar agora
             </Link>
           </div>
 
-          {/* Hamburger button â€” mobile only */}
+          {/* Hamburger — mobile only */}
           <button
             className="hamburger-btn"
             onClick={() => setOpen(o => !o)}
@@ -81,12 +81,10 @@ export default function NavBar() {
             style={{ marginLeft: 'auto' }}
           >
             {open ? (
-              /* X icon */
               <svg width="24" height="24" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/>
               </svg>
             ) : (
-              /* Hamburger icon */
               <svg width="24" height="24" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
               </svg>
@@ -95,7 +93,7 @@ export default function NavBar() {
         </div>
       </nav>
 
-      {/* â”€â”€â”€ MOBILE MENU OVERLAY â”€â”€â”€ */}
+      {/* ─── MOBILE MENU OVERLAY ─── */}
       {open && (
         <div
           onClick={() => setOpen(false)}
@@ -153,7 +151,7 @@ export default function NavBar() {
                 textDecoration: 'none', display: 'block',
               }}
             >
-              ComeÃ§ar agora â†’
+              Começar agora →
             </Link>
           </div>
         </div>
