@@ -29,8 +29,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true, ja_desbloqueada: true })
     }
 
-    // Cria cliente Asaas (nome do atleta, sem CPF — pagamento avulso)
-    const cliente = await asaas.criarCliente({ name: nomeAtleta })
+    // Reutiliza cliente Asaas existente ou cria novo
+    let customerId = user?.user_metadata?.asaas_customer_id as string | undefined
+    if (!customerId) {
+      const cliente = await asaas.criarCliente({
+        name:  nomeAtleta,
+        email: user?.email ?? undefined,
+      })
+      customerId = cliente.id
+      await admin.auth.admin.updateUserById(userId, {
+        user_metadata: { asaas_customer_id: customerId },
+      })
+    }
 
     // Data de vencimento = hoje + 1 dia
     const vencimento = new Date()
@@ -39,7 +49,7 @@ export async function POST(req: Request) {
 
     // Cria cobrança R$5
     const cobranca = await asaas.criarCobranca({
-      customer:          cliente.id,
+      customer:          customerId,
       billingType:       'PIX',
       value:             5.00,
       dueDate,
