@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * RankingFiltros — filtros interativos do ranking (posição + cidade).
+ * RankingFiltros — filtros interativos do ranking (posição + cidade + estado).
  * As categorias ficam no Server Component como pills (sem JS).
  */
 
@@ -14,37 +14,49 @@ const POSICOES = [
   'Atacante', 'Centro-Avante',
 ]
 
+const ESTADOS = [
+  'AC','AL','AP','AM','BA','CE','DF','ES','GO',
+  'MA','MT','MS','MG','PA','PB','PR','PE','PI',
+  'RJ','RN','RS','RO','RR','SC','SP','SE','TO',
+]
+
 type Props = {
   categoriaFiltro?: string
   posicaoFiltro?:   string
   cidadeFiltro?:    string
+  estadoFiltro?:    string
 }
 
-function buildUrl(p: { categoria?: string; posicao?: string; cidade?: string }) {
+function buildUrl(p: { categoria?: string; posicao?: string; cidade?: string; estado?: string }) {
   const q = new URLSearchParams()
   if (p.categoria) q.set('categoria', p.categoria)
   if (p.posicao)   q.set('posicao',   p.posicao)
   if (p.cidade)    q.set('cidade',    p.cidade)
+  if (p.estado)    q.set('estado',    p.estado)
   const s = q.toString()
   return `/ranking${s ? `?${s}` : ''}`
 }
 
-export default function RankingFiltros({ categoriaFiltro, posicaoFiltro, cidadeFiltro }: Props) {
+export default function RankingFiltros({ categoriaFiltro, posicaoFiltro, cidadeFiltro, estadoFiltro }: Props) {
   const router  = useRouter()
   const [cidade, setCidade] = useState(cidadeFiltro ?? '')
 
   useEffect(() => { setCidade(cidadeFiltro ?? '') }, [cidadeFiltro])
 
   function onPosicao(pos: string) {
-    router.push(buildUrl({ categoria: categoriaFiltro, posicao: pos || undefined, cidade: cidadeFiltro }))
+    router.push(buildUrl({ categoria: categoriaFiltro, posicao: pos || undefined, cidade: cidadeFiltro, estado: estadoFiltro }))
+  }
+
+  function onEstado(uf: string) {
+    router.push(buildUrl({ categoria: categoriaFiltro, posicao: posicaoFiltro, cidade: cidadeFiltro, estado: uf || undefined }))
   }
 
   function onCidadeSubmit(e: React.FormEvent) {
     e.preventDefault()
-    router.push(buildUrl({ categoria: categoriaFiltro, posicao: posicaoFiltro, cidade: cidade.trim() || undefined }))
+    router.push(buildUrl({ categoria: categoriaFiltro, posicao: posicaoFiltro, cidade: cidade.trim() || undefined, estado: estadoFiltro }))
   }
 
-  const temFiltro = posicaoFiltro || cidadeFiltro
+  const temFiltro = posicaoFiltro || cidadeFiltro || estadoFiltro
 
   const selectBase: React.CSSProperties = {
     padding: '9px 14px', borderRadius: '10px', fontSize: '13px', fontWeight: 600,
@@ -64,6 +76,16 @@ export default function RankingFiltros({ categoriaFiltro, posicaoFiltro, cidadeF
         >
           <option value="">Todas as posições</option>
           {POSICOES.map(p => <option key={p} value={p}>{p}</option>)}
+        </select>
+
+        {/* Estado */}
+        <select
+          value={estadoFiltro ?? ''}
+          onChange={e => onEstado(e.target.value)}
+          style={{ ...selectBase, minWidth: '90px' }}
+        >
+          <option value="">Todos os estados</option>
+          {ESTADOS.map(uf => <option key={uf} value={uf}>{uf}</option>)}
         </select>
 
         {/* Cidade */}
@@ -114,6 +136,15 @@ export default function RankingFiltros({ categoriaFiltro, posicaoFiltro, cidadeF
               borderRadius: '20px', padding: '3px 10px',
             }}>
               {posicaoFiltro}
+            </span>
+          )}
+          {estadoFiltro && (
+            <span style={{
+              fontSize: '11px', fontWeight: 700, color: '#a78bfa',
+              background: 'rgba(167,139,250,0.1)', border: '1px solid rgba(167,139,250,0.2)',
+              borderRadius: '20px', padding: '3px 10px',
+            }}>
+              🗺️ {estadoFiltro}
             </span>
           )}
           {cidadeFiltro && (

@@ -49,10 +49,10 @@ const RANK_COLORS: Record<number, { bg: string; text: string; border: string }> 
 
 // ── Page ────────────────────────────────────────────────────────────────────
 
-type Props = { searchParams: Promise<{ categoria?: string; posicao?: string; cidade?: string }> }
+type Props = { searchParams: Promise<{ categoria?: string; posicao?: string; cidade?: string; estado?: string }> }
 
 export default async function RankingPage({ searchParams }: Props) {
-  const { categoria: categoriaFiltro, posicao: posicaoFiltro, cidade: cidadeFiltro } = await searchParams
+  const { categoria: categoriaFiltro, posicao: posicaoFiltro, cidade: cidadeFiltro, estado: estadoFiltro } = await searchParams
 
   const admin = createAdminClient()
 
@@ -79,14 +79,14 @@ export default async function RankingPage({ searchParams }: Props) {
 
   // 4. Monta ranking — só atletas com avaliação, ordenados por OVR real
   type RankingItem = {
-    id: string; nome: string; posicao: string; cidade: string
+    id: string; nome: string; posicao: string; cidade: string; estado: string
     dataNasc: string | null; ovr: number; categoria: string | null
     initials: string; pos: string; avatarUrl: string | null
   }
 
   const ranking: RankingItem[] = atletas
     .map(u => {
-      const meta = u.user_metadata as { nome?: string; posicao?: string; cidade?: string }
+      const meta = u.user_metadata as { nome?: string; posicao?: string; cidade?: string; estado?: string }
       const profile   = profileMap.get(u.id)
       const nome      = (profile?.nome as string | null) ?? meta.nome ?? 'Atleta'
       const dataNasc  = (profile?.data_nascimento as string | null) ?? null
@@ -97,6 +97,7 @@ export default async function RankingPage({ searchParams }: Props) {
         id: u.id, nome,
         posicao:   meta.posicao ?? '',
         cidade:    meta.cidade  ?? '',
+        estado:    meta.estado  ?? '',
         dataNasc,  ovr,
         categoria: dataNasc ? calcularCategoria(dataNasc) : null,
         initials:  getInitials(nome),
@@ -111,6 +112,7 @@ export default async function RankingPage({ searchParams }: Props) {
   const filtered = ranking.filter(a => {
     if (categoriaFiltro && a.categoria !== categoriaFiltro) return false
     if (posicaoFiltro   && a.posicao   !== posicaoFiltro)   return false
+    if (estadoFiltro    && a.estado.toUpperCase()    !== estadoFiltro.toUpperCase())    return false
     if (cidadeFiltro    && !a.cidade.toLowerCase().includes(cidadeFiltro.toLowerCase())) return false
     return true
   })
@@ -157,8 +159,9 @@ export default async function RankingPage({ searchParams }: Props) {
             {filtered.length} atleta{filtered.length !== 1 ? 's' : ''}
             {categoriaFiltro ? ` · ${categoriaFiltro}` : ''}
             {posicaoFiltro   ? ` · ${posicaoFiltro}`   : ''}
+            {estadoFiltro    ? ` · ${estadoFiltro}`     : ''}
             {cidadeFiltro    ? ` · ${cidadeFiltro}`     : ''}
-            {!categoriaFiltro && !posicaoFiltro && !cidadeFiltro ? ' · ranking geral' : ''}
+            {!categoriaFiltro && !posicaoFiltro && !estadoFiltro && !cidadeFiltro ? ' · ranking geral' : ''}
           </p>
         </div>
 
@@ -167,6 +170,7 @@ export default async function RankingPage({ searchParams }: Props) {
           {(() => {
             const extra = new URLSearchParams()
             if (posicaoFiltro) extra.set('posicao', posicaoFiltro)
+            if (estadoFiltro)  extra.set('estado',  estadoFiltro)
             if (cidadeFiltro)  extra.set('cidade',  cidadeFiltro)
             const extraStr = extra.toString()
             return (
@@ -188,6 +192,7 @@ export default async function RankingPage({ searchParams }: Props) {
           {CATEGORIAS.map(cat => {
             const q = new URLSearchParams({ categoria: cat })
             if (posicaoFiltro) q.set('posicao', posicaoFiltro)
+            if (estadoFiltro)  q.set('estado',  estadoFiltro)
             if (cidadeFiltro)  q.set('cidade',  cidadeFiltro)
             return (
             <Link
@@ -207,10 +212,11 @@ export default async function RankingPage({ searchParams }: Props) {
           )})}
         </div>
 
-        {/* Filtros de posição + cidade (client component) */}
+        {/* Filtros de posição + estado + cidade (client component) */}
         <RankingFiltros
           categoriaFiltro={categoriaFiltro}
           posicaoFiltro={posicaoFiltro}
+          estadoFiltro={estadoFiltro}
           cidadeFiltro={cidadeFiltro}
         />
 

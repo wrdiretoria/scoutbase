@@ -12,16 +12,18 @@ const posicoes = [
 ]
 
 type Props = {
-  escolaId: string | null
+  escolaId:  string | null
   escolaNome: string | null
+  refCode:   string | null
 }
 
-export default function CadastroForm({ escolaId, escolaNome }: Props) {
+export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
   const router = useRouter()
   const [step, setStep] = useState<1 | 2>(1)
   const [nome, setNome] = useState('')
   const [posicao, setPosicao] = useState('')
   const [cidade, setCidade] = useState('')
+  const [estado, setEstado] = useState('')
   const [dataNasc, setDataNasc] = useState('')
   const [recoveryEmail, setRecoveryEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -81,7 +83,7 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
       email: internalEmail,
       password,
       options: {
-        data: { nome, posicao, cidade, tipo: 'atleta' },
+        data: { nome, posicao, cidade, estado: estado || undefined, tipo: 'atleta' },
       },
     })
 
@@ -93,7 +95,20 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
 
     const userId = data.user.id
 
-    // 3. Upload da foto se houver
+    // 3. Registrar indicação se houver código de referência
+    if (refCode) {
+      try {
+        await fetch('/api/indicacao/registrar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refCode, newUserId: userId }),
+        })
+      } catch {
+        // indicação falhou — não bloqueia o cadastro
+      }
+    }
+
+    // 4. Upload da foto se houver
     let avatarUrl: string | null = null
     if (photo) {
       const ext = photo.name.split('.').pop() ?? 'jpg'
@@ -111,7 +126,7 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
       }
     }
 
-    // 4. Salvar perfil
+    // 5. Salvar perfil
     const saveRes = await fetch('/api/atleta/salvar-perfil', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -187,6 +202,20 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
               <div>
                 <p style={{ margin: 0, fontSize: '11px', color: '#22c55e', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Convite aceito</p>
                 <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>Escolinha de {escolaNome}</p>
+              </div>
+            </div>
+          )}
+
+          {refCode && !escolaId && (
+            <div style={{
+              marginBottom: '20px', padding: '12px 16px', borderRadius: '12px',
+              background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.2)',
+              display: 'flex', alignItems: 'center', gap: '10px',
+            }}>
+              <span style={{ fontSize: '20px' }}>🤝</span>
+              <div>
+                <p style={{ margin: 0, fontSize: '11px', color: '#60a5fa', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Indicação recebida</p>
+                <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>Código: {refCode}</p>
               </div>
             </div>
           )}
@@ -353,12 +382,26 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
               </select>
             </div>
 
-            <div>
-              <label style={labelStyle}>Cidade</label>
-              <input
-                type="text" required value={cidade} onChange={e => setCidade(e.target.value)}
-                placeholder="Sua cidade" style={inputStyle}
-              />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '10px' }}>
+              <div>
+                <label style={labelStyle}>Cidade</label>
+                <input
+                  type="text" required value={cidade} onChange={e => setCidade(e.target.value)}
+                  placeholder="Sua cidade" style={inputStyle}
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>Estado</label>
+                <select
+                  value={estado} onChange={e => setEstado(e.target.value)}
+                  style={{ ...inputStyle, width: '80px', paddingLeft: '10px', paddingRight: '10px', cursor: 'pointer' }}
+                >
+                  <option value="">UF</option>
+                  {['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'].map(uf => (
+                    <option key={uf} value={uf}>{uf}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div>

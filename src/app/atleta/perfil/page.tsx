@@ -188,6 +188,106 @@ function getThumbnail(hl: Highlight): string {
   return ''
 }
 
+// ── Indicação Section ─────────────────────────────────────────────────────────
+
+function IndicacaoSection({ athleteId }: { athleteId: string }) {
+  const [count, setCount]   = useState<number | null>(null)
+  const [copied, setCopied] = useState(false)
+
+  const link = `https://meucraque.com.br/atleta/cadastro?ref=${athleteId}`
+
+  useEffect(() => {
+    fetch('/api/indicacao/stats')
+      .then(r => r.json())
+      .then((d: { count?: number }) => setCount(d.count ?? 0))
+      .catch(() => setCount(0))
+  }, [])
+
+  function handleCopy() {
+    navigator.clipboard.writeText(link).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2200)
+    })
+  }
+
+  function handleShare() {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Meu Craque — Sua vitrine esportiva',
+        text: '🔥 Cria seu perfil no Meu Craque e entra no ranking! Use meu código de indicação:',
+        url: link,
+      })
+    } else {
+      handleCopy()
+    }
+  }
+
+  return (
+    <div style={{
+      padding: '18px', borderRadius: '16px', marginBottom: '16px',
+      background: 'linear-gradient(135deg,rgba(96,165,250,0.06),rgba(167,139,250,0.06))',
+      border: '1px solid rgba(96,165,250,0.15)',
+    }}>
+      <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'12px' }}>
+        <span style={{ fontSize:'20px' }}>🤝</span>
+        <div style={{ flex:1 }}>
+          <p style={{ margin:0, fontSize:'13px', fontWeight:800, color:'white' }}>Indicar amigos</p>
+          <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.4)' }}>
+            {count === null ? '…' : count === 0 ? 'Nenhuma indicação ainda' : `${count} atleta${count !== 1 ? 's' : ''} indicado${count !== 1 ? 's' : ''}`}
+          </p>
+        </div>
+        {count !== null && count > 0 && (
+          <div style={{
+            padding:'4px 10px', borderRadius:'20px', fontSize:'11px', fontWeight:800,
+            background:'rgba(96,165,250,0.15)', color:'#60a5fa',
+            border:'1px solid rgba(96,165,250,0.25)',
+          }}>
+            🏅 {count}
+          </div>
+        )}
+      </div>
+
+      {/* Link */}
+      <div style={{ display:'flex', gap:'6px', marginBottom:'8px' }}>
+        <div style={{
+          flex:1, padding:'9px 12px', borderRadius:'10px', fontSize:'11px', fontFamily:'monospace',
+          background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)',
+          color:'rgba(255,255,255,0.45)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis',
+        }}>
+          {link}
+        </div>
+        <button
+          onClick={handleCopy}
+          style={{
+            padding:'9px 14px', borderRadius:'10px', border:'none', cursor:'pointer', flexShrink:0,
+            background: copied ? '#1e40af' : 'rgba(96,165,250,0.15)',
+            color: copied ? 'white' : '#60a5fa',
+            fontWeight:700, fontSize:'12px', fontFamily:'system-ui, sans-serif',
+            border:'1px solid rgba(96,165,250,0.25)',
+            transition:'all 0.2s',
+          }}
+        >
+          {copied ? '✓ Copiado' : 'Copiar'}
+        </button>
+      </div>
+
+      <button
+        onClick={handleShare}
+        style={{
+          width:'100%', padding:'10px', borderRadius:'10px', border:'none', cursor:'pointer',
+          background:'linear-gradient(135deg,rgba(96,165,250,0.15),rgba(167,139,250,0.15))',
+          color:'rgba(255,255,255,0.7)', fontWeight:700, fontSize:'13px',
+          fontFamily:'system-ui, sans-serif',
+          border:'1px solid rgba(96,165,250,0.2)',
+          display:'flex', alignItems:'center', justifyContent:'center', gap:'8px',
+        }}
+      >
+        <span>📲</span> Compartilhar convite
+      </button>
+    </div>
+  )
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 function AtletaPerfilContent() {
@@ -1502,6 +1602,9 @@ function AtletaPerfilContent() {
           )}
         </div>
 
+        {/* ── Indicação ── */}
+        {athleteId && <IndicacaoSection athleteId={athleteId} />}
+
         {/* ── Ações ── */}
         <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
           <button
@@ -1525,6 +1628,24 @@ function AtletaPerfilContent() {
             </div>
             <span style={{ fontSize:'16px', color:'rgba(0,255,136,0.5)', flexShrink:0 }}>↗</span>
           </button>
+
+          {/* Card para Instagram/Story */}
+          {uid && athleteId && (
+            <Link
+              href={`/atleta/compartilhar?nome=${encodeURIComponent(meta.nome)}&posicao=${encodeURIComponent(meta.posicao)}&cidade=${encodeURIComponent(meta.cidade)}&dataNasc=${dataNasc ?? ''}&uid=${uid}&athleteId=${athleteId}${avatarUrl ? `&avatarUrl=${encodeURIComponent(avatarUrl)}` : ''}`}
+              className="action-btn"
+              style={{ gap:'12px' }}
+            >
+              <span style={{ fontSize:'20px', flexShrink:0 }}>📸</span>
+              <div style={{ flex:1, textAlign:'left' }}>
+                <span style={{ display:'block', fontSize:'14px', fontWeight:700 }}>Card para Instagram / Story</span>
+                <span style={{ display:'block', fontSize:'11px', color:'rgba(255,255,255,0.42)', marginTop:'1px' }}>
+                  Baixar imagem do seu card FIFA
+                </span>
+              </div>
+              <span style={{ fontSize:'16px', color:'rgba(0,255,136,0.5)', flexShrink:0 }}>↗</span>
+            </Link>
+          )}
 
           <Link href="/ranking" className="action-btn" style={{ justifyContent:'center', textAlign:'center' }}>
             Ver ranking geral →

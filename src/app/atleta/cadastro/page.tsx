@@ -5,10 +5,10 @@
 import { createAdminClient } from '@/lib/supabase'
 import CadastroForm from './CadastroForm'
 
-type Props = { searchParams: Promise<{ escola?: string }> }
+type Props = { searchParams: Promise<{ escola?: string; ref?: string }> }
 
 export default async function Page({ searchParams }: Props) {
-  const { escola } = await searchParams
+  const { escola, ref } = await searchParams
 
   let escolaNome: string | null = null
 
@@ -24,5 +24,5 @@ export default async function Page({ searchParams }: Props) {
     }
   }
 
-  return <CadastroForm escolaId={escola ?? null} escolaNome={escolaNome} />
+  return <CadastroForm escolaId={escola ?? null} escolaNome={escolaNome} refCode={ref?.toUpperCase() ?? null} />
 }
