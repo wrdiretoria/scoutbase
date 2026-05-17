@@ -50,7 +50,7 @@ export async function POST(req: Request) {
     // Cria cobrança R$5
     const cobranca = await asaas.criarCobranca({
       customer:          customerId,
-      billingType:       'PIX',
+      billingType:       'UNDEFINED',
       value:             5.00,
       dueDate,
       description:       'Carta de Avaliação — Meu Craque',

@@ -47,7 +47,7 @@ export async function POST() {
     // Cria cobrança Pix
     const cobranca = await asaas.criarCobranca({
       customer:          customerId,
-      billingType:       'PIX',
+      billingType:       'UNDEFINED',
       value:             VALOR_PROMOCAO,
       dueDate:           dueDateStr,
       description:       'Destaque Meu Craque — 30 dias no topo da busca de scouts',

@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
     // Cria cobrança no Asaas
     const cobranca = await asaas.criarCobranca({
       customer: customerId,
-      billingType: 'PIX',
+      billingType: 'UNDEFINED',
       value: valor,
       dueDate: vencimento,
       description: `Mensalidade Meu Craque — ${nome_aluno} — ${competencia}`,
