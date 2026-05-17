@@ -137,6 +137,64 @@ export function emailResumSemanal(p: ResumSemanalParams): string {
 }
 
 
+// ── Email: Scout salvou você como favorito ────────────────────────────────────
+
+interface FavoritoEmailParams {
+  atletaNome:   string
+  scoutNome:    string
+  atletaId:     string
+}
+
+export function emailScoutFavoritou(p: FavoritoEmailParams): string {
+  const perfilUrl = `https://meucraque.com.br/jogador/${p.atletaId}`
+  return `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#fffbeb;font-family:system-ui,-apple-system,sans-serif;">
+  <div style="max-width:520px;margin:32px auto;background:white;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+
+    <div style="background:linear-gradient(135deg,#030c05,#0a1a0c);padding:32px;text-align:center;">
+      <div style="font-size:40px;margin-bottom:8px;">⭐</div>
+      <div style="font-size:22px;font-weight:900;color:white;">
+        MEU <span style="color:#22c55e;">CRAQUE</span>
+      </div>
+    </div>
+
+    <div style="padding:32px;">
+      <h1 style="margin:0 0 12px;font-size:22px;font-weight:900;color:#111;">
+        Um scout te adicionou aos favoritos!
+      </h1>
+      <p style="margin:0 0 24px;color:#555;font-size:15px;line-height:1.6;">
+        Olá, <strong>${p.atletaNome.split(' ')[0]}</strong>! O scout <strong>${p.scoutNome}</strong> acabou de salvar seu perfil como favorito. Isso significa que ele está te acompanhando de perto. 👀
+      </p>
+
+      <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:16px;padding:20px;text-align:center;margin-bottom:24px;">
+        <div style="font-size:36px;margin-bottom:8px;">🔍</div>
+        <p style="margin:0;font-size:14px;color:#92400e;font-weight:700;">
+          Mantenha seu perfil atualizado.<br>Scouts buscam atletas completos.
+        </p>
+      </div>
+
+      <a href="${perfilUrl}" style="display:block;background:#22c55e;color:white;text-align:center;padding:16px;border-radius:14px;font-weight:900;font-size:16px;text-decoration:none;margin-bottom:12px;">
+        Ver meu perfil →
+      </a>
+      <a href="https://meucraque.com.br/atleta/promover" style="display:block;background:#f0fdf4;color:#15803d;text-align:center;padding:13px;border-radius:14px;font-weight:700;font-size:14px;text-decoration:none;border:1px solid #bbf7d0;">
+        🚀 Aparecer em destaque para mais scouts
+      </a>
+    </div>
+
+    <div style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:16px 32px;text-align:center;">
+      <p style="margin:0;font-size:11px;color:#9ca3af;">
+        Meu Craque · <a href="https://meucraque.com.br" style="color:#22c55e;text-decoration:none;">meucraque.com.br</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+  `.trim()
+}
+
 interface AvaliacaoEmailParams {
   atletaNome: string
   atletaEmail: string

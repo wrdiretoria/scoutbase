@@ -9,6 +9,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient, createAdminClient } from '@/lib/supabase'
+import { sendEmail, emailScoutFavoritou } from '@/lib/email'
 
 // ── GET ── lista os favoritos do scout atual ──────────────────────────────────
 export async function GET() {
@@ -59,6 +60,27 @@ export async function POST(req: NextRequest) {
         })
       }
     } catch { /* silencia — não bloqueia a resposta */ }
+
+    // 3. Email para o atleta quando é favoritado (apenas ao adicionar, não ao remover)
+    if (!jaFavoritado) {
+      try {
+        const { data: { user: atletaUser } } = await admin.auth.admin.getUserById(atletaId)
+        if (atletaUser?.email) {
+          const atletaMeta = atletaUser.user_metadata as { nome?: string }
+          const scoutMeta  = user.user_metadata as { nome?: string }
+          const html = emailScoutFavoritou({
+            atletaNome: atletaMeta.nome ?? 'Atleta',
+            scoutNome:  scoutMeta.nome  ?? 'Um scout',
+            atletaId,
+          })
+          await sendEmail({
+            to:      atletaUser.email,
+            subject: `⭐ Um scout salvou seu perfil no Meu Craque!`,
+            html,
+          })
+        }
+      } catch { /* email nunca bloqueia */ }
+    }
 
     return NextResponse.json({
       ok:         true,
