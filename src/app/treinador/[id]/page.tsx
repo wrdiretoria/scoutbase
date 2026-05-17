@@ -116,7 +116,7 @@ export default async function TreinadorPerfilPublico({ params }: Props) {
   type Avaliacao = {
     id:         string
     aluno_id:   string
-    nota_geral: number
+    nota_geral: number   // mapeado de scout_score do banco
     created_at: string
     aluno_nome: string
     posicao:    string
@@ -128,19 +128,20 @@ export default async function TreinadorPerfilPublico({ params }: Props) {
     const alunoIds = alunos.map(a => a.id)
     const { data } = await admin
       .from('avaliacoes')
-      .select('id, aluno_id, nota_geral, created_at')
+      .select('id, aluno_id, scout_score, created_at')   // coluna real do banco
       .in('aluno_id', alunoIds)
+      .not('scout_score', 'is', null)
       .order('created_at', { ascending: false })
       .limit(50)
 
     const alunoMap = new Map(alunos.map(a => [a.id, a]))
-    avaliacoes = ((data ?? []) as { id: string; aluno_id: string; nota_geral: number; created_at: string }[])
+    avaliacoes = ((data ?? []) as { id: string; aluno_id: string; scout_score: number; created_at: string }[])
       .map(av => {
         const aluno = alunoMap.get(av.aluno_id)
         return {
           id:         av.id,
           aluno_id:   av.aluno_id,
-          nota_geral: av.nota_geral,
+          nota_geral: av.scout_score,   // normaliza pra UI
           created_at: av.created_at,
           aluno_nome: aluno?.nome ?? 'Atleta',
           posicao:    aluno?.posicao ?? '',

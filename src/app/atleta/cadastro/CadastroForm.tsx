@@ -472,7 +472,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
               </div>
               <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>
                 Confirmo que tenho autorização para criar este perfil e concordo com os{' '}
-                <Link href="#" style={{ color: '#22c55e', textDecoration: 'none' }}>termos de uso</Link>.
+                <Link href="/termos" target="_blank" style={{ color: '#22c55e', textDecoration: 'none' }}>termos de uso</Link>.
               </span>
             </label>
 

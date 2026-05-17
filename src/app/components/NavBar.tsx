@@ -8,7 +8,7 @@ const navLinks = [
   { label: 'Para atletas',  href: '/atleta/cadastro' },
   { label: 'Para escolas',  href: '/treinador/cadastro' },
   { label: '🔍 Para scouts', href: '/scout/busca' },
-  { label: 'Planos',        href: '#' },
+  { label: 'Planos',        href: '/planos' },
 ]
 
 export default function NavBar() {
