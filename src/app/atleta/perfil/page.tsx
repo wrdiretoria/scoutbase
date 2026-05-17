@@ -965,8 +965,8 @@ function AtletaPerfilContent() {
           </div>
         )}
 
-        {/* ── Promoção — destaque na busca ── */}
-        <Link href="/atleta/promover" className="traj-btn" style={{ marginBottom:'12px', display:'flex', borderColor:'rgba(34,197,94,0.25)', background:'rgba(34,197,94,0.04)' }}>
+        {/* ── Promoção — destaque na busca (só aparece após primeira avaliação) ── */}
+        {avaliacao && <Link href="/atleta/promover" className="traj-btn" style={{ marginBottom:'12px', display:'flex', borderColor:'rgba(34,197,94,0.25)', background:'rgba(34,197,94,0.04)' }}>
           <div style={{
             width:'40px', height:'40px', borderRadius:'12px', flexShrink:0,
             background:'rgba(34,197,94,0.12)', border:'1px solid rgba(34,197,94,0.3)',
@@ -983,7 +983,7 @@ function AtletaPerfilContent() {
             </p>
           </div>
           <span style={{ color:'rgba(34,197,94,0.4)', fontSize:'18px', flexShrink:0, alignSelf:'center' }}>›</span>
-        </Link>
+        </Link>}
 
         {/* ── Carta de Avaliação ── */}
         <Link href="/atleta/carta" className="traj-btn" style={{ marginBottom:'12px', display:'flex', borderColor:'rgba(0,255,136,0.2)', background:'rgba(0,255,136,0.03)' }}>

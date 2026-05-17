@@ -29,6 +29,19 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true, ja_desbloqueada: true })
     }
 
+    // Primeira avaliação é bônus — desbloqueia grátis sem cobrar
+    const { count } = await admin
+      .from('avaliacoes')
+      .select('id', { count: 'exact', head: true })
+      .eq('aluno_id', userId)
+
+    if ((count ?? 0) === 0) {
+      await admin.auth.admin.updateUserById(userId, {
+        user_metadata: { carta_desbloqueada: true },
+      })
+      return NextResponse.json({ ok: true, bonus: true })
+    }
+
     // Reutiliza cliente Asaas existente ou cria novo
     let customerId = user?.user_metadata?.asaas_customer_id as string | undefined
     if (!customerId) {
@@ -53,7 +66,7 @@ export async function POST(req: Request) {
       billingType:       'UNDEFINED',
       value:             5.00,
       dueDate,
-      description:       'Carta de Avaliação — Meu Craque',
+      description:       'Card de Avaliação — Meu Craque',
       externalReference: `carta_${userId}`,
     })
 
