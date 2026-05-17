@@ -4,7 +4,7 @@
     {
       "name": "mockup",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": ["run", "dev", "--prefix", "C:\\Users\\was25\\OneDrive\\Desktop\\Saas\\belaja"],
       "port": 3000
     }
   ]

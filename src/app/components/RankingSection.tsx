@@ -1,123 +1,104 @@
-// Server Component — sem 'use client'
+/**
+ * RankingSection — top 6 atletas reais do banco (Server Component)
+ */
 
-const athletes = [
-  {
-    rank: 1,
-    initials: 'PH',
-    name: 'Pedro Henrique',
-    position: 'Meia Atacante',
-    city: 'São Paulo – SP',
-    rating: 91,
-    trend: '+3',
-    sponsored: true,
-    color: 'linear-gradient(135deg,#16a34a,#4ade80)',
-    bg: 'linear-gradient(160deg,rgba(34,197,94,0.10),rgba(34,197,94,0.03))',
-    border: 'rgba(34,197,94,0.25)',
-    stats: [
-      { label: 'Velocidade', val: 92 },
-      { label: 'Finalização', val: 88 },
-      { label: 'Drible', val: 90 },
-      { label: 'Passe', val: 85 },
-      { label: 'Físico', val: 80 },
-    ],
-  },
-  {
-    rank: 2,
-    initials: 'AS',
-    name: 'Arthur Silva',
-    position: 'Goleiro',
-    city: 'Santos – SP',
-    rating: 88,
-    trend: null,
-    sponsored: true,
-    color: 'linear-gradient(135deg,#2563eb,#60a5fa)',
-    bg: 'linear-gradient(160deg,rgba(37,99,235,0.08),rgba(37,99,235,0.02))',
-    border: 'rgba(37,99,235,0.2)',
-    stats: [
-      { label: 'Reflexo', val: 91 },
-      { label: 'Posicionam.', val: 87 },
-      { label: 'Agilidade', val: 85 },
-      { label: 'Saída de Bola', val: 82 },
-      { label: 'Liderança', val: 88 },
-    ],
-  },
-  {
-    rank: 3,
-    initials: 'MC',
-    name: 'Miguel Costa',
-    position: 'Zagueiro',
-    city: 'Curitiba – PR',
-    rating: 86,
-    trend: '+5',
-    sponsored: false,
-    color: 'linear-gradient(135deg,#7c3aed,#a78bfa)',
-    bg: 'rgba(255,255,255,0.03)',
-    border: 'rgba(255,255,255,0.08)',
-    stats: [
-      { label: 'Marcação', val: 89 },
-      { label: 'Físico', val: 87 },
-      { label: 'Cabeceio', val: 84 },
-      { label: 'Passe', val: 78 },
-      { label: 'Posicionam.', val: 85 },
-    ],
-  },
-  {
-    rank: 4,
-    initials: 'GL',
-    name: 'Gabriel Lima',
-    position: 'Lateral Direito',
-    city: 'Belo Horizonte – MG',
-    rating: 85,
-    trend: '+1',
-    sponsored: false,
-    color: 'linear-gradient(135deg,#dc2626,#f87171)',
-    bg: 'rgba(255,255,255,0.03)',
-    border: 'rgba(255,255,255,0.08)',
-    stats: [
-      { label: 'Velocidade', val: 88 },
-      { label: 'Cruzamento', val: 84 },
-      { label: 'Marcação', val: 82 },
-      { label: 'Físico', val: 80 },
-      { label: 'Resistência', val: 86 },
-    ],
-  },
-  {
-    rank: 5,
-    initials: 'KA',
-    name: 'Kauã Alves',
-    position: 'Atacante',
-    city: 'Fortaleza – CE',
-    rating: 84,
-    trend: '+2',
-    sponsored: false,
-    color: 'linear-gradient(135deg,#d97706,#fbbf24)',
-    bg: 'rgba(255,255,255,0.03)',
-    border: 'rgba(255,255,255,0.08)',
-    stats: [
-      { label: 'Finalização', val: 86 },
-      { label: 'Velocidade', val: 84 },
-      { label: 'Drible', val: 82 },
-      { label: 'Cabeceio', val: 75 },
-      { label: 'Pressão', val: 80 },
-    ],
-  },
-]
+import Link from 'next/link'
+import { createAdminClient } from '@/lib/supabase'
+import { fetchOvrMap } from '@/lib/ovr'
 
-const rankColor = (rank: number) => {
-  if (rank === 1) return '#f59e0b'
-  if (rank === 2) return '#94a3b8'
-  if (rank === 3) return '#b45309'
-  return 'rgba(255,255,255,0.25)'
+function getInitials(nome: string): string {
+  return nome.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase()
 }
 
-export default function RankingSection() {
+function posAbrev(pos: string): string {
+  const map: Record<string, string> = {
+    'Goleiro': 'GK', 'Lateral Direito': 'LD', 'Lateral Esquerdo': 'LE',
+    'Zagueiro': 'ZG', 'Volante': 'VOL', 'Meia': 'MEI',
+    'Meia-Atacante': 'MAT', 'Ponta Direita': 'PD', 'Ponta Esquerda': 'PE',
+    'Atacante': 'ATA', 'Centro-Avante': 'CA',
+  }
+  return map[pos] ?? pos.slice(0, 3).toUpperCase()
+}
+
+function calcularIdade(dataNasc: string): number {
+  const hoje = new Date()
+  const nasc = new Date(dataNasc)
+  let idade = hoje.getFullYear() - nasc.getFullYear()
+  const m = hoje.getMonth() - nasc.getMonth()
+  if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--
+  return idade
+}
+
+function rankColor(rank: number): string {
+  if (rank === 1) return '#f59e0b'
+  if (rank === 2) return '#94a3b8'
+  if (rank === 3) return '#cd7c3e'
+  return 'rgba(255,255,255,0.3)'
+}
+
+function ovrColor(ovr: number): string {
+  if (ovr >= 85) return '#22c55e'
+  if (ovr >= 70) return '#f59e0b'
+  return '#94a3b8'
+}
+
+export default async function RankingSection() {
+  type RankItem = {
+    id: string; nome: string; posicao: string; cidade: string
+    dataNasc: string | null; ovr: number; initials: string
+    avatarUrl: string | null; pos: string
+  }
+
+  let top: RankItem[] = []
+
+  try {
+    const admin = createAdminClient()
+    const { data: { users } } = await admin.auth.admin.listUsers({ perPage: 1000 })
+    const atletaUsers = users.filter(u => u.user_metadata?.tipo === 'atleta')
+    const ids = atletaUsers.map(u => u.id)
+
+    const [profilesRes, ovrMap] = await Promise.all([
+      admin.from('profiles').select('id, athlete_id, data_nascimento, avatar_url').in('id', ids),
+      fetchOvrMap(admin),
+    ])
+
+    const profileMap = new Map((profilesRes.data ?? []).map((p: { id: string; athlete_id: string | null; data_nascimento: string | null; avatar_url: string | null }) => [p.id, p]))
+
+    top = atletaUsers
+      .map(u => {
+        const meta = u.user_metadata as { nome?: string; posicao?: string; cidade?: string }
+        const profile = profileMap.get(u.id)
+        const athleteId = (profile?.athlete_id as string | null) ?? null
+        const ovr = athleteId ? (ovrMap.get(athleteId) ?? null) : null
+        if (!ovr) return null
+        const nome = meta.nome ?? 'Atleta'
+        return {
+          id:        u.id,
+          nome,
+          posicao:   meta.posicao ?? '',
+          cidade:    meta.cidade  ?? '',
+          dataNasc:  (profile?.data_nascimento as string | null) ?? null,
+          ovr,
+          initials:  getInitials(nome),
+          avatarUrl: (profile?.avatar_url as string | null) ?? null,
+          pos:       posAbrev(meta.posicao ?? ''),
+        }
+      })
+      .filter((a): a is RankItem => a !== null)
+      .sort((a, b) => b.ovr - a.ovr)
+      .slice(0, 6)
+  } catch { /* sem dados — seção esconde */ }
+
+  // Não mostra a seção se não há atletas avaliados ainda
+  if (top.length === 0) return null
+
   return (
     <section style={{ padding: '80px 0 72px', background: '#06100a', overflow: 'hidden' }}>
       <style>{`
         .ranking-scroll::-webkit-scrollbar { display: none; }
         .ranking-scroll { -ms-overflow-style: none; scrollbar-width: none; }
-        .fifa-card { transition: transform 0.2s, box-shadow 0.2s; }
-        .fifa-card:hover { transform: translateY(-6px); box-shadow: 0 24px 48px rgba(0,0,0,0.5) !important; }
+        .rank-card-link { transition: transform 0.2s, box-shadow 0.2s; text-decoration: none; color: white; display: block; }
+        .rank-card-link:hover { transform: translateY(-6px); }
         @media (max-width: 768px) {
           .ranking-title { font-size: 26px !important; }
           .ranking-scroll { padding: 0 20px 16px !important; }
@@ -130,7 +111,7 @@ export default function RankingSection() {
           fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em',
           color: '#22c55e', textTransform: 'uppercase', marginBottom: '10px',
         }}>
-          ⚡ Destaques da semana
+          ⚡ Ranking Meu Craque
         </p>
         <h2 className="ranking-title" style={{
           fontSize: '34px', fontWeight: 900, letterSpacing: '-0.03em',
@@ -139,7 +120,7 @@ export default function RankingSection() {
           Os craques em evidência
         </h2>
         <p style={{ marginTop: '10px', fontSize: '15px', color: 'rgba(255,255,255,0.45)', maxWidth: '420px', margin: '10px auto 0' }}>
-          Atletas avaliados e vistos por scouts de todo o Brasil.
+          Atletas avaliados por treinadores e vistos por scouts de todo o Brasil.
         </p>
       </div>
 
@@ -152,115 +133,130 @@ export default function RankingSection() {
         maskImage: 'linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%)',
         WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%)',
       }}>
-        {athletes.map((a) => (
-          <div
-            key={a.rank}
-            className="fifa-card"
-            style={{
-              flexShrink: 0,
-              width: '200px',
-              borderRadius: '20px',
-              padding: '20px 16px',
-              background: a.bg,
-              border: `1px solid ${a.border}`,
-              position: 'relative',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
-              cursor: 'default',
-            }}
-          >
-            {/* Badge patrocinado */}
-            {a.sponsored && (
+        {top.map((a, i) => {
+          const rank = i + 1
+          const rc = rankColor(rank)
+          const oc = ovrColor(a.ovr)
+          const idade = a.dataNasc ? calcularIdade(a.dataNasc) : null
+          return (
+            <Link
+              key={a.id}
+              href={`/jogador/${a.id}`}
+              className="rank-card-link"
+              style={{
+                flexShrink: 0,
+                width: '190px',
+                borderRadius: '20px',
+                padding: '20px 16px',
+                background: rank <= 3
+                  ? 'linear-gradient(160deg,rgba(34,197,94,0.07),rgba(34,197,94,0.02))'
+                  : 'rgba(255,255,255,0.02)',
+                border: rank <= 3
+                  ? '1px solid rgba(34,197,94,0.2)'
+                  : '1px solid rgba(255,255,255,0.07)',
+                boxShadow: rank <= 3
+                  ? '0 8px 32px rgba(34,197,94,0.1)'
+                  : '0 4px 16px rgba(0,0,0,0.3)',
+                position: 'relative',
+              }}
+            >
+              {/* Rank badge */}
               <div style={{
-                position: 'absolute', top: '-1px', left: '50%', transform: 'translateX(-50%)',
-                background: 'linear-gradient(90deg,#16a34a,#22c55e)',
-                color: 'black', fontSize: '9px', fontWeight: 800,
-                padding: '3px 10px', borderRadius: '0 0 10px 10px',
-                letterSpacing: '0.06em', whiteSpace: 'nowrap',
+                position: 'absolute', top: '12px', left: '12px',
+                fontSize: rank <= 3 ? '18px' : '13px',
+                fontWeight: 900, color: rc,
+                lineHeight: 1,
               }}>
-                ⭐ DESTAQUE PATROCINADO
+                {rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`}
               </div>
-            )}
 
-            {/* Rank */}
-            <div style={{
-              position: 'absolute', top: a.sponsored ? '22px' : '14px', left: '14px',
-              fontSize: '12px', fontWeight: 800,
-              color: rankColor(a.rank),
-            }}>
-              #{a.rank}
-            </div>
-
-            {/* Trend */}
-            {a.trend && (
+              {/* Avatar */}
               <div style={{
-                position: 'absolute', top: a.sponsored ? '22px' : '14px', right: '14px',
-                fontSize: '10px', fontWeight: 700, color: '#22c55e',
-                background: 'rgba(34,197,94,0.12)',
-                border: '1px solid rgba(34,197,94,0.25)',
-                padding: '2px 7px', borderRadius: '20px',
-              }}>
-                ↑ +{a.trend}
-              </div>
-            )}
-
-            {/* Avatar */}
-            <div style={{ display: 'flex', justifyContent: 'center', margin: '28px 0 14px' }}>
-              <div style={{
-                width: '68px', height: '68px', borderRadius: '50%',
-                background: a.color,
+                width: '64px', height: '64px', borderRadius: '50%',
+                background: 'linear-gradient(135deg,#15803d,#4ade80)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: '20px', fontWeight: 900, color: 'white',
-                border: '2px solid rgba(255,255,255,0.15)',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+                margin: '8px auto 12px',
+                boxShadow: `0 6px 20px ${oc}40`,
+                overflow: 'hidden',
+                border: `2px solid ${oc}50`,
               }}>
-                {a.initials}
+                {a.avatarUrl
+                  ? <img src={a.avatarUrl} alt={a.nome} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  : a.initials}
               </div>
-            </div>
 
-            {/* Rating */}
-            <div style={{
-              textAlign: 'center', fontSize: '46px', fontWeight: 900,
-              color: '#22c55e', lineHeight: 1, marginBottom: '4px',
-            }}>
-              {a.rating}
-            </div>
-
-            {/* Nome + Posição */}
-            <div style={{ textAlign: 'center', marginBottom: '14px' }}>
-              <p style={{ fontSize: '14px', fontWeight: 700, color: 'white', marginBottom: '2px' }}>{a.name}</p>
-              <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)' }}>{a.position} · {a.city.split('–')[0].trim()}</p>
-            </div>
-
-            {/* Stats */}
-            <div style={{
-              borderTop: '1px solid rgba(255,255,255,0.07)',
-              paddingTop: '12px',
-              display: 'flex', flexDirection: 'column', gap: '7px',
-            }}>
-              {a.stats.map((s) => (
-                <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.38)', width: '72px', flexShrink: 0 }}>{s.label}</span>
-                  <div style={{ flex: 1, height: '3px', background: 'rgba(255,255,255,0.08)', borderRadius: '2px' }}>
-                    <div style={{ width: `${s.val}%`, height: '100%', background: '#22c55e', borderRadius: '2px' }} />
-                  </div>
-                  <span style={{ fontSize: '11px', fontWeight: 700, color: 'white', minWidth: '22px', textAlign: 'right' }}>{s.val}</span>
+              {/* OVR */}
+              <div style={{ textAlign: 'center', marginBottom: '10px' }}>
+                <div style={{
+                  fontSize: '36px', fontWeight: 900, color: oc, lineHeight: 1,
+                  textShadow: `0 0 20px ${oc}60`,
+                }}>
+                  {a.ovr}
                 </div>
-              ))}
-            </div>
-          </div>
-        ))}
+                <div style={{
+                  fontSize: '9px', fontWeight: 700, letterSpacing: '0.16em',
+                  color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase',
+                  marginTop: '2px',
+                }}>
+                  OVR
+                </div>
+              </div>
+
+              {/* Nome */}
+              <div style={{
+                fontSize: '13px', fontWeight: 800, color: 'white',
+                textAlign: 'center', lineHeight: 1.2,
+                overflow: 'hidden', display: '-webkit-box',
+                WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' as const,
+                marginBottom: '8px',
+              }}>
+                {a.nome}
+              </div>
+
+              {/* Posição */}
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                {a.pos && (
+                  <span style={{
+                    fontSize: '10px', fontWeight: 800, color: '#22c55e',
+                    background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)',
+                    borderRadius: '6px', padding: '2px 8px',
+                  }}>
+                    {a.pos}
+                  </span>
+                )}
+                {a.cidade && (
+                  <span style={{
+                    fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontWeight: 600,
+                  }}>
+                    {a.cidade.split(' ')[0]}
+                  </span>
+                )}
+              </div>
+
+              {/* Idade */}
+              {idade && (
+                <div style={{
+                  marginTop: '8px', textAlign: 'center',
+                  fontSize: '10px', color: 'rgba(255,255,255,0.2)',
+                }}>
+                  {idade} anos
+                </div>
+              )}
+            </Link>
+          )
+        })}
       </div>
 
-      {/* CTA ver todos */}
+      {/* CTA */}
       <div style={{ textAlign: 'center', marginTop: '36px' }}>
-        <a href="/cadastro" style={{
-          display: 'inline-flex', alignItems: 'center', gap: '8px',
-          color: '#22c55e', fontSize: '14px', fontWeight: 700,
-          textDecoration: 'none', borderBottom: '1px solid rgba(34,197,94,0.3)',
-          paddingBottom: '2px',
+        <Link href="/ranking" style={{
+          display: 'inline-block', padding: '13px 28px', borderRadius: '14px',
+          background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)',
+          color: '#22c55e', fontWeight: 700, fontSize: '14px', textDecoration: 'none',
         }}>
-          Ver todos os destaques →
-        </a>
+          Ver ranking completo →
+        </Link>
       </div>
     </section>
   )

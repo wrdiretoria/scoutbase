@@ -6,6 +6,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase'
+import { fetchOvrMap } from '@/lib/ovr'
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -61,39 +62,49 @@ export default async function RankingPage({ searchParams }: Props) {
   // 2. Filtra atletas
   const atletas = users.filter(u => u.user_metadata?.tipo === 'atleta')
 
-  // 3. Busca perfis com data_nascimento e currículo
+  // 3. Busca perfis + OVR real em paralelo
   const ids = atletas.map(u => u.id)
-  const { data: profiles } = await admin
-    .from('profiles')
-    .select('id, nome, data_nascimento, bio, altura, peso, clube_atual')
-    .in('id', ids)
+  const [profilesRes, ovrMap] = await Promise.all([
+    admin
+      .from('profiles')
+      .select('id, nome, athlete_id, data_nascimento, bio, altura, peso, clube_atual, avatar_url')
+      .in('id', ids),
+    fetchOvrMap(admin),
+  ])
 
   const profileMap = new Map(
-    (profiles ?? []).map(p => [p.id, p])
+    (profilesRes.data ?? []).map(p => [p.id, p])
   )
 
-  // 4. Monta e ordena ranking por completude do perfil
-  const ranking = atletas
+  // 4. Monta ranking — só atletas com avaliação, ordenados por OVR real
+  type RankingItem = {
+    id: string; nome: string; posicao: string; cidade: string
+    dataNasc: string | null; ovr: number; categoria: string | null
+    initials: string; pos: string; avatarUrl: string | null
+  }
+
+  const ranking: RankingItem[] = atletas
     .map(u => {
       const meta = u.user_metadata as { nome?: string; posicao?: string; cidade?: string }
-      const profile = profileMap.get(u.id)
-      const nome = profile?.nome ?? meta.nome ?? 'Atleta'
-      const dataNasc = profile?.data_nascimento ?? null
-      const completude = [dataNasc, meta.posicao, meta.cidade, profile?.bio, profile?.altura, profile?.clube_atual].filter(Boolean).length
+      const profile   = profileMap.get(u.id)
+      const nome      = (profile?.nome as string | null) ?? meta.nome ?? 'Atleta'
+      const dataNasc  = (profile?.data_nascimento as string | null) ?? null
+      const athleteId = (profile?.athlete_id as string | null) ?? null
+      const ovr       = athleteId ? (ovrMap.get(athleteId) ?? null) : null
+      if (ovr === null) return null   // apenas atletas avaliados
       return {
-        id: u.id,
-        nome,
-        posicao: meta.posicao ?? '',
-        cidade: meta.cidade ?? '',
-        dataNasc,
-        completude,
+        id: u.id, nome,
+        posicao:   meta.posicao ?? '',
+        cidade:    meta.cidade  ?? '',
+        dataNasc,  ovr,
         categoria: dataNasc ? calcularCategoria(dataNasc) : null,
-        initials: getInitials(nome),
-        pos: posAbrev(meta.posicao ?? ''),
+        initials:  getInitials(nome),
+        pos:       posAbrev(meta.posicao ?? ''),
+        avatarUrl: (profile?.avatar_url as string | null) ?? null,
       }
     })
-    .filter(a => a.dataNasc)
-    .sort((a, b) => b.completude - a.completude)
+    .filter((a): a is RankingItem => a !== null)
+    .sort((a, b) => b.ovr - a.ovr)
 
   // 5. Aplica filtro de categoria
   const filtered = categoriaFiltro
@@ -120,7 +131,7 @@ export default async function RankingPage({ searchParams }: Props) {
         <Link href="/" style={{ fontSize: '16px', fontWeight: 800, color: 'white', textDecoration: 'none', letterSpacing: '0.03em' }}>
           ⚽ MEU <span style={{ color: '#22c55e' }}>CRAQUE</span>
         </Link>
-        <Link href="/cadastro" style={{
+        <Link href="/atleta/cadastro" style={{
           padding: '8px 16px', borderRadius: '10px', background: '#22c55e',
           color: 'black', fontWeight: 800, fontSize: '13px', textDecoration: 'none',
         }}>
@@ -218,8 +229,11 @@ export default async function RankingPage({ searchParams }: Props) {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: '14px', fontWeight: 900,
                   boxShadow: '0 4px 14px rgba(34,197,94,0.3)',
+                  overflow: 'hidden',
                 }}>
-                  {atleta.initials}
+                  {atleta.avatarUrl
+                    ? <img src={atleta.avatarUrl} alt={atleta.nome} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                    : atleta.initials}
                 </div>
 
                 {/* Info */}
@@ -243,6 +257,19 @@ export default async function RankingPage({ searchParams }: Props) {
                   </span>
                 )}
 
+                {/* OVR */}
+                <div style={{
+                  display: 'flex', flexDirection: 'column', alignItems: 'center',
+                  flexShrink: 0, minWidth: '40px',
+                }}>
+                  <span style={{ fontSize: '18px', fontWeight: 900, color: '#22c55e', lineHeight: 1 }}>
+                    {atleta.ovr}
+                  </span>
+                  <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.28)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                    OVR
+                  </span>
+                </div>
+
                 {/* Seta */}
                 <div style={{ color: 'rgba(255,255,255,0.2)', fontSize: '16px', flexShrink: 0 }}>›</div>
               </Link>
@@ -262,7 +289,7 @@ export default async function RankingPage({ searchParams }: Props) {
           <p style={{ margin: '0 0 18px', fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>
             Crie seu perfil e entre no ranking.
           </p>
-          <Link href="/cadastro" style={{
+          <Link href="/atleta/cadastro" style={{
             display: 'inline-block', padding: '13px 32px', borderRadius: '14px',
             background: '#22c55e', color: 'black', fontWeight: 800,
             fontSize: '15px', textDecoration: 'none',

@@ -1,4 +1,4 @@
-// Server Component — tela de escolha de perfil
+﻿// Server Component — tela de escolha de perfil
 import Link from 'next/link'
 
 export default function EscolhaPerfilPage() {

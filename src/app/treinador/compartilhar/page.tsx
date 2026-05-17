@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -74,11 +74,11 @@ export default function TreinadorCompartilharPage() {
 
       try {
         const [{ count: totAv }, { data: pRows }, { count: totDest }] = await Promise.all([
-          supabase.from('avaliacoes').select('*', { count: 'exact', head: true }).eq('treinador_id', user.id),
-          supabase.from('avaliacoes').select('profile_id').eq('treinador_id', user.id),
-          supabase.from('avaliacoes').select('*', { count: 'exact', head: true }).eq('treinador_id', user.id).gte('nota_geral', 75),
+          supabase.from('avaliacoes').select('*', { count: 'exact', head: true }).eq('professor_id', user.id),
+          supabase.from('avaliacoes').select('aluno_id').eq('professor_id', user.id),
+          supabase.from('avaliacoes').select('*', { count: 'exact', head: true }).eq('professor_id', user.id).gte('scout_score', 75),
         ])
-        setStats({ av: totAv ?? 0, at: new Set((pRows ?? []).map(r => r.profile_id)).size, dest: totDest ?? 0 })
+        setStats({ av: totAv ?? 0, at: new Set((pRows ?? []).map(r => r.aluno_id)).size, dest: totDest ?? 0 })
       } catch { /* table may not exist yet */ }
 
       setLoading(false)
@@ -95,7 +95,11 @@ export default function TreinadorCompartilharPage() {
 
   async function captureCard() {
     if (!cardRef.current) return null
-    return html2canvas(cardRef.current, { useCORS: true, allowTaint: false, backgroundColor: null, scale: 2, logging: false, imageTimeout: 8000 })
+    return html2canvas(cardRef.current, {
+      useCORS: true, allowTaint: false,
+      backgroundColor: '#0d0600',   // fundo âmbar escuro — evita branco transparente
+      scale: 2, logging: false, imageTimeout: 8000,
+    })
   }
 
   async function handleShare() {
@@ -254,17 +258,21 @@ export default function TreinadorCompartilharPage() {
 
         {/* ══════════ O CARD FIFA ══════════ */}
         <div className="a3" style={{ width: '100%', display: 'flex', justifyContent: 'center', marginBottom: '28px' }}>
-          <div style={{ position: 'relative' }}>
+          {/* cardRef envolve tudo: glow + card — assim a imagem exportada tem contexto visual */}
+          <div ref={cardRef} style={{
+            position: 'relative',
+            padding: '32px 24px',
+            background: 'radial-gradient(ellipse 90% 75% at 50% 35%, rgba(100,40,0,.7) 0%, #080400 65%)',
+            borderRadius: '40px',
+          }}>
 
-            {/* Glow atrás âmbar */}
+            {/* Glow decorativo âmbar (html2canvas suporta filter:blur) */}
             <div style={{
-              position: 'absolute', inset: '-40px', zIndex: 0, borderRadius: '60px',
-              background: 'radial-gradient(ellipse,rgba(251,191,36,.2) 0%,transparent 65%)',
-              filter: 'blur(24px)',
+              position: 'absolute', inset: 0, zIndex: 0, borderRadius: '40px',
+              background: 'radial-gradient(ellipse 70% 55% at 50% 30%,rgba(251,191,36,.15) 0%,transparent 60%)',
             }} />
 
-            {/* Corner accents âmbar */}
-            <div ref={cardRef} style={{ position: 'relative', width: 'min(290px,86vw)', zIndex: 1 }}>
+            <div style={{ position: 'relative', width: 'min(290px,86vw)', zIndex: 1 }}>
               {[
                 { top: -1, left: -1,     borderTop:    '1.5px solid rgba(251,191,36,.8)', borderLeft:   '1.5px solid rgba(251,191,36,.8)', borderTopLeftRadius:     '24px' },
                 { top: -1, right: -1,    borderTop:    '1.5px solid rgba(251,191,36,.8)', borderRight:  '1.5px solid rgba(251,191,36,.8)', borderTopRightRadius:    '24px' },
@@ -342,7 +350,7 @@ export default function TreinadorCompartilharPage() {
                 {treinador.especialidade && (
                   <div style={{
                     position: 'absolute', top: '16px', right: '16px', zIndex: 10,
-                    background: 'rgba(0,0,0,.6)', backdropFilter: 'blur(16px)',
+                    background: 'rgba(10,5,0,.85)',
                     border: '1px solid rgba(251,191,36,.4)', borderRadius: '9px',
                     padding: '4px 11px',
                     fontSize: '10px', fontWeight: 800, color: '#fbbf24', letterSpacing: '0.1em',
@@ -384,10 +392,36 @@ export default function TreinadorCompartilharPage() {
                     )}
                   </div>
 
+                  {/* Stats dentro do card */}
+                  {stats.av > 0 && (
+                    <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <div style={{
+                        display: 'flex', alignItems: 'baseline', gap: '4px',
+                        background: 'rgba(10,5,0,.8)',
+                        border: '1px solid rgba(251,191,36,.2)', borderRadius: '8px',
+                        padding: '4px 10px',
+                      }}>
+                        <span style={{ fontSize: '15px', fontWeight: 900, color: '#fbbf24', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>{stats.av}</span>
+                        <span style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,.4)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>avaliações</span>
+                      </div>
+                      {stats.at > 0 && (
+                        <div style={{
+                          display: 'flex', alignItems: 'baseline', gap: '4px',
+                          background: 'rgba(10,5,0,.8)',
+                          border: '1px solid rgba(251,191,36,.2)', borderRadius: '8px',
+                          padding: '4px 10px',
+                        }}>
+                          <span style={{ fontSize: '15px', fontWeight: 900, color: '#fbbf24', fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>{stats.at}</span>
+                          <span style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,.4)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>atletas</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {/* Watermark */}
-                  <div style={{ marginTop: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <div style={{ flex: 1, height: '1px', background: 'linear-gradient(to right,transparent,rgba(255,255,255,.07))' }} />
-                    <span style={{ fontSize: '7.5px', fontWeight: 800, letterSpacing: '0.22em', color: 'rgba(255,255,255,.13)', textTransform: 'uppercase' }}>MEU CRAQUE</span>
+                    <span style={{ fontSize: '7.5px', fontWeight: 800, letterSpacing: '0.22em', color: 'rgba(255,255,255,.13)', textTransform: 'uppercase' }}>Meu Craque</span>
                     <div style={{ flex: 1, height: '1px', background: 'linear-gradient(to left,transparent,rgba(255,255,255,.07))' }} />
                   </div>
                 </div>
@@ -406,7 +440,7 @@ export default function TreinadorCompartilharPage() {
           }}>
             <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,.25)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>ID</span>
             <span style={{ fontSize: '14px', fontWeight: 900, color: 'rgba(251,191,36,.7)', letterSpacing: '0.14em', fontVariantNumeric: 'tabular-nums' }}>
-              {treinador.treinadorId}
+              {treinador.treinadorId?.replace(/^TR-/, '')}
             </span>
           </div>
         )}

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
@@ -38,25 +38,38 @@ function getInitials(nome: string) {
 /**
  * OVR = Perfil (0–50) + Avaliação (0–50)
  *
- * Pesos de preenchimento do perfil (soma = 100%):
- *   nome       15%  | posicao  15%  | cidade    10%
- *   dataNasc   10%  | foto     15%  | bio       15%
- *   fisico     10%  | clube    10%
- *
- * No pós-cadastro o atleta tem: nome + posicao + cidade + dataNasc (50%)
- * Com foto: +15% → 65%
- * OVR inicial = completude% × 0.5  (escala 0–50)
+ * Pontos de completude do perfil (soma = 100 → escala 0–50 OVR):
+ *   Base (nome+pos+cidade+dob): 15 pts  sempre preenchidos no cadastro
+ *   Foto:          20 pts
+ *   Questionário:  25 pts
+ *   Clubes:        15 pts
+ *   Campeonatos:   10 pts
+ *   Títulos:       10 pts
+ *   Telefone:       5 pts
+ *   ───────────────────────
+ *   Total:        100 pts  → × 0.5 = 50 OVR máximo
  */
-function calcularOVRPerfil(temFoto: boolean): number {
-  const base = 0.50
-  const foto = temFoto ? 0.15 : 0
-  const completude = base + foto
-  return Math.round(completude * 50)
+function calcularOVRPerfil(
+  temFoto: boolean,
+  temQuestionario = false,
+  temClubes = false,
+  temCampeonatos = false,
+  temTitulos = false,
+  temTelefone = false,
+): number {
+  let pontos = 15  // base sempre preenchida
+  if (temFoto)          pontos += 20
+  if (temQuestionario)  pontos += 25
+  if (temClubes)        pontos += 15
+  if (temCampeonatos)   pontos += 10
+  if (temTitulos)       pontos += 10
+  if (temTelefone)      pontos += 5
+  return Math.round((pontos / 100) * 50)
 }
 
 function getStatus(ovrPerfil: number): string {
-  if (ovrPerfil >= 30) return 'Perfil em destaque'
-  if (ovrPerfil >= 25) return 'Atleta em evolução'
+  if (ovrPerfil >= 28) return 'Perfil em destaque'
+  if (ovrPerfil >= 18) return 'Atleta em evolução'
   return 'Perfil em desenvolvimento'
 }
 
@@ -119,6 +132,17 @@ function AtributoBar({ label, value, delay }: { label: string; value: number; de
 function BemVindoContent() {
   const router    = useRouter()
   const params    = useSearchParams()
+
+  // Auth guard — impede acesso direto sem sessão
+  useEffect(() => {
+    import('@/lib/supabase').then(({ createClient }) => {
+      createClient().auth.getUser().then(({ data: { user } }) => {
+        if (!user) router.replace('/login')
+        else if (user.user_metadata?.tipo !== 'atleta') router.replace('/login')
+      })
+    })
+  }, [router])
+
   const nome      = params.get('nome')      ?? 'Atleta'
   const posicao   = params.get('posicao')   ?? ''
   const cidade    = params.get('cidade')    ?? ''
@@ -132,6 +156,8 @@ function BemVindoContent() {
   const posAbrev   = posLabel(posicao)
   const ovrPerfil  = calcularOVRPerfil(!!avatarUrl)
   const ovr        = ovrPerfil   // total = perfil + avaliação; avaliação=0 agora
+  // Quantos pontos de OVR o questionário ainda pode dar nesta sessão
+  const ovrGainQuest = Math.round((25 / 100) * 50) // = 12
   const status     = getStatus(ovrPerfil)
   const ovrAnim    = useCounter(ovr, 700, 900)
   const cardUrl    = uid ? `https://meucraque.com.br/jogador/${uid}` : 'https://meucraque.com.br'
@@ -185,6 +211,7 @@ function BemVindoContent() {
         .anim-status { animation: fadeUp  .5s ease forwards 1.0s; opacity:0 }
         .anim-id     { animation: fadeUp  .5s ease forwards 1.1s; opacity:0 }
         .anim-btns   { animation: fadeUp  .5s ease forwards 1.25s; opacity:0 }
+        .anim-quest  { animation: fadeUp  .5s ease forwards 1.15s; opacity:0 }
 
         .card-glow { animation: pulseGlow 4.5s ease-in-out infinite 1.5s }
 
@@ -514,13 +541,13 @@ function BemVindoContent() {
                   </div>
                 </div>
 
-                {/* Watermark — MEU CRAQUE com dots */}
+                {/* Watermark — Meu Craque com dots */}
                 <div style={{ marginTop:'16px', display:'flex', alignItems:'center', justifyContent:'center', gap:'8px' }}>
                   <div style={{ flex:1, height:'1px', background:'linear-gradient(to right,transparent,rgba(255,255,255,0.07))' }} />
                   <div style={{ display:'flex', alignItems:'center', gap:'5px' }}>
                     <div style={{ width:'3px', height:'3px', borderRadius:'50%', background:'rgba(0,255,136,0.35)' }} />
                     <span style={{ fontSize:'8px', fontWeight:800, letterSpacing:'0.22em', color:'rgba(255,255,255,0.15)', textTransform:'uppercase' }}>
-                      MEU CRAQUE
+                      Meu Craque
                     </span>
                     <div style={{ width:'3px', height:'3px', borderRadius:'50%', background:'rgba(0,255,136,0.35)' }} />
                   </div>
@@ -590,7 +617,7 @@ function BemVindoContent() {
           margin:0, fontSize:'12px', color:'rgba(255,255,255,0.28)',
           textAlign:'center', lineHeight:1.7,
         }}>
-          Receba sua primeira avaliação oficial<br />e desbloqueie seus atributos técnicos.
+          Complete seu perfil e suba seu OVR.<br />Avaliação de treinador desbloqueia atributos.
         </p>
 
         {/* ── Status ── */}
@@ -610,6 +637,57 @@ function BemVindoContent() {
             {status}
           </p>
         </div>
+
+        {/* ── CTA: Questionário ── */}
+        <Link href="/atleta/questionario" style={{ textDecoration: 'none', width: '100%' }} className="anim-quest">
+          <div style={{
+            width: '100%',
+            padding: '16px 18px',
+            borderRadius: '16px',
+            background: 'linear-gradient(135deg, rgba(0,255,136,0.07) 0%, rgba(0,180,90,0.04) 100%)',
+            border: '1px solid rgba(0,255,136,0.22)',
+            display: 'flex', alignItems: 'center', gap: '14px',
+            cursor: 'pointer',
+            boxShadow: '0 0 24px rgba(0,255,136,0.06)',
+            transition: 'border-color .2s, box-shadow .2s',
+          }}>
+            {/* Ícone */}
+            <div style={{
+              width: '46px', height: '46px', borderRadius: '13px', flexShrink: 0,
+              background: 'linear-gradient(135deg, rgba(0,255,136,0.15), rgba(0,200,100,0.08))',
+              border: '1px solid rgba(0,255,136,0.25)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '22px',
+              boxShadow: '0 0 16px rgba(0,255,136,0.12)',
+            }}>⚡</div>
+
+            {/* Texto */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{
+                margin: '0 0 4px', fontSize: '14px', fontWeight: 900,
+                color: '#00FF88', letterSpacing: '-0.01em',
+              }}>
+                Boost seu OVR
+              </p>
+              <p style={{
+                margin: 0, fontSize: '12px',
+                color: 'rgba(255,255,255,0.42)', lineHeight: 1.5,
+              }}>
+                Responda 10 perguntas rápidas e ganhe{' '}
+                <span style={{ color: 'rgba(0,255,136,0.75)', fontWeight: 700 }}>
+                  +{ovrGainQuest} pontos
+                </span>{' '}
+                no seu perfil
+              </p>
+            </div>
+
+            {/* Seta */}
+            <span style={{
+              color: 'rgba(0,255,136,0.5)', fontSize: '20px', flexShrink: 0,
+              lineHeight: 1,
+            }}>→</span>
+          </div>
+        </Link>
 
         {/* ── ID do atleta ── */}
         {athleteId && (

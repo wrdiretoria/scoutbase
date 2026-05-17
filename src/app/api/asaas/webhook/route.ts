@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient } from '@/lib/supabase'
+import { createServerClient, createAdminClient } from '@/lib/supabase'
 
 type AsaasWebhookPayload = {
   id: string
@@ -40,6 +40,23 @@ export async function POST(req: NextRequest) {
 
     const supabase = await createServerClient()
 
+    // ── Carta de Avaliação: pagamento identificado pelo externalReference ──
+    if (
+      (event === 'PAYMENT_RECEIVED' || event === 'PAYMENT_CONFIRMED') &&
+      payment.externalReference?.startsWith('carta_')
+    ) {
+      const userId = payment.externalReference.replace('carta_', '')
+      if (userId) {
+        const adminClient = createAdminClient()
+        await adminClient.auth.admin.updateUserById(userId, {
+          user_metadata: { carta_desbloqueada: true },
+        })
+        console.log(`[webhook] Carta desbloqueada para userId=${userId}`)
+      }
+      return NextResponse.json({ ok: true, event, tipo: 'carta' })
+    }
+
+    // ── ScoutBase: pagamentos de mensalidade ──
     // Idempotência: verifica se o evento já foi processado
     const { data: pagamento } = await supabase
       .from('pagamentos')

@@ -4,10 +4,10 @@ import { useState } from 'react'
 import Link from 'next/link'
 
 const navLinks = [
-  { label: '🏆 Ranking', href: '/ranking' },
-  { label: 'Para atletas', href: '/cadastro' },
+  { label: 'ðŸ† Ranking', href: '/ranking' },
+  { label: 'Para atletas', href: '/atleta/cadastro' },
   { label: 'Para escolas', href: '/treinador/cadastro' },
-  { label: '🔍 Para scouts', href: '/scout/busca' },
+  { label: 'ðŸ” Para scouts', href: '/scout/busca' },
   { label: 'Planos', href: '#' },
 ]
 
@@ -29,7 +29,7 @@ export default function NavBar() {
         }
       `}</style>
 
-      {/* ─── MAIN NAV BAR ─── */}
+      {/* â”€â”€â”€ MAIN NAV BAR â”€â”€â”€ */}
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200,
         height: '64px',
@@ -44,7 +44,7 @@ export default function NavBar() {
         }}>
           {/* Logo */}
           <Link href="/" style={{ textDecoration: 'none', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '22px' }}>⚽</span>
+            <span style={{ fontSize: '22px' }}>âš½</span>
             <span style={{ fontSize: '19px', fontWeight: 800, letterSpacing: '0.04em', color: 'white' }}>MEU </span>
             <span style={{ fontSize: '19px', fontWeight: 800, letterSpacing: '0.04em', color: '#22c55e' }}>CRAQUE</span>
           </Link>
@@ -65,15 +65,15 @@ export default function NavBar() {
             }}>
               Entrar
             </Link>
-            <Link href="/cadastro" style={{
+            <Link href="/atleta/cadastro" style={{
               padding: '8px 20px', fontSize: '14px', fontWeight: 700,
               color: 'black', background: '#22c55e', borderRadius: '10px', textDecoration: 'none',
             }}>
-              Começar agora
+              ComeÃ§ar agora
             </Link>
           </div>
 
-          {/* Hamburger button — mobile only */}
+          {/* Hamburger button â€” mobile only */}
           <button
             className="hamburger-btn"
             onClick={() => setOpen(o => !o)}
@@ -95,7 +95,7 @@ export default function NavBar() {
         </div>
       </nav>
 
-      {/* ─── MOBILE MENU OVERLAY ─── */}
+      {/* â”€â”€â”€ MOBILE MENU OVERLAY â”€â”€â”€ */}
       {open && (
         <div
           onClick={() => setOpen(false)}
@@ -145,7 +145,7 @@ export default function NavBar() {
               Entrar
             </Link>
             <Link
-              href="/cadastro"
+              href="/atleta/cadastro"
               onClick={() => setOpen(false)}
               style={{
                 padding: '16px', textAlign: 'center', fontSize: '16px', fontWeight: 700,
@@ -153,7 +153,7 @@ export default function NavBar() {
                 textDecoration: 'none', display: 'block',
               }}
             >
-              Começar agora →
+              ComeÃ§ar agora â†’
             </Link>
           </div>
         </div>

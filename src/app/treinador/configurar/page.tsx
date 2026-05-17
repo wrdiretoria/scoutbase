@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -503,7 +503,7 @@ export default function TreinadorConfigurarPage() {
                         👨‍🏫 Treinador
                       </span>
                     </div>
-                    <span style={{ fontSize: '10px', color: 'rgba(255,255,255,.2)', fontWeight: 600 }}>MEU CRAQUE</span>
+                    <span style={{ fontSize: '10px', color: 'rgba(255,255,255,.2)', fontWeight: 600 }}>Meu Craque</span>
                   </div>
 
                   {/* Foto + Info */}
@@ -597,7 +597,7 @@ export default function TreinadorConfigurarPage() {
                   <div style={{ padding: '0 20px 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <div style={{ flex: 1, height: '1px', background: 'linear-gradient(to right,transparent,rgba(251,191,36,.1))' }} />
                     <span style={{ fontSize: '8px', fontWeight: 800, letterSpacing: '.22em', color: 'rgba(251,191,36,.2)', textTransform: 'uppercase' }}>
-                      MEU CRAQUE
+                      Meu Craque
                     </span>
                     <div style={{ flex: 1, height: '1px', background: 'linear-gradient(to left,transparent,rgba(251,191,36,.1))' }} />
                   </div>

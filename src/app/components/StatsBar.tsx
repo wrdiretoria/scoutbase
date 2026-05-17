@@ -1,13 +1,43 @@
-// Server Component — métricas 100% reais, sem número inventado
+/**
+ * StatsBar — métricas reais do banco (Server Component)
+ */
 
-const stats = [
-  { value: '3 MIN', label: 'Para criar seu perfil' },
-  { value: 'GRÁTIS', label: 'Para sempre, para atletas' },
-  { value: '24/7', label: 'Visível para scouts' },
-  { value: '26', label: 'Estados do Brasil' },
-]
+import { createAdminClient } from '@/lib/supabase'
 
-export default function StatsBar() {
+function posAbrev(pos: string): string {
+  const map: Record<string, string> = {
+    'Goleiro': 'GK', 'Lateral Direito': 'LD', 'Lateral Esquerdo': 'LE',
+    'Zagueiro': 'ZG', 'Volante': 'VOL', 'Meia': 'MEI',
+    'Meia-Atacante': 'MAT', 'Ponta Direita': 'PD', 'Ponta Esquerda': 'PE',
+    'Atacante': 'ATA', 'Centro-Avante': 'CA',
+  }
+  return map[pos] ?? pos.slice(0, 3).toUpperCase()
+}
+
+export default async function StatsBar() {
+  let atletasCount = 0
+  let avaliacoesCount = 0
+
+  try {
+    const admin = createAdminClient()
+    const [usersRes, avsRes] = await Promise.all([
+      admin.auth.admin.listUsers({ perPage: 1000 }),
+      admin.from('avaliacoes').select('id', { count: 'exact', head: true }),
+    ])
+    atletasCount    = (usersRes.data?.users ?? []).filter(u => u.user_metadata?.tipo === 'atleta').length
+    avaliacoesCount = avsRes.count ?? 0
+  } catch { /* static fallback */ }
+
+  const stats = [
+    {
+      value: atletasCount > 0 ? atletasCount.toLocaleString('pt-BR') : 'GRÁTIS',
+      label: atletasCount > 0 ? 'Atletas cadastrados' : 'Para sempre, para atletas',
+    },
+    { value: avaliacoesCount > 0 ? avaliacoesCount.toLocaleString('pt-BR') : '—', label: 'Avaliações realizadas' },
+    { value: '3 MIN', label: 'Para criar seu perfil' },
+    { value: '24/7', label: 'Visível para scouts' },
+  ]
+
   return (
     <div style={{
       background: 'linear-gradient(180deg, #060d08 0%, #0a1a0c 100%)',
@@ -32,9 +62,6 @@ export default function StatsBar() {
           .stats-bar-item:nth-child(2) { border-right: none; }
           .stats-bar-item:nth-child(3) { border-right: 1px solid rgba(0,255,136,0.08); }
           .stats-bar-item { padding: 20px 18px !important; }
-        }
-        @media (max-width: 400px) {
-          .stats-bar-grid { grid-template-columns: 1fr 1fr !important; }
         }
       `}</style>
 

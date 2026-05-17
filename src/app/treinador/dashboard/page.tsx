@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -27,6 +27,7 @@ type Metricas = {
 
 type AvaliacaoRecente = {
   id:             string
+  aluno_id:       string
   nota_geral:     number
   created_at:     string
   atleta_nome:    string
@@ -297,30 +298,41 @@ export default function TreinadorDashboardPage() {
           { count: totDest },
           { count: semana },
         ] = await Promise.all([
-          supabase.from('avaliacoes').select('*', { count: 'exact', head: true }).eq('treinador_id', user.id),
-          supabase.from('avaliacoes').select('profile_id').eq('treinador_id', user.id),
-          supabase.from('avaliacoes').select('*', { count: 'exact', head: true }).eq('treinador_id', user.id).gte('nota_geral', 75),
-          supabase.from('avaliacoes').select('*', { count: 'exact', head: true }).eq('treinador_id', user.id).gte('created_at', semanaPast),
+          supabase.from('avaliacoes').select('*', { count: 'exact', head: true }).eq('professor_id', user.id),
+          supabase.from('avaliacoes').select('aluno_id').eq('professor_id', user.id),
+          supabase.from('avaliacoes').select('*', { count: 'exact', head: true }).eq('professor_id', user.id).gte('scout_score', 75),
+          supabase.from('avaliacoes').select('*', { count: 'exact', head: true }).eq('professor_id', user.id).gte('created_at', semanaPast),
         ])
 
-        const uniqueAtletas = new Set((profileIdRows ?? []).map(r => r.profile_id)).size
+        const uniqueAtletas = new Set((profileIdRows ?? []).map(r => r.aluno_id)).size
         setMetricas({ totalAvaliacoes: totAv ?? 0, totalAtletas: uniqueAtletas, totalDestaques: totDest ?? 0, semanaCount: semana ?? 0 })
 
         const { data: avRecentes } = await supabase
-          .from('avaliacoes').select('id, nota_geral, created_at, profile_id')
-          .eq('treinador_id', user.id).order('created_at', { ascending: false }).limit(5)
+          .from('avaliacoes').select('id, scout_score, created_at, aluno_id')
+          .eq('professor_id', user.id).order('created_at', { ascending: false }).limit(5)
 
         if (avRecentes?.length) {
-          const { data: atletaProfiles } = await supabase
-            .from('profiles').select('id, nome, avatar_url, posicao').in('id', avRecentes.map(a => a.profile_id))
-          const map = new Map((atletaProfiles ?? []).map(p => [p.id, p]))
+          // aluno_id = auth UUID (Meu Craque) — busca via API admin
+          const ids = avRecentes.map(a => a.aluno_id)
+          const res = await fetch('/api/atleta/nomes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ids }),
+          })
+          const nomes: { id: string; nome: string; posicao: string; avatar_url: string | null }[] =
+            res.ok ? await res.json() : []
+          const nomeMap = new Map(nomes.map(n => [n.id, n]))
+
           setRecentes(avRecentes.map(av => {
-            const at = map.get(av.profile_id) as Record<string, unknown> | undefined
+            const at = nomeMap.get(av.aluno_id)
             return {
-              id: av.id, nota_geral: av.nota_geral, created_at: av.created_at,
-              atleta_nome:    (at?.nome    as string) ?? 'Atleta',
-              atleta_posicao: (at?.posicao as string) ?? '',
-              atleta_avatar:  (at?.avatar_url as string) ?? undefined,
+              id:             av.id,
+              aluno_id:       av.aluno_id,
+              nota_geral:     av.scout_score,
+              created_at:     av.created_at,
+              atleta_nome:    at?.nome      ?? 'Atleta',
+              atleta_posicao: at?.posicao   ?? '',
+              atleta_avatar:  at?.avatar_url ?? undefined,
             }
           }))
         }
@@ -553,8 +565,8 @@ export default function TreinadorDashboardPage() {
                 const dataRel  = formatarDataRelativa(av.created_at)
                 const atInit   = getInitials(av.atleta_nome)
                 return (
-                  <div key={av.id} className="av-card"
-                    style={{ animation: `cardReveal .4s ease forwards ${0.6 + idx * 0.06}s`, opacity: 0 }}>
+                  <Link key={av.id} href={`/jogador/${av.aluno_id}`} className="av-card"
+                    style={{ animation: `cardReveal .4s ease forwards ${0.6 + idx * 0.06}s`, opacity: 0, textDecoration: 'none', color: 'white' }}>
                     <div style={{
                       width: '46px', height: '46px', borderRadius: '50%', flexShrink: 0,
                       background: av.atleta_avatar ? 'transparent' : 'linear-gradient(145deg,#166534,#22c55e)',
@@ -592,7 +604,7 @@ export default function TreinadorDashboardPage() {
                         {label}
                       </span>
                     </div>
-                  </div>
+                  </Link>
                 )
               })}
             </div>
@@ -629,7 +641,7 @@ export default function TreinadorDashboardPage() {
 
         <div style={{ textAlign: 'center', paddingTop: '4px' }}>
           <p style={{ margin: 0, fontSize: '9px', color: 'rgba(255,255,255,0.06)', letterSpacing: '0.1em' }}>
-            ⚽ MEU CRAQUE · CONSTRUINDO O FUTEBOL BRASILEIRO
+            ⚽ Meu Craque · CONSTRUINDO O FUTEBOL BRASILEIRO
           </p>
         </div>
 

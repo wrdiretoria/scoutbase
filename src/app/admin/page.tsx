@@ -1,4 +1,4 @@
-﻿import { redirect } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import { createServerClient, createAdminClient } from '@/lib/supabase'
 import AdminClient from './AdminClient'
 
@@ -8,11 +8,11 @@ export default async function AdminPage() {
   const supabase = await createServerClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user || user.email !== ADMIN_EMAIL) redirect('/dashboard')
+  if (!user || user.email !== ADMIN_EMAIL) redirect('/login')
 
   const admin = createAdminClient()
 
-  // â”€â”€ UsuÃ¡rios cadastrados (auth) â”€â”€
+  // ── Usuários cadastrados (auth) ──
   const { data: usersData } = await admin.auth.admin.listUsers({ perPage: 1000 })
   const users = (usersData?.users ?? []).map((u) => ({
     id: u.id,
@@ -25,21 +25,43 @@ export default async function AdminPage() {
     last_sign_in_at: u.last_sign_in_at ?? null,
   }))
 
-  // â”€â”€ Atletas â”€â”€
+  // ── Atletas ScoutBase ──
   const { data: atletas } = await admin
     .from('alunos')
     .select('id, nome, posicao, scout_id, ativo, professor_id, data_nascimento, turmas(nome)')
     .order('nome')
 
-  // â”€â”€ AvaliaÃ§Ãµes (count) â”€â”€
+  // ── Avaliações (count total) ──
   const { count: totalAvaliacoes } = await admin
     .from('avaliacoes')
     .select('id', { count: 'exact', head: true })
 
-  // â”€â”€ PresenÃ§as (count) â”€â”€
+  // ── Presenças (count) ──
   const { count: totalPresencas } = await admin
     .from('presencas')
     .select('id', { count: 'exact', head: true })
+
+  // ── Meu Craque metrics ──
+  const allUsers = usersData?.users ?? []
+  const atletasMC     = allUsers.filter(u => u.user_metadata?.tipo === 'atleta').length
+  const treinadoresMC = allUsers.filter(u => u.user_metadata?.tipo === 'treinador').length
+
+  // Atletas MC com pelo menos 1 avaliação (unique aluno_id in profiles)
+  const { data: profilesData } = await admin
+    .from('profiles')
+    .select('id')
+    .not('athlete_id', 'is', null)
+
+  let atletasAvaliados = 0
+  const profileIds = (profilesData ?? []).map((p: { id: string }) => p.id)
+  if (profileIds.length > 0) {
+    const { data: avsCheck } = await admin
+      .from('avaliacoes')
+      .select('aluno_id')
+      .in('aluno_id', profileIds)
+    const uniqueAvaliados = new Set((avsCheck ?? []).map((a: { aluno_id: string }) => a.aluno_id))
+    atletasAvaliados = uniqueAvaliados.size
+  }
 
   const stats = {
     totalUsuarios: users.length,
@@ -48,6 +70,10 @@ export default async function AdminPage() {
     totalPresencas: totalPresencas ?? 0,
     professores: users.filter((u) => u.tipo !== 'pai').length,
     responsaveis: users.filter((u) => u.tipo === 'pai').length,
+    // Meu Craque
+    atletasMC,
+    treinadoresMC,
+    atletasAvaliados,
   }
 
   return (

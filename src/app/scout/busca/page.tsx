@@ -1,10 +1,12 @@
-/**
+﻿/**
  * /scout/busca — Busca de atletas para scouts
  * Server Component — filtros via searchParams
  */
 
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase'
+import { fetchOvrMap } from '@/lib/ovr'
+import ScoutFiltros from './ScoutFiltros'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -27,10 +29,6 @@ function calcularCategoria(dataNasc: string): string {
   return 'Adulto'
 }
 
-function calcularOVR(nome: string): number {
-  const hash = nome.split('').reduce((a, c) => a + c.charCodeAt(0), 0)
-  return 68 + (hash % 13)
-}
 
 function getInitials(nome: string) {
   return nome.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase()
@@ -46,14 +44,6 @@ function posAbrev(pos: string): string {
   return map[pos] ?? pos.slice(0, 3).toUpperCase()
 }
 
-const POSICOES = [
-  'Goleiro', 'Lateral Direito', 'Lateral Esquerdo', 'Zagueiro',
-  'Volante', 'Meia', 'Meia-Atacante',
-  'Ponta Direita', 'Ponta Esquerda', 'Atacante', 'Centro-Avante',
-]
-
-const CATEGORIAS = ['Sub-11', 'Sub-13', 'Sub-15', 'Sub-17', 'Sub-20', 'Adulto']
-
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 type Props = { searchParams: Promise<{ posicao?: string; categoria?: string; cidade?: string }> }
@@ -67,25 +57,30 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
   const atletaUsers = users.filter(u => u.user_metadata?.tipo === 'atleta')
 
   const ids = atletaUsers.map(u => u.id)
-  const { data: profiles } = await admin
-    .from('profiles')
-    .select('id, data_nascimento, bio, altura, peso, pe_dominante, clube_atual')
-    .in('id', ids)
+  const [profilesRes, ovrMap] = await Promise.all([
+    admin
+      .from('profiles')
+      .select('id, athlete_id, data_nascimento, bio, altura, peso, pe_dominante, clube_atual, avatar_url')
+      .in('id', ids),
+    fetchOvrMap(admin),
+  ])
 
-  const profileMap = new Map((profiles ?? []).map(p => [p.id, p]))
+  const profileMap = new Map((profilesRes.data ?? []).map(p => [p.id, p]))
 
   const atletas = atletaUsers
     .map(u => {
       const meta = u.user_metadata as { nome?: string; posicao?: string; cidade?: string }
       const nome = meta.nome ?? 'Atleta'
       const p = profileMap.get(u.id)
-      const dataNasc = (p?.data_nascimento as string | null) ?? null
+      const dataNasc   = (p?.data_nascimento as string | null) ?? null
+      const athleteId  = (p?.athlete_id as string | null) ?? null
+      const ovr        = athleteId ? (ovrMap.get(athleteId) ?? null) : null
       return {
         id: u.id,
         nome,
         posicao:     meta.posicao ?? '',
         cidade:      meta.cidade  ?? '',
-        ovr:         calcularOVR(nome),
+        ovr,
         pos:         posAbrev(meta.posicao ?? ''),
         categoria:   dataNasc ? calcularCategoria(dataNasc) : null,
         idade:       dataNasc ? calcularIdade(dataNasc) : null,
@@ -94,10 +89,11 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
         peso:        (p?.peso as number | null) ?? null,
         peDominante: (p?.pe_dominante as string | null) ?? null,
         clubeAtual:  (p?.clube_atual as string | null) ?? null,
+        avatarUrl:   (p?.avatar_url as string | null) ?? null,
         initials:    getInitials(nome),
       }
     })
-    .sort((a, b) => b.ovr - a.ovr)
+    .sort((a, b) => (b.ovr ?? 0) - (a.ovr ?? 0))
 
   // Aplica filtros
   const filtered = atletas.filter(a => {
@@ -106,17 +102,6 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
     if (cidadeFiltro && !a.cidade.toLowerCase().includes(cidadeFiltro.toLowerCase())) return false
     return true
   })
-
-  // Monta query string sem o campo sendo resetado
-  function filtroUrl(campo: string, valor: string | null) {
-    const p = new URLSearchParams()
-    if (posicaoFiltro  && campo !== 'posicao')   p.set('posicao',  posicaoFiltro)
-    if (categoriaFiltro && campo !== 'categoria') p.set('categoria', categoriaFiltro)
-    if (cidadeFiltro   && campo !== 'cidade')     p.set('cidade',   cidadeFiltro)
-    if (valor) p.set(campo, valor)
-    const qs = p.toString()
-    return `/scout/busca${qs ? `?${qs}` : ''}`
-  }
 
   const temFiltro = posicaoFiltro || categoriaFiltro || cidadeFiltro
 
@@ -139,10 +124,14 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
         <Link href="/" style={{ fontSize: '16px', fontWeight: 800, color: 'white', textDecoration: 'none', letterSpacing: '0.03em' }}>
           ⚽ MEU <span style={{ color: '#22c55e' }}>CRAQUE</span>
         </Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>
-            Área do Scout
-          </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Link href="/scout/favoritos" style={{
+            padding: '7px 14px', borderRadius: '8px',
+            background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)',
+            color: '#fbbf24', fontWeight: 700, fontSize: '12px', textDecoration: 'none',
+          }}>
+            ⭐ Favoritos
+          </Link>
           <Link href="/scout/cadastro" style={{
             padding: '7px 14px', borderRadius: '8px', background: '#22c55e',
             color: 'black', fontWeight: 800, fontSize: '12px', textDecoration: 'none',
@@ -168,108 +157,12 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
           </p>
         </div>
 
-        {/* ── Filtros ── */}
-        <div style={{
-          background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
-          borderRadius: '16px', padding: '18px', marginBottom: '24px',
-          display: 'flex', flexWrap: 'wrap', gap: '14px', alignItems: 'flex-end',
-        }}>
-
-          {/* Posição */}
-          <div style={{ flex: '1 1 160px' }}>
-            <p style={{ margin: '0 0 7px', fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-              Posição
-            </p>
-            <select
-              defaultValue={posicaoFiltro ?? ''}
-              onChange={e => {
-                const val = e.target.value
-                window.location.href = filtroUrl('posicao', val || null)
-              }}
-              style={{
-                width: '100%', padding: '9px 12px', borderRadius: '10px',
-                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)',
-                color: posicaoFiltro ? 'white' : 'rgba(255,255,255,0.4)',
-                fontSize: '14px', outline: 'none', cursor: 'pointer', appearance: 'none',
-              }}
-            >
-              <option value="">Todas as posições</option>
-              {POSICOES.map(p => <option key={p} value={p}>{p}</option>)}
-            </select>
-          </div>
-
-          {/* Categoria */}
-          <div style={{ flex: '1 1 140px' }}>
-            <p style={{ margin: '0 0 7px', fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-              Categoria
-            </p>
-            <select
-              defaultValue={categoriaFiltro ?? ''}
-              onChange={e => {
-                const val = e.target.value
-                window.location.href = filtroUrl('categoria', val || null)
-              }}
-              style={{
-                width: '100%', padding: '9px 12px', borderRadius: '10px',
-                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)',
-                color: categoriaFiltro ? 'white' : 'rgba(255,255,255,0.4)',
-                fontSize: '14px', outline: 'none', cursor: 'pointer', appearance: 'none',
-              }}
-            >
-              <option value="">Todas as categorias</option>
-              {CATEGORIAS.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
-
-          {/* Cidade — form GET simples */}
-          <form
-            method="get"
-            action="/scout/busca"
-            style={{ flex: '1 1 160px', display: 'flex', flexDirection: 'column', gap: '7px' }}
-            onSubmit={e => {
-              e.preventDefault()
-              const fd = new FormData(e.currentTarget)
-              const cidade = fd.get('cidade') as string
-              window.location.href = filtroUrl('cidade', cidade || null)
-            }}
-          >
-            {posicaoFiltro   && <input type="hidden" name="posicao"   value={posicaoFiltro} />}
-            {categoriaFiltro && <input type="hidden" name="categoria" value={categoriaFiltro} />}
-            <p style={{ margin: 0, fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-              Cidade
-            </p>
-            <div style={{ display: 'flex', gap: '6px' }}>
-              <input
-                name="cidade"
-                type="text"
-                defaultValue={cidadeFiltro ?? ''}
-                placeholder="Ex: São Paulo"
-                style={{
-                  flex: 1, padding: '9px 12px', borderRadius: '10px',
-                  background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)',
-                  color: 'white', fontSize: '14px', outline: 'none',
-                }}
-              />
-              <button type="submit" style={{
-                padding: '9px 14px', borderRadius: '10px', border: 'none',
-                background: '#22c55e', color: 'black', fontWeight: 700, fontSize: '13px', cursor: 'pointer',
-              }}>
-                Buscar
-              </button>
-            </div>
-          </form>
-
-          {/* Limpar filtros */}
-          {temFiltro && (
-            <Link href="/scout/busca" style={{
-              alignSelf: 'flex-end', padding: '9px 14px', borderRadius: '10px',
-              border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)',
-              fontSize: '13px', textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap',
-            }}>
-              ✕ Limpar
-            </Link>
-          )}
-        </div>
+        {/* ── Filtros (client component — event handlers) ── */}
+        <ScoutFiltros
+          posicaoFiltro={posicaoFiltro}
+          categoriaFiltro={categoriaFiltro}
+          cidadeFiltro={cidadeFiltro}
+        />
 
         {/* ── Resultados ── */}
         {filtered.length === 0 ? (
@@ -301,14 +194,18 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontSize: '16px', fontWeight: 900,
                       boxShadow: '0 4px 14px rgba(34,197,94,0.25)',
-                      marginBottom: '6px',
+                      marginBottom: '6px', overflow: 'hidden',
                     }}>
-                      {atleta.initials}
+                      {atleta.avatarUrl
+                        ? <img src={atleta.avatarUrl} alt={atleta.nome} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                        : atleta.initials}
                     </div>
                     <div style={{
-                      fontSize: '18px', fontWeight: 900, color: '#22c55e', lineHeight: 1,
+                      fontSize: '18px', fontWeight: 900,
+                      color: atleta.ovr ? '#22c55e' : 'rgba(255,255,255,0.2)',
+                      lineHeight: 1,
                     }}>
-                      {atleta.ovr}
+                      {atleta.ovr ?? '—'}
                     </div>
                     <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                       OVR

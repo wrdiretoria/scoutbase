@@ -1,7 +1,7 @@
-'use client'
+﻿'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 import AtletaBottomNav from '@/components/AtletaBottomNav'
@@ -37,23 +37,31 @@ function posAbrev(pos: string): string {
 }
 
 /**
- * OVR do perfil: soma dos pesos preenchidos × 50
- * nome(15%) + posicao(15%) + cidade(10%) + dataNasc(10%) = base 50%
- * foto(15%) + bio(15%) + fisico(10%) + clube(10%) = até mais 50%
- * Total = score% × 50 → máx 50/50
+ * OVR do perfil — pesos (soma = 100 → escala 0–50):
+ *   Base (nome+pos+cidade+dob): 15 pts  sempre preenchidos
+ *   Foto:            20 pts
+ *   Questionário:    25 pts
+ *   Clubes ant.:     15 pts
+ *   Campeonatos:     10 pts
+ *   Títulos:         10 pts
+ *   Telefone:         5 pts
  */
 function calcularOVRPerfil(dados: {
-  temFoto:   boolean
-  temBio:    boolean
-  temFisico: boolean
-  temClube:  boolean
+  temFoto:         boolean
+  temQuestionario: boolean
+  temClubes:       boolean
+  temCampeonatos:  boolean
+  temTitulos:      boolean
+  temTelefone:     boolean
 }): number {
-  let score = 0.50 // base fixa (nome + posicao + cidade + dataNasc)
-  if (dados.temFoto)   score += 0.15
-  if (dados.temBio)    score += 0.15
-  if (dados.temFisico) score += 0.10
-  if (dados.temClube)  score += 0.10
-  return Math.round(Math.min(score, 1.0) * 50)
+  let pts = 15  // base sempre preenchida
+  if (dados.temFoto)         pts += 20
+  if (dados.temQuestionario) pts += 25
+  if (dados.temClubes)       pts += 15
+  if (dados.temCampeonatos)  pts += 10
+  if (dados.temTitulos)      pts += 10
+  if (dados.temTelefone)     pts += 5
+  return Math.round((pts / 100) * 50)
 }
 
 function notaColor(n: number): string {
@@ -111,19 +119,20 @@ type AtletaMeta = { nome: string; posicao: string; cidade: string; tipo: string 
 
 type Curriculo = {
   bio: string; altura: string; peso: string; peDominante: string; clubeAtual: string
+  telefone: string; clubesAnteriores: string; campeonatos: string; titulos: string
 }
 
 type Avaliacao = {
-  velocidade:          number
-  visao:               number
-  forca:               number
-  finalizacao:         number
-  inteligencia_tatica: number
-  tecnica:             number
-  nota_geral:          number
-  observacao:          string | null
-  created_at:          string
-  treinador_id:        string
+  velocidade:    number   // 1-10 no banco
+  visao_jogo:    number   // 1-10 no banco
+  forca:         number   // 1-10 no banco
+  finalizacao:   number   // 1-10 no banco
+  posicionamento: number  // 1-10 no banco
+  tecnica:       number   // 1-10 no banco
+  scout_score:   number   // 0-100
+  observacao:    string | null
+  created_at:    string
+  professor_id:  string
 }
 
 // ── Highlights ────────────────────────────────────────────────────────────────
@@ -181,8 +190,19 @@ function getThumbnail(hl: Highlight): string {
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
-export default function AtletaPerfilPage() {
-  const router = useRouter()
+function AtletaPerfilContent() {
+  const router       = useRouter()
+  const searchParams = useSearchParams()
+  const [showQuestBanner, setShowQuestBanner] = useState(false)
+
+  useEffect(() => {
+    if (searchParams.get('questionario') === 'ok') {
+      setShowQuestBanner(true)
+      setTimeout(() => setShowQuestBanner(false), 5000)
+      // Limpa o param da URL sem recarregar
+      window.history.replaceState({}, '', '/atleta/perfil')
+    }
+  }, [searchParams])
 
   const [meta,       setMeta]       = useState<AtletaMeta | null>(null)
   const [dataNasc,   setDataNasc]   = useState<string | null>(null)
@@ -193,14 +213,26 @@ export default function AtletaPerfilPage() {
 
   const [curriculo,  setCurriculo]  = useState<Curriculo>({
     bio: '', altura: '', peso: '', peDominante: '', clubeAtual: '',
+    telefone: '', clubesAnteriores: '', campeonatos: '', titulos: '',
   })
+  const [questionarioConcluido, setQuestionarioConcluido] = useState(false)
 
   const [avaliacao,      setAvaliacao]      = useState<Avaliacao | null>(null)
   const [treinadorNome,  setTreinadorNome]  = useState<string>('')
+  const [visitCount,     setVisitCount]     = useState<number>(0)
+  const [favoritoCount,  setFavoritoCount]  = useState<number>(0)
 
   const [saving,  setSaving]  = useState(false)
   const [saved,   setSaved]   = useState(false)
   const [saveErr, setSaveErr] = useState<string | null>(null)
+
+  // ── Edição de identidade (nome / posição / cidade) ──
+  const [editingId,    setEditingId]    = useState(false)
+  const [editNome,     setEditNome]     = useState('')
+  const [editPosicao,  setEditPosicao]  = useState('')
+  const [editCidade,   setEditCidade]   = useState('')
+  const [savingId,     setSavingId]     = useState(false)
+  const [savedId,      setSavedId]      = useState(false)
 
   // ── Highlights state ──
   const [highlights,    setHighlights]    = useState<Highlight[]>([])
@@ -239,21 +271,31 @@ export default function AtletaPerfilPage() {
       if (profile?.data_nascimento) setDataNasc(profile.data_nascimento as string)
       if (profile?.athlete_id)      setAthleteId(profile.athlete_id as string)
       if (profile?.avatar_url)      setAvatarUrl(profile.avatar_url as string)
+      // visit_count e favorito_count vêm do user_metadata — sem precisar de coluna extra
+      setVisitCount(    (user.user_metadata?.visit_count    as number | null) ?? 0)
+      setFavoritoCount( (user.user_metadata?.favorito_count as number | null) ?? 0)
 
+      // Campos DB + campos do user_metadata (sem precisar de schema change)
+      const um = user.user_metadata as Record<string, unknown>
       setCurriculo({
-        bio:         (profile?.bio          as string) ?? '',
-        altura:      profile?.altura        != null ? String(profile.altura) : '',
-        peso:        profile?.peso          != null ? String(profile.peso)   : '',
-        peDominante: (profile?.pe_dominante as string) ?? '',
-        clubeAtual:  (profile?.clube_atual  as string) ?? '',
+        bio:              (profile?.bio          as string) ?? '',
+        altura:           profile?.altura        != null ? String(profile.altura) : '',
+        peso:             profile?.peso          != null ? String(profile.peso)   : '',
+        peDominante:      (profile?.pe_dominante as string) ?? '',
+        clubeAtual:       (profile?.clube_atual  as string) ?? '',
+        telefone:         (um.telefone          as string) ?? '',
+        clubesAnteriores: (um.clubes_anteriores as string) ?? '',
+        campeonatos:      (um.campeonatos       as string) ?? '',
+        titulos:          (um.titulos           as string) ?? '',
       })
+      setQuestionarioConcluido(!!(um.questionario_completo))
 
       // ── Avaliação mais recente ──
       try {
         const { data: av } = await supabase
           .from('avaliacoes')
           .select('*')
-          .eq('profile_id', user.id)
+          .eq('aluno_id', user.id)
           .order('created_at', { ascending: false })
           .limit(1)
           .maybeSingle()
@@ -264,7 +306,7 @@ export default function AtletaPerfilPage() {
           const { data: treinador } = await supabase
             .from('profiles')
             .select('nome')
-            .eq('id', (av as Avaliacao).treinador_id)
+            .eq('id', (av as Avaliacao).professor_id)
             .single()
           setTreinadorNome(treinador?.nome as string ?? '')
         }
@@ -285,23 +327,35 @@ export default function AtletaPerfilPage() {
   }, [router])
 
   // ── OVR ───────────────────────────────────────────────────────
-  const temBio    = curriculo.bio.trim().length > 0
-  const temFisico = !!(curriculo.altura && curriculo.peso && curriculo.peDominante)
-  const temClube  = curriculo.clubeAtual.trim().length > 0
-  const temFoto   = !!avatarUrl
+  const temFoto         = !!avatarUrl
+  const temQuestionario = questionarioConcluido
+  const temClubes       = curriculo.clubesAnteriores.trim().length > 0
+  const temCampeonatos  = curriculo.campeonatos.trim().length > 0
+  const temTitulos      = curriculo.titulos.trim().length > 0
+  const temTelefone     = curriculo.telefone.trim().length > 0
 
-  const ovrPerfil    = calcularOVRPerfil({ temFoto, temBio, temFisico, temClube })
-  const ovrAvaliacao = avaliacao ? Math.round((avaliacao.nota_geral / 100) * 50) : 0
+  const ovrPerfil    = calcularOVRPerfil({
+    temFoto, temQuestionario, temClubes, temCampeonatos, temTitulos, temTelefone,
+  })
+  const ovrAvaliacao = avaliacao ? Math.round((avaliacao.scout_score / 100) * 50) : 0
   const ovrTotal     = ovrPerfil + ovrAvaliacao
 
   // ── Próximo Passo — sugestões baseadas no estado do perfil ────
   const passos: { icon: string; titulo: string; sub: string }[] = []
-  if (!avaliacao)           passos.push({ icon: '📋', titulo: 'Receba uma avaliação oficial',  sub: 'Compartilhe seu ID com um treinador certificado' })
-  if (highlights.length === 0) passos.push({ icon: '🎬', titulo: 'Adicione um highlight',       sub: 'Cole o link de um vídeo seu no YouTube, TikTok ou Instagram' })
-  if (!temFoto)             passos.push({ icon: '📸', titulo: 'Adicione uma foto ao perfil',   sub: 'Perfis com foto têm muito mais visibilidade' })
-  if (!temBio)              passos.push({ icon: '📝', titulo: 'Escreva sua apresentação',       sub: 'Conte quem você é como atleta' })
-  if (!temFisico)           passos.push({ icon: '💪', titulo: 'Complete seus dados físicos',    sub: 'Altura, peso e pé dominante' })
-  if (!temClube)            passos.push({ icon: '⚽', titulo: 'Informe seu clube atual',        sub: 'Mostre onde você joga agora' })
+  const temBio    = curriculo.bio.trim().length > 0
+  const temFisico = !!(curriculo.altura && curriculo.peso && curriculo.peDominante)
+  const temClube  = curriculo.clubeAtual.trim().length > 0
+
+  if (!avaliacao)              passos.push({ icon: '📋', titulo: 'Receba uma avaliação oficial',  sub: 'Compartilhe seu ID com um treinador certificado' })
+  if (highlights.length === 0) passos.push({ icon: '🎬', titulo: 'Adicione um highlight',         sub: 'Cole o link de um vídeo seu no YouTube, TikTok ou Instagram' })
+  if (!temFoto)                passos.push({ icon: '📸', titulo: 'Adicione uma foto ao perfil',   sub: 'Perfis com foto têm muito mais visibilidade' })
+  if (!temQuestionario)        passos.push({ icon: '⚡', titulo: 'Responda o questionário',        sub: 'Ganhe +12 pontos no seu OVR' })
+  if (!temBio)                 passos.push({ icon: '📝', titulo: 'Escreva sua apresentação',       sub: 'Conte quem você é como atleta' })
+  if (!temFisico)              passos.push({ icon: '💪', titulo: 'Complete seus dados físicos',    sub: 'Altura, peso e pé dominante' })
+  if (!temClube)               passos.push({ icon: '⚽', titulo: 'Informe seu clube atual',        sub: 'Mostre onde você joga agora' })
+  if (!temClubes)              passos.push({ icon: '🏟', titulo: 'Adicione clubes anteriores',     sub: '+15 OVR ao preencher' })
+  if (!temCampeonatos)         passos.push({ icon: '🏆', titulo: 'Liste seus campeonatos',          sub: '+10 OVR ao preencher' })
+  if (!temTitulos)             passos.push({ icon: '🥇', titulo: 'Adicione seus títulos',           sub: '+10 OVR ao preencher' })
   const passosPrioritarios = passos.slice(0, 2)
 
   // ── Highlights handlers ──────────────────────────────────────
@@ -344,6 +398,7 @@ export default function AtletaPerfilPage() {
     if (!uid) return
     setSaving(true); setSaveErr(null); setSaved(false)
 
+    // 1. Campos DB (bio, altura, peso, pé, clube atual)
     const res = await fetch('/api/atleta/salvar-curriculo', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -357,10 +412,42 @@ export default function AtletaPerfilPage() {
       }),
     })
 
+    // 2. Campos extras via user_metadata (sem alteração de schema)
+    const supabase = createClient()
+    await supabase.auth.updateUser({
+      data: {
+        telefone:          curriculo.telefone.trim(),
+        clubes_anteriores: curriculo.clubesAnteriores.trim(),
+        campeonatos:       curriculo.campeonatos.trim(),
+        titulos:           curriculo.titulos.trim(),
+      },
+    })
+
     if (res.ok) { setSaved(true); setTimeout(() => setSaved(false), 3000) }
     else { setSaveErr('Não foi possível salvar. Tente novamente.') }
 
     setSaving(false)
+  }
+
+  // ── Salvar identidade (nome / posição / cidade) ──────────────
+  async function handleSaveIdentidade(e: React.FormEvent) {
+    e.preventDefault()
+    if (!editNome.trim()) return
+    setSavingId(true)
+    const supabase = createClient()
+    const { error } = await supabase.auth.updateUser({
+      data: {
+        nome:    editNome.trim(),
+        posicao: editPosicao,
+        cidade:  editCidade.trim(),
+      },
+    })
+    if (!error) {
+      setMeta(m => m ? { ...m, nome: editNome.trim(), posicao: editPosicao, cidade: editCidade.trim() } : m)
+      setSavedId(true)
+      setTimeout(() => { setSavedId(false); setEditingId(false) }, 1500)
+    }
+    setSavingId(false)
   }
 
   // ── Loading — skeleton ───────────────────────────────────────
@@ -580,10 +667,74 @@ export default function AtletaPerfilPage() {
           </div>
 
           <div style={{ padding:'28px 20px 20px' }}>
-            <h1 style={{ margin:'0 0 4px', fontSize:'20px', fontWeight:800 }}>{meta.nome}</h1>
-            <p style={{ margin:'0 0 16px', fontSize:'13px', color:'rgba(255,255,255,0.4)' }}>
-              {meta.posicao}{meta.cidade ? ` · ${meta.cidade}` : ''}
-            </p>
+
+            {/* ── Identidade: exibição ou edição inline ── */}
+            {editingId ? (
+              <form onSubmit={handleSaveIdentidade} style={{ marginBottom:'16px', display:'flex', flexDirection:'column', gap:'10px' }}>
+                {/* Nome */}
+                <div style={{ display:'flex', flexDirection:'column', gap:'4px' }}>
+                  <label style={{ fontSize:'10px', fontWeight:700, color:'rgba(255,255,255,0.4)', letterSpacing:'0.08em', textTransform:'uppercase' }}>Nome</label>
+                  <input
+                    value={editNome} onChange={e => setEditNome(e.target.value)}
+                    required placeholder="Seu nome completo"
+                    style={{ background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.15)', borderRadius:'10px', padding:'10px 14px', color:'white', fontSize:'14px', fontWeight:600, outline:'none' }}
+                  />
+                </div>
+                {/* Posição */}
+                <div style={{ display:'flex', flexDirection:'column', gap:'4px' }}>
+                  <label style={{ fontSize:'10px', fontWeight:700, color:'rgba(255,255,255,0.4)', letterSpacing:'0.08em', textTransform:'uppercase' }}>Posição</label>
+                  <select
+                    value={editPosicao} onChange={e => setEditPosicao(e.target.value)}
+                    style={{ background:'#0e1a12', border:'1px solid rgba(255,255,255,0.15)', borderRadius:'10px', padding:'10px 14px', color: editPosicao ? 'white' : 'rgba(255,255,255,0.35)', fontSize:'14px', outline:'none' }}
+                  >
+                    <option value="">Selecionar posição</option>
+                    {['Goleiro','Lateral Direito','Lateral Esquerdo','Zagueiro','Volante','Meia','Meia-Atacante','Ponta Direita','Ponta Esquerda','Atacante','Centro-Avante'].map(p => (
+                      <option key={p} value={p}>{p}</option>
+                    ))}
+                  </select>
+                </div>
+                {/* Cidade */}
+                <div style={{ display:'flex', flexDirection:'column', gap:'4px' }}>
+                  <label style={{ fontSize:'10px', fontWeight:700, color:'rgba(255,255,255,0.4)', letterSpacing:'0.08em', textTransform:'uppercase' }}>Cidade</label>
+                  <input
+                    value={editCidade} onChange={e => setEditCidade(e.target.value)}
+                    placeholder="Ex: São Paulo"
+                    style={{ background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.15)', borderRadius:'10px', padding:'10px 14px', color:'white', fontSize:'14px', outline:'none' }}
+                  />
+                </div>
+                {/* Ações */}
+                <div style={{ display:'flex', gap:'8px', marginTop:'2px' }}>
+                  <button type="submit" disabled={savingId}
+                    style={{ flex:1, padding:'11px', borderRadius:'10px', cursor:'pointer', fontWeight:800, fontSize:'13px',
+                      background: savedId ? 'rgba(34,197,94,0.2)' : '#22c55e',
+                      color: savedId ? '#22c55e' : 'black',
+                      border: savedId ? '1px solid rgba(34,197,94,0.4)' : 'none',
+                    }}>
+                    {savedId ? '✓ Salvo!' : savingId ? 'Salvando…' : 'Salvar'}
+                  </button>
+                  <button type="button" onClick={() => setEditingId(false)}
+                    style={{ padding:'11px 16px', borderRadius:'10px', border:'1px solid rgba(255,255,255,0.12)', background:'transparent', color:'rgba(255,255,255,0.5)', cursor:'pointer', fontSize:'13px', fontWeight:600 }}>
+                    Cancelar
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div style={{ marginBottom:'16px' }}>
+                <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:'8px' }}>
+                  <div>
+                    <h1 style={{ margin:'0 0 4px', fontSize:'20px', fontWeight:800 }}>{meta.nome}</h1>
+                    <p style={{ margin:0, fontSize:'13px', color:'rgba(255,255,255,0.4)' }}>
+                      {meta.posicao}{meta.cidade ? ` · ${meta.cidade}` : ''}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => { setEditNome(meta.nome); setEditPosicao(meta.posicao); setEditCidade(meta.cidade); setEditingId(true) }}
+                    style={{ flexShrink:0, marginTop:'2px', padding:'6px 12px', borderRadius:'8px', border:'1px solid rgba(255,255,255,0.12)', background:'rgba(255,255,255,0.05)', color:'rgba(255,255,255,0.5)', cursor:'pointer', fontSize:'12px', fontWeight:600 }}>
+                    ✏️ Editar
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* OVR breakdown */}
             <div style={{ display:'flex', flexDirection:'column', gap:'8px' }}>
@@ -654,18 +805,19 @@ export default function AtletaPerfilPage() {
         )}
 
         {/* ── Stats grid ── */}
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px', marginBottom:'24px' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'10px', marginBottom:'24px' }}>
           {[
-            { label:'Ranking',    val:'—',                                         sub:'aguardando' },
-            { label:'Avaliações', val: avaliacao ? '1' : '0',                     sub:'registradas' },
+            { label:'Avaliações',    val: avaliacao ? '1' : '0',    sub:'registradas',    color:'#22c55e' },
+            { label:'Visualizações', val: visitCount.toLocaleString('pt-BR'), sub:'no perfil', color:'#60a5fa' },
+            { label:'Scouts',        val: favoritoCount > 0 ? favoritoCount.toLocaleString('pt-BR') : '—', sub:'salvaram você', color: favoritoCount > 0 ? '#fbbf24' : 'rgba(255,255,255,0.2)' },
           ].map(s => (
             <div key={s.label} style={{
               background:'#0b1610', border:'1px solid rgba(255,255,255,0.06)',
-              borderRadius:'14px', padding:'14px 12px', textAlign:'center',
+              borderRadius:'14px', padding:'14px 10px', textAlign:'center',
             }}>
-              <p style={{ margin:'0 0 2px', fontSize:'22px', fontWeight:900, color:'#22c55e' }}>{s.val}</p>
-              <p style={{ margin:'0 0 2px', fontSize:'10px', fontWeight:700, color:'white', textTransform:'uppercase', letterSpacing:'0.06em' }}>{s.label}</p>
-              <p style={{ margin:0, fontSize:'10px', color:'rgba(255,255,255,0.25)' }}>{s.sub}</p>
+              <p style={{ margin:'0 0 2px', fontSize:'20px', fontWeight:900, color: s.color }}>{s.val}</p>
+              <p style={{ margin:'0 0 2px', fontSize:'9px', fontWeight:700, color:'white', textTransform:'uppercase', letterSpacing:'0.06em' }}>{s.label}</p>
+              <p style={{ margin:0, fontSize:'9px', color:'rgba(255,255,255,0.25)' }}>{s.sub}</p>
             </div>
           ))}
         </div>
@@ -701,10 +853,10 @@ export default function AtletaPerfilPage() {
               <span style={{
                 display:'block', fontSize:'26px', fontWeight:900, lineHeight:1,
                 letterSpacing:'-0.03em', fontVariantNumeric:'tabular-nums',
-                color: notaColor(avaliacao.nota_geral),
-                textShadow:`0 0 16px ${notaColor(avaliacao.nota_geral)}55`,
+                color: notaColor(avaliacao.scout_score),
+                textShadow:`0 0 16px ${notaColor(avaliacao.scout_score)}55`,
               }}>
-                {avaliacao.nota_geral}
+                {avaliacao.scout_score}
               </span>
               <span style={{ fontSize:'8px', fontWeight:700, color:'rgba(255,255,255,0.28)', textTransform:'uppercase', letterSpacing:'0.08em' }}>
                 nota
@@ -712,6 +864,26 @@ export default function AtletaPerfilPage() {
             </div>
           </div>
         )}
+
+        {/* ── Carta de Avaliação ── */}
+        <Link href="/atleta/carta" className="traj-btn" style={{ marginBottom:'12px', display:'flex', borderColor:'rgba(0,255,136,0.2)', background:'rgba(0,255,136,0.03)' }}>
+          <div style={{
+            width:'40px', height:'40px', borderRadius:'12px', flexShrink:0,
+            background:'rgba(0,255,136,0.1)', border:'1px solid rgba(0,255,136,0.25)',
+            display:'flex', alignItems:'center', justifyContent:'center', fontSize:'20px',
+          }}>
+            ⚽
+          </div>
+          <div style={{ flex:1 }}>
+            <p style={{ margin:'0 0 2px', fontSize:'13px', fontWeight:700, color:'#00FF88' }}>
+              Carta de Avaliação
+            </p>
+            <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.35)' }}>
+              Card oficial com OVR · R$ 5,00 · acesso permanente
+            </p>
+          </div>
+          <span style={{ color:'rgba(0,255,136,0.4)', fontSize:'18px', flexShrink:0, alignSelf:'center' }}>›</span>
+        </Link>
 
         {/* ── Ver Trajetória ── */}
         <Link href="/atleta/historico" className="traj-btn" style={{ marginBottom:'24px', display:'flex' }}>
@@ -771,10 +943,10 @@ export default function AtletaPerfilPage() {
                 </span>
                 <span style={{
                   fontSize:'26px', fontWeight:900, fontVariantNumeric:'tabular-nums',
-                  color: notaColor(avaliacao.nota_geral),
-                  textShadow:`0 0 20px ${notaColor(avaliacao.nota_geral)}55`,
+                  color: notaColor(avaliacao.scout_score),
+                  textShadow:`0 0 20px ${notaColor(avaliacao.scout_score)}55`,
                 }}>
-                  {avaliacao.nota_geral}
+                  {avaliacao.scout_score}
                 </span>
               </div>
             </div>
@@ -793,12 +965,12 @@ export default function AtletaPerfilPage() {
               </p>
 
               <div style={{ display:'flex', flexDirection:'column', gap:'13px' }}>
-                <AtributoBar icon="⚡" label="Velocidade"    value={avaliacao.velocidade} />
-                <AtributoBar icon="👁" label="Visão de Jogo" value={avaliacao.visao} />
-                <AtributoBar icon="💪" label="Força Física"  value={avaliacao.forca} />
-                <AtributoBar icon="🎯" label="Finalização"   value={avaliacao.finalizacao} />
-                <AtributoBar icon="🧠" label="Int. Tática"   value={avaliacao.inteligencia_tatica} />
-                <AtributoBar icon="⚽" label="Técnica"       value={avaliacao.tecnica} />
+                <AtributoBar icon="⚡" label="Velocidade"    value={avaliacao.velocidade * 10} />
+                <AtributoBar icon="👁" label="Visão de Jogo" value={avaliacao.visao_jogo * 10} />
+                <AtributoBar icon="💪" label="Força Física"  value={avaliacao.forca * 10} />
+                <AtributoBar icon="🎯" label="Finalização"   value={avaliacao.finalizacao * 10} />
+                <AtributoBar icon="🧠" label="Int. Tática"   value={avaliacao.posicionamento * 10} />
+                <AtributoBar icon="⚽" label="Técnica"       value={avaliacao.tecnica * 10} />
               </div>
 
               {/* Observação */}
@@ -1029,31 +1201,63 @@ export default function AtletaPerfilPage() {
               </div>
             </div>
 
-            {/* Premium locked */}
-            <div style={{ borderTop:'1px solid rgba(255,255,255,0.06)', paddingTop:'18px', display:'flex', flexDirection:'column', gap:'12px' }}>
-              <p style={{ margin:0, fontSize:'11px', fontWeight:700, color:'rgba(255,255,255,0.25)', letterSpacing:'0.08em', textTransform:'uppercase' }}>
-                Premium — em breve
+            {/* ── Contato ── */}
+            <div style={{ borderTop:'1px solid rgba(255,255,255,0.06)', paddingTop:'18px' }}>
+              <label style={labelStyle}>📱 Telefone / WhatsApp</label>
+              <input
+                type="tel" value={curriculo.telefone}
+                onChange={e => setCurriculo(c => ({ ...c, telefone: e.target.value }))}
+                placeholder="(11) 99999-9999"
+                style={inputStyle}
+              />
+              <p style={{ margin:'5px 0 0', fontSize:'11px', color:'rgba(0,255,136,0.4)' }}>
+                +5 OVR ao preencher
               </p>
-              {[
-                { icon:'📊', label:'Estatísticas da temporada', desc:'Gols, assistências, jogos disputados' },
-                { icon:'✅', label:'Badge verificado',          desc:'Selo que scouts e clubes confiam' },
-              ].map(item => (
-                <div key={item.label} style={{
-                  display:'flex', alignItems:'center', gap:'12px',
-                  padding:'12px 14px', borderRadius:'12px',
-                  background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.05)',
-                  opacity:0.55, userSelect:'none',
-                }}>
-                  <span style={{ fontSize:'18px', flexShrink:0 }}>{item.icon}</span>
-                  <div style={{ flex:1, minWidth:0 }}>
-                    <p style={{ margin:0, fontSize:'13px', fontWeight:700, color:'white' }}>{item.label}</p>
-                    <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.3)' }}>{item.desc}</p>
-                  </div>
-                  <span style={{ fontSize:'10px', fontWeight:800, color:'rgba(255,255,255,0.3)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:'6px', padding:'3px 8px', flexShrink:0 }}>
-                    🔒 PRO
-                  </span>
-                </div>
-              ))}
+            </div>
+
+            {/* ── Clubes anteriores ── */}
+            <div>
+              <label style={labelStyle}>🏟 Clubes que já joguei</label>
+              <textarea
+                value={curriculo.clubesAnteriores}
+                onChange={e => setCurriculo(c => ({ ...c, clubesAnteriores: e.target.value }))}
+                placeholder="Ex: Flamengo Sub-15, Vasco Sub-17, América FC..."
+                rows={2}
+                style={{ ...inputStyle, lineHeight:1.55 }}
+              />
+              <p style={{ margin:'5px 0 0', fontSize:'11px', color:'rgba(0,255,136,0.4)' }}>
+                +15 OVR ao preencher
+              </p>
+            </div>
+
+            {/* ── Campeonatos ── */}
+            <div>
+              <label style={labelStyle}>🏆 Campeonatos disputados</label>
+              <textarea
+                value={curriculo.campeonatos}
+                onChange={e => setCurriculo(c => ({ ...c, campeonatos: e.target.value }))}
+                placeholder="Ex: Campeonato Carioca Sub-15 2023, Copa do Brasil Sub-17..."
+                rows={2}
+                style={{ ...inputStyle, lineHeight:1.55 }}
+              />
+              <p style={{ margin:'5px 0 0', fontSize:'11px', color:'rgba(0,255,136,0.4)' }}>
+                +10 OVR ao preencher
+              </p>
+            </div>
+
+            {/* ── Títulos ── */}
+            <div>
+              <label style={labelStyle}>🥇 Títulos conquistados</label>
+              <textarea
+                value={curriculo.titulos}
+                onChange={e => setCurriculo(c => ({ ...c, titulos: e.target.value }))}
+                placeholder="Ex: Campeão Estadual Sub-15 2023, Vice-campeão Copa São Paulo..."
+                rows={2}
+                style={{ ...inputStyle, lineHeight:1.55 }}
+              />
+              <p style={{ margin:'5px 0 0', fontSize:'11px', color:'rgba(0,255,136,0.4)' }}>
+                +10 OVR ao preencher
+              </p>
             </div>
           </div>
 
@@ -1308,6 +1512,42 @@ export default function AtletaPerfilPage() {
         </div>
       </div>
       <AtletaBottomNav />
+
+      {/* ── Banner questionário concluído ── */}
+      {showQuestBanner && (
+        <div style={{
+          position: 'fixed', bottom: 88, left: '50%', transform: 'translateX(-50%)',
+          zIndex: 999, width: 'calc(100% - 40px)', maxWidth: 380,
+          background: 'linear-gradient(135deg,#00c864,#00FF88)',
+          borderRadius: 16, padding: '14px 18px',
+          display: 'flex', alignItems: 'center', gap: 12,
+          boxShadow: '0 8px 32px rgba(0,255,136,0.4)',
+          animation: 'fadeUp .3s ease forwards',
+        }}>
+          <span style={{ fontSize: 22, flexShrink: 0 }}>⚡</span>
+          <div>
+            <p style={{ margin: 0, fontSize: 14, fontWeight: 900, color: '#020d04' }}>
+              Questionário concluído!
+            </p>
+            <p style={{ margin: 0, fontSize: 12, color: 'rgba(0,0,0,0.6)', fontWeight: 600 }}>
+              Seu OVR foi atualizado com os novos pontos
+            </p>
+          </div>
+        </div>
+      )}
     </main>
+  )
+}
+
+export default function AtletaPerfilPage() {
+  return (
+    <Suspense fallback={
+      <main style={{ background:'#020d04', minHeight:'100dvh', display:'flex', alignItems:'center', justifyContent:'center' }}>
+        <div style={{ width:40, height:40, borderRadius:'50%', border:'3px solid rgba(0,255,136,0.15)', borderTopColor:'#00FF88', animation:'spin .8s linear infinite' }} />
+        <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+      </main>
+    }>
+      <AtletaPerfilContent />
+    </Suspense>
   )
 }

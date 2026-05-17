@@ -45,6 +45,10 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
       setError('Preencha todos os campos.')
       return
     }
+    if (!photo) {
+      setError('Adicione uma foto para continuar — ela é obrigatória para criar seu card.')
+      return
+    }
     setError(null)
     setStep(2)
   }
@@ -56,8 +60,19 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
     setLoading(true)
 
     // 1. Gerar ID único antes do signUp
-    const idRes = await fetch('/api/atleta/gerar-id', { method: 'POST' })
-    const { athleteId } = await idRes.json() as { athleteId: string }
+    let athleteId: string
+    try {
+      const idRes = await fetch('/api/atleta/gerar-id', { method: 'POST' })
+      if (!idRes.ok) throw new Error('status ' + idRes.status)
+      const json = await idRes.json() as { athleteId?: string }
+      if (!json.athleteId) throw new Error('athleteId ausente')
+      athleteId = json.athleteId
+    } catch (err) {
+      console.error('[cadastro] gerar-id falhou:', err)
+      setError('Não foi possível gerar seu ID. Verifique sua conexão e tente novamente.')
+      setLoading(false)
+      return
+    }
 
     // 2. Criar conta com email interno baseado no ID
     const internalEmail = `${athleteId.toLowerCase()}@meucraque.app`
@@ -206,7 +221,9 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
 
             {/* ── FOTO ── */}
             <div>
-              <label style={labelStyle}>Foto do atleta</label>
+              <label style={labelStyle}>
+                Foto do atleta <span style={{ color: '#ef4444' }}>*</span>
+              </label>
 
               {/* Guia visual */}
               <div style={{
@@ -279,8 +296,8 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
                 onClick={() => fileInputRef.current?.click()}
                 style={{
                   width: '100%', borderRadius: '14px', cursor: 'pointer',
-                  border: `2px dashed ${photoPreview ? 'rgba(34,197,94,0.5)' : 'rgba(255,255,255,0.15)'}`,
-                  background: photoPreview ? 'rgba(34,197,94,0.04)' : 'rgba(255,255,255,0.02)',
+                  border: `2px dashed ${photoPreview ? 'rgba(34,197,94,0.5)' : 'rgba(239,100,100,0.35)'}`,
+                  background: photoPreview ? 'rgba(34,197,94,0.04)' : 'rgba(239,68,68,0.03)',
                   display: 'flex', flexDirection: 'column', alignItems: 'center',
                   justifyContent: 'center', padding: photoPreview ? '8px' : '20px 16px',
                   gap: '8px', transition: 'all 0.2s', boxSizing: 'border-box',
@@ -295,11 +312,11 @@ export default function CadastroForm({ escolaId, escolaNome }: Props) {
                 ) : (
                   <>
                     <div style={{ fontSize: '28px' }}>📸</div>
-                    <p style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>
+                    <p style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: 'rgba(255,255,255,0.7)' }}>
                       Toque para adicionar foto
                     </p>
-                    <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.25)' }}>
-                      opcional — mas faz seu card se destacar
+                    <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,150,150,0.7)', fontWeight: 600 }}>
+                      obrigatória — sem foto não dá pra criar o card
                     </p>
                   </>
                 )}

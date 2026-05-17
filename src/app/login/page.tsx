@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -57,9 +57,10 @@ export default function LoginPage() {
 
     let emailParaLogin = identifier
 
-    if (area === 'atleta') {
-      const raw = identifier.trim().toUpperCase()
-      const athleteId = raw.startsWith('MC-') ? raw : `MC-${raw}`
+    if (area === 'atleta' || area === 'treinador') {
+      const raw      = identifier.trim().toUpperCase().replace(/\D/g, '').padStart(5, '0')
+      const prefix   = area === 'atleta' ? 'MC' : 'TR'
+      const athleteId = `${prefix}-${raw}`
       const res = await fetch('/api/auth/buscar-por-id', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -266,27 +267,33 @@ export default function LoginPage() {
               Bem-vindo de volta
             </h1>
             <p style={{ margin: '0 0 24px', fontSize: '14px', color: 'rgba(255,255,255,0.35)' }}>
-              {area === 'atleta' ? 'Entre com seu ID e senha' : 'Entre com seu email e senha'}
+              Entre com seu ID e senha
             </p>
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
-                <label style={labelStyle}>{area === 'atleta' ? 'ID do Atleta' : 'Email'}</label>
+                <label style={labelStyle}>{area === 'atleta' ? 'ID do Atleta' : 'ID do Treinador'}</label>
                 <input
-                  type={area === 'atleta' ? 'text' : 'email'}
+                  type="text"
                   required
                   value={identifier}
                   onChange={e => setIdentifier(e.target.value)}
-                  placeholder={area === 'atleta' ? 'Ex: 00123' : 'seu@email.com'}
-                  style={{ ...inputStyle, textTransform: area === 'atleta' ? 'uppercase' : 'none' }}
+                  placeholder="Ex: 16138"
+                  style={{ ...inputStyle, textTransform: 'uppercase', letterSpacing: '0.06em' }}
                 />
-                {area === 'atleta' && (
+                {area === 'atleta' ? (
                   <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.25)' }}>
                     <Link href="/atleta/recuperar-id" style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>
                       Esqueceu o ID?
                     </Link>
                     {' · '}
                     <Link href="/atleta/recuperar-senha" style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>
+                      Esqueceu a senha?
+                    </Link>
+                  </p>
+                ) : (
+                  <p style={{ margin: '6px 0 0', fontSize: '11px' }}>
+                    <Link href="/treinador/recuperar-senha" style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>
                       Esqueceu a senha?
                     </Link>
                   </p>

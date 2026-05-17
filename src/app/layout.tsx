@@ -14,7 +14,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "MeuCraque — Seu talento ganhando o mundo",
+  title: "Meu Craque — Seu talento ganhando o mundo",
   description: "Crie seu perfil, receba avaliações de treinadores e seja descoberto por scouts e clubes de todo o Brasil.",
 };
 

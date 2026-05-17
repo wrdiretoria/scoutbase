@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -158,7 +158,6 @@ export default function TreinadorPerfilPage() {
       paddingBottom: 'calc(80px + env(safe-area-inset-bottom))',
       fontFamily: 'system-ui, sans-serif',
       position: 'relative',
-      overflow: 'hidden',
       overscrollBehaviorY: 'none',
     }}>
 
@@ -242,13 +241,13 @@ export default function TreinadorPerfilPage() {
           <Link href="/" style={{ fontSize:'14px', fontWeight:800, color:'white', textDecoration:'none', opacity:0.55 }}>
             ⚽ MEU <span style={{ color:'#22c55e' }}>CRAQUE</span>
           </Link>
-          <button style={{
+          <Link href="/treinador/configurar" style={{
             background:'none', border:'none', cursor:'pointer',
             fontSize:'12px', color:'rgba(255,255,255,0.28)', fontWeight:600,
-            fontFamily:'system-ui', padding:0,
+            fontFamily:'system-ui', padding:0, textDecoration:'none',
           }}>
             Editar ✏
-          </button>
+          </Link>
         </div>
 
         {/* ══════════════════════════════════════
@@ -516,19 +515,20 @@ export default function TreinadorPerfilPage() {
             {copied ? '✓ Link copiado!' : '📋 Compartilhar currículo'}
           </button>
 
-          <button className="btn-ghost">
+          <Link href="/treinador/configurar" className="btn-ghost" style={{ textDecoration:'none', display:'block', textAlign:'center' }}>
             ✏ Editar perfil
-          </button>
+          </Link>
         </div>
 
         {/* ── Separador ── */}
-        <div className="a7" style={{
+        <Link href="/treinador/avaliar" className="a7" style={{
           marginTop:'28px',
           padding:'18px 20px',
           background:'rgba(255,255,255,0.02)',
           border:'1px solid rgba(255,255,255,0.06)',
           borderRadius:'16px',
           display:'flex', alignItems:'center', gap:'12px',
+          textDecoration:'none', cursor:'pointer',
         }}>
           <div style={{
             width:'36px', height:'36px', borderRadius:'10px', flexShrink:0,
@@ -547,7 +547,7 @@ export default function TreinadorPerfilPage() {
             </p>
           </div>
           <span style={{ marginLeft:'auto', color:'rgba(255,255,255,0.2)', fontSize:'18px', flexShrink:0 }}>›</span>
-        </div>
+        </Link>
 
         <p style={{ marginTop:'28px', fontSize:'10px', color:'rgba(255,255,255,0.1)', textAlign:'center' }}>
           ⚽ MEU <span style={{ color:'rgba(0,255,136,0.3)' }}>CRAQUE</span> · Construindo o futebol brasileiro.

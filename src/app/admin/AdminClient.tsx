@@ -31,6 +31,10 @@ type Stats = {
   totalPresencas: number
   professores: number
   responsaveis: number
+  // Meu Craque
+  atletasMC: number
+  treinadoresMC: number
+  atletasAvaliados: number
 }
 
 interface Props {
@@ -195,12 +199,26 @@ export default function AdminClient({ users: initialUsers, atletas: initialAtlet
         {/* ── STATS ── */}
         {aba === 'stats' && (
           <div className="space-y-4">
+            {/* Meu Craque */}
+            <p className="text-xs font-semibold text-green-700 uppercase tracking-widest mb-2">⚽ Meu Craque</p>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+              {[
+                { label: 'Atletas MC cadastrados', value: stats.atletasMC, cor: 'text-green-600' },
+                { label: 'Treinadores MC', value: stats.treinadoresMC, cor: 'text-blue-600' },
+                { label: 'Atletas avaliados', value: stats.atletasAvaliados, cor: 'text-amber-600' },
+              ].map((s) => (
+                <div key={s.label} className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm">
+                  <p className="text-xs text-gray-400 mb-1">{s.label}</p>
+                  <p className={`text-3xl font-bold ${s.cor}`}>{s.value.toLocaleString('pt-BR')}</p>
+                </div>
+              ))}
+            </div>
+            {/* ScoutBase */}
+            <p className="text-xs font-semibold text-blue-700 uppercase tracking-widest mb-2">🏫 ScoutBase</p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {[
                 { label: 'Usuários totais', value: stats.totalUsuarios, cor: 'text-gray-900' },
-                { label: 'Treinadores', value: stats.professores, cor: 'text-blue-600' },
-                { label: 'Atletas c/ acesso', value: stats.responsaveis, cor: 'text-purple-600' },
-                { label: 'Atletas', value: stats.totalAtletas, cor: 'text-green-600' },
+                { label: 'Atletas ScoutBase', value: stats.totalAtletas, cor: 'text-purple-600' },
                 { label: 'Avaliações', value: stats.totalAvaliacoes, cor: 'text-amber-600' },
                 { label: 'Registros de presença', value: stats.totalPresencas, cor: 'text-gray-600' },
               ].map((s) => (
@@ -218,7 +236,12 @@ export default function AdminClient({ users: initialUsers, atletas: initialAtlet
                   <li key={u.id} className="flex items-center justify-between py-2.5">
                     <div>
                       <p className="text-sm font-medium text-gray-800">{u.nome || u.email}</p>
-                      <p className="text-xs text-gray-400">{u.email} · {u.tipo === 'pai' ? 'Atleta' : 'Treinador'}</p>
+                      <p className="text-xs text-gray-400">{u.email} · {
+                        u.tipo === 'atleta' ? 'Atleta MC'
+                        : u.tipo === 'treinador' ? 'Treinador MC'
+                        : u.tipo === 'pai' ? 'Responsável'
+                        : u.tipo
+                      }</p>
                     </div>
                     <p className="text-xs text-gray-400">
                       {new Date(u.created_at).toLocaleDateString('pt-BR')}
@@ -254,8 +277,16 @@ export default function AdminClient({ users: initialUsers, atletas: initialAtlet
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">
                         {u.nome || '(sem nome)'}{' '}
-                        <span className={`text-xs font-normal ${u.tipo === 'pai' ? 'text-purple-500' : 'text-blue-500'}`}>
-                          {u.tipo === 'pai' ? 'Atleta' : 'Treinador'}
+                        <span className={`text-xs font-normal ${
+                          u.tipo === 'atleta' ? 'text-green-600'
+                          : u.tipo === 'treinador' ? 'text-blue-500'
+                          : u.tipo === 'pai' ? 'text-purple-500'
+                          : 'text-gray-400'
+                        }`}>
+                          {u.tipo === 'atleta' ? 'Atleta MC'
+                            : u.tipo === 'treinador' ? 'Treinador MC'
+                            : u.tipo === 'pai' ? 'Responsável'
+                            : u.tipo}
                         </span>
                       </p>
                       <p className="text-xs text-gray-400 truncate">{u.email}</p>
