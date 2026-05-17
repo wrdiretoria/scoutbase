@@ -2,7 +2,7 @@
   "name": "Meu Craque — Perfil Oficial de Atleta",
   "short_name": "Meu Craque",
   "description": "Crie seu perfil, receba avaliações de treinadores e seja descoberto por scouts e clubes de todo o Brasil.",
-  "start_url": "/atleta/perfil",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "background_color": "#06100a",
