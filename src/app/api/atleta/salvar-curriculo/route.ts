@@ -18,6 +18,25 @@ export async function POST(req: Request) {
 
     const admin = createAdminClient()
 
+    // Bloqueia edição de currículo se atleta já completou 18 anos
+    const { data: profileData } = await admin
+      .from('profiles')
+      .select('data_nascimento')
+      .eq('id', userId)
+      .maybeSingle()
+
+    if (profileData?.data_nascimento) {
+      const nasc = new Date(profileData.data_nascimento)
+      const hoje = new Date()
+      const idade = hoje.getFullYear() - nasc.getFullYear() -
+        (hoje < new Date(hoje.getFullYear(), nasc.getMonth(), nasc.getDate()) ? 1 : 0)
+      if (idade >= 18) {
+        return NextResponse.json({
+          error: 'Perfil bloqueado para edição. O Meu Craque é exclusivo para atletas sub-18. Seu histórico e avaliações permanecem salvos.',
+        }, { status: 403 })
+      }
+    }
+
     const { error } = await admin
       .from('profiles')
       .upsert(

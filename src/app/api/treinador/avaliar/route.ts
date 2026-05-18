@@ -51,6 +51,26 @@ export async function POST(req: NextRequest) {
   // ── Verifica e decrementa card do atleta ──
   const admin = createAdminClient()
   const { data: { user: atletaUser } } = await admin.auth.admin.getUserById(profileId)
+
+  // Bloqueia avaliação se atleta já completou 18 anos
+  const { data: profileData } = await admin
+    .from('profiles')
+    .select('data_nascimento')
+    .eq('id', profileId)
+    .maybeSingle()
+
+  if (profileData?.data_nascimento) {
+    const nasc = new Date(profileData.data_nascimento)
+    const hoje = new Date()
+    const idade = hoje.getFullYear() - nasc.getFullYear() -
+      (hoje < new Date(hoje.getFullYear(), nasc.getMonth(), nasc.getDate()) ? 1 : 0)
+    if (idade >= 18) {
+      return NextResponse.json({
+        error: 'Este atleta já completou 18 anos. O Meu Craque é exclusivo para o futebol de base (sub-18). O histórico de avaliações anteriores permanece salvo.',
+      }, { status: 403 })
+    }
+  }
+
   const cardsDisponiveis = (atletaUser?.user_metadata?.cards_disponiveis as number) ?? 0
   if (cardsDisponiveis <= 0) {
     return NextResponse.json({ error: 'Atleta não possui card de avaliação disponível.' }, { status: 403 })
