@@ -495,7 +495,7 @@ function AtletaPerfilContent() {
   if (!temQuestionario)        passos.push({ icon: '⚡', titulo: 'Responda o questionário',        sub: 'Ganhe +12 pontos no seu OVR' })
   if (!temBio)                 passos.push({ icon: '📝', titulo: 'Escreva sua apresentação',       sub: 'Conte quem você é como atleta' })
   if (!temFisico)              passos.push({ icon: '💪', titulo: 'Complete seus dados físicos',    sub: 'Altura, peso e pé dominante' })
-  if (!temClube)               passos.push({ icon: '⚽', titulo: 'Informe seu clube atual',        sub: 'Mostre onde você joga agora' })
+  if (!temClube)               passos.push({ icon: '⚽', titulo: 'Onde você treina agora?',         sub: 'Clube, escolinha, projeto ou nenhum lugar' })
   if (!temClubes)              passos.push({ icon: '🏟', titulo: 'Adicione clubes anteriores',     sub: '+15 OVR ao preencher' })
   if (!temCampeonatos)         passos.push({ icon: '🏆', titulo: 'Liste seus campeonatos',          sub: '+10 OVR ao preencher' })
   if (!temTitulos)             passos.push({ icon: '🥇', titulo: 'Adicione seus títulos',           sub: '+10 OVR ao preencher' })
@@ -1405,13 +1405,16 @@ function AtletaPerfilContent() {
 
             {/* Clube atual */}
             <div>
-              <label style={labelStyle}>Clube atual</label>
+              <label style={labelStyle}>Onde você treina ou joga agora?</label>
               <input
                 type="text" value={curriculo.clubeAtual}
                 onChange={e => setCurriculo(c => ({ ...c, clubeAtual: e.target.value }))}
-                placeholder="Ex: EC Flamengo Sub-15, sem clube no momento..."
+                placeholder="Clube, escolinha, projeto ou nenhum lugar"
                 style={inputStyle}
               />
+              <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.25)' }}>
+                Ex: Escolinha do Zico, Projeto Gol de Letra, EC Flamengo Sub-15...
+              </p>
             </div>
 
             {/* Dados físicos */}
