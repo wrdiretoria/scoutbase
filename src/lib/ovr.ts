@@ -1,82 +1,133 @@
 /**
- * OVR real — média dos scout_score das avaliações por atleta.
+ * OVR real — fórmula 50/50:
+ *   • 50% perfil (cadastro + currículo preenchido)
+ *   • 50% avaliação de treinadores (média dos scout_score)
  *
  * Bridge direto: profiles.id (auth UUID) = avaliacoes.aluno_id
  * profiles.athlete_id (MC-XXXXX) é usado para mapear no ranking/busca.
  */
 import type { SupabaseClient } from '@supabase/supabase-js'
 
+// ── Pontuação do perfil ────────────────────────────────────────────────────────
+// Campos obrigatórios (sempre preenchidos no cadastro): nome, avatar_url, data_nascimento = 30 pts
+// Campos do currículo (opcionais): bio=20, altura=15, peso=15, pe_dominante=10, clube_atual=10 = 70 pts
+// Total possível: 100 pts
+
+type ProfileRow = {
+  id:              string
+  athlete_id:      string | null
+  nome:            string | null
+  avatar_url:      string | null
+  data_nascimento: string | null
+  bio:             string | null
+  altura:          number | null
+  peso:            number | null
+  pe_dominante:    string | null
+  clube_atual:     string | null
+}
+
+function calcProfileScore(p: ProfileRow): number {
+  let score = 0
+  if (p.nome)            score += 10
+  if (p.avatar_url)      score += 10
+  if (p.data_nascimento) score += 10
+  if (p.bio)             score += 20
+  if (p.altura)          score += 15
+  if (p.peso)            score += 15
+  if (p.pe_dominante)    score += 10
+  if (p.clube_atual)     score += 10
+  return score  // 0–100
+}
+
+function calcOvr(profileScore: number, trainerAvg: number | null): number {
+  if (trainerAvg === null) {
+    // Sem avaliação: OVR = 50% do perfil (máx 50 enquanto não avaliado)
+    return Math.round(profileScore * 0.5)
+  }
+  return Math.round(profileScore * 0.5 + trainerAvg * 0.5)
+}
+
+// ── fetchOvrMap ────────────────────────────────────────────────────────────────
+
 /**
- * Retorna Map<MC-ID, avgOvr> com todos os atletas que têm pelo menos 1 avaliação.
+ * Retorna Map<MC-ID, ovr> com todos os atletas que têm perfil cadastrado.
  * Use com o admin client (bypass RLS).
  */
 export async function fetchOvrMap(admin: SupabaseClient): Promise<Map<string, number>> {
   const map = new Map<string, number>()
 
-  // 1. Todas as avaliações com score
+  // 1. Todos os perfis de atleta
+  const { data: profiles } = await admin
+    .from('profiles')
+    .select('id, athlete_id, nome, avatar_url, data_nascimento, bio, altura, peso, pe_dominante, clube_atual')
+    .not('athlete_id', 'is', null)
+
+  if (!profiles || profiles.length === 0) return map
+
+  // 2. Todas as avaliações com score
   const { data: avs } = await admin
     .from('avaliacoes')
     .select('aluno_id, scout_score')
     .not('scout_score', 'is', null)
 
-  if (!avs || avs.length === 0) return map
-
-  // 2. Agrupar scores por aluno_id (auth UUID)
+  // Agrupa scores por UUID do atleta
   const scoresByUuid = new Map<string, number[]>()
-  for (const av of avs as { aluno_id: string; scout_score: number }[]) {
+  for (const av of (avs ?? []) as { aluno_id: string; scout_score: number }[]) {
     if (!av.aluno_id) continue
     if (!scoresByUuid.has(av.aluno_id)) scoresByUuid.set(av.aluno_id, [])
     scoresByUuid.get(av.aluno_id)!.push(av.scout_score)
   }
 
-  if (scoresByUuid.size === 0) return map
+  // 3. Calcula OVR para cada atleta
+  for (const profile of profiles as ProfileRow[]) {
+    if (!profile.athlete_id) continue
 
-  // 3. Buscar MC-IDs dos perfis correspondentes
-  const { data: profiles } = await admin
-    .from('profiles')
-    .select('id, athlete_id')
-    .in('id', [...scoresByUuid.keys()])
-    .not('athlete_id', 'is', null)
+    const profileScore = calcProfileScore(profile)
 
-  if (!profiles) return map
+    const scores = scoresByUuid.get(profile.id)
+    const trainerAvg = scores && scores.length > 0
+      ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+      : null
 
-  // 4. Calcular média e montar map MC-ID → OVR
-  for (const profile of profiles as { id: string; athlete_id: string }[]) {
-    const scores = scoresByUuid.get(profile.id) ?? []
-    if (!scores.length) continue
-    const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-    map.set(profile.athlete_id, avg)
+    const ovr = calcOvr(profileScore, trainerAvg)
+    map.set(profile.athlete_id, ovr)
   }
 
   return map
 }
 
+// ── fetchOvrSingle ─────────────────────────────────────────────────────────────
+
 /**
  * OVR de um único atleta pelo MC-ID.
- * Retorna null se sem avaliações.
+ * Retorna null se o perfil não existir.
  */
 export async function fetchOvrSingle(
   admin: SupabaseClient,
   mcId: string,
 ): Promise<number | null> {
-  // 1. Achar o UUID do perfil pelo MC-ID
+  // 1. Perfil do atleta
   const { data: profile } = await admin
     .from('profiles')
-    .select('id')
+    .select('id, athlete_id, nome, avatar_url, data_nascimento, bio, altura, peso, pe_dominante, clube_atual')
     .eq('athlete_id', mcId)
     .maybeSingle()
 
   if (!profile?.id) return null
 
-  // 2. Buscar avaliações pelo UUID
+  const profileScore = calcProfileScore(profile as ProfileRow)
+
+  // 2. Avaliações do atleta
   const { data: avs } = await admin
     .from('avaliacoes')
     .select('scout_score')
     .eq('aluno_id', profile.id)
     .not('scout_score', 'is', null)
 
-  if (!avs?.length) return null
+  const scores = (avs ?? []) as { scout_score: number }[]
+  const trainerAvg = scores.length > 0
+    ? Math.round(scores.map(a => a.scout_score).reduce((a, b) => a + b, 0) / scores.length)
+    : null
 
-  const scores = (avs as { scout_score: number }[]).map(a => a.scout_score)
-  return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+  return calcOvr(profileScore, trainerAvg)
 }
