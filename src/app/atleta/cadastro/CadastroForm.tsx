@@ -47,6 +47,18 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
       setError('Preencha todos os campos.')
       return
     }
+
+    // Validação de idade — perfil de atleta só para menores de 18 anos
+    const nascimento = new Date(dataNasc)
+    const hoje = new Date()
+    const idade = hoje.getFullYear() - nascimento.getFullYear() -
+      (hoje < new Date(hoje.getFullYear(), nascimento.getMonth(), nascimento.getDate()) ? 1 : 0)
+
+    if (idade >= 18) {
+      setError('⚠️ O Meu Craque é exclusivo para atletas do futebol de base (abaixo de 18 anos). Se você é treinador ou profissional, crie um perfil de treinador.')
+      return
+    }
+
     if (!photo) {
       setError('Adicione uma foto para continuar — ela é obrigatória para criar seu card.')
       return
@@ -415,7 +427,21 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
               </p>
             </div>
 
-            {error && <p style={{ margin: 0, padding: '10px 14px', borderRadius: '10px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '13px', color: '#f87171' }}>{error}</p>}
+            {error && (
+              <div style={{ margin: 0, padding: '12px 14px', borderRadius: '10px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}>
+                <p style={{ margin: 0, fontSize: '13px', color: '#f87171', lineHeight: 1.5 }}>{error}</p>
+                {error.includes('futebol de base') && (
+                  <Link href="/treinador/cadastro" style={{
+                    display: 'inline-block', marginTop: '10px', padding: '8px 14px',
+                    borderRadius: '8px', background: 'rgba(34,197,94,0.15)',
+                    border: '1px solid rgba(34,197,94,0.3)',
+                    color: '#22c55e', fontSize: '13px', fontWeight: 700, textDecoration: 'none',
+                  }}>
+                    Criar perfil de treinador →
+                  </Link>
+                )}
+              </div>
+            )}
 
             <button type="submit" style={{
               padding: '16px', borderRadius: '14px', border: 'none', cursor: 'pointer',
