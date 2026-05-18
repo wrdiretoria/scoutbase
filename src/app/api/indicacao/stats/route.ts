@@ -11,16 +11,15 @@ export async function GET() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
-    const admin = createAdminClient()
+    // Usa o contador salvo no metadata (mais rápido que varrer todos os users)
+    const count = (user.user_metadata?.indicacoes_count as number) ?? 0
+    const faltam = 10 - (count % 10 === 0 && count > 0 ? 10 : count % 10)
 
-    // Conta usuários que têm referred_by = user.id
-    const { data: { users } } = await admin.auth.admin.listUsers({ perPage: 1000 })
-
-    const count = users.filter(u =>
-      u.user_metadata?.referred_by === user.id
-    ).length
-
-    return NextResponse.json({ count })
+    return NextResponse.json({
+      count,
+      faltam,               // quantas indicações faltam para o próximo card
+      proximoCard: faltam,  // alias legível
+    })
   } catch (err) {
     console.error('[indicacao/stats] unexpected', err)
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 })

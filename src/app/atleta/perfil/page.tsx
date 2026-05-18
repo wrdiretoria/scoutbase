@@ -191,7 +191,8 @@ function getThumbnail(hl: Highlight): string {
 // ── Indicação Section ─────────────────────────────────────────────────────────
 
 function IndicacaoSection({ athleteId }: { athleteId: string }) {
-  const [count, setCount]   = useState<number | null>(null)
+  const [count,  setCount]  = useState<number | null>(null)
+  const [faltam, setFaltam] = useState<number>(10)
   const [copied, setCopied] = useState(false)
 
   const link = `https://meucraque.com.br/atleta/cadastro?ref=${athleteId}`
@@ -199,8 +200,11 @@ function IndicacaoSection({ athleteId }: { athleteId: string }) {
   useEffect(() => {
     fetch('/api/indicacao/stats')
       .then(r => r.json())
-      .then((d: { count?: number }) => setCount(d.count ?? 0))
-      .catch(() => setCount(0))
+      .then((d: { count?: number; faltam?: number }) => {
+        setCount(d.count ?? 0)
+        setFaltam(d.faltam ?? 10)
+      })
+      .catch(() => { setCount(0); setFaltam(10) })
   }, [])
 
   function handleCopy() {
@@ -222,18 +226,23 @@ function IndicacaoSection({ athleteId }: { athleteId: string }) {
     }
   }
 
+  const progresso = count === null ? 0 : ((count % 10) / 10) * 100
+
   return (
     <div style={{
       padding: '18px', borderRadius: '16px', marginBottom: '16px',
       background: 'linear-gradient(135deg,rgba(96,165,250,0.06),rgba(167,139,250,0.06))',
       border: '1px solid rgba(96,165,250,0.15)',
     }}>
+      {/* Header */}
       <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'12px' }}>
         <span style={{ fontSize:'20px' }}>🤝</span>
         <div style={{ flex:1 }}>
           <p style={{ margin:0, fontSize:'13px', fontWeight:800, color:'white' }}>Indicar amigos</p>
           <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.4)' }}>
-            {count === null ? '…' : count === 0 ? 'Nenhuma indicação ainda' : `${count} atleta${count !== 1 ? 's' : ''} indicado${count !== 1 ? 's' : ''}`}
+            {count === null ? '…' : count === 0
+              ? 'Indique 10 amigos e ganhe 1 card grátis'
+              : `${count} atleta${count !== 1 ? 's' : ''} indicado${count !== 1 ? 's' : ''}`}
           </p>
         </div>
         {count !== null && count > 0 && (
@@ -246,6 +255,32 @@ function IndicacaoSection({ athleteId }: { athleteId: string }) {
           </div>
         )}
       </div>
+
+      {/* Barra de progresso para o próximo card */}
+      {count !== null && count >= 0 && (
+        <div style={{ marginBottom:'12px' }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'6px' }}>
+            <span style={{ fontSize:'10px', fontWeight:700, color:'rgba(96,165,250,0.7)', letterSpacing:'0.08em', textTransform:'uppercase' }}>
+              Próximo card grátis
+            </span>
+            <span style={{ fontSize:'11px', fontWeight:800, color: faltam === 0 ? '#00FF88' : 'rgba(255,255,255,0.5)' }}>
+              {faltam === 0 ? '🎉 Card liberado!' : `faltam ${faltam}`}
+            </span>
+          </div>
+          <div style={{ height:'5px', background:'rgba(255,255,255,0.06)', borderRadius:'3px', overflow:'hidden' }}>
+            <div style={{
+              height:'100%', borderRadius:'3px',
+              background:'linear-gradient(90deg,#60a5fa,#a78bfa)',
+              width:`${progresso === 0 && count === 0 ? 0 : progresso || (faltam === 0 ? 100 : 0)}%`,
+              transition:'width 0.8s ease',
+              boxShadow:'0 0 8px rgba(96,165,250,0.5)',
+            }} />
+          </div>
+          <p style={{ margin:'5px 0 0', fontSize:'10px', color:'rgba(255,255,255,0.25)', textAlign:'center' }}>
+            A cada 10 indicações confirmadas você ganha 1 card de avaliação
+          </p>
+        </div>
+      )}
 
       {/* Link */}
       <div style={{ display:'flex', gap:'6px', marginBottom:'8px' }}>

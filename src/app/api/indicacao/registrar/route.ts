@@ -45,7 +45,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ ok: true, referrerId })
+    // 4. Incrementa contador do referenciador e dá card a cada 10 indicações
+    const { data: { user: referrer } } = await admin.auth.admin.getUserById(referrerId)
+    const totalIndicacoes = ((referrer?.user_metadata?.indicacoes_count as number) ?? 0) + 1
+
+    const novosMeta: Record<string, unknown> = { indicacoes_count: totalIndicacoes }
+
+    // A cada 10 indicações exatas → 1 card grátis
+    if (totalIndicacoes % 10 === 0) {
+      const cardsAtuais = (referrer?.user_metadata?.cards_disponiveis as number) ?? 0
+      novosMeta.cards_disponiveis = cardsAtuais + 1
+      console.log(`[indicacao] 🎉 Atleta ${referrerId} atingiu ${totalIndicacoes} indicações → +1 card`)
+    }
+
+    await admin.auth.admin.updateUserById(referrerId, { user_metadata: novosMeta })
+
+    return NextResponse.json({
+      ok: true,
+      referrerId,
+      totalIndicacoes,
+      cardBrinde: totalIndicacoes % 10 === 0,
+    })
   } catch (err) {
     console.error('[indicacao/registrar] unexpected', err)
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 })
