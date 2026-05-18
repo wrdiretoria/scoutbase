@@ -1,10 +1,9 @@
 /**
  * POST /api/atleta/carta-pix
- * Gera cobrança PIX de R$5 para desbloquear a Carta de Avaliação.
- * Retorna { pixCode, qrCodeImage, paymentId }
+ * Gera cobrança R$5 (Pix ou cartão) para o atleta adquirir 1 card de avaliação.
+ * Retorna { pixCode, qrCodeImage, paymentId } ou { ok: true, bonus: true } se for o 1º card grátis.
  *
- * externalReference = "carta_<userId>" — o webhook identifica por esse prefixo
- * e chama admin.auth.admin.updateUserById(userId, { user_metadata: { carta_desbloqueada: true } })
+ * externalReference = "carta_<userId>" — o webhook incrementa cards_disponiveis ao confirmar.
  */
 import { createAdminClient } from '@/lib/supabase'
 import { asaas } from '@/lib/asaas'
@@ -23,23 +22,23 @@ export async function POST(req: Request) {
 
     const admin = createAdminClient()
 
-    // Verifica se já está desbloqueada
+    // Busca dados do atleta
     const { data: { user } } = await admin.auth.admin.getUserById(userId)
-    if (user?.user_metadata?.carta_desbloqueada) {
-      return NextResponse.json({ ok: true, ja_desbloqueada: true })
-    }
 
-    // Primeira avaliação é bônus — desbloqueia grátis sem cobrar
-    const { count } = await admin
-      .from('avaliacoes')
-      .select('id', { count: 'exact', head: true })
-      .eq('aluno_id', userId)
+    // Primeira avaliação é bônus — dá 1 card grátis se nunca teve card e nunca foi avaliado
+    const cardsAtuais = (user?.user_metadata?.cards_disponiveis as number) ?? 0
+    if (cardsAtuais === 0) {
+      const { count } = await admin
+        .from('avaliacoes')
+        .select('id', { count: 'exact', head: true })
+        .eq('aluno_id', userId)
 
-    if ((count ?? 0) === 0) {
-      await admin.auth.admin.updateUserById(userId, {
-        user_metadata: { carta_desbloqueada: true },
-      })
-      return NextResponse.json({ ok: true, bonus: true })
+      if ((count ?? 0) === 0) {
+        await admin.auth.admin.updateUserById(userId, {
+          user_metadata: { cards_disponiveis: 1 },
+        })
+        return NextResponse.json({ ok: true, bonus: true })
+      }
     }
 
     // Reutiliza cliente Asaas existente ou cria novo

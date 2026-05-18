@@ -265,10 +265,11 @@ function TrainerCard({ perfil, av, at, dest }: { perfil: Perfil; av: number; at:
 export default function TreinadorDashboardPage() {
   const router = useRouter()
 
-  const [perfil,   setPerfil]   = useState<Perfil | null>(null)
-  const [metricas, setMetricas] = useState<Metricas>({ totalAvaliacoes: 0, totalAtletas: 0, totalDestaques: 0, semanaCount: 0 })
-  const [recentes, setRecentes] = useState<AvaliacaoRecente[]>([])
-  const [loading,  setLoading]  = useState(true)
+  const [perfil,        setPerfil]        = useState<Perfil | null>(null)
+  const [metricas,      setMetricas]      = useState<Metricas>({ totalAvaliacoes: 0, totalAtletas: 0, totalDestaques: 0, semanaCount: 0 })
+  const [recentes,      setRecentes]      = useState<AvaliacaoRecente[]>([])
+  const [loading,       setLoading]       = useState(true)
+  const [solicitacoes,  setSolicitacoes]  = useState<{ atletaId: string; atletaNome: string; atletaMcId: string; ts: string }[]>([])
 
   useEffect(() => {
     async function load() {
@@ -337,6 +338,15 @@ export default function TreinadorDashboardPage() {
           }))
         }
       } catch { /* avaliacoes table may not exist yet */ }
+
+      // ── Solicitações pendentes ──
+      try {
+        const solRes = await fetch('/api/convite/listar')
+        if (solRes.ok) {
+          const solJson = await solRes.json() as { solicitacoes: { atletaId: string; atletaNome: string; atletaMcId: string; ts: string }[] }
+          setSolicitacoes(solJson.solicitacoes ?? [])
+        }
+      } catch { /* ignorar */ }
 
       setLoading(false)
     }
@@ -530,6 +540,67 @@ export default function TreinadorDashboardPage() {
             <span style={{ fontSize: '22px', opacity: .45 }}>→</span>
           </Link>
         </div>
+
+        {/* ── Solicitações pendentes ── */}
+        {solicitacoes.length > 0 && (
+          <div className="a4" style={{ marginBottom: '24px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <p style={{ margin: 0, fontSize: '9px', fontWeight: 800, letterSpacing: '0.16em', color: 'rgba(255,255,255,0.2)', textTransform: 'uppercase' }}>
+                Solicitações de avaliação
+              </p>
+              <div style={{
+                padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800,
+                background: 'rgba(251,191,36,0.15)', color: '#fbbf24',
+                border: '1px solid rgba(251,191,36,0.25)',
+              }}>
+                {solicitacoes.length} pendente{solicitacoes.length !== 1 ? 's' : ''}
+              </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {solicitacoes.map((sol) => {
+                const dias = Math.floor((Date.now() - new Date(sol.ts).getTime()) / 86_400_000)
+                const quando = dias === 0 ? 'Hoje' : dias === 1 ? 'Ontem' : `${dias}d atrás`
+                const initials = sol.atletaNome.split(' ').slice(0,2).map((n: string) => n[0] ?? '').join('').toUpperCase()
+                return (
+                  <Link
+                    key={sol.atletaId}
+                    href={`/treinador/avaliar?id=${sol.atletaMcId}`}
+                    className="av-card"
+                    style={{ textDecoration: 'none', color: 'white', borderColor: 'rgba(251,191,36,0.2)' }}
+                  >
+                    <div style={{
+                      width: '46px', height: '46px', borderRadius: '50%', flexShrink: 0,
+                      background: 'linear-gradient(145deg,#166534,#22c55e)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '14px', fontWeight: 900, color: 'white',
+                    }}>
+                      {initials}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ margin: '0 0 3px', fontSize: '14px', fontWeight: 700, color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {sol.atletaNome}
+                      </p>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(251,191,36,0.7)', letterSpacing: '0.06em' }}>
+                          {sol.atletaMcId}
+                        </span>
+                        <span style={{ color: 'rgba(255,255,255,0.1)', fontSize: '10px' }}>·</span>
+                        <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)' }}>{quando}</span>
+                      </div>
+                    </div>
+                    <div style={{
+                      flexShrink: 0, padding: '7px 12px', borderRadius: '10px',
+                      background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.25)',
+                      fontSize: '12px', fontWeight: 800, color: '#fbbf24',
+                    }}>
+                      Avaliar →
+                    </div>
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         {/* ── Zero state ── */}
         {metricas.totalAvaliacoes === 0 && (

@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     const supabase = await createServerClient()
 
-    // ── Carta de Avaliação: pagamento identificado pelo externalReference ──
+    // ── Card de Avaliação: pagamento identificado pelo externalReference ──
     if (
       (event === 'PAYMENT_RECEIVED' || event === 'PAYMENT_CONFIRMED') &&
       payment.externalReference?.startsWith('carta_')
@@ -48,10 +48,12 @@ export async function POST(req: NextRequest) {
       const userId = payment.externalReference.replace('carta_', '')
       if (userId) {
         const adminClient = createAdminClient()
+        const { data: { user: atletaUser } } = await adminClient.auth.admin.getUserById(userId)
+        const atual = (atletaUser?.user_metadata?.cards_disponiveis as number) ?? 0
         await adminClient.auth.admin.updateUserById(userId, {
-          user_metadata: { carta_desbloqueada: true },
+          user_metadata: { cards_disponiveis: atual + 1 },
         })
-        console.log(`[webhook] Carta desbloqueada para userId=${userId}`)
+        console.log(`[webhook] Card de avaliação adicionado para userId=${userId} (total: ${atual + 1})`)
       }
       return NextResponse.json({ ok: true, event, tipo: 'carta' })
     }

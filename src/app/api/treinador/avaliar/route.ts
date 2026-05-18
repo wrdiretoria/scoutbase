@@ -48,8 +48,18 @@ export async function POST(req: NextRequest) {
     (tecnico_val + fisico_val + tatico_val + comportamento_val) / 4 * 10
   )
 
-  // ── Salvar ──
+  // ── Verifica e decrementa card do atleta ──
   const admin = createAdminClient()
+  const { data: { user: atletaUser } } = await admin.auth.admin.getUserById(profileId)
+  const cardsDisponiveis = (atletaUser?.user_metadata?.cards_disponiveis as number) ?? 0
+  if (cardsDisponiveis <= 0) {
+    return NextResponse.json({ error: 'Atleta não possui card de avaliação disponível.' }, { status: 403 })
+  }
+  await admin.auth.admin.updateUserById(profileId, {
+    user_metadata: { cards_disponiveis: cardsDisponiveis - 1 },
+  })
+
+  // ── Salvar ──
   const { error } = await admin.from('avaliacoes').insert({
     professor_id:    user.id,
     aluno_id:        profileId,
@@ -74,9 +84,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Erro ao registrar avaliação.' }, { status: 500 })
   }
 
+  // ── Remove solicitação do treinador (se existia) ──
+  try {
+    type Solicitacao = { atletaId: string; atletaNome: string; atletaMcId: string; ts: string }
+    const solicitacoesAtuais: Solicitacao[] =
+      (user.user_metadata?.solicitacoes as Solicitacao[]) ?? []
+    const solicitacoesRestantes = solicitacoesAtuais.filter(s => s.atletaId !== profileId)
+    if (solicitacoesRestantes.length !== solicitacoesAtuais.length) {
+      await admin.auth.admin.updateUserById(user.id, {
+        user_metadata: { solicitacoes: solicitacoesRestantes },
+      })
+    }
+  } catch { /* ignorar */ }
+
   // ── Email de notificação (não bloqueia resposta) ──
   try {
-    const { data: { user: atletaUser } } = await admin.auth.admin.getUserById(profileId)
     if (atletaUser?.email) {
       const atletaMeta = atletaUser.user_metadata as { nome?: string }
       const treinadorMeta = user.user_metadata as { nome?: string }

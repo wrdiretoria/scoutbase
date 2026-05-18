@@ -259,7 +259,7 @@ function IndicacaoSection({ athleteId }: { athleteId: string }) {
         <button
           onClick={handleCopy}
           style={{
-            padding:'9px 14px', borderRadius:'10px', border:'none', cursor:'pointer', flexShrink:0,
+            padding:'9px 14px', borderRadius:'10px', cursor:'pointer', flexShrink:0,
             background: copied ? '#1e40af' : 'rgba(96,165,250,0.15)',
             color: copied ? 'white' : '#60a5fa',
             fontWeight:700, fontSize:'12px', fontFamily:'system-ui, sans-serif',
@@ -274,7 +274,7 @@ function IndicacaoSection({ athleteId }: { athleteId: string }) {
       <button
         onClick={handleShare}
         style={{
-          width:'100%', padding:'10px', borderRadius:'10px', border:'none', cursor:'pointer',
+          width:'100%', padding:'10px', borderRadius:'10px', cursor:'pointer',
           background:'linear-gradient(135deg,rgba(96,165,250,0.15),rgba(167,139,250,0.15))',
           color:'rgba(255,255,255,0.7)', fontWeight:700, fontSize:'13px',
           fontFamily:'system-ui, sans-serif',
@@ -317,10 +317,17 @@ function AtletaPerfilContent() {
   })
   const [questionarioConcluido, setQuestionarioConcluido] = useState(false)
 
-  const [avaliacao,      setAvaliacao]      = useState<Avaliacao | null>(null)
-  const [treinadorNome,  setTreinadorNome]  = useState<string>('')
-  const [visitCount,     setVisitCount]     = useState<number>(0)
-  const [favoritoCount,  setFavoritoCount]  = useState<number>(0)
+  const [avaliacao,          setAvaliacao]          = useState<Avaliacao | null>(null)
+  const [treinadorNome,      setTreinadorNome]      = useState<string>('')
+  const [visitCount,         setVisitCount]         = useState<number>(0)
+  const [favoritoCount,      setFavoritoCount]      = useState<number>(0)
+  const [cardsDisponiveis,   setCardsDisponiveis]   = useState<number>(0)
+
+  // ── Solicitar avaliação ──
+  const [treinadorInput,    setTreinadorInput]    = useState('')
+  const [enviandoConvite,   setEnviandoConvite]   = useState(false)
+  const [conviteEnviado,    setConviteEnviado]    = useState(false)
+  const [conviteErro,       setConviteErro]       = useState<string | null>(null)
 
   const [saving,  setSaving]  = useState(false)
   const [saved,   setSaved]   = useState(false)
@@ -371,9 +378,10 @@ function AtletaPerfilContent() {
       if (profile?.data_nascimento) setDataNasc(profile.data_nascimento as string)
       if (profile?.athlete_id)      setAthleteId(profile.athlete_id as string)
       if (profile?.avatar_url)      setAvatarUrl(profile.avatar_url as string)
-      // visit_count e favorito_count vêm do user_metadata — sem precisar de coluna extra
-      setVisitCount(    (user.user_metadata?.visit_count    as number | null) ?? 0)
-      setFavoritoCount( (user.user_metadata?.favorito_count as number | null) ?? 0)
+      // visit_count, favorito_count e cards_disponiveis vêm do user_metadata
+      setVisitCount(        (user.user_metadata?.visit_count      as number | null) ?? 0)
+      setFavoritoCount(     (user.user_metadata?.favorito_count   as number | null) ?? 0)
+      setCardsDisponiveis(  (user.user_metadata?.cards_disponiveis as number | null) ?? 0)
 
       // Campos DB + campos do user_metadata (sem precisar de schema change)
       const um = user.user_metadata as Record<string, unknown>
@@ -548,6 +556,25 @@ function AtletaPerfilContent() {
       setTimeout(() => { setSavedId(false); setEditingId(false) }, 1500)
     }
     setSavingId(false)
+  }
+
+  // ── Enviar solicitação de avaliação ──────────────────────────
+  async function handleEnviarConvite(e: React.FormEvent) {
+    e.preventDefault()
+    if (!treinadorInput.trim()) return
+    setEnviandoConvite(true); setConviteErro(null); setConviteEnviado(false)
+    try {
+      const res = await fetch('/api/convite/solicitar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ treinadorMcId: treinadorInput.trim() }),
+      })
+      const json = await res.json() as { ok?: boolean; ja_enviado?: boolean; error?: string }
+      if (!res.ok) { setConviteErro(json.error ?? 'Erro ao enviar.'); return }
+      setConviteEnviado(true)
+      setTreinadorInput('')
+    } catch { setConviteErro('Erro de conexão. Tente novamente.') }
+    finally { setEnviandoConvite(false) }
   }
 
   // ── Loading — skeleton ───────────────────────────────────────
@@ -985,25 +1012,94 @@ function AtletaPerfilContent() {
           <span style={{ color:'rgba(34,197,94,0.4)', fontSize:'18px', flexShrink:0, alignSelf:'center' }}>›</span>
         </Link>}
 
-        {/* ── Carta de Avaliação ── */}
-        <Link href="/atleta/carta" className="traj-btn" style={{ marginBottom:'12px', display:'flex', borderColor:'rgba(0,255,136,0.2)', background:'rgba(0,255,136,0.03)' }}>
+        {/* ── Card de Avaliação: comprar ou solicitar ── */}
+        {cardsDisponiveis > 0 ? (
+          /* Tem card — mostra UI de solicitar avaliação */
           <div style={{
-            width:'40px', height:'40px', borderRadius:'12px', flexShrink:0,
-            background:'rgba(0,255,136,0.1)', border:'1px solid rgba(0,255,136,0.25)',
-            display:'flex', alignItems:'center', justifyContent:'center', fontSize:'20px',
+            marginBottom:'12px', borderRadius:'16px', overflow:'hidden',
+            border:'1px solid rgba(0,255,136,0.3)', background:'rgba(0,255,136,0.04)',
           }}>
-            ⚽
+            {/* Header */}
+            <div style={{
+              padding:'14px 18px', display:'flex', alignItems:'center', gap:'12px',
+              borderBottom:'1px solid rgba(0,255,136,0.12)',
+            }}>
+              <div style={{
+                width:'40px', height:'40px', borderRadius:'12px', flexShrink:0,
+                background:'rgba(0,255,136,0.12)', border:'1px solid rgba(0,255,136,0.3)',
+                display:'flex', alignItems:'center', justifyContent:'center', fontSize:'20px',
+              }}>
+                🎟️
+              </div>
+              <div style={{ flex:1 }}>
+                <p style={{ margin:'0 0 2px', fontSize:'13px', fontWeight:800, color:'#00FF88' }}>
+                  Solicitar avaliação
+                </p>
+                <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.4)' }}>
+                  {cardsDisponiveis} card{cardsDisponiveis !== 1 ? 's' : ''} disponível{cardsDisponiveis !== 1 ? 'is' : ''}
+                </p>
+              </div>
+            </div>
+            {/* Formulário */}
+            <form onSubmit={handleEnviarConvite} style={{ padding:'14px 18px', display:'flex', flexDirection:'column', gap:'10px' }}>
+              <p style={{ margin:0, fontSize:'12px', color:'rgba(255,255,255,0.45)', lineHeight:1.5 }}>
+                Digite o ID do treinador (MC-XXXXX) para solicitar que ele te avalie.
+              </p>
+              <div style={{ display:'flex', gap:'8px' }}>
+                <input
+                  value={treinadorInput}
+                  onChange={e => { setTreinadorInput(e.target.value.toUpperCase()); setConviteErro(null); setConviteEnviado(false) }}
+                  placeholder="MC-XXXXX"
+                  maxLength={10}
+                  style={{
+                    flex:1, padding:'11px 14px', borderRadius:'10px',
+                    background:'rgba(255,255,255,0.05)', border:'1px solid rgba(0,255,136,0.2)',
+                    color:'white', fontSize:'15px', fontWeight:700, letterSpacing:'0.08em',
+                    outline:'none', fontFamily:'monospace',
+                  }}
+                />
+                <button type="submit" disabled={enviandoConvite || !treinadorInput.trim()} style={{
+                  padding:'11px 18px', borderRadius:'10px', border:'none', cursor:'pointer',
+                  background: conviteEnviado ? 'rgba(0,255,136,0.2)' : '#00FF88',
+                  color: conviteEnviado ? '#00FF88' : '#020d04',
+                  fontWeight:800, fontSize:'13px', fontFamily:'system-ui,sans-serif',
+                  opacity: (enviandoConvite || !treinadorInput.trim()) ? 0.5 : 1,
+                  transition:'all 0.2s', whiteSpace:'nowrap',
+                }}>
+                  {conviteEnviado ? '✓ Enviado' : enviandoConvite ? '…' : 'Enviar'}
+                </button>
+              </div>
+              {conviteErro && (
+                <p style={{ margin:0, fontSize:'12px', color:'#ef4444' }}>{conviteErro}</p>
+              )}
+              {conviteEnviado && (
+                <p style={{ margin:0, fontSize:'12px', color:'#00FF88' }}>
+                  ✓ Solicitação enviada! O treinador receberá e poderá te avaliar.
+                </p>
+              )}
+            </form>
           </div>
-          <div style={{ flex:1 }}>
-            <p style={{ margin:'0 0 2px', fontSize:'13px', fontWeight:700, color:'#00FF88' }}>
-              Carta de Avaliação
-            </p>
-            <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.35)' }}>
-              Card oficial com OVR · R$ 5,00 · acesso permanente
-            </p>
-          </div>
-          <span style={{ color:'rgba(0,255,136,0.4)', fontSize:'18px', flexShrink:0, alignSelf:'center' }}>›</span>
-        </Link>
+        ) : (
+          /* Sem card — botão para comprar */
+          <Link href="/atleta/carta" className="traj-btn" style={{ marginBottom:'12px', display:'flex', borderColor:'rgba(0,255,136,0.2)', background:'rgba(0,255,136,0.03)' }}>
+            <div style={{
+              width:'40px', height:'40px', borderRadius:'12px', flexShrink:0,
+              background:'rgba(0,255,136,0.1)', border:'1px solid rgba(0,255,136,0.25)',
+              display:'flex', alignItems:'center', justifyContent:'center', fontSize:'20px',
+            }}>
+              ⚽
+            </div>
+            <div style={{ flex:1 }}>
+              <p style={{ margin:'0 0 2px', fontSize:'13px', fontWeight:700, color:'#00FF88' }}>
+                Card de Avaliação
+              </p>
+              <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.35)' }}>
+                Seja avaliado por um treinador · R$ 5,00
+              </p>
+            </div>
+            <span style={{ color:'rgba(0,255,136,0.4)', fontSize:'18px', flexShrink:0, alignSelf:'center' }}>›</span>
+          </Link>
+        )}
 
         {/* ── Ver Trajetória ── */}
         <Link href="/atleta/historico" className="traj-btn" style={{ marginBottom:'24px', display:'flex' }}>

@@ -1,7 +1,7 @@
 ﻿'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { Suspense, useEffect, useRef, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 import TreinadorBottomNav from '@/components/TreinadorBottomNav'
@@ -202,8 +202,9 @@ const NOTAS_VAZIAS: Notas = {
   finalizacao: 0, inteligenciaTatica: 0, tecnica: 0,
 }
 
-export default function AvaliarPage() {
-  const router = useRouter()
+function AvaliarPageInner() {
+  const router       = useRouter()
+  const searchParams = useSearchParams()
 
   // ── Treinador ──
   const [treinadorNome,  setTreinadorNome]  = useState('')
@@ -211,7 +212,7 @@ export default function AvaliarPage() {
 
   // ── Flow ──
   const [step,       setStep]       = useState<Step>('buscar')
-  const [atletaId,   setAtletaId]   = useState('')
+  const [atletaId,   setAtletaId]   = useState(() => searchParams.get('id') ?? '')
   const [atleta,     setAtleta]     = useState<AtletaInfo | null>(null)
   const [notas,      setNotas]      = useState<Notas>(NOTAS_VAZIAS)
   const [observacao, setObservacao] = useState('')
@@ -953,5 +954,13 @@ export default function AvaliarPage() {
       </div>
       <TreinadorBottomNav />
     </main>
+  )
+}
+
+export default function AvaliarPage() {
+  return (
+    <Suspense>
+      <AvaliarPageInner />
+    </Suspense>
   )
 }
