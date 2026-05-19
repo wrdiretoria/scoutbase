@@ -300,8 +300,10 @@ export default function TreinadorConfigurarPage() {
                   onChange={e => setEspec(e.target.value)}
                   style={{ ...inp, appearance: 'none', cursor: 'pointer' }}
                 >
-                  <option value="">Selecione...</option>
-                  {ESPECIALIDADES.map(e => <option key={e} value={e}>{e}</option>)}
+                  <option value="" style={{ background: '#1a1a1a', color: 'rgba(255,255,255,0.4)' }}>Selecione...</option>
+                  {ESPECIALIDADES.map(e => (
+                    <option key={e} value={e} style={{ background: '#1a1a1a', color: 'white' }}>{e}</option>
+                  ))}
                 </select>
               </div>
 

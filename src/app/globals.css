@@ -55,6 +55,12 @@ body {
 ::-webkit-scrollbar { display: none; }
 * { scrollbar-width: none; }
 
+/* Select dropdowns — fundo escuro em todos os selects do app */
+option {
+  background: #1a1a1a;
+  color: white;
+}
+
 /* Instant touch response — no 300ms delay */
 button, a, [role="button"] {
   touch-action: manipulation;
