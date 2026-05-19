@@ -79,16 +79,93 @@ export async function POST(req: NextRequest) {
   // Mapeia as novas notas (1-5) para a escala de 1-10 usada pelas colunas legadas
   const to10 = (k: string) => Math.round((respostas[k] ?? 3) * 2)   // 1-5 → 2-10
 
-  const tecnica_val    = to10('pf_tecnico')
-  const fisico_val     = Math.round((to10('pf_forte') + to10('cx_1')) / 2)
-  const tatico_val     = Math.round((to10('pf_inteligente') + to10('tomada_decisao')) / 2)
-  const comport_val    = Math.round((to10('pf_competitivo') + to10('pf_decisivo')) / 2)
+  // Keys específicas por variante — velocidade, finalização e visão de jogo
+  // (pf_tecnico, pf_forte, pf_inteligente, pf_competitivo, pf_decisivo são universais — Bloco B)
+  const VEL_KEY: Record<VarianteKey, string> = {
+    iniciacao:               'cx_1',
+    iniciacao_goleiro:       'gk_velocidade_reacao',
+    iniciacao_zagueiro:      'zag_resistencia',
+    iniciacao_lateral:       'lat_velocidade',
+    iniciacao_volante:       'vol_resistencia',
+    iniciacao_meia:          'mei_velocidade_reacao',
+    iniciacao_ponta:         'pon_velocidade',
+    iniciacao_centroavante:  'cav_velocidade_reacao',
+    formacao_goleiro:        'gk_velocidade_reacao',
+    formacao_zagueiro:       'zag_resistencia',
+    formacao_lateral:        'lat_velocidade',
+    formacao_volante:        'vol_velocidade_reacao',
+    formacao_meia:           'mei_velocidade',
+    formacao_ponta:          'pon_velocidade_sprint',
+    formacao_centroavante:   'cav_velocidade',
+    competicao_goleiro:      'gk_velocidade_reacao',
+    competicao_zagueiro:     'zag_resistencia',
+    competicao_lateral:      'lat_velocidade_aceleracao',
+    competicao_volante:      'vol_velocidade_aceleracao',
+    competicao_meia:         'mei_velocidade_aceleracao',
+    competicao_ponta:        'pon_velocidade_aceleracao',
+    competicao_centroavante: 'cav_velocidade_aceleracao',
+  }
+
+  const FIN_KEY: Record<VarianteKey, string> = {
+    iniciacao:               'finalizacao',
+    iniciacao_goleiro:       'gk_distribuicao_pes',
+    iniciacao_zagueiro:      'zag_passe_curto',
+    iniciacao_lateral:       'lat_cruzamento',
+    iniciacao_volante:       'vol_passe_curto',
+    iniciacao_meia:          'mei_finalizacao',
+    iniciacao_ponta:         'pon_finalizacao',
+    iniciacao_centroavante:  'cav_finalizacao',
+    formacao_goleiro:        'gk_passe_curto_pes',
+    formacao_zagueiro:       'zag_saida_bola',
+    formacao_lateral:        'lat_cruzamento',
+    formacao_volante:        'vol_passe_curto_medio',
+    formacao_meia:           'mei_finalizacao',
+    formacao_ponta:          'pon_finalizacao',
+    formacao_centroavante:   'cav_finalizacao_precisao',
+    competicao_goleiro:      'gk_jogo_pes_curto_medio',
+    competicao_zagueiro:     'zag_saida_qualidade',
+    competicao_lateral:      'lat_cruzamento_qualidade',
+    competicao_volante:      'vol_finalizacao_media',
+    competicao_meia:         'mei_finalizacao_pressao',
+    competicao_ponta:        'pon_finalizacao_pressao',
+    competicao_centroavante: 'cav_finalizacao_pressao',
+  }
+
+  const VIS_KEY: Record<VarianteKey, string> = {
+    iniciacao:               'tomada_decisao',
+    iniciacao_goleiro:       'gk_atencao_foco',
+    iniciacao_zagueiro:      'zag_antecipacao',
+    iniciacao_lateral:       'lat_antecipacao',
+    iniciacao_volante:       'vol_visao',
+    iniciacao_meia:          'mei_visao',
+    iniciacao_ponta:         'pon_leitura_espaco',
+    iniciacao_centroavante:  'cav_posicionamento',
+    formacao_goleiro:        'gk_leitura_antecipada',
+    formacao_zagueiro:       'zag_interceptacao',
+    formacao_lateral:        'lat_antecipacao',
+    formacao_volante:        'vol_leitura_jogo',
+    formacao_meia:           'mei_visao_circulacao',
+    formacao_ponta:          'pon_leitura_jogo',
+    formacao_centroavante:   'cav_leitura_jogo',
+    competicao_goleiro:      'gk_tomada_decisao_pressao',
+    competicao_zagueiro:     'zag_antecipacao_tatica',
+    competicao_lateral:      'lat_leitura_jogo',
+    competicao_volante:      'vol_posicionamento',
+    competicao_meia:         'mei_visao_decisao',
+    competicao_ponta:        'pon_tomada_decisao',
+    competicao_centroavante: 'cav_leitura_defesa',
+  }
+
+  const tecnica_val = to10('pf_tecnico')
+  const fisico_val  = Math.round((to10('pf_forte') + to10(VEL_KEY[variante])) / 2)
+  const tatico_val  = Math.round((to10('pf_inteligente') + to10(VIS_KEY[variante])) / 2)
+  const comport_val = Math.round((to10('pf_competitivo') + to10('pf_decisivo')) / 2)
 
   // Colunas individuais legadas
-  const vel_val   = to10('cx_1')                          // cx_1 = velocidade na maioria das variantes
+  const vel_val   = to10(VEL_KEY[variante])
   const forca_val = to10('pf_forte')
-  const fin_val   = to10('finalizacao')
-  const visao_val = to10('tomada_decisao')
+  const fin_val   = to10(FIN_KEY[variante])
+  const visao_val = to10(VIS_KEY[variante])
   const posic_val = to10('pf_inteligente')
   const tec_val   = to10('pf_tecnico')
 
