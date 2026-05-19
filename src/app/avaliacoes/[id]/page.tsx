@@ -45,8 +45,8 @@ export default async function AvaliacoesPage({ params }: Props) {
 
   const trialUsadas = trialRow?.avaliacoes_usadas ?? 0
 
-  // TODO: wire isPremium to Asaas subscription status
-  const isPremium = false
+  // Treinador não paga — acesso ilimitado
+  const isPremium = true
 
   return (
     <main className="min-h-screen bg-gray-50 px-4 py-6 md:p-8">

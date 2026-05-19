@@ -238,7 +238,7 @@ function RadarChart({ current, previous }: { current: AvaliacaoGrupo | null; pre
 
 const TRIAL_LIMITE = 3
 
-const BASE_URL = 'https://scoutbase-eta.vercel.app'
+const BASE_URL = 'https://scoutbase-eta.vercel.app' // TODO: trocar pelo domínio final quando tiver
 
 type Props = {
   alunoId: string
