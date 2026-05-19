@@ -542,7 +542,7 @@ function BemVindoContent() {
                 {/* Watermark — Meu Craque + ID */}
                 <div style={{ marginTop:'16px', borderTop:'1px solid rgba(0,255,136,0.07)', paddingTop:'12px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
                   <span style={{ fontSize:'8px', fontWeight:800, letterSpacing:'0.18em', color:'rgba(255,255,255,0.08)', textTransform:'uppercase' }}>
-                    Meu Craque
+                    ID
                   </span>
                   {athleteId && (
                     <span style={{ fontSize:'11px', fontWeight:900, color:'rgba(0,255,136,0.6)', letterSpacing:'0.12em' }}>
