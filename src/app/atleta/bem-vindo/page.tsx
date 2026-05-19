@@ -540,16 +540,13 @@ function BemVindoContent() {
                 </div>
 
                 {/* Watermark — Meu Craque + ID */}
-                <div style={{ marginTop:'16px', borderTop:'1px solid rgba(0,255,136,0.07)', paddingTop:'12px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-                  <span style={{ fontSize:'8px', fontWeight:800, letterSpacing:'0.18em', color:'rgba(255,255,255,0.08)', textTransform:'uppercase' }}>
-                    ID
-                  </span>
-                  {athleteId && (
+                {athleteId && (
+                  <div style={{ marginTop:'16px', borderTop:'1px solid rgba(0,255,136,0.07)', paddingTop:'12px', textAlign:'right' }}>
                     <span style={{ fontSize:'11px', fontWeight:900, color:'rgba(0,255,136,0.6)', letterSpacing:'0.12em' }}>
-                      {athleteId.replace('MC-', '')}
+                      ID: {athleteId.replace('MC-', '')}
                     </span>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
