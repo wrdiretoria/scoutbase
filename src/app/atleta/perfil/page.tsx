@@ -475,6 +475,7 @@ function AtletaPerfilContent() {
   const [visitCount,         setVisitCount]         = useState<number>(0)
   const [favoritoCount,      setFavoritoCount]      = useState<number>(0)
   const [cardsDisponiveis,   setCardsDisponiveis]   = useState<number>(0)
+  const [visitasStats, setVisitasStats] = useState({ semana: 0, mes: 0, total: 0, mediaSemana: 0 })
 
   // ── Solicitar avaliação ──
   const [treinadorInput,    setTreinadorInput]    = useState('')
@@ -582,6 +583,15 @@ function AtletaPerfilContent() {
           setHighlights(json.highlights ?? [])
         }
       } catch { /* tabela highlights não criada ainda — ignorar */ }
+
+      // ── Estatísticas de visitas ──
+      try {
+        const res = await fetch('/api/atleta/visitas')
+        if (res.ok) {
+          const json = await res.json() as { semana: number; mes: number; total: number; mediaSemana: number }
+          setVisitasStats(json)
+        }
+      } catch { /* tabela visitas não criada ainda — ignorar */ }
 
       setLoading(false)
     }
@@ -1091,10 +1101,10 @@ function AtletaPerfilContent() {
         )}
 
         {/* ── Stats grid ── */}
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'10px', marginBottom:'24px' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'10px', marginBottom:'12px' }}>
           {[
             { label:'Avaliações',    val: avaliacao ? '1' : '0',    sub:'registradas',    color:'#22c55e' },
-            { label:'Visualizações', val: visitCount.toLocaleString('pt-BR'), sub:'no perfil', color:'#60a5fa' },
+            { label:'Visualizações', val: (visitasStats.total || visitCount).toLocaleString('pt-BR'), sub:'no perfil', color:'#60a5fa' },
             { label:'Scouts',        val: favoritoCount > 0 ? favoritoCount.toLocaleString('pt-BR') : '—', sub:'salvaram você', color: favoritoCount > 0 ? '#fbbf24' : 'rgba(255,255,255,0.2)' },
           ].map(s => (
             <div key={s.label} style={{
@@ -1107,6 +1117,55 @@ function AtletaPerfilContent() {
             </div>
           ))}
         </div>
+
+        {/* ── Visitas desta semana + comparação ── */}
+        {(() => {
+          const { semana, mes, mediaSemana } = visitasStats
+          const ratio = mediaSemana > 0 ? semana / mediaSemana : 0
+          let msg = ''
+          let msgColor = 'rgba(255,255,255,0.3)'
+          if (semana === 0) {
+            msg = 'Nenhuma visita esta semana — compartilhe seu perfil!'
+            msgColor = 'rgba(255,255,255,0.28)'
+          } else if (ratio >= 2) {
+            msg = `🔥 ${Math.round(ratio)}× mais visitas que a média esta semana!`
+            msgColor = '#00FF88'
+          } else if (ratio > 1) {
+            msg = `📈 Acima da média esta semana (${semana} vs ${mediaSemana})`
+            msgColor = '#22c55e'
+          } else if (mediaSemana > 0) {
+            msg = `${semana} visita${semana !== 1 ? 's' : ''} esta semana · média da plataforma: ${mediaSemana}`
+            msgColor = 'rgba(255,255,255,0.35)'
+          } else {
+            msg = `${semana} visita${semana !== 1 ? 's' : ''} esta semana`
+            msgColor = '#60a5fa'
+          }
+          return (
+            <div style={{
+              display:'flex', alignItems:'center', justifyContent:'space-between',
+              padding:'11px 14px', borderRadius:'12px', marginBottom:'24px',
+              background:'rgba(96,165,250,0.05)', border:'1px solid rgba(96,165,250,0.12)',
+            }}>
+              <p style={{ margin:0, fontSize:'11px', color: msgColor, fontWeight:600, flex:1 }}>{msg}</p>
+              <div style={{ textAlign:'right', flexShrink:0, marginLeft:'12px' }}>
+                <p style={{ margin:0, fontSize:'18px', fontWeight:900, color:'#60a5fa', lineHeight:1 }}>
+                  {semana}
+                </p>
+                <p style={{ margin:0, fontSize:'9px', color:'rgba(255,255,255,0.3)', letterSpacing:'0.06em', textTransform:'uppercase' }}>
+                  esta semana
+                </p>
+              </div>
+              <div style={{ textAlign:'right', flexShrink:0, marginLeft:'16px', paddingLeft:'16px', borderLeft:'1px solid rgba(255,255,255,0.07)' }}>
+                <p style={{ margin:0, fontSize:'18px', fontWeight:900, color:'rgba(96,165,250,0.6)', lineHeight:1 }}>
+                  {mes}
+                </p>
+                <p style={{ margin:0, fontSize:'9px', color:'rgba(255,255,255,0.3)', letterSpacing:'0.06em', textTransform:'uppercase' }}>
+                  este mês
+                </p>
+              </div>
+            </div>
+          )
+        })()}
 
         {/* ── Última Avaliação — resumo compacto ── */}
         {avaliacao && (
