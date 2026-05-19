@@ -5,6 +5,10 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 import AtletaBottomNav from '@/components/AtletaBottomNav'
+import {
+  VARIANTES, BLOCO_PERFIL as Q_BPERF,
+  type VarianteKey, type QuestionDef,
+} from '@/lib/questionnaire'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -40,10 +44,11 @@ function posAbrev(pos: string): string {
  * OVR do perfil — pesos (soma = 100 → escala 0–50):
  *   Base (nome+pos+cidade+dob): 15 pts  sempre preenchidos
  *   Foto:            20 pts
- *   Questionário:    25 pts
+ *   Questionário:    20 pts
  *   Clubes ant.:     15 pts
  *   Campeonatos:     10 pts
  *   Títulos:         10 pts
+ *   Premiações:       5 pts
  *   Telefone:         5 pts
  */
 function calcularOVRPerfil(dados: {
@@ -52,16 +57,18 @@ function calcularOVRPerfil(dados: {
   temClubes:       boolean
   temCampeonatos:  boolean
   temTitulos:      boolean
+  temPremiacoes:   boolean
   temTelefone:     boolean
 }): number {
-  let pts = 15  // base sempre preenchida
+  let pts = 15  // base sempre preenchida (nome + posição + data de nascimento)
   if (dados.temFoto)         pts += 20
-  if (dados.temQuestionario) pts += 25
+  if (dados.temQuestionario) pts += 20
   if (dados.temClubes)       pts += 15
   if (dados.temCampeonatos)  pts += 10
   if (dados.temTitulos)      pts += 10
+  if (dados.temPremiacoes)   pts += 5
   if (dados.temTelefone)     pts += 5
-  return Math.round((pts / 100) * 50)
+  return pts  // 0–100
 }
 
 function notaColor(n: number): string {
@@ -120,19 +127,22 @@ type AtletaMeta = { nome: string; posicao: string; cidade: string; tipo: string 
 type Curriculo = {
   bio: string; altura: string; peso: string; peDominante: string; clubeAtual: string
   telefone: string; clubesAnteriores: string; campeonatos: string; titulos: string
+  premiacoes: string
 }
 
 type Avaliacao = {
-  velocidade:    number   // 1-10 no banco
-  visao_jogo:    number   // 1-10 no banco
-  forca:         number   // 1-10 no banco
-  finalizacao:   number   // 1-10 no banco
-  posicionamento: number  // 1-10 no banco
-  tecnica:       number   // 1-10 no banco
+  velocidade:    number   // 1-10 legado
+  visao_jogo:    number   // 1-10 legado
+  forca:         number   // 1-10 legado
+  finalizacao:   number   // 1-10 legado
+  posicionamento: number  // 1-10 legado
+  tecnica:       number   // 1-10 legado
   scout_score:   number   // 0-100
   observacao:    string | null
   created_at:    string
   professor_id:  string
+  // Novo: 20 respostas JSON + variante (pode ser null em avaliações antigas)
+  respostas:     (Record<string, number> & { variante?: string }) | null
 }
 
 // ── Highlights ────────────────────────────────────────────────────────────────
@@ -186,6 +196,114 @@ function getThumbnail(hl: Highlight): string {
   if (hl.thumbnail_url) return hl.thumbnail_url
   if (hl.plataforma === 'youtube') return `https://img.youtube.com/vi/${hl.video_id}/hqdefault.jpg`
   return ''
+}
+
+// ── Avaliação Detalhada (novo formato 20 atributos) ──────────────────────────
+
+function AvaliacaoDetalhada({ respostas }: { respostas: Record<string, number> & { variante?: string } }) {
+  const variante = (respostas.variante ?? 'iniciacao') as VarianteKey
+  const blocoA   = VARIANTES[variante].blocoA
+  const blocoC   = VARIANTES[variante].blocoC
+  const etiqueta = VARIANTES[variante].label
+
+  // converte nota 1-5 para barra 0-100
+  const toBar = (v: number) => v > 0 ? Math.round(((v - 1) / 4) * 100) : 0
+
+  const allQs  = [...blocoA, ...Q_BPERF, ...blocoC]
+  const fortes = allQs.filter(q => (respostas[q.key] ?? 0) >= 4).sort((a, b) => (respostas[b.key] ?? 0) - (respostas[a.key] ?? 0)).slice(0, 3)
+  const melhor = allQs.filter(q => { const v = respostas[q.key] ?? 0; return v > 0 && v <= 2 }).sort((a, b) => (respostas[a.key] ?? 0) - (respostas[b.key] ?? 0)).slice(0, 3)
+
+  const tagColors: Record<number, string> = { 1:'#ef4444', 2:'#f59e0b', 3:'#eab308', 4:'#22c55e', 5:'#00FF88' }
+
+  return (
+    <div style={{ display:'flex', flexDirection:'column', gap:'16px' }}>
+      <p style={{ margin:0, fontSize:'10px', color:'rgba(255,255,255,0.3)', fontStyle:'italic' }}>
+        {etiqueta}
+      </p>
+
+      {/* Atributos técnicos */}
+      <div>
+        <p style={{ margin:'0 0 10px', fontSize:'10px', fontWeight:700, letterSpacing:'0.10em', color:'rgba(255,255,255,0.28)', textTransform:'uppercase' }}>
+          ⚽ Técnico
+        </p>
+        <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
+          {blocoA.map((q: QuestionDef) => (
+            <AtributoBar key={q.key} icon={q.icon} label={q.label} value={toBar(respostas[q.key] ?? 0)} />
+          ))}
+        </div>
+      </div>
+
+      {/* Perfil do jogador */}
+      <div>
+        <p style={{ margin:'0 0 10px', fontSize:'10px', fontWeight:700, letterSpacing:'0.10em', color:'rgba(255,255,255,0.28)', textTransform:'uppercase' }}>
+          🎭 Perfil
+        </p>
+        <div style={{ display:'flex', flexWrap:'wrap', gap:'8px' }}>
+          {Q_BPERF.map((q: QuestionDef) => {
+            const v   = respostas[q.key] ?? 0
+            const cor = tagColors[v] ?? 'rgba(255,255,255,0.2)'
+            return (
+              <div key={q.key} style={{
+                display:'flex', alignItems:'center', gap:'5px',
+                padding:'5px 12px', borderRadius:'100px', fontSize:'12px', fontWeight:700,
+                background: v >= 4 ? `${cor}18` : 'rgba(255,255,255,0.04)',
+                border: `1px solid ${v >= 4 ? `${cor}40` : 'rgba(255,255,255,0.08)'}`,
+                color: v >= 4 ? cor : 'rgba(255,255,255,0.4)',
+              }}>
+                <span>{q.icon}</span>
+                <span>{q.label}</span>
+                <span style={{ fontSize:'10px', opacity:0.65 }}>{v}/5</span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Contextual */}
+      <div>
+        <p style={{ margin:'0 0 10px', fontSize:'10px', fontWeight:700, letterSpacing:'0.10em', color:'rgba(255,255,255,0.28)', textTransform:'uppercase' }}>
+          💪 Físico / Contextual
+        </p>
+        <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
+          {blocoC.map((q: QuestionDef) => (
+            <AtributoBar key={q.key} icon={q.icon} label={q.label} value={toBar(respostas[q.key] ?? 0)} />
+          ))}
+        </div>
+      </div>
+
+      {/* Pontos fortes */}
+      {fortes.length > 0 && (
+        <div style={{ padding:'14px', borderRadius:'12px', background:'rgba(0,255,136,0.04)', border:'1px solid rgba(0,255,136,0.12)' }}>
+          <p style={{ margin:'0 0 8px', fontSize:'10px', fontWeight:700, letterSpacing:'0.10em', color:'rgba(0,255,136,0.6)', textTransform:'uppercase' }}>
+            ✦ Pontos fortes
+          </p>
+          <div style={{ display:'flex', flexWrap:'wrap', gap:'7px' }}>
+            {fortes.map((q: QuestionDef) => (
+              <span key={q.key} style={{ padding:'3px 10px', borderRadius:'100px', fontSize:'11px', fontWeight:700, background:'rgba(0,255,136,0.1)', border:'1px solid rgba(0,255,136,0.2)', color:'#00FF88' }}>
+                {q.icon} {q.label}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* A melhorar */}
+      {melhor.length > 0 && (
+        <div style={{ padding:'14px', borderRadius:'12px', background:'rgba(239,68,68,0.03)', border:'1px solid rgba(239,68,68,0.10)' }}>
+          <p style={{ margin:'0 0 8px', fontSize:'10px', fontWeight:700, letterSpacing:'0.10em', color:'rgba(239,68,68,0.6)', textTransform:'uppercase' }}>
+            ▲ A melhorar
+          </p>
+          <div style={{ display:'flex', flexWrap:'wrap', gap:'7px' }}>
+            {melhor.map((q: QuestionDef) => (
+              <span key={q.key} style={{ padding:'3px 10px', borderRadius:'100px', fontSize:'11px', fontWeight:700, background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.15)', color:'#f87171' }}>
+                {q.icon} {q.label}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
 }
 
 // ── Indicação Section ─────────────────────────────────────────────────────────
@@ -348,7 +466,7 @@ function AtletaPerfilContent() {
 
   const [curriculo,  setCurriculo]  = useState<Curriculo>({
     bio: '', altura: '', peso: '', peDominante: '', clubeAtual: '',
-    telefone: '', clubesAnteriores: '', campeonatos: '', titulos: '',
+    telefone: '', clubesAnteriores: '', campeonatos: '', titulos: '', premiacoes: '',
   })
   const [questionarioConcluido, setQuestionarioConcluido] = useState(false)
 
@@ -430,6 +548,7 @@ function AtletaPerfilContent() {
         clubesAnteriores: (um.clubes_anteriores as string) ?? '',
         campeonatos:      (um.campeonatos       as string) ?? '',
         titulos:          (um.titulos           as string) ?? '',
+        premiacoes:       (um.premiacoes        as string) ?? '',
       })
       setQuestionarioConcluido(!!(um.questionario_completo))
 
@@ -475,13 +594,16 @@ function AtletaPerfilContent() {
   const temClubes       = curriculo.clubesAnteriores.trim().length > 0
   const temCampeonatos  = curriculo.campeonatos.trim().length > 0
   const temTitulos      = curriculo.titulos.trim().length > 0
+  const temPremiacoes   = curriculo.premiacoes.trim().length > 0
   const temTelefone     = curriculo.telefone.trim().length > 0
 
   const ovrPerfil    = calcularOVRPerfil({
-    temFoto, temQuestionario, temClubes, temCampeonatos, temTitulos, temTelefone,
+    temFoto, temQuestionario, temClubes, temCampeonatos, temTitulos, temPremiacoes, temTelefone,
   })
-  const ovrAvaliacao = avaliacao ? Math.round((avaliacao.scout_score / 100) * 50) : 0
-  const ovrTotal     = ovrPerfil + ovrAvaliacao
+  const ovrAvaliacao = avaliacao ? avaliacao.scout_score : null
+  const ovrTotal     = ovrAvaliacao !== null
+    ? Math.round((ovrPerfil + ovrAvaliacao) / 2)
+    : ovrPerfil
 
   // ── Próximo Passo — sugestões baseadas no estado do perfil ────
   const passos: { icon: string; titulo: string; sub: string }[] = []
@@ -499,6 +621,7 @@ function AtletaPerfilContent() {
   if (!temClubes)              passos.push({ icon: '🏟', titulo: 'Adicione clubes anteriores',     sub: '+15 OVR ao preencher' })
   if (!temCampeonatos)         passos.push({ icon: '🏆', titulo: 'Liste seus campeonatos',          sub: '+10 OVR ao preencher' })
   if (!temTitulos)             passos.push({ icon: '🥇', titulo: 'Adicione seus títulos',           sub: '+10 OVR ao preencher' })
+  if (!temPremiacoes)          passos.push({ icon: '🏅', titulo: 'Premiações individuais',          sub: '+5 OVR — artilheiro, melhor goleiro...' })
   const passosPrioritarios = passos.slice(0, 2)
 
   // ── Highlights handlers ──────────────────────────────────────
@@ -563,6 +686,7 @@ function AtletaPerfilContent() {
         clubes_anteriores: curriculo.clubesAnteriores.trim(),
         campeonatos:       curriculo.campeonatos.trim(),
         titulos:           curriculo.titulos.trim(),
+        premiacoes:        curriculo.premiacoes.trim(),
       },
     })
 
@@ -912,13 +1036,13 @@ function AtletaPerfilContent() {
               <div style={{ display:'flex', flexDirection:'column', gap:'4px' }}>
                 <div style={{ display:'flex', justifyContent:'space-between' }}>
                   <span style={{ fontSize:'9px', fontWeight:700, letterSpacing:'0.08em', color:'rgba(255,255,255,0.35)', textTransform:'uppercase' }}>Perfil</span>
-                  <span style={{ fontSize:'10px', fontWeight:800, color:'#22c55e', fontVariantNumeric:'tabular-nums' }}>{ovrPerfil}/50</span>
+                  <span style={{ fontSize:'10px', fontWeight:800, color:'#22c55e', fontVariantNumeric:'tabular-nums' }}>{ovrPerfil}/100</span>
                 </div>
                 <div style={{ height:'4px', background:'rgba(255,255,255,0.08)', borderRadius:'3px', overflow:'hidden' }}>
                   <div style={{
                     height:'100%', borderRadius:'3px',
                     background:'linear-gradient(90deg,#16a34a,#4ade80)',
-                    width:`${(ovrPerfil / 50) * 100}%`,
+                    width:`${ovrPerfil}%`,
                     transition:'width 1s ease',
                     boxShadow:'0 0 6px rgba(0,255,136,0.5)',
                   }} />
@@ -927,14 +1051,14 @@ function AtletaPerfilContent() {
               {/* Barra Avaliação */}
               <div style={{ display:'flex', flexDirection:'column', gap:'4px' }}>
                 <div style={{ display:'flex', justifyContent:'space-between' }}>
-                  <span style={{ fontSize:'9px', fontWeight:700, letterSpacing:'0.08em', color: avaliacao ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.18)', textTransform:'uppercase' }}>Avaliação</span>
-                  <span style={{ fontSize:'10px', fontWeight:800, color: avaliacao ? '#22c55e' : 'rgba(255,255,255,0.18)', fontVariantNumeric:'tabular-nums' }}>{ovrAvaliacao}/50</span>
+                  <span style={{ fontSize:'9px', fontWeight:700, letterSpacing:'0.08em', color: ovrAvaliacao !== null ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.18)', textTransform:'uppercase' }}>Avaliação</span>
+                  <span style={{ fontSize:'10px', fontWeight:800, color: ovrAvaliacao !== null ? '#22c55e' : 'rgba(255,255,255,0.18)', fontVariantNumeric:'tabular-nums' }}>{ovrAvaliacao !== null ? `${ovrAvaliacao}/100` : '—/100'}</span>
                 </div>
                 <div style={{ height:'4px', background:'rgba(255,255,255,0.06)', borderRadius:'3px', overflow:'hidden' }}>
                   <div style={{
                     height:'100%', borderRadius:'3px',
                     background:'linear-gradient(90deg,#16a34a,#00FF88)',
-                    width:`${(ovrAvaliacao / 50) * 100}%`,
+                    width:`${ovrAvaliacao ?? 0}%`,
                     transition:'width 1.2s ease',
                     boxShadow:'0 0 6px rgba(0,255,136,0.5)',
                   }} />
@@ -1129,7 +1253,7 @@ function AtletaPerfilContent() {
                 Card de Avaliação
               </p>
               <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.35)' }}>
-                Seja avaliado por um treinador · R$ 5,00
+                Seja avaliado por um treinador · R$ 9,90
               </p>
             </div>
             <span style={{ color:'rgba(0,255,136,0.4)', fontSize:'18px', flexShrink:0, alignSelf:'center' }}>›</span>
@@ -1212,17 +1336,23 @@ function AtletaPerfilContent() {
             }}>
 
               <p style={{ margin:0, fontSize:'10px', fontWeight:700, letterSpacing:'0.12em', color:'rgba(255,255,255,0.28)', textTransform:'uppercase' }}>
-                Atributos técnicos desbloqueados
+                {avaliacao.respostas ? '20 atributos avaliados' : 'Atributos técnicos desbloqueados'}
               </p>
 
-              <div style={{ display:'flex', flexDirection:'column', gap:'13px' }}>
-                <AtributoBar icon="⚡" label="Velocidade"    value={avaliacao.velocidade * 10} />
-                <AtributoBar icon="👁" label="Visão de Jogo" value={avaliacao.visao_jogo * 10} />
-                <AtributoBar icon="💪" label="Força Física"  value={avaliacao.forca * 10} />
-                <AtributoBar icon="🎯" label="Finalização"   value={avaliacao.finalizacao * 10} />
-                <AtributoBar icon="🧠" label="Int. Tática"   value={avaliacao.posicionamento * 10} />
-                <AtributoBar icon="⚽" label="Técnica"       value={avaliacao.tecnica * 10} />
-              </div>
+              {avaliacao.respostas ? (
+                // ── Novo formato: 20 atributos ──────────────────────
+                <AvaliacaoDetalhada respostas={avaliacao.respostas} />
+              ) : (
+                // ── Formato legado: 6 atributos ─────────────────────
+                <div style={{ display:'flex', flexDirection:'column', gap:'13px' }}>
+                  <AtributoBar icon="⚡" label="Velocidade"    value={avaliacao.velocidade * 10} />
+                  <AtributoBar icon="👁" label="Visão de Jogo" value={avaliacao.visao_jogo * 10} />
+                  <AtributoBar icon="💪" label="Força Física"  value={avaliacao.forca * 10} />
+                  <AtributoBar icon="🎯" label="Finalização"   value={avaliacao.finalizacao * 10} />
+                  <AtributoBar icon="🧠" label="Int. Tática"   value={avaliacao.posicionamento * 10} />
+                  <AtributoBar icon="⚽" label="Técnica"       value={avaliacao.tecnica * 10} />
+                </div>
+              )}
 
               {/* Observação */}
               {avaliacao.observacao && (
@@ -1511,6 +1641,31 @@ function AtletaPerfilContent() {
               />
               <p style={{ margin:'5px 0 0', fontSize:'11px', color:'rgba(0,255,136,0.4)' }}>
                 +10 OVR ao preencher
+              </p>
+            </div>
+
+            {/* ── Premiações individuais ── */}
+            <div>
+              <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'7px' }}>
+                <label style={{ ...labelStyle, margin:0 }}>🏅 Premiações individuais</label>
+                <span style={{
+                  fontSize:'9px', fontWeight:700, letterSpacing:'0.06em', textTransform:'uppercase',
+                  padding:'2px 8px', borderRadius:'20px',
+                  background:'rgba(255,255,255,0.06)', color:'rgba(255,255,255,0.3)',
+                  border:'1px solid rgba(255,255,255,0.1)',
+                }}>
+                  opcional
+                </span>
+              </div>
+              <textarea
+                value={curriculo.premiacoes}
+                onChange={e => setCurriculo(c => ({ ...c, premiacoes: e.target.value }))}
+                placeholder="Ex: Artilheiro do Estadual Sub-15 2023, Melhor Goleiro da Copa SP Sub-17..."
+                rows={2}
+                style={{ ...inputStyle, lineHeight:1.55 }}
+              />
+              <p style={{ margin:'5px 0 0', fontSize:'11px', color:'rgba(0,255,136,0.4)' }}>
+                +5 OVR ao preencher
               </p>
             </div>
           </div>

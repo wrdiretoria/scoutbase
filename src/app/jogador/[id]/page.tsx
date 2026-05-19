@@ -8,6 +8,10 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { createAdminClient } from '@/lib/supabase'
 import { fetchOvrSingle } from '@/lib/ovr'
+import {
+  VARIANTES, BLOCO_PERFIL as Q_BPERF,
+  type VarianteKey, type QuestionDef,
+} from '@/lib/questionnaire'
 import VisitTracker from './VisitTracker'
 import CopiarLink from './CopiarLink'
 import FavoritoButton from './FavoritoButton'
@@ -69,6 +73,20 @@ function getInitials(nome: string) {
   return nome.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase()
 }
 
+function getHlThumbnail(plataforma: string, videoId: string, thumbUrl: string | null): string | null {
+  if (thumbUrl) return thumbUrl
+  if (plataforma === 'youtube') return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
+  return null
+}
+
+function getPlataformaLabel(p: string): string {
+  return { youtube: 'YouTube', tiktok: 'TikTok', instagram: 'Instagram', vimeo: 'Vimeo' }[p] ?? p
+}
+
+function getPlataformaCor(p: string): string {
+  return { youtube: '#FF0000', tiktok: '#010101', instagram: '#E1306C', vimeo: '#1AB7EA' }[p] ?? '#555'
+}
+
 function posAbrev(pos: string): string {
   const map: Record<string, string> = {
     'Goleiro': 'GK', 'Lateral Direito': 'LD', 'Lateral Esquerdo': 'LE',
@@ -77,6 +95,131 @@ function posAbrev(pos: string): string {
     'Atacante': 'ATA', 'Centro-Avante': 'CA',
   }
   return map[pos] ?? pos.slice(0, 3).toUpperCase()
+}
+
+// ── Avaliação detalhada pública (novo formato 20 atributos) ───────────────────
+
+function notaBarColor(pct: number): string {
+  if (pct >= 80) return '#00FF88'
+  if (pct >= 60) return '#22c55e'
+  if (pct >= 40) return '#eab308'
+  if (pct >= 20) return '#f59e0b'
+  return '#ef4444'
+}
+
+function BarSimples({ icon, label, value }: { icon: string; label: string; value: number }) {
+  const pct = value  // já em 0-100
+  const cor = notaBarColor(pct)
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ fontSize: '12px', lineHeight: 1 }}>{icon}</span>
+          <span style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.04em' }}>{label}</span>
+        </div>
+        <span style={{ fontSize: '13px', fontWeight: 900, color: cor, fontVariantNumeric: 'tabular-nums' }}>
+          {Math.round(pct / 20)}/5
+        </span>
+      </div>
+      <div style={{ height: '4px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px', overflow: 'hidden' }}>
+        <div style={{ height: '100%', borderRadius: '3px', background: `linear-gradient(90deg,${cor}80,${cor})`, width: `${pct}%`, boxShadow: `0 0 6px ${cor}40` }} />
+      </div>
+    </div>
+  )
+}
+
+function AvaliacaoPublicaDetalhada({ respostas }: { respostas: Record<string, number> & { variante?: string } }) {
+  const variante = (respostas.variante ?? 'iniciacao') as VarianteKey
+  const blocoA   = VARIANTES[variante].blocoA
+  const blocoC   = VARIANTES[variante].blocoC
+  const etiqueta = VARIANTES[variante].label
+
+  // converte nota 1-5 para barra 0-100
+  const toBar = (v: number) => v > 0 ? Math.round(((v - 1) / 4) * 100) : 0
+
+  const allQs  = [...blocoA, ...Q_BPERF, ...blocoC]
+  const fortes = allQs.filter(q => (respostas[q.key] ?? 0) >= 4).sort((a, b) => (respostas[b.key] ?? 0) - (respostas[a.key] ?? 0)).slice(0, 3)
+  const melhor = allQs.filter(q => { const v = respostas[q.key] ?? 0; return v > 0 && v <= 2 }).sort((a, b) => (respostas[a.key] ?? 0) - (respostas[b.key] ?? 0)).slice(0, 3)
+
+  const tagColors: Record<number, string> = { 1:'#ef4444', 2:'#f59e0b', 3:'#eab308', 4:'#22c55e', 5:'#00FF88' }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <p style={{ margin: 0, fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontStyle: 'italic' }}>
+        {etiqueta}
+      </p>
+
+      {/* Técnico */}
+      <div>
+        <p style={{ margin: '0 0 8px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>⚽ Técnico</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {blocoA.map((q: QuestionDef) => (
+            <BarSimples key={q.key} icon={q.icon} label={q.label} value={toBar(respostas[q.key] ?? 0)} />
+          ))}
+        </div>
+      </div>
+
+      {/* Perfil chips */}
+      <div>
+        <p style={{ margin: '0 0 8px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>🎭 Perfil</p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px' }}>
+          {Q_BPERF.map((q: QuestionDef) => {
+            const v   = respostas[q.key] ?? 0
+            const cor = tagColors[v] ?? 'rgba(255,255,255,0.2)'
+            return (
+              <div key={q.key} style={{
+                display: 'flex', alignItems: 'center', gap: '4px',
+                padding: '4px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 700,
+                background: v >= 4 ? `${cor}18` : 'rgba(255,255,255,0.04)',
+                border: `1px solid ${v >= 4 ? `${cor}40` : 'rgba(255,255,255,0.07)'}`,
+                color: v >= 4 ? cor : 'rgba(255,255,255,0.35)',
+              }}>
+                {q.icon} {q.label} <span style={{ opacity: 0.6, fontSize: '10px' }}>{v}/5</span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Contextual */}
+      <div>
+        <p style={{ margin: '0 0 8px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>💪 Contextual</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {blocoC.map((q: QuestionDef) => (
+            <BarSimples key={q.key} icon={q.icon} label={q.label} value={toBar(respostas[q.key] ?? 0)} />
+          ))}
+        </div>
+      </div>
+
+      {/* Pontos fortes */}
+      {fortes.length > 0 && (
+        <div style={{ padding: '12px', borderRadius: '10px', background: 'rgba(34,197,94,0.04)', border: '1px solid rgba(34,197,94,0.12)' }}>
+          <p style={{ margin: '0 0 7px', fontSize: '9px', fontWeight: 700, color: 'rgba(34,197,94,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>✦ Pontos fortes</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+            {fortes.map((q: QuestionDef) => (
+              <span key={q.key} style={{ padding: '3px 9px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)', color: '#22c55e' }}>
+                {q.icon} {q.label}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* A melhorar */}
+      {melhor.length > 0 && (
+        <div style={{ padding: '12px', borderRadius: '10px', background: 'rgba(239,68,68,0.03)', border: '1px solid rgba(239,68,68,0.10)' }}>
+          <p style={{ margin: '0 0 7px', fontSize: '9px', fontWeight: 700, color: 'rgba(239,68,68,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>▲ A melhorar</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+            {melhor.map((q: QuestionDef) => (
+              <span key={q.key} style={{ padding: '3px 9px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)', color: '#f87171' }}>
+                {q.icon} {q.label}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
 }
 
 export default async function JogadorPublicoPage({ params }: Props) {
@@ -93,6 +236,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
     clubes_anteriores?: string
     campeonatos?: string
     titulos?: string
+    premiacoes?: string
   }
 
   if (meta?.tipo !== 'atleta') notFound()
@@ -106,6 +250,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
   const clubesAnteriores = meta.clubes_anteriores ?? null
   const campeonatosTexto = meta.campeonatos        ?? null
   const titulosTexto     = meta.titulos            ?? null
+  const premiacoesTexto  = meta.premiacoes         ?? null
 
   const { data: profile } = await admin
     .from('profiles')
@@ -131,22 +276,38 @@ export default async function JogadorPublicoPage({ params }: Props) {
     finalizacao: number; posicionamento: number; tecnica: number
     scout_score: number; observacao: string | null; professor_id: string
     created_at: string
+    respostas: (Record<string, number> & { variante?: string }) | null
   }
 
-  const [categoria, ovr, ultimaAv] = await Promise.all([
+  type HighlightPublico = {
+    id: string; url: string; plataforma: string
+    video_id: string; titulo: string | null; thumbnail_url: string | null
+  }
+
+  const [categoria, ovr, ultimaAv, highlights] = await Promise.all([
     Promise.resolve(dataNasc ? calcularCategoria(dataNasc) : null),
     athleteId ? fetchOvrSingle(admin, athleteId) : Promise.resolve(null),
     // Última avaliação com atributos detalhados (via auth UUID direto)
     (async () => {
       try {
         const r = await admin.from('avaliacoes')
-          .select('velocidade, visao_jogo, forca, finalizacao, posicionamento, tecnica, scout_score, observacao, professor_id, created_at')
+          .select('velocidade, visao_jogo, forca, finalizacao, posicionamento, tecnica, scout_score, observacao, professor_id, created_at, respostas')
           .eq('aluno_id', id)
           .order('created_at', { ascending: false })
           .limit(1)
           .maybeSingle()
         return r.data as AvaliacaoDetalhada | null
       } catch { return null }
+    })(),
+    // Highlights (vídeos do atleta em campo)
+    (async () => {
+      try {
+        const r = await admin.from('highlights')
+          .select('id, url, plataforma, video_id, titulo, thumbnail_url')
+          .eq('profile_id', id)
+          .order('created_at', { ascending: false })
+        return (r.data ?? []) as HighlightPublico[]
+      } catch { return [] as HighlightPublico[] }
     })(),
   ])
 
@@ -162,7 +323,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
   const pos       = posAbrev(posicao)
 
   const temFisico    = altura || peso || peDominante
-  const temCurriculo = bio || temFisico || clubeAtual || clubesAnteriores || campeonatosTexto || titulosTexto
+  const temCurriculo = bio || temFisico || clubeAtual || clubesAnteriores || campeonatosTexto || titulosTexto || premiacoesTexto
 
   return (
     <main style={{
@@ -392,39 +553,39 @@ export default async function JogadorPublicoPage({ params }: Props) {
               </div>
             </div>
             {/* Atributos */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {[
-                { label: 'Velocidade',     val: ultimaAv.velocidade    },
-                { label: 'Técnica',        val: ultimaAv.tecnica       },
-                { label: 'Visão de Jogo',  val: ultimaAv.visao_jogo   },
-                { label: 'Finalização',    val: ultimaAv.finalizacao   },
-                { label: 'Força',          val: ultimaAv.forca         },
-                { label: 'Posicionamento', val: ultimaAv.posicionamento },
-              ].map(attr => {
-                const pct = (attr.val / 10) * 100
-                const cor = attr.val >= 8 ? '#22c55e' : attr.val >= 6 ? '#f59e0b' : '#94a3b8'
-                return (
-                  <div key={attr.label}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                      <span style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.04em' }}>
-                        {attr.label}
-                      </span>
-                      <span style={{ fontSize: '13px', fontWeight: 900, color: cor, fontVariantNumeric: 'tabular-nums' }}>
-                        {attr.val}
-                      </span>
-                    </div>
-                    <div style={{ height: '4px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px', overflow: 'hidden' }}>
-                      <div style={{
-                        height: '100%', borderRadius: '3px',
-                        background: `linear-gradient(90deg, ${cor}80, ${cor})`,
-                        width: `${pct}%`,
-                        boxShadow: `0 0 6px ${cor}40`,
-                      }} />
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
+            {ultimaAv.respostas
+              ? <AvaliacaoPublicaDetalhada respostas={ultimaAv.respostas} />
+              : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {[
+                    { label: 'Velocidade',     val: ultimaAv.velocidade    },
+                    { label: 'Técnica',        val: ultimaAv.tecnica       },
+                    { label: 'Visão de Jogo',  val: ultimaAv.visao_jogo   },
+                    { label: 'Finalização',    val: ultimaAv.finalizacao   },
+                    { label: 'Força',          val: ultimaAv.forca         },
+                    { label: 'Posicionamento', val: ultimaAv.posicionamento },
+                  ].map(attr => {
+                    const pct = (attr.val / 10) * 100
+                    const cor = attr.val >= 8 ? '#22c55e' : attr.val >= 6 ? '#f59e0b' : '#94a3b8'
+                    return (
+                      <div key={attr.label}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                          <span style={{ fontSize: '11px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.04em' }}>
+                            {attr.label}
+                          </span>
+                          <span style={{ fontSize: '13px', fontWeight: 900, color: cor, fontVariantNumeric: 'tabular-nums' }}>
+                            {attr.val}
+                          </span>
+                        </div>
+                        <div style={{ height: '4px', background: 'rgba(255,255,255,0.06)', borderRadius: '3px', overflow: 'hidden' }}>
+                          <div style={{ height: '100%', borderRadius: '3px', background: `linear-gradient(90deg, ${cor}80, ${cor})`, width: `${pct}%`, boxShadow: `0 0 6px ${cor}40` }} />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )
+            }
             {/* Observação do treinador */}
             {ultimaAv.observacao && (
               <div style={{
@@ -531,6 +692,91 @@ export default async function JogadorPublicoPage({ params }: Props) {
               </div>
             )}
 
+            {/* Premiações individuais */}
+            {premiacoesTexto && (
+              <div style={{
+                background: '#0b1610', border: '1px solid rgba(251,191,36,0.18)',
+                borderRadius: '16px', padding: '18px',
+              }}>
+                <p style={{ margin: '0 0 10px', fontSize: '10px', fontWeight: 700, color: '#fbbf24', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                  🏅 Premiações individuais
+                </p>
+                <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.7 }}>
+                  {premiacoesTexto}
+                </p>
+              </div>
+            )}
+
+          </div>
+        )}
+
+        {/* ── Highlights — vídeos em campo ── */}
+        {highlights.length > 0 && (
+          <div style={{ marginTop: '16px' }}>
+            <p style={{ margin: '0 0 12px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+              🎬 Highlights
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {highlights.map(hl => {
+                const thumb = getHlThumbnail(hl.plataforma, hl.video_id, hl.thumbnail_url)
+                const corPlat = getPlataformaCor(hl.plataforma)
+                const labelPlat = getPlataformaLabel(hl.plataforma)
+                return (
+                  <a
+                    key={hl.id}
+                    href={hl.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ textDecoration: 'none', display: 'block', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', background: '#0b1610' }}
+                  >
+                    {/* Thumbnail */}
+                    <div style={{ position: 'relative', aspectRatio: '16/9', background: '#0a120e', overflow: 'hidden' }}>
+                      {thumb ? (
+                        <img src={thumb} alt={hl.titulo ?? labelPlat} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{
+                          width: '100%', height: '100%',
+                          background: `linear-gradient(135deg,${corPlat}22,rgba(0,0,0,0.7))`,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                          <span style={{ fontSize: '32px', opacity: 0.6 }}>▶</span>
+                        </div>
+                      )}
+                      {/* Overlay play */}
+                      <div style={{
+                        position: 'absolute', inset: 0,
+                        background: 'rgba(0,0,0,0.22)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        <div style={{
+                          width: '44px', height: '44px', borderRadius: '50%',
+                          background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          border: '1.5px solid rgba(255,255,255,0.3)',
+                        }}>
+                          <span style={{ fontSize: '16px', marginLeft: '3px' }}>▶</span>
+                        </div>
+                      </div>
+                      {/* Badge plataforma */}
+                      <div style={{
+                        position: 'absolute', top: '8px', left: '8px',
+                        padding: '3px 8px', borderRadius: '100px',
+                        background: corPlat,
+                      }}>
+                        <span style={{ fontSize: '9px', fontWeight: 800, color: 'white', letterSpacing: '0.05em' }}>{labelPlat}</span>
+                      </div>
+                    </div>
+                    {/* Rodapé */}
+                    <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <p style={{ margin: 0, flex: 1, fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {hl.titulo ?? `Assistir no ${labelPlat}`}
+                      </p>
+                      <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.25)', flexShrink: 0 }}>↗</span>
+                    </div>
+                  </a>
+                )
+              })}
+            </div>
           </div>
         )}
 
