@@ -736,7 +736,7 @@ function AtletaPerfilContent() {
       const res = await fetch('/api/convite/solicitar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ treinadorMcId: treinadorInput.trim() }),
+        body: JSON.stringify({ treinadorMcId: `TR-${treinadorInput.trim().replace(/^TR-/i, '')}` }),
       })
       const json = await res.json() as { ok?: boolean; ja_enviado?: boolean; error?: string }
       if (!res.ok) { setConviteErro(json.error ?? 'Erro ao enviar.'); return }
@@ -1274,14 +1274,15 @@ function AtletaPerfilContent() {
             {/* Formulário */}
             <form onSubmit={handleEnviarConvite} style={{ padding:'14px 18px', display:'flex', flexDirection:'column', gap:'10px' }}>
               <p style={{ margin:0, fontSize:'12px', color:'rgba(255,255,255,0.45)', lineHeight:1.5 }}>
-                Digite o ID do treinador (MC-XXXXX) para solicitar que ele te avalie.
+                Digite o ID do treinador para solicitar avaliação.
               </p>
               <div style={{ display:'flex', gap:'8px' }}>
                 <input
                   value={treinadorInput}
-                  onChange={e => { setTreinadorInput(e.target.value.toUpperCase()); setConviteErro(null); setConviteEnviado(false) }}
-                  placeholder="MC-XXXXX"
-                  maxLength={10}
+                  onChange={e => { setTreinadorInput(e.target.value.replace(/\D/g, '')); setConviteErro(null); setConviteEnviado(false) }}
+                  placeholder="Ex: 32848"
+                  maxLength={5}
+                  inputMode="numeric"
                   style={{
                     flex:1, padding:'11px 14px', borderRadius:'10px',
                     background:'rgba(255,255,255,0.05)', border:'1px solid rgba(0,255,136,0.2)',

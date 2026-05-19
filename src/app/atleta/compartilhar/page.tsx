@@ -277,7 +277,7 @@ function CompartilharContent() {
             }} />
 
             {/* Corner accents */}
-            <div ref={cardRef} style={{ position: 'relative', width: 'min(290px,86vw)', zIndex: 1 }}>
+            <div ref={cardRef} style={{ position: 'relative', width: 'min(320px,92vw)', zIndex: 1 }}>
               {[
                 { top: -1, left: -1,     borderTop:    '1.5px solid rgba(0,255,136,.75)', borderLeft:   '1.5px solid rgba(0,255,136,.75)', borderTopLeftRadius:     '24px' },
                 { top: -1, right: -1,    borderTop:    '1.5px solid rgba(0,255,136,.75)', borderRight:  '1.5px solid rgba(0,255,136,.75)', borderTopRightRadius:    '24px' },
@@ -407,7 +407,9 @@ function CompartilharContent() {
                   {/* Watermark */}
                   <div style={{ marginTop: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <div style={{ flex: 1, height: '1px', background: 'linear-gradient(to right,transparent,rgba(255,255,255,.08))' }} />
-                    <span style={{ fontSize: '7.5px', fontWeight: 800, letterSpacing: '0.22em', color: 'rgba(255,255,255,.14)', textTransform: 'uppercase' }}>Meu Craque</span>
+                    <span style={{ fontSize: '9px', fontWeight: 900, letterSpacing: '0.14em', color: 'rgba(0,255,136,0.45)' }}>
+                      {idNumerico ? `ID: ${idNumerico}` : 'Meu Craque'}
+                    </span>
                     <div style={{ flex: 1, height: '1px', background: 'linear-gradient(to left,transparent,rgba(255,255,255,.08))' }} />
                   </div>
                 </div>
