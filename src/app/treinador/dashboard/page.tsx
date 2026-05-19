@@ -245,11 +245,11 @@ function TrainerCard({ perfil, av, at, dest }: { perfil: Perfil; av: number; at:
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           }}>
             <span style={{ fontSize: '8px', fontWeight: 800, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.08)', textTransform: 'uppercase' }}>
-              Meu Craque
+              ID
             </span>
             {perfil.treinadorId && (
               <span style={{ fontSize: '11px', fontWeight: 900, color: 'rgba(251,191,36,0.7)', letterSpacing: '0.12em' }}>
-                ID {perfil.treinadorId}
+                {perfil.treinadorId.replace('TR-', '')}
               </span>
             )}
           </div>

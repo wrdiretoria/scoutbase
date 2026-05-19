@@ -546,7 +546,7 @@ function BemVindoContent() {
                   </span>
                   {athleteId && (
                     <span style={{ fontSize:'11px', fontWeight:900, color:'rgba(0,255,136,0.6)', letterSpacing:'0.12em' }}>
-                      {athleteId}
+                      {athleteId.replace('MC-', '')}
                     </span>
                   )}
                 </div>
