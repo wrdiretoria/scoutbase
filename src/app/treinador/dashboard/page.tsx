@@ -248,7 +248,7 @@ function TrainerCard({ perfil, av, at, dest }: { perfil: Perfil; av: number; at:
               Meu Craque
             </span>
             {perfil.treinadorId && (
-              <span style={{ fontSize: '9px', fontWeight: 900, color: 'rgba(251,191,36,0.35)', letterSpacing: '0.12em' }}>
+              <span style={{ fontSize: '11px', fontWeight: 900, color: 'rgba(251,191,36,0.7)', letterSpacing: '0.12em' }}>
                 {perfil.treinadorId}
               </span>
             )}

@@ -57,6 +57,7 @@ export default function TreinadorConfigurarPage() {
   const [instagram,      setInstagram]      = useState('')
   const [youtube,        setYoutube]        = useState('')
   const [savedAvatarUrl, setSavedAvatarUrl] = useState<string | null>(null)
+  const [treinadorId,    setTreinadorId]    = useState<string | null>(null)
 
   // completion counters (all zero = new trainer)
   const animAval = useCounter(step === 'concluido' ? 0 : 0, 600)
@@ -68,6 +69,15 @@ export default function TreinadorConfigurarPage() {
       if (!user) { router.push('/login'); return }
       setUserId(user.id)
       setNome(user.user_metadata?.nome ?? 'Treinador')
+
+      // Busca o TR-XXXXX do banco
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('athlete_id')
+        .eq('id', user.id)
+        .maybeSingle()
+      if (profile?.athlete_id) setTreinadorId(profile.athlete_id as string)
+
       setAuthReady(true)
     }
     init()
@@ -606,6 +616,24 @@ export default function TreinadorConfigurarPage() {
                 </div>
               </div>
             </div>
+
+            {/* ── ID do treinador ── */}
+            {treinadorId && (
+              <div style={{ animation: 'fadeUp .5s ease forwards 1.05s', opacity: 0, marginBottom: '24px', textAlign: 'center' }}>
+                <p style={{ margin: '0 0 6px', fontSize: '10px', fontWeight: 700, letterSpacing: '0.14em', color: 'rgba(255,255,255,0.28)', textTransform: 'uppercase' }}>
+                  Seu ID de treinador
+                </p>
+                <p style={{ margin: '0 0 4px', fontSize: '44px', fontWeight: 900, color: 'white', letterSpacing: '0.1em', lineHeight: 1, fontVariantNumeric: 'tabular-nums' }}>
+                  {treinadorId.replace('TR-', '')}
+                </p>
+                <p style={{ margin: 0, fontSize: '12px', fontWeight: 700, color: 'rgba(251,191,36,0.6)', letterSpacing: '0.05em' }}>
+                  TR-{treinadorId.replace('TR-', '')}
+                </p>
+                <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'rgba(255,150,0,0.65)', fontWeight: 600 }}>
+                  ⚠️ Guarde este número — atletas usam ele para te encontrar
+                </p>
+              </div>
+            )}
 
             {/* Mensagem */}
             <p style={{ animation: 'fadeUp .5s ease forwards 1.1s', opacity: 0, margin: '0 0 28px', fontSize: '14px', color: 'rgba(255,255,255,.3)', lineHeight: 1.7 }}>
