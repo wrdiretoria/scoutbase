@@ -59,12 +59,13 @@ export async function POST(req: Request) {
 
     if (error) {
       console.error('[atleta/salvar-perfil]', error)
-      return NextResponse.json({ error: 'Erro ao salvar perfil.' }, { status: 500 })
+      return NextResponse.json({ error: `DB: ${error.code} — ${error.message}` }, { status: 500 })
     }
 
     return NextResponse.json({ ok: true, athleteId })
   } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
     console.error('[atleta/salvar-perfil] unexpected', err)
-    return NextResponse.json({ error: 'Erro interno.' }, { status: 500 })
+    return NextResponse.json({ error: `Interno: ${msg}` }, { status: 500 })
   }
 }

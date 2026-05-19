@@ -154,7 +154,8 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
     })
 
     if (!saveRes.ok) {
-      setError('Erro ao salvar perfil. Tente novamente.')
+      const saveJson = await saveRes.json().catch(() => ({})) as { error?: string }
+      setError(saveJson.error ?? 'Erro ao salvar perfil. Tente novamente.')
       setLoading(false)
       return
     }
