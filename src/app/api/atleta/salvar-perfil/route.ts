@@ -38,13 +38,17 @@ export async function POST(req: Request) {
 
     const athleteId = existente?.athlete_id ?? preGeneratedId ?? await gerarAthleteId(admin)
 
+    // email interno gerado a partir do athleteId (ex: mc-00123@meucraque.app)
+    const internalEmail = `${athleteId.toLowerCase()}@meucraque.app`
+
     const { error } = await admin
       .from('profiles')
       .upsert(
         {
-          id: userId,
-          data_nascimento: dataNascimento,
-          athlete_id: athleteId,
+          id:               userId,
+          email:            internalEmail,
+          data_nascimento:  dataNascimento,
+          athlete_id:       athleteId,
           ...(nome          && { nome }),
           ...(escolaId      && { escola_id: escolaId }),
           ...(recoveryEmail && { recovery_email: recoveryEmail }),
