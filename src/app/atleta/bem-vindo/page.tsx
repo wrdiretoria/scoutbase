@@ -539,17 +539,16 @@ function BemVindoContent() {
                   </div>
                 </div>
 
-                {/* Watermark — Meu Craque com dots */}
-                <div style={{ marginTop:'16px', display:'flex', alignItems:'center', justifyContent:'center', gap:'8px' }}>
-                  <div style={{ flex:1, height:'1px', background:'linear-gradient(to right,transparent,rgba(255,255,255,0.07))' }} />
-                  <div style={{ display:'flex', alignItems:'center', gap:'5px' }}>
-                    <div style={{ width:'3px', height:'3px', borderRadius:'50%', background:'rgba(0,255,136,0.35)' }} />
-                    <span style={{ fontSize:'8px', fontWeight:800, letterSpacing:'0.22em', color:'rgba(255,255,255,0.15)', textTransform:'uppercase' }}>
-                      Meu Craque
+                {/* Watermark — Meu Craque + ID */}
+                <div style={{ marginTop:'16px', borderTop:'1px solid rgba(0,255,136,0.07)', paddingTop:'12px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                  <span style={{ fontSize:'8px', fontWeight:800, letterSpacing:'0.18em', color:'rgba(255,255,255,0.08)', textTransform:'uppercase' }}>
+                    Meu Craque
+                  </span>
+                  {athleteId && (
+                    <span style={{ fontSize:'11px', fontWeight:900, color:'rgba(0,255,136,0.6)', letterSpacing:'0.12em' }}>
+                      {athleteId}
                     </span>
-                    <div style={{ width:'3px', height:'3px', borderRadius:'50%', background:'rgba(0,255,136,0.35)' }} />
-                  </div>
-                  <div style={{ flex:1, height:'1px', background:'linear-gradient(to left,transparent,rgba(255,255,255,0.07))' }} />
+                  )}
                 </div>
               </div>
             </div>
