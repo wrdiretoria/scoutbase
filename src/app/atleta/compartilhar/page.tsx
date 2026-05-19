@@ -407,7 +407,7 @@ function CompartilharContent() {
                   {/* Watermark */}
                   <div style={{ marginTop: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <div style={{ flex: 1, height: '1px', background: 'linear-gradient(to right,transparent,rgba(255,255,255,.08))' }} />
-                    <span style={{ fontSize: '9px', fontWeight: 900, letterSpacing: '0.14em', color: 'rgba(0,255,136,0.45)' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 900, letterSpacing: '0.18em', color: 'rgba(0,255,136,0.6)' }}>
                       {idNumerico ? `ID: ${idNumerico}` : 'Meu Craque'}
                     </span>
                     <div style={{ flex: 1, height: '1px', background: 'linear-gradient(to left,transparent,rgba(255,255,255,.08))' }} />
