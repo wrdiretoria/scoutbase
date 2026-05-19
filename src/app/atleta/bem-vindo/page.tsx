@@ -179,8 +179,6 @@ function BemVindoContent() {
       paddingBottom: 'max(48px, env(safe-area-inset-bottom))',
       fontFamily: 'system-ui, sans-serif',
       position: 'relative',
-      overflow: 'hidden',
-      overscrollBehaviorY: 'none',
     }}>
 
       <style>{`
