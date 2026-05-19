@@ -1,4 +1,5 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next'
+import { withSentryConfig } from '@sentry/nextjs'
 
 const nextConfig: NextConfig = {
   images: {
@@ -8,6 +9,15 @@ const nextConfig: NextConfig = {
     ],
   },
   compress: true,
-};
+}
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  org:     process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+
+  // Não bloqueia o build se o Sentry não estiver configurado
+  silent:              true,
+  hideSourceMaps:      true,
+  disableLogger:       true,
+  automaticVercelMonitors: false,
+})
