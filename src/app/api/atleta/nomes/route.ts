@@ -5,10 +5,15 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { createAdminClient } from '@/lib/supabase'
+import { createAdminClient, createServerClient } from '@/lib/supabase'
 
 export async function POST(req: NextRequest) {
   try {
+    // Apenas usuários autenticados podem buscar nomes
+    const supabase = await createServerClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 })
+
     const { ids } = await req.json() as { ids: string[] }
     if (!Array.isArray(ids) || ids.length === 0) return NextResponse.json([])
 

@@ -27,7 +27,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Configuração de segurança ausente.' }, { status: 500 })
     }
 
-    if (webhookToken !== expectedToken) {
+    const { timingSafeEqual } = await import('crypto')
+    const tokensMatch = webhookToken &&
+      webhookToken.length === expectedToken.length &&
+      timingSafeEqual(Buffer.from(webhookToken), Buffer.from(expectedToken))
+
+    if (!tokensMatch) {
       return NextResponse.json({ error: 'Token inválido.' }, { status: 401 })
     }
 

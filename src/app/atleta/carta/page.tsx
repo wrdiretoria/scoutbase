@@ -125,10 +125,18 @@ export default function CartaPage() {
     load()
   }, [router])
 
-  // Polling após PIX gerado
+  // Polling após PIX gerado — para automaticamente após 15 minutos
   useEffect(() => {
     if (!polling) return
+    const TIMEOUT_MS = 15 * 60 * 1000 // 15 minutos
+    const inicio = Date.now()
     const interval = setInterval(async () => {
+      if (Date.now() - inicio > TIMEOUT_MS) {
+        clearInterval(interval)
+        setPolling(false)
+        setErroPix('Tempo expirado. Se você pagou, aguarde alguns minutos e recarregue a página.')
+        return
+      }
       const pago = await checkPagamento()
       if (pago) clearInterval(interval)
     }, 4000)

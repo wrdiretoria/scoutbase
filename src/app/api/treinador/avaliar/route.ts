@@ -8,6 +8,11 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 })
 
+  // Apenas treinadores podem avaliar
+  if (user.user_metadata?.tipo !== 'treinador') {
+    return NextResponse.json({ error: 'Acesso restrito a treinadores.' }, { status: 403 })
+  }
+
   // ── Parse body (valores 10–100) ──
   const {
     profileId,

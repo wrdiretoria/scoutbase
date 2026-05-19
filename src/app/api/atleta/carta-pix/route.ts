@@ -11,6 +11,12 @@ import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
   try {
+    // Apenas o próprio atleta autenticado pode gerar cobrança para si
+    const { createServerClient } = await import('@/lib/supabase')
+    const supabase = await createServerClient()
+    const { data: { user: authUser } } = await supabase.auth.getUser()
+    if (!authUser) return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 })
+
     const { userId, nomeAtleta } = await req.json() as {
       userId?: string
       nomeAtleta?: string
@@ -18,6 +24,11 @@ export async function POST(req: Request) {
 
     if (!userId || !nomeAtleta) {
       return NextResponse.json({ error: 'Dados insuficientes.' }, { status: 400 })
+    }
+
+    // Garante que só gera cobrança para si mesmo
+    if (userId !== authUser.id) {
+      return NextResponse.json({ error: 'Acesso negado.' }, { status: 403 })
     }
 
     const admin = createAdminClient()

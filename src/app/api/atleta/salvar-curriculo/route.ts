@@ -1,8 +1,13 @@
-import { createAdminClient } from '@/lib/supabase'
+import { createAdminClient, createServerClient } from '@/lib/supabase'
 import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
   try {
+    // Apenas o próprio atleta pode editar seu currículo
+    const supabase = await createServerClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 })
+
     const { userId, bio, altura, peso, peDominante, clubeAtual } = await req.json() as {
       userId?: string
       bio?: string
@@ -14,6 +19,11 @@ export async function POST(req: Request) {
 
     if (!userId) {
       return NextResponse.json({ error: 'userId ausente.' }, { status: 400 })
+    }
+
+    // Garante que só edita o próprio perfil
+    if (userId !== user.id) {
+      return NextResponse.json({ error: 'Acesso negado.' }, { status: 403 })
     }
 
     const admin = createAdminClient()
