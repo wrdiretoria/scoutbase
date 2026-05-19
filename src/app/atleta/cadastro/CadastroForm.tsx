@@ -182,14 +182,13 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
   return (
     <main style={{
       background: '#06100a', minHeight: '100dvh',
-      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      display: 'flex', flexDirection: 'column', alignItems: 'center',
       padding: '24px',
       paddingTop: 'max(24px, env(safe-area-inset-top))',
       paddingBottom: 'max(32px, env(safe-area-inset-bottom))',
       fontFamily: 'system-ui, sans-serif',
-      overscrollBehaviorY: 'none',
     }}>
-      <div style={{ width: '100%', maxWidth: '380px' }}>
+      <div style={{ width: '100%', maxWidth: '380px', margin: 'auto 0' }}>
 
         {/* Header */}
         <div style={{ marginBottom: '32px' }}>
