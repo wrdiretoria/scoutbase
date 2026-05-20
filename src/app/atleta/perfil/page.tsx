@@ -972,18 +972,24 @@ function AtletaPerfilContent() {
                 </span>
               </div>
             )}
-            {/* Foto ou iniciais — clicável para trocar */}
+            {/* Foto ou iniciais — label nativo garante abertura do seletor em iOS/Android */}
             <div id="foto" style={{ position:'relative', width:'72px', height:'72px', flexShrink:0, marginBottom:'-20px' }}>
-              <input ref={fotoInputRef} type="file" accept="image/*" style={{ display:'none' }} onChange={handleFotoChange} />
-              <div
-                onClick={() => fotoInputRef.current?.click()}
-                style={{
-                  width:'72px', height:'72px', borderRadius:'50%',
-                  border:'3px solid #0b1610', overflow:'hidden',
-                  boxShadow:'0 8px 24px rgba(34,197,94,0.4)',
-                  cursor:'pointer', position:'relative',
-                }}
-              >
+              <label htmlFor="foto-input" style={{
+                display:'block', width:'72px', height:'72px', borderRadius:'50%',
+                border:'3px solid #0b1610', overflow:'hidden',
+                boxShadow:'0 8px 24px rgba(34,197,94,0.4)',
+                cursor: uploadingFoto ? 'wait' : 'pointer',
+                position:'relative',
+              }}>
+                <input
+                  id="foto-input"
+                  ref={fotoInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  disabled={uploadingFoto}
+                  style={{ position:'absolute', width:'1px', height:'1px', opacity:0, pointerEvents:'none' }}
+                  onChange={handleFotoChange}
+                />
                 {avatarUrl ? (
                   <img src={avatarUrl} alt={meta.nome} style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center 15%' }} />
                 ) : (
@@ -996,15 +1002,16 @@ function AtletaPerfilContent() {
                     {initials}
                   </div>
                 )}
-                {/* overlay de câmera */}
+                {/* overlay câmera — sempre visível (30%) e total durante upload */}
                 <div style={{
                   position:'absolute', inset:0, borderRadius:'50%',
-                  background:'rgba(0,0,0,0.45)', display:'flex', alignItems:'center', justifyContent:'center',
-                  opacity: uploadingFoto ? 1 : 0, transition:'opacity 0.2s',
+                  background: uploadingFoto ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.30)',
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                  transition:'background 0.2s',
                 }}>
-                  <span style={{ fontSize:'20px' }}>{uploadingFoto ? '⏳' : '📷'}</span>
+                  <span style={{ fontSize:'18px' }}>{uploadingFoto ? '⏳' : '📷'}</span>
                 </div>
-              </div>
+              </label>
             </div>
             <div style={{ paddingBottom:'16px' }}>
               <span style={{ fontSize:'13px', color:'rgba(255,255,255,0.55)', marginLeft:'2px' }}>{pos}</span>
