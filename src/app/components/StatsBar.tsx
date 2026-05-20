@@ -1,41 +1,42 @@
+'use client'
+
 /**
- * StatsBar — métricas reais do banco (Server Component)
+ * StatsBar — métricas reais em tempo real (Client Component, polling 30s)
  */
 
-import { createAdminClient } from '@/lib/supabase'
+import { useEffect, useState } from 'react'
 
-function posAbrev(pos: string): string {
-  const map: Record<string, string> = {
-    'Goleiro': 'GK', 'Lateral Direito': 'LD', 'Lateral Esquerdo': 'LE',
-    'Zagueiro': 'ZG', 'Volante': 'VOL', 'Meia': 'MEI',
-    'Meia-Atacante': 'MAT', 'Ponta Direita': 'PD', 'Ponta Esquerda': 'PE',
-    'Atacante': 'ATA', 'Centro-Avante': 'CA',
-  }
-  return map[pos] ?? pos.slice(0, 3).toUpperCase()
-}
+export default function StatsBar() {
+  const [atletasCount, setAtletasCount]       = useState<number | null>(null)
+  const [avaliacoesCount, setAvaliacoesCount] = useState<number | null>(null)
 
-export default async function StatsBar() {
-  let atletasCount = 0
-  let avaliacoesCount = 0
+  useEffect(() => {
+    async function fetchStats() {
+      try {
+        const res = await fetch('/api/landing/stats', { cache: 'no-store' })
+        if (!res.ok) return
+        const json = await res.json() as { atletasCount: number; avaliacoesCount: number }
+        setAtletasCount(json.atletasCount)
+        setAvaliacoesCount(json.avaliacoesCount)
+      } catch { /* mantém estado anterior */ }
+    }
 
-  try {
-    const admin = createAdminClient()
-    const [usersRes, avsRes] = await Promise.all([
-      admin.auth.admin.listUsers({ perPage: 1000 }),
-      admin.from('avaliacoes').select('id', { count: 'exact', head: true }),
-    ])
-    atletasCount    = (usersRes.data?.users ?? []).filter(u => u.user_metadata?.tipo === 'atleta').length
-    avaliacoesCount = avsRes.count ?? 0
-  } catch { /* static fallback */ }
+    fetchStats()
+    const interval = setInterval(fetchStats, 30_000)
+    return () => clearInterval(interval)
+  }, [])
 
   const stats = [
     {
-      value: atletasCount > 0 ? atletasCount.toLocaleString('pt-BR') : 'GRÁTIS',
-      label: atletasCount > 0 ? 'Atletas cadastrados' : 'Para sempre, para atletas',
+      value: atletasCount == null ? '…' : atletasCount > 0 ? atletasCount.toLocaleString('pt-BR') : 'GRÁTIS',
+      label: atletasCount != null && atletasCount > 0 ? 'Atletas cadastrados' : 'Para sempre, para atletas',
     },
-    { value: avaliacoesCount > 0 ? avaliacoesCount.toLocaleString('pt-BR') : '—', label: 'Avaliações realizadas' },
+    {
+      value: avaliacoesCount == null ? '…' : avaliacoesCount > 0 ? avaliacoesCount.toLocaleString('pt-BR') : '—',
+      label: 'Avaliações realizadas',
+    },
     { value: '3 MIN', label: 'Para criar seu perfil' },
-    { value: '24/7', label: 'Visível para scouts' },
+    { value: '24/7',  label: 'Visível para scouts'   },
   ]
 
   return (
@@ -57,6 +58,11 @@ export default async function StatsBar() {
           display: flex; align-items: center; gap: 14px;
         }
         .stats-bar-item:last-child { border-right: none; }
+        @keyframes fadeCount {
+          from { opacity: 0.4; transform: translateY(4px); }
+          to   { opacity: 1;   transform: translateY(0);   }
+        }
+        .stats-count-animate { animation: fadeCount 0.4s ease-out; }
         @media (max-width: 768px) {
           .stats-bar-grid { grid-template-columns: 1fr 1fr !important; }
           .stats-bar-item:nth-child(2) { border-right: none; }
@@ -75,19 +81,28 @@ export default async function StatsBar() {
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
               <svg width="18" height="18" fill="none" stroke="#00FF88" strokeWidth="1.8" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                <path strokeLinecap="round" strokeLinejoin="round"
+                  d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
             </div>
             <div>
-              <div style={{
-                fontSize: '20px', fontWeight: 900, color: '#00FF88',
-                letterSpacing: '-0.02em', lineHeight: 1,
-                textShadow: '0 0 20px rgba(0,255,136,0.4)',
-              }}>{s.value}</div>
+              <div
+                key={s.value}
+                className="stats-count-animate"
+                style={{
+                  fontSize: '20px', fontWeight: 900, color: '#00FF88',
+                  letterSpacing: '-0.02em', lineHeight: 1,
+                  textShadow: '0 0 20px rgba(0,255,136,0.4)',
+                }}
+              >
+                {s.value}
+              </div>
               <div style={{
                 fontSize: '11px', color: 'rgba(255,255,255,0.38)',
                 marginTop: '3px', letterSpacing: '0.02em',
-              }}>{s.label}</div>
+              }}>
+                {s.label}
+              </div>
             </div>
           </div>
         ))}
