@@ -115,7 +115,7 @@ export default function PhotoBillboard() {
 
   useEffect(() => {
     if (paused) return
-    const iv = setInterval(advance, 4500)
+    const iv = setInterval(advance, 2000)
     return () => clearInterval(iv)
   }, [advance, paused])
 
