@@ -1253,12 +1253,13 @@ function AtletaPerfilContent() {
           <span style={{ color:'rgba(34,197,94,0.4)', fontSize:'18px', flexShrink:0, alignSelf:'center' }}>›</span>
         </Link>}
 
-        {/* ── Card de Avaliação: comprar ou solicitar ── */}
-        {cardsDisponiveis > 0 ? (
-          /* Tem card — mostra UI de solicitar avaliação */
+        {/* ── Card de Avaliação: gratuita (1ª vez) ou solicitar (tem card) ou comprar ── */}
+        {(!avaliacao || cardsDisponiveis > 0) ? (
+          /* Primeira avaliação gratuita OU tem card */
           <div style={{
             marginBottom:'12px', borderRadius:'16px', overflow:'hidden',
-            border:'1px solid rgba(0,255,136,0.3)', background:'rgba(0,255,136,0.04)',
+            border: !avaliacao ? '1px solid rgba(0,255,136,0.5)' : '1px solid rgba(0,255,136,0.3)',
+            background: !avaliacao ? 'rgba(0,255,136,0.07)' : 'rgba(0,255,136,0.04)',
           }}>
             {/* Header */}
             <div style={{
@@ -1274,10 +1275,10 @@ function AtletaPerfilContent() {
               </div>
               <div style={{ flex:1 }}>
                 <p style={{ margin:'0 0 2px', fontSize:'13px', fontWeight:800, color:'#00FF88' }}>
-                  Solicitar avaliação
+                  {!avaliacao ? 'Sua 1ª avaliação é gratuita!' : 'Solicitar avaliação'}
                 </p>
-                <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.4)' }}>
-                  {cardsDisponiveis} card{cardsDisponiveis !== 1 ? 's' : ''} disponível{cardsDisponiveis !== 1 ? 'is' : ''}
+                <p style={{ margin:0, fontSize:'11px', color: !avaliacao ? 'rgba(0,255,136,0.6)' : 'rgba(255,255,255,0.4)' }}>
+                  {!avaliacao ? 'Digite o ID do treinador e solicite agora' : `${cardsDisponiveis} card${cardsDisponiveis !== 1 ? 's' : ''} disponível${cardsDisponiveis !== 1 ? 'is' : ''}`}
                 </p>
               </div>
             </div>

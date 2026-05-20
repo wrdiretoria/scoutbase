@@ -16,9 +16,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Apenas atletas podem enviar solicitações.' }, { status: 403 })
     }
 
-    // Verifica se tem card disponível
+    // Verifica se é a primeira avaliação (gratuita) ou se tem card
     const cardsDisponiveis = (user.user_metadata?.cards_disponiveis as number) ?? 0
-    if (cardsDisponiveis <= 0) {
+    const { count: evalCount } = await supabase
+      .from('avaliacoes')
+      .select('*', { count: 'exact', head: true })
+      .eq('aluno_id', user.id)
+    const primeiraAvaliacao = (evalCount ?? 0) === 0
+    if (!primeiraAvaliacao && cardsDisponiveis <= 0) {
       return NextResponse.json({ error: 'Você não possui card de avaliação disponível.' }, { status: 403 })
     }
 
