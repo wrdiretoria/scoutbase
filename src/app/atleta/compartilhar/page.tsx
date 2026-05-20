@@ -344,6 +344,14 @@ function CompartilharContent() {
                   }}>
                     {ovrAnim}
                   </div>
+                  <div style={{
+                    fontSize: '11px', fontWeight: 900, color: '#00FF88',
+                    letterSpacing: '0.18em', textTransform: 'uppercase',
+                    textShadow: '0 0 12px rgba(0,255,136,.7)',
+                    marginTop: '2px',
+                  }}>
+                    OVR
+                  </div>
                 </div>
 
                 {/* ── TOP RIGHT: Categoria ── */}
