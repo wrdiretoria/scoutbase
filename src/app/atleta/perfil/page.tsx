@@ -616,22 +616,22 @@ function AtletaPerfilContent() {
     : ovrPerfil
 
   // ── Próximo Passo — sugestões baseadas no estado do perfil ────
-  const passos: { icon: string; titulo: string; sub: string }[] = []
+  const passos: { icon: string; titulo: string; sub: string; href: string }[] = []
   const temBio    = curriculo.bio.trim().length > 0
   const temFisico = !!(curriculo.altura && curriculo.peso && curriculo.peDominante)
   const temClube  = curriculo.clubeAtual.trim().length > 0
 
-  if (!avaliacao)              passos.push({ icon: '📋', titulo: 'Receba uma avaliação oficial',  sub: 'Compartilhe seu ID com um treinador certificado' })
-  if (highlights.length === 0) passos.push({ icon: '🎬', titulo: 'Adicione um highlight',         sub: 'Cole o link de um vídeo seu no YouTube, TikTok ou Instagram' })
-  if (!temFoto)                passos.push({ icon: '📸', titulo: 'Adicione uma foto ao perfil',   sub: 'Perfis com foto têm muito mais visibilidade' })
-  if (!temQuestionario)        passos.push({ icon: '⚡', titulo: 'Responda o questionário',        sub: 'Ganhe +12 pontos no seu OVR' })
-  if (!temBio)                 passos.push({ icon: '📝', titulo: 'Escreva sua apresentação',       sub: 'Conte quem você é como atleta' })
-  if (!temFisico)              passos.push({ icon: '💪', titulo: 'Complete seus dados físicos',    sub: 'Altura, peso e pé dominante' })
-  if (!temClube)               passos.push({ icon: '⚽', titulo: 'Onde você treina agora?',         sub: 'Clube, escolinha, projeto ou nenhum lugar' })
-  if (!temClubes)              passos.push({ icon: '🏟', titulo: 'Adicione clubes anteriores',     sub: '+15 OVR ao preencher' })
-  if (!temCampeonatos)         passos.push({ icon: '🏆', titulo: 'Liste seus campeonatos',          sub: '+10 OVR ao preencher' })
-  if (!temTitulos)             passos.push({ icon: '🥇', titulo: 'Adicione seus títulos',           sub: '+10 OVR ao preencher' })
-  if (!temPremiacoes)          passos.push({ icon: '🏅', titulo: 'Premiações individuais',          sub: '+5 OVR — artilheiro, melhor goleiro...' })
+  if (!avaliacao)              passos.push({ icon: '📋', titulo: 'Receba uma avaliação oficial',  sub: 'Compartilhe seu ID com um treinador certificado', href: '#solicitar' })
+  if (highlights.length === 0) passos.push({ icon: '🎬', titulo: 'Adicione um highlight',         sub: 'Cole o link de um vídeo seu no YouTube, TikTok ou Instagram', href: '#highlights' })
+  if (!temFoto)                passos.push({ icon: '📸', titulo: 'Adicione uma foto ao perfil',   sub: 'Perfis com foto têm muito mais visibilidade', href: '#foto' })
+  if (!temQuestionario)        passos.push({ icon: '⚡', titulo: 'Responda o questionário',        sub: 'Ganhe +12 pontos no seu OVR', href: '/atleta/questionario' })
+  if (!temBio)                 passos.push({ icon: '📝', titulo: 'Escreva sua apresentação',       sub: 'Conte quem você é como atleta', href: '#curriculo' })
+  if (!temFisico)              passos.push({ icon: '💪', titulo: 'Complete seus dados físicos',    sub: 'Altura, peso e pé dominante', href: '#curriculo' })
+  if (!temClube)               passos.push({ icon: '⚽', titulo: 'Onde você treina agora?',         sub: 'Clube, escolinha, projeto ou nenhum lugar', href: '#curriculo' })
+  if (!temClubes)              passos.push({ icon: '🏟', titulo: 'Adicione clubes anteriores',     sub: '+15 OVR ao preencher', href: '#curriculo' })
+  if (!temCampeonatos)         passos.push({ icon: '🏆', titulo: 'Liste seus campeonatos',          sub: '+10 OVR ao preencher', href: '#curriculo' })
+  if (!temTitulos)             passos.push({ icon: '🥇', titulo: 'Adicione seus títulos',           sub: '+10 OVR ao preencher', href: '#curriculo' })
+  if (!temPremiacoes)          passos.push({ icon: '🏅', titulo: 'Premiações individuais',          sub: '+5 OVR — artilheiro, melhor goleiro...', href: '#curriculo' })
   const passosPrioritarios = passos.slice(0, 2)
 
   // ── Highlights handlers ──────────────────────────────────────
@@ -1549,9 +1549,11 @@ function AtletaPerfilContent() {
             </p>
             <div style={{ display:'flex', flexDirection:'column', gap:'8px' }}>
               {passosPrioritarios.map((s, i) => (
-                <div key={i} className="passo-item" style={{
+                <Link key={i} href={s.href} className="passo-item" style={{
                   background: i === 0 ? 'rgba(0,255,136,0.04)' : 'rgba(255,255,255,0.02)',
                   border:     i === 0 ? '1px solid rgba(0,255,136,0.15)' : '1px solid rgba(255,255,255,0.07)',
+                  textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '14px',
+                  padding: '14px 16px', borderRadius: '14px', cursor: 'pointer',
                 }}>
                   <div style={{
                     width:'40px', height:'40px', borderRadius:'12px', flexShrink:0,
@@ -1569,10 +1571,8 @@ function AtletaPerfilContent() {
                       {s.sub}
                     </p>
                   </div>
-                  {i === 0 && (
-                    <span style={{ fontSize:'16px', color:'rgba(0,255,136,0.5)', flexShrink:0 }}>›</span>
-                  )}
-                </div>
+                  <span style={{ fontSize:'16px', color:'rgba(0,255,136,0.5)', flexShrink:0 }}>›</span>
+                </Link>
               ))}
             </div>
           </div>
