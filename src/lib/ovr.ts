@@ -5,46 +5,53 @@
  *
  * Bridge direto: profiles.id (auth UUID) = avaliacoes.aluno_id
  * profiles.athlete_id (MC-XXXXX) é usado para mapear no ranking/busca.
+ *
+ * Fórmula do perfil (max 100 pts → × 0.5 = max 50 OVR):
+ *   Base (nome + posicao + dob — obrigatórios no cadastro): 15 pts (sempre)
+ *   Foto (avatar_url):                                      20 pts
+ *   Questionário (questionario_completo em user_metadata):  20 pts
+ *   Clubes anteriores (clubes_anteriores em user_metadata): 15 pts
+ *   Campeonatos (campeonatos em user_metadata):             10 pts
+ *   Títulos (titulos em user_metadata):                     10 pts
+ *   Premiações (premiacoes em user_metadata):                5 pts
+ *   Telefone (telefone em user_metadata):                    5 pts
  */
 import type { SupabaseClient } from '@supabase/supabase-js'
 
-// ── Pontuação do perfil ────────────────────────────────────────────────────────
-// Campos obrigatórios (sempre preenchidos no cadastro): nome, avatar_url, data_nascimento = 30 pts
-// Campos do currículo (opcionais): bio=20, altura=15, peso=15, pe_dominante=10, clube_atual=10 = 70 pts
-// Total possível: 100 pts
-
 type ProfileRow = {
-  id:              string
-  athlete_id:      string | null
-  nome:            string | null
-  avatar_url:      string | null
-  data_nascimento: string | null
-  bio:             string | null
-  altura:          number | null
-  peso:            number | null
-  pe_dominante:    string | null
-  clube_atual:     string | null
+  id:         string
+  athlete_id: string | null
+  avatar_url: string | null
 }
 
-function calcProfileScore(p: ProfileRow): number {
-  let score = 0
-  if (p.nome)            score += 10
-  if (p.avatar_url)      score += 10
-  if (p.data_nascimento) score += 10
-  if (p.bio)             score += 20
-  if (p.altura)          score += 15
-  if (p.peso)            score += 15
-  if (p.pe_dominante)    score += 10
-  if (p.clube_atual)     score += 10
+type UserMeta = {
+  questionario_completo?: boolean | string | null
+  clubes_anteriores?:     string | null
+  campeonatos?:           string | null
+  titulos?:               string | null
+  premiacoes?:            string | null
+  telefone?:              string | null
+}
+
+function calcProfileScore(p: ProfileRow, meta: UserMeta): number {
+  let score = 15  // base — nome + posicao + dob são obrigatórios no cadastro
+  if (p.avatar_url)                         score += 20
+  if (meta.questionario_completo)           score += 20
+  if (meta.clubes_anteriores?.trim())       score += 15
+  if (meta.campeonatos?.trim())             score += 10
+  if (meta.titulos?.trim())                 score += 10
+  if (meta.premiacoes?.trim())              score += 5
+  if (meta.telefone?.trim())                score += 5
   return score  // 0–100
 }
 
 function calcOvr(profileScore: number, trainerAvg: number | null): number {
   if (trainerAvg === null) {
-    // Sem avaliação: OVR = 50% do perfil (máx 50 enquanto não avaliado)
-    return Math.round(profileScore * 0.5)
+    // Sem avaliação: OVR = nota do perfil (0–100)
+    return profileScore
   }
-  return Math.round(profileScore * 0.5 + trainerAvg * 0.5)
+  // Com avaliação: média simples das duas notas (ambas 0–100)
+  return Math.round((profileScore + trainerAvg) / 2)
 }
 
 // ── fetchOvrMap ────────────────────────────────────────────────────────────────
@@ -59,12 +66,19 @@ export async function fetchOvrMap(admin: SupabaseClient): Promise<Map<string, nu
   // 1. Todos os perfis de atleta
   const { data: profiles } = await admin
     .from('profiles')
-    .select('id, athlete_id, nome, avatar_url, data_nascimento, bio, altura, peso, pe_dominante, clube_atual')
+    .select('id, athlete_id, avatar_url')
     .not('athlete_id', 'is', null)
 
   if (!profiles || profiles.length === 0) return map
 
-  // 2. Todas as avaliações com score
+  // 2. Todos os user_metadata de uma vez (evita N+1)
+  const { data: { users: authUsers } } = await admin.auth.admin.listUsers({ perPage: 1000 })
+  const metaByUuid = new Map<string, UserMeta>()
+  for (const u of authUsers) {
+    metaByUuid.set(u.id, (u.user_metadata ?? {}) as UserMeta)
+  }
+
+  // 3. Todas as avaliações com score
   const { data: avs } = await admin
     .from('avaliacoes')
     .select('aluno_id, scout_score')
@@ -78,11 +92,12 @@ export async function fetchOvrMap(admin: SupabaseClient): Promise<Map<string, nu
     scoresByUuid.get(av.aluno_id)!.push(av.scout_score)
   }
 
-  // 3. Calcula OVR para cada atleta
+  // 4. Calcula OVR para cada atleta
   for (const profile of profiles as ProfileRow[]) {
     if (!profile.athlete_id) continue
 
-    const profileScore = calcProfileScore(profile)
+    const meta = metaByUuid.get(profile.id) ?? {}
+    const profileScore = calcProfileScore(profile, meta)
 
     const scores = scoresByUuid.get(profile.id)
     const trainerAvg = scores && scores.length > 0
@@ -109,15 +124,19 @@ export async function fetchOvrSingle(
   // 1. Perfil do atleta
   const { data: profile } = await admin
     .from('profiles')
-    .select('id, athlete_id, nome, avatar_url, data_nascimento, bio, altura, peso, pe_dominante, clube_atual')
+    .select('id, athlete_id, avatar_url')
     .eq('athlete_id', mcId)
     .maybeSingle()
 
   if (!profile?.id) return null
 
-  const profileScore = calcProfileScore(profile as ProfileRow)
+  // 2. User metadata (campos do currículo salvos fora do schema)
+  const { data: { user: authUser } } = await admin.auth.admin.getUserById(profile.id)
+  const meta = (authUser?.user_metadata ?? {}) as UserMeta
 
-  // 2. Avaliações do atleta
+  const profileScore = calcProfileScore(profile as ProfileRow, meta)
+
+  // 3. Avaliações do atleta
   const { data: avs } = await admin
     .from('avaliacoes')
     .select('scout_score')

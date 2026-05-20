@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Planos | Meu Craque',
-  description: 'Conheça os planos do Meu Craque. Perfil gratuito para atletas, avaliação oficial por R$ 5,00.',
+  description: 'Conheça os planos do Meu Craque. Perfil gratuito para atletas, avaliação oficial por R$ 9,90.',
 }
 
 export default function PlanosPage() {
@@ -46,7 +46,7 @@ export default function PlanosPage() {
           </p>
           <h1 style={{ margin: '0 0 12px', fontSize: '36px', fontWeight: 900, letterSpacing: '-0.02em' }}>
             Perfil gratuito.<br />
-            <span style={{ color: '#22c55e' }}>Avaliação por R$ 5,00.</span>
+            <span style={{ color: '#22c55e' }}>Avaliação por R$ 9,90.</span>
           </h1>
           <p style={{ margin: '0 auto', fontSize: '16px', color: 'rgba(255,255,255,0.45)', maxWidth: '480px', lineHeight: 1.6 }}>
             Crie seu perfil gratuitamente e, quando quiser ser avaliado por um treinador, compre um card de avaliação.
@@ -107,7 +107,7 @@ export default function PlanosPage() {
 
             <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Card de Avaliação</p>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '4px' }}>
-              <p style={{ margin: 0, fontSize: '28px', fontWeight: 900 }}>R$ 5,00</p>
+              <p style={{ margin: 0, fontSize: '28px', fontWeight: 900 }}>R$ 9,90</p>
               <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>por avaliação</span>
             </div>
             <p style={{ margin: '0 0 24px', fontSize: '13px', color: 'rgba(255,255,255,0.35)' }}>Até 2 avaliações por mês.</p>
@@ -181,7 +181,7 @@ export default function PlanosPage() {
             },
             {
               q: 'Como funciona o card de avaliação?',
-              a: 'Você compra um card por R$ 5,00 via Pix. Com ele, você pode ser avaliado por um treinador — você convida o treinador pelo ID dele, ou ele te chama pelo seu ID. Após a avaliação, seus atributos ficam visíveis no perfil.',
+              a: 'Você compra um card por R$ 9,90 via Pix. Com ele, você pode ser avaliado por um treinador — você convida o treinador pelo ID dele, ou ele te chama pelo seu ID. Após a avaliação, seus atributos ficam visíveis no perfil.',
             },
             {
               q: 'Posso comprar mais de um card?',

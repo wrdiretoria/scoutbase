@@ -57,9 +57,12 @@ export async function generateMetadata(
   if (!user) return { title: 'Treinador | Meu Craque' }
   const meta = user.user_metadata as { nome?: string; cidade?: string; especialidade?: string }
   const nome = meta.nome ?? 'Treinador'
+  // Busca cidade/especialidade do profiles (fonte correta)
+  const { data: p } = await admin.from('profiles').select('cidade, especialidade').eq('id', id).maybeSingle()
+  const cidade = (p as Record<string,unknown> | null)?.cidade as string | null ?? meta.cidade
   return {
     title: `${nome} | Meu Craque`,
-    description: `Perfil do treinador ${nome}${meta.cidade ? ` de ${meta.cidade}` : ''}. Avaliações e atletas no Meu Craque.`,
+    description: `Perfil do treinador ${nome}${cidade ? ` de ${cidade}` : ''}. Avaliações e atletas no Meu Craque.`,
   }
 }
 
@@ -87,71 +90,81 @@ export default async function TreinadorPerfilPublico({ params }: Props) {
   // Confirma que é treinador
   if (meta.tipo !== 'treinador' && meta.tipo !== 'escola') notFound()
 
-  const nome         = meta.nome         ?? 'Treinador'
-  const cidade       = meta.cidade       ?? null
-  const especialidade = meta.especialidade ?? null
-  const avatarUrl    = meta.avatar_url   ?? null
-  const treinadorId  = meta.treinadorId  ?? null
+  // Busca dados do perfil (profiles tem prioridade sobre user_metadata)
+  const { data: profileData } = await admin
+    .from('profiles')
+    .select('cidade, especialidade, avatar_url, athlete_id, bio')
+    .eq('id', id)
+    .maybeSingle()
+  const p = profileData as Record<string, unknown> | null
 
-  // 2. Busca alunos desta escola/treinador
-  type Aluno = {
-    id:            string
-    nome:          string
-    posicao:       string | null
-    avatar_url:    string | null
-    data_nascimento: string | null
-  }
+  const nome          = meta.nome ?? 'Treinador'
+  const cidade        = (p?.cidade        as string | null) ?? meta.cidade        ?? null
+  const especialidade = (p?.especialidade as string | null) ?? meta.especialidade ?? null
+  const avatarUrl     = (p?.avatar_url    as string | null) ?? meta.avatar_url    ?? null
+  const treinadorId   = (p?.athlete_id    as string | null) ?? meta.treinadorId   ?? null
+  const bio           = (p?.bio           as string | null) ?? null
 
-  let alunos: Aluno[] = []
-  if (treinadorId) {
-    const { data } = await admin
-      .from('alunos')
-      .select('id, nome, posicao, avatar_url, data_nascimento')
-      .eq('treinador_id', treinadorId)
-      .order('nome')
-    alunos = (data ?? []) as Aluno[]
-  }
-
-  // 3. Busca avaliações feitas por este treinador (via alunos)
+  // 2. Busca avaliações feitas por este treinador no Meu Craque (professor_id = auth UUID)
+  type AvaliacaoRaw = { id: string; aluno_id: string; scout_score: number; created_at: string }
   type Avaliacao = {
-    id:         string
-    aluno_id:   string
-    nota_geral: number   // mapeado de scout_score do banco
-    created_at: string
-    aluno_nome: string
-    posicao:    string
-    avatar_url: string | null
+    id: string; aluno_id: string; nota_geral: number; created_at: string
+    aluno_nome: string; posicao: string; avatar_url: string | null
+    athlete_id: string | null
   }
 
   let avaliacoes: Avaliacao[] = []
-  if (alunos.length > 0) {
-    const alunoIds = alunos.map(a => a.id)
-    const { data } = await admin
-      .from('avaliacoes')
-      .select('id, aluno_id, scout_score, created_at')   // coluna real do banco
-      .in('aluno_id', alunoIds)
-      .not('scout_score', 'is', null)
-      .order('created_at', { ascending: false })
-      .limit(50)
+  const { data: avsRaw } = await admin
+    .from('avaliacoes')
+    .select('id, aluno_id, scout_score, created_at')
+    .eq('professor_id', id)
+    .not('scout_score', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(50)
 
-    const alunoMap = new Map(alunos.map(a => [a.id, a]))
-    avaliacoes = ((data ?? []) as { id: string; aluno_id: string; scout_score: number; created_at: string }[])
-      .map(av => {
-        const aluno = alunoMap.get(av.aluno_id)
-        return {
-          id:         av.id,
-          aluno_id:   av.aluno_id,
-          nota_geral: av.scout_score,   // normaliza pra UI
-          created_at: av.created_at,
-          aluno_nome: aluno?.nome ?? 'Atleta',
-          posicao:    aluno?.posicao ?? '',
-          avatar_url: aluno?.avatar_url ?? null,
-        }
+  if (avsRaw && avsRaw.length > 0) {
+    // Busca perfil dos atletas avaliados
+    const atletaIds = [...new Set((avsRaw as AvaliacaoRaw[]).map(a => a.aluno_id))]
+    const { data: perfis } = await admin
+      .from('profiles')
+      .select('id, athlete_id, avatar_url')
+      .in('id', atletaIds)
+
+    // Busca nomes e posição do user_metadata de cada atleta
+    const atletaMetaMap = new Map<string, { nome: string; posicao: string; avatar_url: string | null; athlete_id: string | null }>()
+    await Promise.all(
+      atletaIds.map(async (uid) => {
+        try {
+          const { data: { user: u } } = await admin.auth.admin.getUserById(uid)
+          const p = (perfis ?? []).find(x => x.id === uid)
+          atletaMetaMap.set(uid, {
+            nome:       (u?.user_metadata?.nome as string) ?? 'Atleta',
+            posicao:    (u?.user_metadata?.posicao as string) ?? '',
+            avatar_url: (p?.avatar_url as string | null) ?? null,
+            athlete_id: (p?.athlete_id as string | null) ?? null,
+          })
+        } catch { /* silencia */ }
       })
+    )
+
+    avaliacoes = (avsRaw as AvaliacaoRaw[]).map(av => {
+      const info = atletaMetaMap.get(av.aluno_id)
+      return {
+        id:         av.id,
+        aluno_id:   av.aluno_id,
+        nota_geral: av.scout_score,
+        created_at: av.created_at,
+        aluno_nome: info?.nome      ?? 'Atleta',
+        posicao:    info?.posicao   ?? '',
+        avatar_url: info?.avatar_url ?? null,
+        athlete_id: info?.athlete_id ?? null,
+      }
+    })
   }
 
-  // 4. Métricas
-  const totalAtletas    = alunos.length
+  // 3. Métricas
+  const atletasUnicos  = new Set(avaliacoes.map(a => a.aluno_id)).size
+  const totalAtletas    = atletasUnicos
   const totalAvaliacoes = avaliacoes.length
   const mediaOvr        = avaliacoes.length > 0
     ? Math.round(avaliacoes.reduce((s, a) => s + a.nota_geral, 0) / avaliacoes.length)
@@ -260,6 +273,17 @@ export default async function TreinadorPerfilPublico({ params }: Props) {
           </div>
         </div>
 
+        {/* ── Bio ── */}
+        {bio && (
+          <div style={{
+            padding: '16px 20px', borderRadius: '16px', marginBottom: '20px',
+            background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)',
+          }}>
+            <p style={{ margin: '0 0 6px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Sobre</p>
+            <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>{bio}</p>
+          </div>
+        )}
+
         {/* ── Stats ── */}
         <div
           className="tp-stats-grid"
@@ -293,106 +317,66 @@ export default async function TreinadorPerfilPublico({ params }: Props) {
         {avaliacoes.length > 0 && (
           <div style={{ marginBottom: '28px' }}>
             <h2 style={{ margin: '0 0 14px', fontSize: '16px', fontWeight: 800, letterSpacing: '-0.01em' }}>
-              Avaliações recentes
+              Atletas avaliados
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {avaliacoes.slice(0, 10).map(av => (
-                <div
-                  key={av.id}
-                  className="tp-av-card"
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '12px',
-                    padding: '12px 14px', borderRadius: '14px',
-                    background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
-                  }}
-                >
-                  {/* Avatar atleta */}
-                  <div style={{
-                    width: '40px', height: '40px', borderRadius: '50%', flexShrink: 0,
-                    background: 'linear-gradient(135deg,#1e3a5f,#3b82f6)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '13px', fontWeight: 900, overflow: 'hidden',
-                  }}>
-                    {av.avatar_url
-                      ? <img src={av.avatar_url} alt={av.aluno_nome} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      : getInitials(av.aluno_nome)}
-                  </div>
+              {avaliacoes.slice(0, 10).map(av => {
+                const card = (
+                  <div
+                    className="tp-av-card"
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '12px',
+                      padding: '12px 14px', borderRadius: '14px',
+                      background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
+                      textDecoration: 'none', color: 'inherit',
+                    }}
+                  >
+                    {/* Avatar atleta */}
+                    <div style={{
+                      width: '40px', height: '40px', borderRadius: '50%', flexShrink: 0,
+                      background: 'linear-gradient(135deg,#1e3a5f,#3b82f6)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '13px', fontWeight: 900, overflow: 'hidden',
+                    }}>
+                      {av.avatar_url
+                        ? <img src={av.avatar_url} alt={av.aluno_nome} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        : getInitials(av.aluno_nome)}
+                    </div>
 
-                  {/* Info */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ margin: '0 0 2px', fontSize: '14px', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {av.aluno_nome}
-                    </p>
-                    <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.35)' }}>
-                      {av.posicao ? `${posAbrev(av.posicao)} · ` : ''}{formatarData(av.created_at)}
-                    </p>
-                  </div>
-
-                  {/* Nota */}
-                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <p style={{ margin: '0 0 1px', fontSize: '18px', fontWeight: 900, color: notaColor(av.nota_geral), lineHeight: 1 }}>
-                      {av.nota_geral}
-                    </p>
-                    <p style={{ margin: 0, fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                      {notaLabel(av.nota_geral)}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* ── Lista de atletas ── */}
-        {alunos.length > 0 && (
-          <div style={{ marginBottom: '28px' }}>
-            <h2 style={{ margin: '0 0 14px', fontSize: '16px', fontWeight: 800, letterSpacing: '-0.01em' }}>
-              Atletas da escola ({totalAtletas})
-            </h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {alunos.slice(0, 20).map(aluno => (
-                <div
-                  key={aluno.id}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '12px',
-                    padding: '10px 14px', borderRadius: '12px',
-                    background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)',
-                  }}
-                >
-                  <div style={{
-                    width: '36px', height: '36px', borderRadius: '50%', flexShrink: 0,
-                    background: 'linear-gradient(135deg,#15803d,#4ade80)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '11px', fontWeight: 900, overflow: 'hidden',
-                  }}>
-                    {aluno.avatar_url
-                      ? <img src={aluno.avatar_url} alt={aluno.nome} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      : getInitials(aluno.nome)}
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ margin: 0, fontSize: '14px', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {aluno.nome}
-                    </p>
-                    {aluno.posicao && (
-                      <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.35)' }}>
-                        {posAbrev(aluno.posicao)}
+                    {/* Info */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ margin: '0 0 2px', fontSize: '14px', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {av.aluno_nome}
                       </p>
+                      <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.35)' }}>
+                        {av.posicao ? `${posAbrev(av.posicao)} · ` : ''}{formatarData(av.created_at)}
+                      </p>
+                    </div>
+
+                    {/* Nota */}
+                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      <p style={{ margin: '0 0 1px', fontSize: '18px', fontWeight: 900, color: notaColor(av.nota_geral), lineHeight: 1 }}>
+                        {av.nota_geral}
+                      </p>
+                      <p style={{ margin: 0, fontSize: '10px', color: 'rgba(255,255,255,0.3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        {notaLabel(av.nota_geral)}
+                      </p>
+                    </div>
+
+                    {av.athlete_id && (
+                      <span style={{ fontSize: '14px', color: 'rgba(34,197,94,0.4)', flexShrink: 0 }}>›</span>
                     )}
                   </div>
-                  <span style={{
-                    padding: '3px 9px', borderRadius: '20px', fontSize: '10px', fontWeight: 700,
-                    background: 'rgba(34,197,94,0.08)', color: 'rgba(34,197,94,0.7)',
-                    border: '1px solid rgba(34,197,94,0.15)',
-                  }}>
-                    {aluno.posicao ? posAbrev(aluno.posicao) : 'ATL'}
-                  </span>
-                </div>
-              ))}
-              {alunos.length > 20 && (
-                <p style={{ margin: '4px 0 0', fontSize: '12px', color: 'rgba(255,255,255,0.3)', textAlign: 'center' }}>
-                  + {alunos.length - 20} atletas
-                </p>
-              )}
+                )
+
+                return av.athlete_id ? (
+                  <Link key={av.id} href={`/jogador/${av.aluno_id}`} style={{ textDecoration: 'none', display: 'block' }}>
+                    {card}
+                  </Link>
+                ) : (
+                  <div key={av.id}>{card}</div>
+                )
+              })}
             </div>
           </div>
         )}

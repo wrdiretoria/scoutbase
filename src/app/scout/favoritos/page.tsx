@@ -1,21 +1,31 @@
 'use client'
 
 /**
- * /scout/favoritos — Lista de atletas salvos pelo scout.
- * Zero-schema: IDs lidos de user_metadata.favoritos.
- * Dados dos atletas buscados via /api/atleta/nomes (avatar, nome, posição).
+ * /scout/favoritos — Atletas salvos.
+ * Sem login — IDs lidos do localStorage ("mc_favoritos").
+ * Dados buscados via /api/atleta/nomes.
  */
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase'
+
+const LS_KEY = 'mc_favoritos'
 
 type AtletaInfo = {
   id:         string
   nome:       string
   posicao:    string
   avatar_url: string | null
+}
+
+function getFavoritos(): string[] {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) ?? '[]') as string[] }
+  catch { return [] }
+}
+
+function removeFavorito(atletaId: string) {
+  const ids = getFavoritos().filter(id => id !== atletaId)
+  localStorage.setItem(LS_KEY, JSON.stringify(ids))
 }
 
 function getInitials(nome: string) {
@@ -33,25 +43,14 @@ function posAbrev(pos: string): string {
 }
 
 export default function ScoutFavoritosPage() {
-  const router = useRouter()
   const [atletas,  setAtletas]  = useState<AtletaInfo[]>([])
   const [loading,  setLoading]  = useState(true)
   const [removing, setRemoving] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push('/login'); return }
-
-      if (user.user_metadata?.tipo !== 'scout') {
-        router.push('/scout/busca')
-        return
-      }
-
-      const ids: string[] = (user.user_metadata?.favoritos as string[] | null) ?? []
+      const ids = getFavoritos()
       if (ids.length === 0) { setLoading(false); return }
-
       try {
         const res = await fetch('/api/atleta/nomes', {
           method:  'POST',
@@ -70,20 +69,12 @@ export default function ScoutFavoritosPage() {
       setLoading(false)
     }
     load()
-  }, [router])
+  }, [])
 
-  async function handleRemover(atletaId: string) {
+  function handleRemover(atletaId: string) {
     setRemoving(atletaId)
-    try {
-      const res = await fetch('/api/scout/favorito', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ atletaId }),
-      })
-      if (res.ok) {
-        setAtletas(prev => prev.filter(a => a.id !== atletaId))
-      }
-    } catch { /* silencia */ }
+    removeFavorito(atletaId)
+    setAtletas(prev => prev.filter(a => a.id !== atletaId))
     setRemoving(null)
   }
 
@@ -119,30 +110,22 @@ export default function ScoutFavoritosPage() {
         <div style={{ width: '80px' }} />
       </nav>
 
-      <div style={{ maxWidth: '480px', margin: '0 auto', padding: '28px 20px', paddingBottom: '32px' }}>
+      <div style={{ maxWidth: '480px', margin: '0 auto', padding: '28px 20px 32px' }}>
 
         {loading ? (
-          // Skeleton
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {[...Array(4)].map((_, i) => (
-              <div key={i} style={{
-                height: '72px', borderRadius: '16px',
-                background: 'rgba(255,255,255,0.04)',
-                animation: 'fadeUp .3s ease forwards',
-              }} />
+            {[...Array(3)].map((_, i) => (
+              <div key={i} style={{ height: '72px', borderRadius: '16px', background: 'rgba(255,255,255,0.04)' }} />
             ))}
           </div>
         ) : atletas.length === 0 ? (
-          // Zero state
-          <div style={{
-            textAlign: 'center', padding: '60px 20px',
-          }}>
+          <div style={{ textAlign: 'center', padding: '60px 20px' }}>
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>⭐</div>
-            <h2 style={{ margin: '0 0 8px', fontSize: '20px', fontWeight: 800, color: 'white' }}>
+            <h2 style={{ margin: '0 0 8px', fontSize: '20px', fontWeight: 800 }}>
               Nenhum atleta salvo
             </h2>
             <p style={{ margin: '0 0 28px', fontSize: '14px', color: 'rgba(255,255,255,0.35)', lineHeight: 1.6 }}>
-              Explore os atletas e salve os que mais{' '}
+              Explore os atletas e toque em ☆ para salvar os que mais{' '}
               <span style={{ color: '#fbbf24', fontWeight: 600 }}>chamarem atenção.</span>
             </p>
             <Link href="/scout/busca" style={{
@@ -167,7 +150,7 @@ export default function ScoutFavoritosPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {atletas.map((a, idx) => {
                 const initials = getInitials(a.nome)
-                const pos = posAbrev(a.posicao)
+                const pos      = posAbrev(a.posicao)
                 return (
                   <div
                     key={a.id}
@@ -182,7 +165,6 @@ export default function ScoutFavoritosPage() {
                       opacity: 0,
                     }}
                   >
-                    {/* Avatar */}
                     <Link href={`/jogador/${a.id}`} style={{ textDecoration: 'none', flexShrink: 0 }}>
                       <div style={{
                         width: '48px', height: '48px', borderRadius: '50%',
@@ -194,12 +176,10 @@ export default function ScoutFavoritosPage() {
                       }}>
                         {a.avatar_url
                           ? <img src={a.avatar_url} alt={a.nome} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
-                          : initials
-                        }
+                          : initials}
                       </div>
                     </Link>
 
-                    {/* Info */}
                     <Link href={`/jogador/${a.id}`} style={{ flex: 1, textDecoration: 'none', minWidth: 0 }}>
                       <p style={{ margin: '0 0 3px', fontSize: '15px', fontWeight: 700, color: 'white', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
                         {a.nome}
@@ -222,16 +202,12 @@ export default function ScoutFavoritosPage() {
                       </div>
                     </Link>
 
-                    {/* Ações */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-                      <Link
-                        href={`/jogador/${a.id}`}
-                        style={{
-                          padding: '7px 14px', borderRadius: '10px',
-                          background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)',
-                          color: '#22c55e', fontWeight: 700, fontSize: '12px', textDecoration: 'none',
-                        }}
-                      >
+                      <Link href={`/jogador/${a.id}`} style={{
+                        padding: '7px 14px', borderRadius: '10px',
+                        background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)',
+                        color: '#22c55e', fontWeight: 700, fontSize: '12px', textDecoration: 'none',
+                      }}>
                         Ver →
                       </Link>
                       <button

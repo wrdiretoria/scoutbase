@@ -1,62 +1,52 @@
 'use client'
 
 /**
- * Botão de favorito para scouts — aparece na página pública do atleta.
- * Só funciona se o usuário logado for um scout (tipo = 'scout').
- * Zero-schema: IDs salvos em user_metadata.favoritos do scout.
+ * Botão de favorito — funciona sem login.
+ * IDs salvos em localStorage sob a chave "mc_favoritos".
  */
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase'
+
+const LS_KEY = 'mc_favoritos'
+
+function getFavoritos(): string[] {
+  if (typeof window === 'undefined') return []
+  try {
+    return JSON.parse(localStorage.getItem(LS_KEY) ?? '[]') as string[]
+  } catch { return [] }
+}
+
+function setFavoritos(ids: string[]) {
+  localStorage.setItem(LS_KEY, JSON.stringify(ids))
+}
 
 export default function FavoritoButton({ atletaId }: { atletaId: string }) {
-  const [isScout,     setIsScout]     = useState(false)
-  const [favoritado,  setFavoritado]  = useState(false)
-  const [loading,     setLoading]     = useState(true)
-  const [toggling,    setToggling]    = useState(false)
+  const [favoritado, setFavoritado] = useState(false)
+  const [mounted,    setMounted]    = useState(false)
 
   useEffect(() => {
-    async function check() {
-      const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { setLoading(false); return }
-
-      const tipo = user.user_metadata?.tipo as string | undefined
-      if (tipo !== 'scout') { setLoading(false); return }
-
-      setIsScout(true)
-
-      // Verifica se já favoritado
-      const favoritos: string[] = (user.user_metadata?.favoritos as string[] | null) ?? []
-      setFavoritado(favoritos.includes(atletaId))
-      setLoading(false)
-    }
-    check()
+    setFavoritado(getFavoritos().includes(atletaId))
+    setMounted(true)
   }, [atletaId])
 
-  async function handleToggle() {
-    if (toggling) return
-    setToggling(true)
-    try {
-      const res = await fetch('/api/scout/favorito', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ atletaId }),
-      })
-      if (res.ok) {
-        const json = await res.json() as { favoritado: boolean }
-        setFavoritado(json.favoritado)
-      }
-    } catch { /* silencia */ }
-    setToggling(false)
+  function handleToggle() {
+    const atual = getFavoritos()
+    const novo  = atual.includes(atletaId)
+      ? atual.filter(id => id !== atletaId)
+      : [...atual, atletaId]
+    setFavoritos(novo)
+    setFavoritado(novo.includes(atletaId))
   }
 
-  if (loading || !isScout) return null
+  // Evita flash de hidratação
+  if (!mounted) return (
+    <div style={{ width: '50px', height: '44px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1.5px solid rgba(255,255,255,0.08)' }} />
+  )
 
   return (
     <button
       onClick={handleToggle}
-      disabled={toggling}
+      title={favoritado ? 'Remover dos favoritos' : 'Salvar nos favoritos'}
       style={{
         display:        'flex',
         alignItems:     'center',
@@ -72,7 +62,7 @@ export default function FavoritoButton({ atletaId }: { atletaId: string }) {
         color:      favoritado ? '#fbbf24' : 'rgba(255,255,255,0.45)',
         fontWeight: 700,
         fontSize:   '13px',
-        cursor:     toggling ? 'wait' : 'pointer',
+        cursor:     'pointer',
         transition: 'all .2s',
         flexShrink: 0,
         fontFamily: 'system-ui, sans-serif',
@@ -82,9 +72,6 @@ export default function FavoritoButton({ atletaId }: { atletaId: string }) {
     >
       <span style={{ fontSize: '16px', lineHeight: 1 }}>
         {favoritado ? '⭐' : '☆'}
-      </span>
-      <span style={{ display: 'none' }}>
-        {favoritado ? 'Salvo' : 'Salvar'}
       </span>
     </button>
   )
