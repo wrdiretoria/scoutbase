@@ -182,18 +182,16 @@ export async function POST(req: NextRequest) {
   const tec_val   = to10('pf_tecnico')
 
   // ── Salva avaliação ──
-  const respostasComVariante = { ...respostas, variante }
-
   const { error: dbError } = await admin.from('avaliacoes').insert({
     professor_id:    user.id,
     aluno_id:        profileId,
-    // Colunas agrupadas legado
+    // Colunas agrupadas
     tecnico:         tecnica_val,
     fisico:          fisico_val,
     tatico:          tatico_val,
     comportamento:   comport_val,
     scout_score,
-    // Colunas individuais legado
+    // Colunas individuais
     velocidade:      vel_val,
     forca:           forca_val,
     finalizacao:     fin_val,
@@ -201,8 +199,6 @@ export async function POST(req: NextRequest) {
     posicionamento:  posic_val,
     tecnica:         tec_val,
     observacao:      observacao?.trim() || null,
-    // Nova coluna JSONB com todas as 20 respostas + variante
-    respostas:       respostasComVariante,
   })
 
   if (dbError) {

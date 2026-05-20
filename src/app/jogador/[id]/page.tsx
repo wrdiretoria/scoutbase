@@ -276,7 +276,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
     finalizacao: number; posicionamento: number; tecnica: number
     scout_score: number; observacao: string | null; professor_id: string
     created_at: string
-    respostas: (Record<string, number> & { variante?: string }) | null
+    respostas?: (Record<string, number> & { variante?: string }) | null
   }
 
   type HighlightPublico = {
@@ -291,7 +291,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
     (async () => {
       try {
         const r = await admin.from('avaliacoes')
-          .select('velocidade, visao_jogo, forca, finalizacao, posicionamento, tecnica, scout_score, observacao, professor_id, created_at, respostas')
+          .select('velocidade, visao_jogo, forca, finalizacao, posicionamento, tecnica, scout_score, observacao, professor_id, created_at')
           .eq('aluno_id', id)
           .order('created_at', { ascending: false })
           .limit(1)
