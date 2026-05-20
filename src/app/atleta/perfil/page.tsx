@@ -907,11 +907,21 @@ function AtletaPerfilContent() {
         }}>
           {/* Banner + foto */}
           <div style={{
-            background:'linear-gradient(160deg,#15803d 0%,#064e1e 100%)',
+            background: avatarUrl
+              ? `url(${avatarUrl}) center 15% / cover no-repeat`
+              : 'linear-gradient(160deg,#15803d 0%,#064e1e 100%)',
             padding:'20px 20px 0',
             display:'flex', alignItems:'flex-end', gap:'16px',
             minHeight:'100px', position:'relative',
           }}>
+            {/* escurece a foto pra texto ficar legível */}
+            {avatarUrl && (
+              <div style={{
+                position:'absolute', inset:0,
+                background:'linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.15) 60%, rgba(11,22,16,0.85) 100%)',
+                pointerEvents:'none',
+              }} />
+            )}
             {categoria && (
               <div style={{
                 position:'absolute', top:'12px', right:'14px',
@@ -1103,7 +1113,7 @@ function AtletaPerfilContent() {
                 Seu ID de Atleta
               </p>
               <p style={{ margin:0, fontSize:'26px', fontWeight:900, color:'#00FF88', letterSpacing:'0.06em', lineHeight:1 }}>
-                {athleteId}
+                {athleteId.replace('MC-', '')}
               </p>
             </div>
             <div style={{ textAlign:'right' }}>
