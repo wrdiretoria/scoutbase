@@ -48,21 +48,30 @@ function formatarData(dateStr: string) {
 
 // ── Metadata ─────────────────────────────────────────────────────────────────
 
+// UUID v4 básico — evita 500 ao receber slugs como "entrar" ou "configurar"
+function isUuid(s: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s)
+}
+
 export async function generateMetadata(
   { params }: { params: Promise<{ id: string }> }
 ): Promise<Metadata> {
   const { id } = await params
-  const admin = createAdminClient()
-  const { data: { user } } = await admin.auth.admin.getUserById(id)
-  if (!user) return { title: 'Treinador | Meu Craque' }
-  const meta = user.user_metadata as { nome?: string; cidade?: string; especialidade?: string }
-  const nome = meta.nome ?? 'Treinador'
-  // Busca cidade/especialidade do profiles (fonte correta)
-  const { data: p } = await admin.from('profiles').select('cidade, especialidade').eq('id', id).maybeSingle()
-  const cidade = (p as Record<string,unknown> | null)?.cidade as string | null ?? meta.cidade
-  return {
-    title: `${nome} | Meu Craque`,
-    description: `Perfil do treinador ${nome}${cidade ? ` de ${cidade}` : ''}. Avaliações e atletas no Meu Craque.`,
+  if (!isUuid(id)) return { title: 'Treinador | Meu Craque' }
+  try {
+    const admin = createAdminClient()
+    const { data: { user } } = await admin.auth.admin.getUserById(id)
+    if (!user) return { title: 'Treinador | Meu Craque' }
+    const meta = user.user_metadata as { nome?: string; cidade?: string }
+    const nome = meta.nome ?? 'Treinador'
+    const { data: p } = await admin.from('profiles').select('cidade').eq('id', id).maybeSingle()
+    const cidade = (p as Record<string,unknown> | null)?.cidade as string | null ?? meta.cidade
+    return {
+      title: `${nome} | Meu Craque`,
+      description: `Perfil do treinador ${nome}${cidade ? ` de ${cidade}` : ''}. Avaliações e atletas no Meu Craque.`,
+    }
+  } catch {
+    return { title: 'Treinador | Meu Craque' }
   }
 }
 
@@ -72,11 +81,21 @@ type Props = { params: Promise<{ id: string }> }
 
 export default async function TreinadorPerfilPublico({ params }: Props) {
   const { id } = await params
+
+  // Evita 500 para slugs inválidos como /treinador/entrar
+  if (!isUuid(id)) notFound()
+
   const admin = createAdminClient()
 
   // 1. Busca dados do treinador
-  const { data: { user }, error: userErr } = await admin.auth.admin.getUserById(id)
-  if (userErr || !user) notFound()
+  let user: Awaited<ReturnType<typeof admin.auth.admin.getUserById>>['data']['user']
+  try {
+    const res = await admin.auth.admin.getUserById(id)
+    if (res.error || !res.data.user) notFound()
+    user = res.data.user
+  } catch {
+    notFound()
+  }
 
   const meta = user.user_metadata as {
     nome?:         string

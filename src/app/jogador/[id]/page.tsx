@@ -16,10 +16,16 @@ import VisitTracker from './VisitTracker'
 import CopiarLink from './CopiarLink'
 import FavoritoButton from './FavoritoButton'
 
+function isUuid(s: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s)
+}
+
 type Props = { params: Promise<{ id: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params
+  if (!isUuid(id)) return { title: 'Atleta — Meu Craque' }
+  try {
   const admin = createAdminClient()
   const { data: { user } } = await admin.auth.admin.getUserById(id)
   const meta = user?.user_metadata as { nome?: string; posicao?: string; cidade?: string; tipo?: string } | undefined
@@ -51,6 +57,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     alternates: {
       canonical: `/jogador/${id}`,
     },
+  }
+  } catch {
+    return { title: 'Atleta — Meu Craque' }
   }
 }
 
@@ -224,10 +233,19 @@ function AvaliacaoPublicaDetalhada({ respostas }: { respostas: Record<string, nu
 
 export default async function JogadorPublicoPage({ params }: Props) {
   const { id } = await params
+
+  if (!isUuid(id)) notFound()
+
   const admin = createAdminClient()
 
-  const { data: { user }, error } = await admin.auth.admin.getUserById(id)
-  if (error || !user) notFound()
+  let user: Awaited<ReturnType<typeof admin.auth.admin.getUserById>>['data']['user']
+  try {
+    const res = await admin.auth.admin.getUserById(id)
+    if (res.error || !res.data.user) notFound()
+    user = res.data.user
+  } catch {
+    notFound()
+  }
 
   const meta = user.user_metadata as {
     nome?: string; posicao?: string; cidade?: string; tipo?: string
