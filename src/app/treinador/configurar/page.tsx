@@ -70,13 +70,21 @@ export default function TreinadorConfigurarPage() {
       setUserId(user.id)
       setNome(user.user_metadata?.nome ?? 'Treinador')
 
-      // Busca o TR-XXXXX do banco
+      // Busca dados existentes do banco para pré-popular o formulário
       const { data: profile } = await supabase
         .from('profiles')
-        .select('athlete_id')
+        .select('athlete_id, bio, especialidade, cidade, avatar_url')
         .eq('id', user.id)
         .maybeSingle()
-      if (profile?.athlete_id) setTreinadorId(profile.athlete_id as string)
+
+      if (profile) {
+        const p = profile as Record<string, unknown>
+        if (p.athlete_id)   setTreinadorId(p.athlete_id as string)
+        if (p.bio)          setBio(p.bio as string)
+        if (p.especialidade) setEspec(p.especialidade as string)
+        if (p.cidade)       setCidade(p.cidade as string)
+        if (p.avatar_url)   setSavedAvatarUrl(p.avatar_url as string)
+      }
 
       setAuthReady(true)
     }
@@ -93,16 +101,13 @@ export default function TreinadorConfigurarPage() {
   }
 
   async function uploadFoto(): Promise<string | null> {
-    if (!fotoFile || !userId) return null
-    const supabase = createClient()
-    const ext  = fotoFile.name.split('.').pop() ?? 'jpg'
-    const path = `treinador-${userId}.${ext}`
-    const { error } = await supabase.storage
-      .from('avatars')
-      .upload(path, fotoFile, { upsert: true, contentType: fotoFile.type })
-    if (error) { console.error('upload foto', error); return null }
-    const { data } = supabase.storage.from('avatars').getPublicUrl(path)
-    return data.publicUrl
+    if (!fotoFile) return null
+    const fd = new FormData()
+    fd.append('file', fotoFile)
+    const res = await fetch('/api/atleta/upload-foto', { method: 'POST', body: fd })
+    if (!res.ok) return null
+    const json = await res.json() as { url?: string }
+    return json.url ?? null
   }
 
   async function handleConcluir() {
@@ -243,48 +248,41 @@ export default function TreinadorConfigurarPage() {
               Treinadores com foto recebem <strong style={{ color: 'rgba(251,191,36,.7)' }}>3× mais avaliações</strong>.
             </p>
 
-            {/* Upload area */}
-            <div
-              onClick={() => fileRef.current?.click()}
-              style={{
-                width: '160px', height: '160px', borderRadius: '50%', margin: '0 auto 28px',
-                border: fotoPreview ? '3px solid rgba(251,191,36,.6)' : '2px dashed rgba(255,255,255,.18)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer', overflow: 'hidden', position: 'relative',
-                background: fotoPreview ? 'transparent' : 'rgba(255,255,255,.03)',
-                boxShadow: fotoPreview ? '0 0 40px rgba(251,191,36,.25)' : 'none',
-                transition: 'border-color .2s, box-shadow .3s',
-              }}
-            >
-              {fotoPreview ? (
-                <img src={fotoPreview} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            {/* Upload area — label nativo garante abertura em iOS/Android */}
+            <label htmlFor="cfg-foto-input" style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: '160px', height: '160px', borderRadius: '50%', margin: '0 auto 28px',
+              border: (fotoPreview || savedAvatarUrl) ? '3px solid rgba(251,191,36,.6)' : '2px dashed rgba(255,255,255,.18)',
+              cursor: 'pointer', overflow: 'hidden', position: 'relative',
+              background: (fotoPreview || savedAvatarUrl) ? 'transparent' : 'rgba(255,255,255,.03)',
+              boxShadow: (fotoPreview || savedAvatarUrl) ? '0 0 40px rgba(251,191,36,.25)' : 'none',
+              transition: 'border-color .2s, box-shadow .3s',
+            }}>
+              <input
+                id="cfg-foto-input"
+                ref={fileRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/gif"
+                style={{ position: 'absolute', width: '1px', height: '1px', opacity: 0, pointerEvents: 'none' }}
+                onChange={handleFotoChange}
+              />
+              {(fotoPreview || savedAvatarUrl) ? (
+                <img
+                  src={fotoPreview ?? savedAvatarUrl ?? ''}
+                  alt="preview"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
               ) : (
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: '36px', marginBottom: '8px' }}>📸</div>
                   <span style={{ fontSize: '12px', color: 'rgba(255,255,255,.3)', fontWeight: 600 }}>Toque para adicionar</span>
                 </div>
               )}
-
-              {/* Hover overlay */}
-              {fotoPreview && (
-                <div style={{
-                  position: 'absolute', inset: 0, background: 'rgba(0,0,0,.45)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  opacity: 0, transition: 'opacity .2s',
-                }}
-                  onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
-                  onMouseLeave={e => (e.currentTarget.style.opacity = '0')}
-                >
-                  <span style={{ fontSize: '24px' }}>✏️</span>
-                </div>
-              )}
-            </div>
-
-            <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFotoChange} />
+            </label>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <button className="btn-primary" onClick={() => setStep('identidade')}>
-                {fotoPreview ? 'Continuar →' : 'Pular por agora →'}
+                {(fotoPreview || savedAvatarUrl) ? 'Continuar →' : 'Pular por agora →'}
               </button>
             </div>
           </div>
