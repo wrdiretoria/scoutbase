@@ -428,10 +428,13 @@ export default async function JogadorPublicoPage({ params }: Props) {
             }}>
               <div style={{
                 background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                borderRadius: '8px', padding: '4px 10px',
-                fontSize: '10px', fontWeight: 800, color: 'white', letterSpacing: '0.08em',
-              }}>{pos}</div>
+                border: '1px solid rgba(34,197,94,0.3)',
+                borderRadius: '8px', padding: '6px 12px',
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+              }}>
+                <span style={{ fontSize: '8px', fontWeight: 800, color: 'rgba(0,255,136,0.7)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>OVR</span>
+                <span style={{ fontSize: '22px', fontWeight: 900, color: 'white', lineHeight: 1, letterSpacing: '-0.03em' }}>{ovr ?? '—'}</span>
+              </div>
               {categoria
                 ? <div style={{
                     background: 'rgba(34,197,94,0.18)', border: '1px solid rgba(34,197,94,0.35)',
@@ -442,15 +445,6 @@ export default async function JogadorPublicoPage({ params }: Props) {
               }
             </div>
 
-            {/* OVR */}
-            <div className="pub-ovr" style={{ textAlign: 'center', marginTop: '12px' }}>
-              <div style={{ fontSize: '76px', fontWeight: 900, color: ovr ? 'white' : 'rgba(255,255,255,0.18)', lineHeight: 1, letterSpacing: '-0.05em' }}>
-                {ovr ?? '—'}
-              </div>
-              <div style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', marginTop: '4px' }}>
-                {ovr ? 'Overall' : 'Sem avaliação'}
-              </div>
-            </div>
           </div>
 
           {/* Avatar */}
