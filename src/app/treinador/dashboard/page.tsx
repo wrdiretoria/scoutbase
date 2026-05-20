@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
@@ -80,7 +80,7 @@ function useCounter(target: number, duration = 1000): number {
 
 // ── Trainer Card ──────────────────────────────────────────────────────────────
 
-function TrainerCard({ perfil, av, at, dest }: { perfil: Perfil; av: number; at: number; dest: number; }) {
+function TrainerCard({ perfil, av, at, dest, uploadingFoto }: { perfil: Perfil; av: number; at: number; dest: number; uploadingFoto?: boolean }) {
   const initials = getInitials(perfil.nome)
   const firstName = perfil.nome.split(' ')[0]
   const lastName  = perfil.nome.split(' ').slice(1).join(' ')
@@ -148,16 +148,17 @@ function TrainerCard({ perfil, av, at, dest }: { perfil: Perfil; av: number; at:
             </div>
           </div>
 
-          {/* Photo */}
+          {/* Photo — label nativo abre o seletor em qualquer browser/mobile */}
           <div style={{ padding: '18px 20px 0', display: 'flex', justifyContent: 'center' }}>
-            <div style={{
+            <label htmlFor="treinador-foto-input" style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
               width: '110px', height: '110px', borderRadius: '50%',
               background: perfil.avatar_url ? 'transparent' : 'linear-gradient(135deg, #78350f 0%, #d97706 50%, #fbbf24 100%)',
               border: '3px solid rgba(251,191,36,0.55)',
               boxShadow: '0 0 0 6px rgba(251,191,36,0.06), 0 20px 40px rgba(0,0,0,0.6)',
               overflow: 'hidden',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
               position: 'relative',
+              cursor: uploadingFoto ? 'wait' : 'pointer',
             }}>
               {perfil.avatar_url
                 ? <img src={perfil.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -168,7 +169,16 @@ function TrainerCard({ perfil, av, at, dest }: { perfil: Perfil; av: number; at:
                   </div>
                 )
               }
-            </div>
+              {/* overlay câmera */}
+              <div style={{
+                position: 'absolute', inset: 0, borderRadius: '50%',
+                background: uploadingFoto ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.28)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'background 0.2s',
+              }}>
+                <span style={{ fontSize: '22px' }}>{uploadingFoto ? '⏳' : '📷'}</span>
+              </div>
+            </label>
           </div>
 
           {/* Name */}
@@ -267,6 +277,25 @@ export default function TreinadorDashboardPage() {
   const [recentes,      setRecentes]      = useState<AvaliacaoRecente[]>([])
   const [loading,       setLoading]       = useState(true)
   const [solicitacoes,  setSolicitacoes]  = useState<{ atletaId: string; atletaNome: string; atletaMcId: string; ts: string }[]>([])
+  const [uploadingFoto, setUploadingFoto] = useState(false)
+  const fotoInputRef = useRef<HTMLInputElement>(null)
+
+  async function handleFotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingFoto(true)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      const res = await fetch('/api/atleta/upload-foto', { method: 'POST', body: fd })
+      const json = await res.json() as { ok?: boolean; url?: string; error?: string }
+      if (!res.ok || !json.url) { alert(json.error ?? 'Erro ao enviar foto.'); return }
+      setPerfil(prev => prev ? { ...prev, avatar_url: json.url } : prev)
+    } finally {
+      setUploadingFoto(false)
+      if (fotoInputRef.current) fotoInputRef.current.value = ''
+    }
+  }
 
   useEffect(() => {
     async function load() {
@@ -490,7 +519,17 @@ export default function TreinadorDashboardPage() {
 
         {/* ── THE CARD ── */}
         <div className="a3" style={{ marginBottom: '32px' }}>
-          <TrainerCard perfil={perfil} av={animAv} at={animAt} dest={animDest} />
+          {/* Input oculto para foto — label no TrainerCard aponta para este id */}
+          <input
+            id="treinador-foto-input"
+            ref={fotoInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            disabled={uploadingFoto}
+            style={{ position: 'absolute', width: '1px', height: '1px', opacity: 0, pointerEvents: 'none' }}
+            onChange={handleFotoChange}
+          />
+          <TrainerCard perfil={perfil} av={animAv} at={animAt} dest={animDest} uploadingFoto={uploadingFoto} />
         </div>
 
         {/* ── Compartilhar card ── */}
