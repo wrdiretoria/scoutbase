@@ -34,8 +34,8 @@ export async function POST(req: NextRequest) {
 
     const mcId = treinadorMcId.trim().toUpperCase()
 
-    // Busca o treinador pelo athlete_id na tabela profiles
-    const { data: treinadorProfile } = await supabase
+    // Busca o treinador pelo athlete_id na tabela profiles (admin bypassa RLS)
+    const { data: treinadorProfile } = await admin
       .from('profiles')
       .select('id, nome')
       .eq('athlete_id', mcId)
