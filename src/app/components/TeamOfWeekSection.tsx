@@ -114,32 +114,56 @@ export default async function TeamOfWeekSection() {
     <section style={{ padding: '80px 20px', background: '#030905' }}>
       <style>{`
         .tow-card {
-          background: linear-gradient(168deg,#0b1c10 0%,#06100a 60%,#040c07 100%);
           border-radius: 20px;
-          padding: 28px 22px 22px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
           cursor: pointer;
-          transition: transform .25s, box-shadow .25s;
+          transition: transform .28s ease, box-shadow .28s ease;
           text-decoration: none;
           position: relative;
           overflow: hidden;
+          display: block;
         }
-        .tow-card:hover { transform: translateY(-6px); }
+        .tow-card:hover { transform: translateY(-6px) scale(1.01); }
+
+        /* foto / bg ocupa o card inteiro */
+        .tow-card-bg {
+          position: absolute; inset: 0;
+          background-size: cover;
+          background-position: center top;
+          transition: transform .4s ease;
+        }
+        .tow-card:hover .tow-card-bg { transform: scale(1.04); }
+
+        /* gradiente sobre a foto para legibilidade */
+        .tow-card-overlay {
+          position: absolute; inset: 0;
+          background: linear-gradient(
+            to top,
+            rgba(0,0,0,0.92) 0%,
+            rgba(0,0,0,0.55) 40%,
+            rgba(0,0,0,0.12) 70%,
+            transparent 100%
+          );
+        }
+
+        /* conteúdo fica na frente */
+        .tow-card-content {
+          position: relative; z-index: 2;
+          display: flex; flex-direction: column;
+          height: 100%;
+          padding: 16px 18px 20px;
+          justify-content: space-between;
+        }
+
         .tow-grid {
           display: grid;
-          grid-template-columns: 1fr 1.12fr 1fr;
-          gap: 16px;
-          max-width: 860px;
+          grid-template-columns: 1fr 1.14fr 1fr;
+          gap: 14px;
+          max-width: 900px;
           margin: 0 auto;
           align-items: end;
         }
         @media (max-width: 640px) {
-          .tow-grid {
-            grid-template-columns: 1fr !important;
-            align-items: stretch !important;
-          }
+          .tow-grid { grid-template-columns: 1fr !important; align-items: stretch !important; }
         }
       `}</style>
 
@@ -161,6 +185,7 @@ export default async function TeamOfWeekSection() {
           const rank = RANKS[ri] ?? RANKS[0]
           const initials = getInitials(atleta.nome)
           const pos = posAbrev(atleta.posicao)
+          const cardH = rank.featured ? '420px' : '360px'
 
           return (
             <Link
@@ -168,71 +193,98 @@ export default async function TeamOfWeekSection() {
               href={`/jogador/${atleta.id}`}
               className="tow-card"
               style={{
-                background: rank.cardBg,
+                height: cardH,
                 border: `1px solid ${rank.borderColor}`,
                 boxShadow: rank.boxShadow,
               }}
             >
-              {/* Top line */}
-              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: rank.topLine, borderRadius: '20px 20px 0 0' }} />
+              {/* Foto de fundo ou gradiente fallback */}
+              <div
+                className="tow-card-bg"
+                style={{
+                  backgroundImage: atleta.avatarUrl
+                    ? `url(${atleta.avatarUrl})`
+                    : rank.avatarGrad,
+                  background: atleta.avatarUrl ? undefined : rank.avatarGrad,
+                }}
+              />
 
-              {/* Badge */}
-              <div style={{
-                background: rank.badgeBg, border: `1px solid ${rank.badgeText}33`,
-                borderRadius: '20px', padding: '4px 12px', marginBottom: '16px',
-                fontSize: '9px', fontWeight: 800, letterSpacing: '0.12em',
-                color: rank.badgeText, textTransform: 'uppercase',
-              }}>
-                {rank.label}
+              {/* Overlay escuro */}
+              <div className="tow-card-overlay" style={{
+                background: `linear-gradient(to top, rgba(0,0,0,0.94) 0%, rgba(0,0,0,0.50) 45%, rgba(0,0,0,0.08) 75%, transparent 100%)`,
+              }} />
+
+              {/* Se não tem foto: iniciais centralizadas */}
+              {!atleta.avatarUrl && (
+                <div style={{
+                  position: 'absolute', inset: 0, zIndex: 1,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <div style={{
+                    width: rank.featured ? '90px' : '76px',
+                    height: rank.featured ? '90px' : '76px',
+                    borderRadius: '50%',
+                    background: 'rgba(0,0,0,0.35)',
+                    border: `2px solid ${rank.borderColor}`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: rank.featured ? '26px' : '22px', fontWeight: 900, color: 'white',
+                    marginBottom: '80px',
+                  }}>
+                    {initials}
+                  </div>
+                </div>
+              )}
+
+              <div className="tow-card-content">
+                {/* Topo: badge */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div style={{
+                    background: rank.badgeBg,
+                    border: `1px solid ${rank.badgeText}44`,
+                    backdropFilter: 'blur(8px)',
+                    borderRadius: '20px', padding: '4px 12px',
+                    fontSize: '9px', fontWeight: 800, letterSpacing: '0.12em',
+                    color: rank.badgeText, textTransform: 'uppercase',
+                  }}>
+                    {rank.label}
+                  </div>
+                  {/* OVR badge topo direito */}
+                  <div style={{
+                    background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(8px)',
+                    border: `1px solid ${rank.badgeText}44`,
+                    borderRadius: '10px', padding: '4px 10px',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center',
+                  }}>
+                    <span style={{ fontSize: '8px', fontWeight: 800, color: rank.badgeText, letterSpacing: '0.1em' }}>OVR</span>
+                    <span style={{ fontSize: rank.featured ? '22px' : '18px', fontWeight: 900, color: rank.badgeText, lineHeight: 1, textShadow: `0 0 20px ${rank.badgeText}88` }}>
+                      {atleta.ovr}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Base: nome, posição, cidade, botão */}
+                <div>
+                  <div style={{ fontSize: rank.featured ? '16px' : '14px', fontWeight: 900, color: 'white', marginBottom: '2px', letterSpacing: '-0.01em' }}>
+                    {atleta.nome}
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.50)', marginBottom: '12px' }}>
+                    {pos}{atleta.cidade ? ` · ${atleta.cidade.split(',')[0]}` : ''}
+                  </div>
+                  <div style={{
+                    display: 'inline-flex', alignItems: 'center',
+                    padding: '7px 16px', borderRadius: '10px',
+                    background: `${rank.badgeText}18`,
+                    border: `1px solid ${rank.badgeText}44`,
+                    backdropFilter: 'blur(8px)',
+                    fontSize: '11px', fontWeight: 700, color: rank.badgeText,
+                  }}>
+                    Ver perfil →
+                  </div>
+                </div>
               </div>
 
-              {/* Avatar */}
-              <div style={{
-                width: rank.featured ? '80px' : '68px',
-                height: rank.featured ? '80px' : '68px',
-                borderRadius: '50%',
-                background: atleta.avatarUrl ? 'transparent' : rank.avatarGrad,
-                border: `2px solid ${rank.borderColor}`,
-                boxShadow: `0 0 24px ${rank.badgeText}33`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: rank.featured ? '22px' : '18px', fontWeight: 900, color: 'white',
-                overflow: 'hidden', marginBottom: '14px', flexShrink: 0,
-              }}>
-                {atleta.avatarUrl
-                  ? <img src={atleta.avatarUrl} alt={atleta.nome} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  : initials}
-              </div>
-
-              {/* OVR */}
-              <div style={{
-                fontSize: rank.featured ? '52px' : '44px',
-                fontWeight: 900, color: rank.badgeText,
-                lineHeight: 1, letterSpacing: '-0.04em',
-                textShadow: `0 0 30px ${rank.badgeText}66`,
-                marginBottom: '4px',
-              }}>
-                {atleta.ovr}
-              </div>
-              <div style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.16em', color: 'rgba(255,255,255,0.28)', textTransform: 'uppercase', marginBottom: '12px' }}>
-                OVERALL
-              </div>
-
-              {/* Nome e posição */}
-              <div style={{ fontSize: '15px', fontWeight: 800, color: 'white', marginBottom: '4px', textAlign: 'center' }}>
-                {atleta.nome}
-              </div>
-              <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.38)' }}>
-                {pos}{atleta.cidade ? ` · ${atleta.cidade}` : ''}
-              </div>
-
-              {/* Ver perfil */}
-              <div style={{
-                marginTop: '16px', padding: '8px 20px', borderRadius: '10px',
-                background: `${rank.badgeText}18`, border: `1px solid ${rank.badgeText}33`,
-                fontSize: '11px', fontWeight: 700, color: rank.badgeText,
-              }}>
-                Ver perfil →
-              </div>
+              {/* Top accent line */}
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '3px', background: rank.topLine, borderRadius: '20px 20px 0 0', zIndex: 3 }} />
             </Link>
           )
         })}
