@@ -60,9 +60,9 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${bebasNeue.variable} ${dmSans.variable} h-full antialiased`}
+      className={`${bebasNeue.variable} ${dmSans.variable} antialiased`}
     >
-      <body className="min-h-full flex flex-col font-[family-name:var(--font-dm-sans)]">
+      <body className="font-[family-name:var(--font-dm-sans)]">
         {children}
       </body>
     </html>
