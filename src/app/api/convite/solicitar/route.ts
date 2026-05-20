@@ -34,6 +34,9 @@ export async function POST(req: NextRequest) {
 
     const mcId = treinadorMcId.trim().toUpperCase()
 
+    // Admin declarado aqui para bypasser RLS em todas as queries seguintes
+    const admin = createAdminClient()
+
     // Busca o treinador pelo athlete_id na tabela profiles (admin bypassa RLS)
     const { data: treinadorProfile } = await admin
       .from('profiles')
@@ -48,7 +51,6 @@ export async function POST(req: NextRequest) {
     const treinadorId = treinadorProfile.id as string
 
     // Verifica se o treinador existe e é de fato um treinador
-    const admin = createAdminClient()
     const { data: { user: treinadorUser } } = await admin.auth.admin.getUserById(treinadorId)
     if (!treinadorUser || treinadorUser.user_metadata?.tipo !== 'treinador') {
       return NextResponse.json({ error: 'ID não pertence a um treinador.' }, { status: 404 })
