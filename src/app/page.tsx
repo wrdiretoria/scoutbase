@@ -683,6 +683,9 @@ export default function LandingPage() {
         {/* HUD decorativo — removido (substituído pelo HeroFeed) */}
       </section>
 
+      {/* ══════════════════════════════════════ BILLBOARD ══ */}
+      <PhotoBillboard />
+
       {/* ══════════════════════════════════════ ACTIVITY TICKER ══ */}
       <ActivityTicker />
 
@@ -930,9 +933,6 @@ export default function LandingPage() {
 
       {/* ══════════════════════════════════════ PROSPECTS ══ */}
       <ProspectsSection />
-
-      {/* ══════════════════════════════════════ BILLBOARD ══ */}
-      <PhotoBillboard />
 
       {/* ══════════════════════════════════════ STATS ══ */}
       <StatsBar />
