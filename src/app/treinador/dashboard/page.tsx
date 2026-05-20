@@ -358,7 +358,7 @@ export default function TreinadorDashboardPage() {
   if (loading) {
     return (
       <main style={{ background: '#080400', minHeight: '100dvh', fontFamily: 'system-ui, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <style>{`.skel{background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%);background-size:200% 100%;animation:skelShimmer 1.4s infinite}.@keyframes skelShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}`}</style>
+        <style>{`.skel{background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%);background-size:200% 100%;animation:skelShimmer 1.4s infinite}@keyframes skelShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}`}</style>
         <div style={{ width: '260px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
           <div className="skel" style={{ width: '260px', height: '420px', borderRadius: '22px' }} />
           <div className="skel" style={{ width: '100%', height: '64px', borderRadius: '18px' }} />

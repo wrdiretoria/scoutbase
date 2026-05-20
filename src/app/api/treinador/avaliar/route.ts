@@ -68,12 +68,24 @@ export async function POST(req: NextRequest) {
   // ── Verifica e decrementa card do atleta ──
   const { data: { user: atletaUser } } = await admin.auth.admin.getUserById(profileId)
   const cardsDisponiveis = (atletaUser?.user_metadata?.cards_disponiveis as number) ?? 0
-  if (cardsDisponiveis <= 0) {
+
+  // Primeira avaliação é gratuita — verifica se nunca foi avaliado antes
+  const { count: avaliacoesAnteriores } = await admin
+    .from('avaliacoes')
+    .select('*', { count: 'exact', head: true })
+    .eq('aluno_id', profileId)
+  const primeiraAvaliacao = (avaliacoesAnteriores ?? 0) === 0
+
+  if (!primeiraAvaliacao && cardsDisponiveis <= 0) {
     return NextResponse.json({ error: 'Atleta não possui card de avaliação disponível.' }, { status: 403 })
   }
-  await admin.auth.admin.updateUserById(profileId, {
-    user_metadata: { cards_disponiveis: cardsDisponiveis - 1 },
-  })
+
+  // Só decrementa card se não for a primeira avaliação (a primeira é grátis)
+  if (!primeiraAvaliacao && cardsDisponiveis > 0) {
+    await admin.auth.admin.updateUserById(profileId, {
+      user_metadata: { cards_disponiveis: cardsDisponiveis - 1 },
+    })
+  }
 
   // ── Colunas legado (mantém compat com queries antigas) ──
   // Mapeia as novas notas (1-5) para a escala de 1-10 usada pelas colunas legadas
