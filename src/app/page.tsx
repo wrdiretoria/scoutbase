@@ -427,7 +427,7 @@ export default function LandingPage() {
               fontSize:'9.5px', fontWeight:700, color:'rgba(0,255,136,0.88)', letterSpacing:'0.20em',
             }}>
               <span className="live-dot" />
-              AO VIVO — PLATAFORMA ATIVA
+              VOCÊ AO VIVO PARA O MUNDO DO FUTEBOL
             </span>
 
             {/* Accent rule — mobile only */}
