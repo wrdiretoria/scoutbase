@@ -1594,32 +1594,48 @@ function AtletaPerfilContent() {
               Sua carreira continua
             </p>
             <div style={{ display:'flex', flexDirection:'column', gap:'8px' }}>
-              {passosPrioritarios.map((s, i) => (
-                <Link key={i} href={s.href} className="passo-item" style={{
+              {passosPrioritarios.map((s, i) => {
+                const cardStyle: React.CSSProperties = {
                   background: i === 0 ? 'rgba(0,255,136,0.04)' : 'rgba(255,255,255,0.02)',
                   border:     i === 0 ? '1px solid rgba(0,255,136,0.15)' : '1px solid rgba(255,255,255,0.07)',
                   textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '14px',
                   padding: '14px 16px', borderRadius: '14px', cursor: 'pointer',
-                }}>
-                  <div style={{
-                    width:'40px', height:'40px', borderRadius:'12px', flexShrink:0,
-                    background: i === 0 ? 'rgba(0,255,136,0.1)'   : 'rgba(255,255,255,0.04)',
-                    border:     i === 0 ? '1px solid rgba(0,255,136,0.22)' : '1px solid rgba(255,255,255,0.08)',
-                    display:'flex', alignItems:'center', justifyContent:'center', fontSize:'18px',
-                  }}>
-                    {s.icon}
-                  </div>
-                  <div style={{ flex:1 }}>
-                    <p style={{ margin:'0 0 2px', fontSize:'13px', fontWeight: i === 0 ? 700 : 600, color: i === 0 ? 'white' : 'rgba(255,255,255,0.5)' }}>
-                      {s.titulo}
-                    </p>
-                    <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.28)', lineHeight:1.45 }}>
-                      {s.sub}
-                    </p>
-                  </div>
-                  <span style={{ fontSize:'16px', color:'rgba(0,255,136,0.5)', flexShrink:0 }}>›</span>
-                </Link>
-              ))}
+                }
+                const inner = (
+                  <>
+                    <div style={{
+                      width:'40px', height:'40px', borderRadius:'12px', flexShrink:0,
+                      background: i === 0 ? 'rgba(0,255,136,0.1)'   : 'rgba(255,255,255,0.04)',
+                      border:     i === 0 ? '1px solid rgba(0,255,136,0.22)' : '1px solid rgba(255,255,255,0.08)',
+                      display:'flex', alignItems:'center', justifyContent:'center', fontSize:'18px',
+                    }}>
+                      {s.icon}
+                    </div>
+                    <div style={{ flex:1 }}>
+                      <p style={{ margin:'0 0 2px', fontSize:'13px', fontWeight: i === 0 ? 700 : 600, color: i === 0 ? 'white' : 'rgba(255,255,255,0.5)' }}>
+                        {s.titulo}
+                      </p>
+                      <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.28)', lineHeight:1.45 }}>
+                        {s.sub}
+                      </p>
+                    </div>
+                    <span style={{ fontSize:'16px', color:'rgba(0,255,136,0.5)', flexShrink:0 }}>›</span>
+                  </>
+                )
+                // Card de foto → label nativo abre o seletor em qualquer browser/mobile
+                if (s.href === '#foto') {
+                  return (
+                    <label key={i} htmlFor="foto-input" className="passo-item" style={cardStyle}>
+                      {inner}
+                    </label>
+                  )
+                }
+                return (
+                  <Link key={i} href={s.href} className="passo-item" style={cardStyle}>
+                    {inner}
+                  </Link>
+                )
+              })}
             </div>
           </div>
         )}
