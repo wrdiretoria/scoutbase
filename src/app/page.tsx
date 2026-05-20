@@ -683,6 +683,9 @@ export default function LandingPage() {
         {/* HUD decorativo — removido (substituído pelo HeroFeed) */}
       </section>
 
+      {/* ══════════════════════════════════════ CARD CRAQUE ══ */}
+      <CardCraqueSection />
+
       {/* ══════════════════════════════════════ BILLBOARD ══ */}
       <PhotoBillboard />
 
@@ -821,9 +824,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
-      {/* ══════════════════════════════════════ CARD CRAQUE ══ */}
-      <CardCraqueSection />
 
       {/* ══════════════════════════════════════ TOP 3 ══ */}
       <TeamOfWeekSection />
