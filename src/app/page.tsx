@@ -9,6 +9,7 @@ import FeaturesSection from './components/FeaturesSection'
 import ParaQuemSection from './components/ParaQuemSection'
 import StatsBar from './components/StatsBar'
 import PhotoBillboard from './components/PhotoBillboard'
+import HeroFeed from './components/HeroFeed'
 
 const cards = [
   {
@@ -512,18 +513,12 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* RIGHT — floating phones */}
-          <div className="hero-phones" style={{ display:'flex', alignItems:'center', justifyContent:'flex-end', minWidth:0 }}>
-            <div style={{ position:'relative', width:'540px', height:'580px', flexShrink:0 }}>
-
-              {/* PHONE FRONT */}
-              <div style={{
-                position:'absolute', left:0, top:'50px', zIndex:2,
-                width:'252px', borderRadius:'40px', background:'#111',
-                padding:'10px 8px',
-                boxShadow:'0 40px 80px rgba(0,0,0,0.7), 0 0 0 1.5px rgba(255,255,255,0.12)',
-                animation:'float 5s ease-in-out infinite',
-              }}>
+          {/* RIGHT — live feed */}
+          <div className="hero-phones" style={{ display:'flex', alignItems:'stretch', justifyContent:'flex-end', minWidth:0 }}>
+            <div style={{ position:'relative', width:'380px', height:'560px', flexShrink:0 }}>
+              <HeroFeed />
+              {/* PHONE FRONT — removed */}
+              <div style={{ display:'none' }}>
                 <div style={{ background:'white', borderRadius:'30px', overflow:'hidden' }}>
                   <div style={{ background:'#fff', padding:'8px 16px 4px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                     <span style={{ fontSize:'10px', fontWeight:700, color:'#111' }}>9:41</span>
@@ -602,14 +597,8 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              {/* PHONE BACK */}
-              <div style={{
-                position:'absolute', right:0, top:0, zIndex:1,
-                width:'220px', borderRadius:'38px', background:'#111',
-                padding:'10px 8px', opacity:0.90,
-                boxShadow:'0 28px 56px rgba(0,0,0,0.6), 0 0 0 1.5px rgba(255,255,255,0.10)',
-                animation:'floatBack 5s ease-in-out infinite 0.8s',
-              }}>
+              {/* PHONE BACK — removed */}
+              <div style={{ display:'none' }}>
                 <div style={{ background:'white', borderRadius:'28px', overflow:'hidden' }}>
                   <div style={{ background:'#fff', padding:'8px 14px 4px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                     <span style={{ fontSize:'10px', fontWeight:700, color:'#111' }}>9:41</span>
@@ -691,19 +680,7 @@ export default function LandingPage() {
           ))}
         </div>
 
-        {/* HUD decorativo — desktop */}
-        <div className="hero-hud" style={{
-          position:'absolute', right:'72px', top:'50%', transform:'translateY(-50%)',
-          zIndex:2, fontFamily:'monospace', textAlign:'right',
-          opacity:0.09, pointerEvents:'none', userSelect:'none', lineHeight:1.5,
-        }}>
-          <p style={{ fontSize:'10px', letterSpacing:'0.18em', color:'white', margin:'0 0 10px', textTransform:'uppercase' }}>Ranking ao vivo</p>
-          <p style={{ fontSize:'22px', fontWeight:900, color:'white', margin:'0 0 5px' }}>#1  Pedro H.   94</p>
-          <p style={{ fontSize:'17px', color:'white', margin:'0 0 5px' }}>#2  Arthur S.  91</p>
-          <p style={{ fontSize:'14px', color:'white', margin:'0 0 5px' }}>#3  Miguel C.  89</p>
-          <p style={{ fontSize:'13px', color:'white', margin:'0 0 5px' }}>#4  Gabriel L. 87</p>
-          <p style={{ fontSize:'11px', color:'white', margin:0 }}>#5  Kauã A.    85</p>
-        </div>
+        {/* HUD decorativo — removido (substituído pelo HeroFeed) */}
       </section>
 
       {/* ══════════════════════════════════════ ACTIVITY TICKER ══ */}
