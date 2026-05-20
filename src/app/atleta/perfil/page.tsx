@@ -1873,9 +1873,15 @@ function AtletaPerfilContent() {
                   }}>
                     {/* Thumbnail / embed area — 16:9 */}
                     <div style={{ position:'relative', aspectRatio:'16/9', background:'#0a120e', cursor:'pointer' }}
-                      onClick={() => !isPlaying && setPlayingHlId(hl.id)}
+                      onClick={() => {
+                        if (hl.plataforma === 'instagram' || hl.plataforma === 'tiktok') {
+                          window.open(hl.url, '_blank')
+                        } else {
+                          !isPlaying && setPlayingHlId(hl.id)
+                        }
+                      }}
                     >
-                      {isPlaying ? (
+                      {isPlaying && hl.plataforma !== 'instagram' && hl.plataforma !== 'tiktok' ? (
                         <iframe
                           src={getEmbedUrl(hl.plataforma, hl.video_id)}
                           style={{ width:'100%', height:'100%', border:'none' }}
