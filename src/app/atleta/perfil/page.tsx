@@ -1002,15 +1002,16 @@ function AtletaPerfilContent() {
                     {initials}
                   </div>
                 )}
-                {/* overlay câmera — sempre visível (30%) e total durante upload */}
-                <div style={{
-                  position:'absolute', inset:0, borderRadius:'50%',
-                  background: uploadingFoto ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.30)',
-                  display:'flex', alignItems:'center', justifyContent:'center',
-                  transition:'background 0.2s',
-                }}>
-                  <span style={{ fontSize:'18px' }}>{uploadingFoto ? '⏳' : '📷'}</span>
-                </div>
+                {/* overlay câmera — só aparece sem foto ou durante upload */}
+                {(!avatarUrl || uploadingFoto) && (
+                  <div style={{
+                    position:'absolute', inset:0, borderRadius:'50%',
+                    background: uploadingFoto ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.30)',
+                    display:'flex', alignItems:'center', justifyContent:'center',
+                  }}>
+                    <span style={{ fontSize:'18px' }}>{uploadingFoto ? '⏳' : '📷'}</span>
+                  </div>
+                )}
               </label>
             </div>
             <div style={{ paddingBottom:'16px' }}>

@@ -169,15 +169,16 @@ function TrainerCard({ perfil, av, at, dest, uploadingFoto }: { perfil: Perfil; 
                   </div>
                 )
               }
-              {/* overlay câmera */}
-              <div style={{
-                position: 'absolute', inset: 0, borderRadius: '50%',
-                background: uploadingFoto ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.28)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                transition: 'background 0.2s',
-              }}>
-                <span style={{ fontSize: '22px' }}>{uploadingFoto ? '⏳' : '📷'}</span>
-              </div>
+              {/* overlay câmera — só aparece quando não há foto ou durante upload */}
+              {(!perfil.avatar_url || uploadingFoto) && (
+                <div style={{
+                  position: 'absolute', inset: 0, borderRadius: '50%',
+                  background: uploadingFoto ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.28)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <span style={{ fontSize: '22px' }}>{uploadingFoto ? '⏳' : '📷'}</span>
+                </div>
+              )}
             </label>
           </div>
 
