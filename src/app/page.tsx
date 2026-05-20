@@ -683,6 +683,9 @@ export default function LandingPage() {
         {/* HUD decorativo — removido (substituído pelo HeroFeed) */}
       </section>
 
+      {/* ══════════════════════════════════════ TOP 3 ══ */}
+      <TeamOfWeekSection />
+
       {/* ══════════════════════════════════════ CARD CRAQUE ══ */}
       <CardCraqueSection />
 
@@ -824,9 +827,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
-      {/* ══════════════════════════════════════ TOP 3 ══ */}
-      <TeamOfWeekSection />
 
       {/* ══════════════════════════════════════ DEPOIMENTOS ══ */}
       <section style={{ padding:'80px 20px', background:'#040a06', position:'relative', overflow:'hidden' }}>
