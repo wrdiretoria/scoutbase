@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState, Suspense, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
@@ -461,7 +461,9 @@ function AtletaPerfilContent() {
   const [dataNasc,   setDataNasc]   = useState<string | null>(null)
   const [uid,        setUid]        = useState<string | null>(null)
   const [athleteId,  setAthleteId]  = useState<string | null>(null)
-  const [avatarUrl,  setAvatarUrl]  = useState<string>('')
+  const [avatarUrl,      setAvatarUrl]      = useState<string>('')
+  const [uploadingFoto,  setUploadingFoto]  = useState(false)
+  const fotoInputRef = useRef<HTMLInputElement>(null)
   const [loading,    setLoading]    = useState(true)
 
   const [curriculo,  setCurriculo]  = useState<Curriculo>({
@@ -633,6 +635,31 @@ function AtletaPerfilContent() {
   if (!temTitulos)             passos.push({ icon: '🥇', titulo: 'Adicione seus títulos',           sub: '+10 OVR ao preencher', href: '#curriculo' })
   if (!temPremiacoes)          passos.push({ icon: '🏅', titulo: 'Premiações individuais',          sub: '+5 OVR — artilheiro, melhor goleiro...', href: '#curriculo' })
   const passosPrioritarios = passos.slice(0, 2)
+
+  // ── Upload de foto ───────────────────────────────────────────
+  async function handleFotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file || !uid) return
+    setUploadingFoto(true)
+    try {
+      const supabase = createClient()
+      const ext = file.name.split('.').pop() ?? 'jpg'
+      const path = `${uid}.${ext}`
+      const { error: upErr } = await supabase.storage
+        .from('avatars')
+        .upload(path, file, { upsert: true, contentType: file.type })
+      if (upErr) { alert('Erro ao enviar foto. Tente novamente.'); return }
+      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
+      setAvatarUrl(publicUrl)
+      await fetch('/api/atleta/salvar-perfil', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: uid, dataNascimento: dataNasc, avatarUrl: publicUrl }),
+      })
+    } finally {
+      setUploadingFoto(false)
+    }
+  }
 
   // ── Highlights handlers ──────────────────────────────────────
   function handleHlUrlChange(v: string) {
@@ -948,24 +975,39 @@ function AtletaPerfilContent() {
                 </span>
               </div>
             )}
-            {/* Foto ou iniciais */}
-            <div style={{
-              width:'72px', height:'72px', borderRadius:'50%', flexShrink:0,
-              border:'3px solid #0b1610', marginBottom:'-20px', overflow:'hidden',
-              boxShadow:'0 8px 24px rgba(34,197,94,0.4)',
-            }}>
-              {avatarUrl ? (
-                <img src={avatarUrl} alt={meta.nome} style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center 15%' }} />
-              ) : (
+            {/* Foto ou iniciais — clicável para trocar */}
+            <div id="foto" style={{ position:'relative', width:'72px', height:'72px', flexShrink:0, marginBottom:'-20px' }}>
+              <input ref={fotoInputRef} type="file" accept="image/*" style={{ display:'none' }} onChange={handleFotoChange} />
+              <div
+                onClick={() => fotoInputRef.current?.click()}
+                style={{
+                  width:'72px', height:'72px', borderRadius:'50%',
+                  border:'3px solid #0b1610', overflow:'hidden',
+                  boxShadow:'0 8px 24px rgba(34,197,94,0.4)',
+                  cursor:'pointer', position:'relative',
+                }}
+              >
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt={meta.nome} style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center 15%' }} />
+                ) : (
+                  <div style={{
+                    width:'100%', height:'100%',
+                    background:'linear-gradient(135deg,#15803d,#4ade80)',
+                    display:'flex', alignItems:'center', justifyContent:'center',
+                    fontSize:'22px', fontWeight:900,
+                  }}>
+                    {initials}
+                  </div>
+                )}
+                {/* overlay de câmera */}
                 <div style={{
-                  width:'100%', height:'100%',
-                  background:'linear-gradient(135deg,#15803d,#4ade80)',
-                  display:'flex', alignItems:'center', justifyContent:'center',
-                  fontSize:'22px', fontWeight:900,
+                  position:'absolute', inset:0, borderRadius:'50%',
+                  background:'rgba(0,0,0,0.45)', display:'flex', alignItems:'center', justifyContent:'center',
+                  opacity: uploadingFoto ? 1 : 0, transition:'opacity 0.2s',
                 }}>
-                  {initials}
+                  <span style={{ fontSize:'20px' }}>{uploadingFoto ? '⏳' : '📷'}</span>
                 </div>
-              )}
+              </div>
             </div>
             <div style={{ paddingBottom:'16px' }}>
               <span style={{ fontSize:'13px', color:'rgba(255,255,255,0.55)', marginLeft:'2px' }}>{pos}</span>
