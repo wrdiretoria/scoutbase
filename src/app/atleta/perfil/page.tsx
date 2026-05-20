@@ -639,25 +639,22 @@ function AtletaPerfilContent() {
   // ── Upload de foto ───────────────────────────────────────────
   async function handleFotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
-    if (!file || !uid) return
+    if (!file) return
     setUploadingFoto(true)
     try {
-      const supabase = createClient()
-      const ext = file.name.split('.').pop() ?? 'jpg'
-      const path = `${uid}.${ext}`
-      const { error: upErr } = await supabase.storage
-        .from('avatars')
-        .upload(path, file, { upsert: true, contentType: file.type })
-      if (upErr) { alert('Erro ao enviar foto. Tente novamente.'); return }
-      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(path)
-      setAvatarUrl(publicUrl)
-      await fetch('/api/atleta/salvar-perfil', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: uid, dataNascimento: dataNasc, avatarUrl: publicUrl }),
-      })
+      const fd = new FormData()
+      fd.append('file', file)
+      const res = await fetch('/api/atleta/upload-foto', { method: 'POST', body: fd })
+      const json = await res.json() as { ok?: boolean; url?: string; error?: string }
+      if (!res.ok || !json.url) {
+        alert(json.error ?? 'Erro ao enviar foto. Tente novamente.')
+        return
+      }
+      setAvatarUrl(json.url)
     } finally {
       setUploadingFoto(false)
+      // limpa o input para permitir re-upload do mesmo arquivo
+      if (fotoInputRef.current) fotoInputRef.current.value = ''
     }
   }
 
