@@ -464,6 +464,15 @@ function AtletaPerfilContent() {
   const [avatarUrl,      setAvatarUrl]      = useState<string>('')
   const [uploadingFoto,  setUploadingFoto]  = useState(false)
   const fotoInputRef = useRef<HTMLInputElement>(null)
+
+  // ── Galeria (3 fotos para o billboard da landing) ──
+  const [galeriaFotos,    setGaleriaFotos]    = useState<(string|null)[]>([null, null, null])
+  const [uploadingSlot,   setUploadingSlot]   = useState<number|null>(null)
+  const galeriaRefs = [
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+  ]
   const [loading,    setLoading]    = useState(true)
 
   const [curriculo,  setCurriculo]  = useState<Curriculo>({
@@ -527,13 +536,17 @@ function AtletaPerfilContent() {
       // ── Perfil ──
       const { data: profile } = await supabase
         .from('profiles')
-        .select('data_nascimento, bio, altura, peso, pe_dominante, clube_atual, athlete_id, avatar_url')
+        .select('data_nascimento, bio, altura, peso, pe_dominante, clube_atual, athlete_id, avatar_url, fotos')
         .eq('id', user.id)
         .single()
 
       if (profile?.data_nascimento) setDataNasc(profile.data_nascimento as string)
       if (profile?.athlete_id)      setAthleteId(profile.athlete_id as string)
       if (profile?.avatar_url)      setAvatarUrl(profile.avatar_url as string)
+      if (Array.isArray((profile as { fotos?: unknown })?.fotos)) {
+        const f = (profile as { fotos: (string|null)[] }).fotos
+        setGaleriaFotos([f[0] ?? null, f[1] ?? null, f[2] ?? null])
+      }
       // visit_count, favorito_count e cards_disponiveis vêm do user_metadata
       setVisitCount(        (user.user_metadata?.visit_count      as number | null) ?? 0)
       setFavoritoCount(     (user.user_metadata?.favorito_count   as number | null) ?? 0)
@@ -656,6 +669,36 @@ function AtletaPerfilContent() {
       // limpa o input para permitir re-upload do mesmo arquivo
       if (fotoInputRef.current) fotoInputRef.current.value = ''
     }
+  }
+
+  // ── Upload galeria (billboard da landing) ───────────────────
+  async function handleGaleriaChange(slot: number, e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingSlot(slot)
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('slot', String(slot))
+      const res  = await fetch('/api/atleta/upload-galeria', { method: 'POST', body: fd })
+      const json = await res.json() as { ok?: boolean; url?: string; error?: string }
+      if (!res.ok || !json.url) { alert(json.error ?? 'Erro ao enviar foto.'); return }
+      setGaleriaFotos(prev => { const n = [...prev]; n[slot] = json.url!; return n })
+    } finally {
+      setUploadingSlot(null)
+      const ref = galeriaRefs[slot]
+      if (ref.current) ref.current.value = ''
+    }
+  }
+
+  async function handleGaleriaDelete(slot: number) {
+    if (!confirm('Remover esta foto da galeria?')) return
+    const res = await fetch('/api/atleta/delete-galeria', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slot }),
+    })
+    if (res.ok) setGaleriaFotos(prev => { const n = [...prev]; n[slot] = null; return n })
   }
 
   // ── Highlights handlers ──────────────────────────────────────
@@ -2042,6 +2085,122 @@ function AtletaPerfilContent() {
               </p>
             </div>
           )}
+        </div>
+
+        {/* ══════════════════════════════════════════
+            GALERIA — fotos para o painel da landing
+        ══════════════════════════════════════════ */}
+        <div style={{ marginBottom:'24px' }}>
+
+          {/* Header */}
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'12px' }}>
+            <div>
+              <p style={{ margin:'0 0 2px', fontSize:'12px', fontWeight:700, color:'rgba(255,255,255,0.4)', letterSpacing:'0.08em', textTransform:'uppercase' }}>
+                Fotos de ação
+              </p>
+              <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.2)' }}>
+                Aparecem no painel ao vivo da página inicial
+              </p>
+            </div>
+            <div style={{
+              display:'flex', alignItems:'center', gap:'5px',
+              background:'rgba(0,255,136,0.08)', border:'1px solid rgba(0,255,136,0.20)',
+              borderRadius:'8px', padding:'4px 10px',
+            }}>
+              <div style={{ width:'5px', height:'5px', borderRadius:'50%', background:'#00FF88', boxShadow:'0 0 5px #00FF88' }} />
+              <span style={{ fontSize:'9px', fontWeight:800, color:'rgba(0,255,136,0.8)', letterSpacing:'0.12em', textTransform:'uppercase' }}>Ao vivo</span>
+            </div>
+          </div>
+
+          {/* 3 slots */}
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'10px' }}>
+            {[0,1,2].map(slot => {
+              const url       = galeriaFotos[slot]
+              const uploading = uploadingSlot === slot
+              return (
+                <div key={slot} style={{ position:'relative', aspectRatio:'3/4', borderRadius:'12px', overflow:'hidden' }}>
+                  {url ? (
+                    /* Foto preenchida */
+                    <>
+                      <img
+                        src={url} alt={`Foto ${slot+1}`}
+                        style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }}
+                      />
+                      {/* Overlay hover com botões */}
+                      <label
+                        htmlFor={`galeria-input-${slot}`}
+                        style={{
+                          position:'absolute', inset:0,
+                          background:'rgba(0,0,0,0.0)',
+                          display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+                          gap:'8px', cursor:'pointer',
+                          transition:'background 0.2s',
+                        }}
+                        onMouseEnter={e => (e.currentTarget.style.background='rgba(0,0,0,0.55)')}
+                        onMouseLeave={e => (e.currentTarget.style.background='rgba(0,0,0,0.0)')}
+                      >
+                        <span style={{ fontSize:'18px', opacity:0.9 }}>🔄</span>
+                        <span style={{ fontSize:'10px', color:'white', fontWeight:700, opacity:0.85 }}>Trocar</span>
+                      </label>
+                      {/* Botão deletar */}
+                      <button
+                        onClick={e => { e.stopPropagation(); handleGaleriaDelete(slot) }}
+                        style={{
+                          position:'absolute', top:'6px', right:'6px',
+                          width:'24px', height:'24px', borderRadius:'50%',
+                          background:'rgba(0,0,0,0.7)', border:'1px solid rgba(255,255,255,0.2)',
+                          color:'white', fontSize:'12px', cursor:'pointer',
+                          display:'flex', alignItems:'center', justifyContent:'center',
+                          zIndex:2,
+                        }}
+                      >✕</button>
+                    </>
+                  ) : (
+                    /* Slot vazio */
+                    <label
+                      htmlFor={`galeria-input-${slot}`}
+                      style={{
+                        position:'absolute', inset:0,
+                        background:'rgba(255,255,255,0.02)',
+                        border:'2px dashed rgba(0,255,136,0.20)',
+                        borderRadius:'12px',
+                        display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+                        gap:'6px', cursor: uploading ? 'wait' : 'pointer',
+                      }}
+                    >
+                      {uploading ? (
+                        <>
+                          <span style={{ fontSize:'20px' }}>⏳</span>
+                          <span style={{ fontSize:'10px', color:'rgba(0,255,136,0.6)', fontWeight:700 }}>Enviando…</span>
+                        </>
+                      ) : (
+                        <>
+                          <span style={{ fontSize:'22px', color:'rgba(0,255,136,0.4)' }}>＋</span>
+                          <span style={{ fontSize:'10px', color:'rgba(255,255,255,0.3)', fontWeight:600 }}>
+                            Foto {slot + 1}
+                          </span>
+                        </>
+                      )}
+                    </label>
+                  )}
+                  {/* Input oculto */}
+                  <input
+                    id={`galeria-input-${slot}`}
+                    ref={galeriaRefs[slot]}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    disabled={uploading}
+                    style={{ position:'absolute', width:'1px', height:'1px', opacity:0, pointerEvents:'none' }}
+                    onChange={e => handleGaleriaChange(slot, e)}
+                  />
+                </div>
+              )
+            })}
+          </div>
+
+          <p style={{ margin:'8px 0 0', fontSize:'10.5px', color:'rgba(255,255,255,0.18)', lineHeight:1.5 }}>
+            Fotos de treino, jogos ou ação. Aparecem no billboard ao vivo da landing page.
+          </p>
         </div>
 
         {/* ── Indicação ── */}

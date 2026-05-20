@@ -8,6 +8,7 @@ import CardCraqueSection from './components/CardCraqueSection'
 import FeaturesSection from './components/FeaturesSection'
 import ParaQuemSection from './components/ParaQuemSection'
 import StatsBar from './components/StatsBar'
+import PhotoBillboard from './components/PhotoBillboard'
 
 const cards = [
   {
@@ -952,6 +953,9 @@ export default function LandingPage() {
 
       {/* ══════════════════════════════════════ PROSPECTS ══ */}
       <ProspectsSection />
+
+      {/* ══════════════════════════════════════ BILLBOARD ══ */}
+      <PhotoBillboard />
 
       {/* ══════════════════════════════════════ STATS ══ */}
       <StatsBar />
