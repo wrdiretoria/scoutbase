@@ -358,8 +358,6 @@ function AvaliarPageInner() {
       paddingBottom: 'calc(80px + env(safe-area-inset-bottom))',
       fontFamily: 'system-ui, sans-serif',
       position: 'relative',
-      overflow: 'hidden',
-      overscrollBehaviorY: 'none',
     }}>
 
       <style>{`
