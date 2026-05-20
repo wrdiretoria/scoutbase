@@ -514,7 +514,7 @@ export default function CartaPage() {
                 transition: 'all .2s',
               }}
             >
-              {gerando ? 'Gerando cobrança…' : '⚡ Comprar card — R$ 5,00'}
+              {gerando ? 'Gerando cobrança…' : '⚡ Comprar card — R$ 9,90'}
             </button>
             {erroPix && (
               <p style={{ margin: 0, padding: '10px 14px', borderRadius: 10, background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', fontSize: 13, color: '#f87171' }}>

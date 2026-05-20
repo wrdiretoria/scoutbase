@@ -1,6 +1,6 @@
 /**
  * POST /api/atleta/carta-pix
- * Gera cobrança R$5 (Pix ou cartão) para o atleta adquirir 1 card de avaliação.
+ * Gera cobrança R$9,90 (Pix ou cartão) para o atleta adquirir 1 card de avaliação.
  * Retorna { pixCode, qrCodeImage, paymentId } ou { ok: true, bonus: true } se for o 1º card grátis.
  *
  * externalReference = "carta_<userId>" — o webhook incrementa cards_disponiveis ao confirmar.
@@ -70,11 +70,11 @@ export async function POST(req: Request) {
     vencimento.setDate(vencimento.getDate() + 1)
     const dueDate = vencimento.toISOString().split('T')[0]
 
-    // Cria cobrança R$5
+    // Cria cobrança R$9,90
     const cobranca = await asaas.criarCobranca({
       customer:          customerId,
       billingType:       'UNDEFINED',
-      value:             5.00,
+      value:             9.90,
       dueDate,
       description:       'Card de Avaliação — Meu Craque',
       externalReference: `carta_${userId}`,
