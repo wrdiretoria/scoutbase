@@ -448,18 +448,33 @@ export default function LandingPage() {
 
           {/* LEFT */}
           <div className="hero-left" style={{ display:'flex', flexDirection:'column', gap:'22px', minWidth:0 }}>
-            {/* Badge */}
-            <span className="h-badge hero-badge" style={{
-              display:'inline-flex', alignItems:'center', gap:'10px', width:'fit-content',
-              padding:'6px 18px 6px 12px', borderRadius:'100px',
-              border:'1px solid rgba(0,255,136,0.38)', background:'rgba(0,255,136,0.07)',
-              backdropFilter:'blur(10px)', WebkitBackdropFilter:'blur(10px)',
-              boxShadow:'0 0 18px rgba(0,255,136,0.14), inset 0 1px 0 rgba(255,255,255,0.06)',
-              fontSize:'9.5px', fontWeight:700, color:'rgba(0,255,136,0.88)', letterSpacing:'0.20em',
-            }}>
-              <span className="live-dot" />
-              APERTE O PLAY
-            </span>
+            {/* Badge + CTA — mesma linha */}
+            <div className="h-badge hero-badge-row" style={{ display:'flex', alignItems:'center', gap:'14px', flexWrap:'wrap' }}>
+              <span className="hero-badge" style={{
+                display:'inline-flex', alignItems:'center', gap:'10px', flexShrink:0,
+                padding:'6px 18px 6px 12px', borderRadius:'100px',
+                border:'1px solid rgba(0,255,136,0.38)', background:'rgba(0,255,136,0.07)',
+                backdropFilter:'blur(10px)', WebkitBackdropFilter:'blur(10px)',
+                boxShadow:'0 0 18px rgba(0,255,136,0.14), inset 0 1px 0 rgba(255,255,255,0.06)',
+                fontSize:'9.5px', fontWeight:700, color:'rgba(0,255,136,0.88)', letterSpacing:'0.20em',
+              }}>
+                <span className="live-dot" />
+                APERTE O PLAY
+              </span>
+              <Link href="/atleta/cadastro" className="hero-cta-primary" style={{
+                display:'inline-flex', alignItems:'center', justifyContent:'center',
+                position:'relative', overflow:'hidden',
+                gap:'6px', flexShrink:0,
+                background:'linear-gradient(160deg,#00FF99 0%,#00E07A 52%,#00CC66 100%)',
+                color:'#020c05', fontWeight:800, fontSize:'13px',
+                borderRadius:'100px', padding:'10px 22px', textDecoration:'none',
+                letterSpacing:'0.08em', whiteSpace:'nowrap',
+                boxShadow:'0 0 0 1px rgba(0,255,136,0.38),0 0 24px rgba(0,255,136,0.32),0 0 52px rgba(0,255,136,0.10),0 4px 18px rgba(0,0,0,0.42),inset 0 1px 0 rgba(255,255,255,0.26)',
+              }}>
+                <span className="hero-bolt" aria-hidden>⚽</span>
+                CRIAR MEU CARD — GRÁTIS
+              </Link>
+            </div>
 
             {/* Accent rule — mobile only */}
             <div className="hero-rule" />
@@ -494,19 +509,6 @@ export default function LandingPage() {
 
             {/* CTAs */}
             <div className="h-ctas hero-ctas-wrap" style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', gap:'12px', marginTop:'4px' }}>
-              <Link href="/atleta/cadastro" className="hero-cta-primary" style={{
-                display:'inline-flex', alignItems:'center', justifyContent:'center',
-                position:'relative', overflow:'hidden',
-                gap:'6px', width:'248px',
-                background:'linear-gradient(160deg,#00FF99 0%,#00E07A 52%,#00CC66 100%)',
-                color:'#020c05', fontWeight:800, fontSize:'14px',
-                borderRadius:'100px', padding:'13px 0', textDecoration:'none',
-                letterSpacing:'0.08em',
-                boxShadow:'0 0 0 1px rgba(0,255,136,0.38),0 0 24px rgba(0,255,136,0.32),0 0 52px rgba(0,255,136,0.10),0 4px 18px rgba(0,0,0,0.42),inset 0 1px 0 rgba(255,255,255,0.26)',
-              }}>
-                <span className="hero-bolt" aria-hidden>⚽</span>
-                CRIAR MEU CARD — GRÁTIS
-              </Link>
               <Link href="/login" className="hero-cta-secondary" style={{
                 display:'inline-flex', alignItems:'center', justifyContent:'center',
                 width:'248px',
