@@ -363,9 +363,36 @@ export default async function JogadorPublicoPage({ params }: Props) {
           0%,100% { text-shadow:0 0 24px rgba(34,197,94,0.5),0 0 48px rgba(34,197,94,0.22) }
           50%     { text-shadow:0 0 40px rgba(34,197,94,0.78),0 0 80px rgba(34,197,94,0.38) }
         }
+        @keyframes ctaShimmer {
+          0%   { left:-70% }
+          100% { left:140% }
+        }
         .pub-card { animation: cardIn .5s cubic-bezier(.22,.68,0,1.2) forwards; }
         .pub-ovr  { animation: ovrIn .5s cubic-bezier(.22,.68,0,1.2) forwards .3s, glowPulse 3s ease-in-out infinite 1s; opacity:0; }
         .curr-section { animation: cardIn .5s ease forwards; }
+        .scout-cta-btn {
+          display:flex; align-items:center; justify-content:center; gap:8px;
+          padding:14px 16px; border-radius:14px;
+          background:linear-gradient(160deg,#166534 0%,#22c55e 100%);
+          color:white; font-weight:800; font-size:14px;
+          text-decoration:none; text-align:center;
+          box-shadow:0 4px 22px rgba(34,197,94,0.32), 0 1px 0 rgba(255,255,255,0.08) inset;
+          letter-spacing:0.01em; position:relative; overflow:hidden;
+          transition:filter .18s ease, transform .15s ease;
+        }
+        .scout-cta-btn:hover {
+          filter:brightness(1.08);
+          transform:translateY(-1px);
+        }
+        .scout-cta-btn:active { transform:scale(0.97); filter:brightness(0.95); }
+        .scout-cta-btn::after {
+          content:'';
+          position:absolute; top:0; bottom:0; width:40%;
+          background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);
+          transform:skewX(-16deg);
+          animation:ctaShimmer 3.5s ease-in-out infinite 1.5s;
+        }
+        html { scroll-behavior: smooth; }
       `}</style>
 
       {/* Rastreia visita silenciosamente (client) */}
@@ -531,22 +558,25 @@ export default async function JogadorPublicoPage({ params }: Props) {
               </div>
             )}
 
-            {/* CTA */}
-            <Link href="/cadastro" style={{
-              display: 'block', padding: '13px', borderRadius: '14px',
-              background: '#22c55e', color: 'black', fontWeight: 800,
-              fontSize: '14px', textDecoration: 'none', textAlign: 'center',
-            }}>
-              Você é o próximo → Criar meu perfil
-            </Link>
+            {/* CTA — scout acessa currículo completo */}
+            <a href="#curriculo" className="scout-cta-btn">
+              <svg width="16" height="16" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink:0 }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              Acessar currículo completo
+              <svg width="14" height="14" fill="none" stroke="rgba(255,255,255,0.65)" strokeWidth="2.5" viewBox="0 0 24 24" style={{ flexShrink:0 }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </a>
           </div>
         </div>
 
-        {/* ── Avaliação detalhada (scout) ── */}
+        {/* ── Avaliação + Currículo — âncora para o CTA ── */}
         {ultimaAv && (
-          <div className="curr-section" style={{
+          <div id="curriculo" className="curr-section" style={{
             background: '#0b1610', border: '1px solid rgba(34,197,94,0.15)',
             borderRadius: '18px', padding: '20px', marginBottom: '16px',
+            scrollMarginTop: '20px',
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div>
@@ -617,7 +647,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
 
         {/* ── Currículo completo ── */}
         {temCurriculo && (
-          <div className="curr-section" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div id={!ultimaAv ? 'curriculo' : undefined} className="curr-section" style={{ display: 'flex', flexDirection: 'column', gap: '12px', scrollMarginTop: '20px' }}>
 
             {/* Apresentação */}
             {bio && (
