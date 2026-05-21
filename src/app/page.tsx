@@ -386,6 +386,59 @@ export default function LandingPage() {
           .hero-mob-sub { font-size:12px !important; max-width:260px !important; }
           .dep-grid     { grid-template-columns:1fr !important; }
         }
+
+        /* ─── LANCES / REELS ─── */
+        @keyframes reelPlay {
+          0%,100% { transform:translate(-50%,-50%) scale(1);   opacity:.80 }
+          50%      { transform:translate(-50%,-50%) scale(1.07); opacity:1   }
+        }
+        .reels-track {
+          display:flex; gap:14px;
+          padding:0 clamp(24px,5vw,80px) 6px;
+          overflow-x:auto; scroll-snap-type:x mandatory;
+          -webkit-overflow-scrolling:touch;
+          scrollbar-width:none; -ms-overflow-style:none;
+        }
+        .reels-track::-webkit-scrollbar { display:none; }
+        .reels-card {
+          flex:0 0 min(272px,72vw); scroll-snap-align:start;
+          border-radius:18px; overflow:hidden; position:relative;
+          cursor:pointer; aspect-ratio:9/16; min-height:390px;
+          transition:transform .28s cubic-bezier(.22,1,.36,1);
+        }
+        .reels-card:hover { transform:scale(1.018); }
+        .reels-card:hover .reel-play-btn { opacity:1 !important; transform:translate(-50%,-50%) scale(1.12) !important; }
+        .reel-play-btn {
+          position:absolute; top:50%; left:50%;
+          width:54px; height:54px; border-radius:50%;
+          background:rgba(255,255,255,0.10);
+          backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+          border:1.5px solid rgba(255,255,255,0.22);
+          display:flex; align-items:center; justify-content:center;
+          animation:reelPlay 3.8s ease-in-out infinite;
+          transition:transform .22s ease, opacity .22s ease;
+          z-index:2;
+        }
+        .reel-play-triangle {
+          width:0; height:0;
+          border-top:10px solid transparent;
+          border-bottom:10px solid transparent;
+          border-left:17px solid rgba(255,255,255,0.88);
+          margin-left:4px;
+        }
+        @media (min-width:768px) {
+          .reels-track {
+            display:grid; grid-template-columns:repeat(4,1fr); gap:18px;
+            overflow-x:visible; max-width:1280px; margin:0 auto;
+            padding:0 clamp(24px,6vw,80px);
+          }
+          .reels-card { flex:none; width:auto; min-height:460px; }
+        }
+        @media (max-width:480px) {
+          .reels-card { min-height:360px; }
+          .reels-header-wrap { flex-direction:column !important; align-items:flex-start !important; gap:14px !important; }
+          .reels-see-all { align-self:flex-start !important; padding-bottom:0 !important; }
+        }
       `}</style>
 
       <NavBar />
@@ -615,6 +668,157 @@ export default function LandingPage() {
         </div>
 
         {/* HUD decorativo — removido (substituído pelo HeroFeed) */}
+      </section>
+
+      {/* ══════════════════════════════════════ LANCES / REELS ══ */}
+      <section style={{ background:'#020604', padding:'80px 0 88px', overflow:'hidden' }}>
+
+        {/* Header */}
+        <div className="reels-header-wrap" style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', padding:'0 clamp(24px,5vw,80px)', marginBottom:'36px', maxWidth:'1280px', margin:'0 auto 36px' }}>
+          <div>
+            <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'12px' }}>
+              <span style={{ display:'inline-block', width:'5px', height:'5px', borderRadius:'50%', background:'#00FF88', animation:'pulseDot 2s ease-in-out infinite', flexShrink:0 }} />
+              <span style={{ fontSize:'9.5px', fontWeight:700, color:'rgba(0,255,136,0.50)', letterSpacing:'0.24em', textTransform:'uppercase' }}>
+                Plataforma viva · atualizado agora
+              </span>
+            </div>
+            <h2 style={{ margin:0, fontSize:'clamp(26px,3.8vw,44px)', fontWeight:900, color:'white', letterSpacing:'-0.032em', lineHeight:1.04, textTransform:'uppercase' }}>
+              Lances que estão<br/>
+              <span style={{ color:'#00FF88' }}>rodando o Brasil</span>
+            </h2>
+          </div>
+          <a href="#" className="reels-see-all" style={{ fontSize:'12px', fontWeight:600, color:'rgba(255,255,255,0.28)', textDecoration:'none', letterSpacing:'0.07em', paddingBottom:'7px', flexShrink:0, whiteSpace:'nowrap' }}>
+            Ver todos →
+          </a>
+        </div>
+
+        {/* Cards track — horizontal scroll on mobile, 4-col grid on desktop */}
+        <div className="reels-track">
+          {[
+            {
+              atleta: 'Kauã Ferreira',
+              pos:    'Atacante',
+              cidade: 'Recife',
+              views:  '23,4K',
+              likes:  '1,2K',
+              dur:    '0:47',
+              tag:    '🔥 Em alta',
+              tagColor: '#ff6b35',
+              tagBg:    'rgba(255,107,53,0.14)',
+              tagBorder:'rgba(255,107,53,0.30)',
+              bg:    'linear-gradient(170deg,#090f09 0%,#0d1c0d 40%,#091409 100%)',
+              light: 'radial-gradient(ellipse at 40% 15%, rgba(0,230,100,0.20) 0%, rgba(0,160,60,0.07) 40%, transparent 65%)',
+            },
+            {
+              atleta: 'Lucas Silva',
+              pos:    'Meia',
+              cidade: 'BH',
+              views:  '18,7K',
+              likes:  '932',
+              dur:    '0:31',
+              tag:    '👀 Scout assistiu',
+              tagColor: '#a78bfa',
+              tagBg:    'rgba(167,139,250,0.12)',
+              tagBorder:'rgba(167,139,250,0.28)',
+              bg:    'linear-gradient(170deg,#06081a 0%,#0a0f2e 40%,#070a20 100%)',
+              light: 'radial-gradient(ellipse at 60% 18%, rgba(100,130,255,0.20) 0%, rgba(70,90,200,0.06) 40%, transparent 65%)',
+            },
+            {
+              atleta: 'Gabriel Rocha',
+              pos:    'Ponta Direita',
+              cidade: 'Salvador',
+              views:  '15,2K',
+              likes:  '723',
+              dur:    '0:22',
+              tag:    '⚽ Golaço',
+              tagColor: '#fbbf24',
+              tagBg:    'rgba(251,191,36,0.12)',
+              tagBorder:'rgba(251,191,36,0.28)',
+              bg:    'linear-gradient(170deg,#120a00 0%,#201400 40%,#160e00 100%)',
+              light: 'radial-gradient(ellipse at 50% 14%, rgba(255,180,0,0.22) 0%, rgba(200,120,0,0.07) 40%, transparent 65%)',
+            },
+            {
+              atleta: 'João Mendes',
+              pos:    'Atacante',
+              cidade: 'São Paulo',
+              views:  '12,8K',
+              likes:  '601',
+              dur:    '0:38',
+              tag:    '⭐ Destaque',
+              tagColor: 'rgba(255,255,255,0.72)',
+              tagBg:    'rgba(255,255,255,0.08)',
+              tagBorder:'rgba(255,255,255,0.18)',
+              bg:    'linear-gradient(170deg,#0c070f 0%,#190d24 40%,#100818 100%)',
+              light: 'radial-gradient(ellipse at 55% 16%, rgba(180,90,255,0.18) 0%, rgba(130,60,200,0.06) 40%, transparent 65%)',
+            },
+          ].map((r, i) => (
+            <div key={i} className="reels-card" style={{ background:r.bg }}>
+
+              {/* Stadium atmospheric light */}
+              <div style={{ position:'absolute', inset:0, background:r.light }} />
+
+              {/* Film grain — cinematic texture */}
+              <div style={{
+                position:'absolute', inset:0, opacity:0.07,
+                backgroundImage:`url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+                backgroundSize:'cover',
+              }} />
+
+              {/* Bottom cinematic gradient */}
+              <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,0.96) 0%, rgba(0,0,0,0.62) 28%, rgba(0,0,0,0.12) 56%, transparent 100%)' }} />
+
+              {/* ── Top row: tag + duration ── */}
+              <div style={{ position:'absolute', top:'14px', left:'14px', right:'14px', display:'flex', justifyContent:'space-between', alignItems:'center', zIndex:3 }}>
+                <div style={{
+                  background:r.tagBg, border:`1px solid ${r.tagBorder}`,
+                  backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)',
+                  borderRadius:'100px', padding:'5px 12px',
+                  fontSize:'10px', fontWeight:700, color:r.tagColor,
+                  letterSpacing:'0.01em', lineHeight:1.3,
+                }}>
+                  {r.tag}
+                </div>
+                <div style={{
+                  background:'rgba(0,0,0,0.55)',
+                  backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)',
+                  borderRadius:'100px', padding:'5px 10px',
+                  fontSize:'10px', fontWeight:600, color:'rgba(255,255,255,0.62)',
+                  letterSpacing:'0.04em',
+                }}>
+                  {r.dur}
+                </div>
+              </div>
+
+              {/* ── Play button ── */}
+              <div className="reel-play-btn">
+                <div className="reel-play-triangle" />
+              </div>
+
+              {/* ── Bottom info ── */}
+              <div style={{ position:'absolute', bottom:0, left:0, right:0, padding:'18px 18px 20px', zIndex:3 }}>
+                {/* Stats */}
+                <div style={{ display:'flex', alignItems:'center', gap:'14px', marginBottom:'10px' }}>
+                  <span style={{ display:'flex', alignItems:'center', gap:'5px', fontSize:'11px', fontWeight:700, color:'rgba(255,255,255,0.50)' }}>
+                    <span style={{ opacity:0.6, fontSize:'10px' }}>▷</span>{r.views}
+                  </span>
+                  <span style={{ display:'flex', alignItems:'center', gap:'5px', fontSize:'11px', fontWeight:700, color:'rgba(255,255,255,0.50)' }}>
+                    <span style={{ opacity:0.6, fontSize:'10px' }}>♡</span>{r.likes}
+                  </span>
+                </div>
+                {/* Name */}
+                <div style={{ fontSize:'16px', fontWeight:900, color:'white', letterSpacing:'-0.02em', lineHeight:1.15, marginBottom:'4px' }}>
+                  {r.atleta}
+                </div>
+                {/* Position · City */}
+                <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.38)', fontWeight:500, letterSpacing:'0.01em' }}>
+                  {r.pos}&nbsp;·&nbsp;{r.cidade}
+                </div>
+              </div>
+
+            </div>
+          ))}
+        </div>
+
       </section>
 
       {/* ══════════════════════════════════════ RANKING | VÍDEOS | MAPA ══ */}
