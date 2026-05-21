@@ -138,6 +138,35 @@ export default function LandingPage() {
         }
         .hero-stats-panel > * { position:relative; z-index:1; }
 
+        /* ─── AO VIVO CARD ─── */
+        @keyframes liveIn { from{opacity:0;transform:translateX(10px)} to{opacity:1;transform:translateX(0)} }
+        @keyframes lncIn  { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes pRing  { 0%{transform:scale(1);opacity:0.8} 100%{transform:scale(2.5);opacity:0} }
+
+        .lnc {
+          background:rgba(3,13,7,0.84);
+          backdrop-filter:blur(26px) saturate(170%);
+          -webkit-backdrop-filter:blur(26px) saturate(170%);
+          border:1px solid rgba(0,255,136,0.18);
+          border-top:1.5px solid rgba(0,255,136,0.46);
+          border-radius:18px; padding:14px;
+          box-shadow:0 0 36px rgba(0,255,136,0.11),0 20px 56px rgba(0,0,0,0.65),inset 0 0 28px rgba(0,255,136,0.03);
+          animation:lncIn .55s cubic-bezier(.22,1,.36,1) forwards .45s; opacity:0;
+        }
+        .lnc-it {
+          display:flex; align-items:center; gap:10px;
+          padding:8px 10px; border-radius:11px;
+          transition:background .2s ease; cursor:default; opacity:0;
+        }
+        .lnc-it:hover { background:rgba(0,255,136,0.07) !important; }
+        .li1{animation:liveIn .32s ease forwards .80s}
+        .li2{animation:liveIn .32s ease forwards .94s}
+        .li3{animation:liveIn .32s ease forwards 1.08s}
+        .li4{animation:liveIn .32s ease forwards 1.22s}
+        .li5{animation:liveIn .32s ease forwards 1.36s}
+        .lnc-ring { position:absolute; inset:0; border-radius:50%; border:1.5px solid #00FF88; animation:pRing 2s ease-out infinite; }
+        .lnc-mob  { display:none; }
+
         /* ─── COMO FUNCIONA ─── */
         .steps-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0; position:relative; }
         .steps-connector { position:absolute; top:44px; left:calc(16.66% + 20px); right:calc(16.66% + 20px); height:1px; background:linear-gradient(90deg,transparent 0%,rgba(0,255,136,0.25) 15%,rgba(0,255,136,0.25) 85%,transparent 100%); pointer-events:none; }
@@ -370,6 +399,7 @@ export default function LandingPage() {
           .cards-grid       { grid-template-columns:1fr 1fr !important; }
           .card-item        { border-right:none !important; border-bottom:1px solid rgba(34,197,94,0.1); }
           .footer-inner     { flex-direction:column !important; gap:8px !important; text-align:center !important; }
+          .lnc-mob          { display:block !important; }
         }
 
         @media (max-width: 480px) {
@@ -438,13 +468,13 @@ export default function LandingPage() {
                 display:'block', fontSize:'clamp(52px,5.5vw,78px)',
                 fontWeight:900, color:'white',
               }}>
-                É SEU TALENTO
+                APERTA O PLAY
               </span>
               <span className="h-line-2 hero-h1-line" style={{
                 display:'block', fontSize:'clamp(52px,5.5vw,78px)',
                 fontWeight:900,
               }}>
-                <span className="neon-word" style={{ color:'#00FF88' }}>GANHANDO O MUNDO.</span>
+                <span className="neon-word" style={{ color:'#00FF88' }}>E VEM PRO JOGO.</span>
               </span>
             </h1>
 
@@ -513,9 +543,44 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* RIGHT — live feed */}
-          <div className="hero-phones" style={{ display:'flex', alignItems:'stretch', justifyContent:'flex-end', minWidth:0 }}>
-            <div style={{ position:'relative', width:'380px', height:'560px', flexShrink:0 }}>
+          {/* RIGHT — AO VIVO card + live feed */}
+          <div className="hero-phones" style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', justifyContent:'center', gap:'14px', minWidth:0 }}>
+
+            {/* 🔥 AO VIVO AGORA */}
+            <div className="lnc" style={{ width:'310px' }}>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'12px', paddingBottom:'10px', borderBottom:'1px solid rgba(0,255,136,0.10)' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+                  <div style={{ position:'relative', width:'22px', height:'22px', flexShrink:0 }}>
+                    <div style={{ position:'relative', zIndex:1, width:'100%', height:'100%', borderRadius:'50%', background:'rgba(0,255,136,0.12)', border:'1px solid rgba(0,255,136,0.38)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px' }}>🔥</div>
+                    <div className="lnc-ring" />
+                  </div>
+                  <span style={{ fontSize:'10px', fontWeight:800, color:'rgba(0,255,136,0.9)', letterSpacing:'0.16em', textTransform:'uppercase' }}>AO VIVO AGORA</span>
+                </div>
+                <span style={{ fontSize:'9px', fontWeight:700, color:'rgba(0,255,136,0.55)', background:'rgba(0,255,136,0.08)', border:'1px solid rgba(0,255,136,0.18)', borderRadius:'100px', padding:'2px 8px', letterSpacing:'0.08em' }}>LIVE</span>
+              </div>
+              {[
+                { init:'JS', bg:'#1a5c3a', icon:'⭐', text:'João Silva recebeu nota 82', time:'2 min' },
+                { init:'PS', bg:'#1e3a5f', icon:'🎯', text:'Pedro Santos avaliado por treinador', time:'5 min' },
+                { init:'LO', bg:'#5f1e3a', icon:'📈', text:'Lucas Oliveira subiu +3 no OVR', time:'8 min' },
+                { init:'RK', bg:'#3a1e5f', icon:'🏆', text:'Ranking Sub-17 atualizado', time:'11 min' },
+                { init:'👁', bg:'#0d3320', icon:'🟢', text:'12 scouts estão online agora', time:'agora' },
+              ].map(({ init, bg, icon, text, time }, i) => (
+                <div key={text} className={`lnc-it li${i + 1}`}>
+                  <div style={{ width:'28px', height:'28px', borderRadius:'50%', background:bg, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'9px', fontWeight:800, color:'white', flexShrink:0, border:'1px solid rgba(255,255,255,0.10)' }}>
+                    {init}
+                  </div>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <p style={{ margin:0, fontSize:'11px', fontWeight:600, color:'rgba(255,255,255,0.82)', lineHeight:1.3, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+                      {icon} {text}
+                    </p>
+                    <p style={{ margin:0, fontSize:'9px', color:'rgba(0,255,136,0.55)', fontWeight:600, marginTop:'2px' }}>{time === 'agora' ? 'agora' : `${time} atrás`}</p>
+                  </div>
+                  <div style={{ width:'5px', height:'5px', borderRadius:'50%', background:'#00FF88', flexShrink:0, boxShadow:'0 0 5px rgba(0,255,136,0.9)' }} />
+                </div>
+              ))}
+            </div>
+
+            <div style={{ position:'relative', width:'310px', height:'380px', flexShrink:0 }}>
               <HeroFeed />
               {/* PHONE FRONT — removed */}
               <div style={{ display:'none' }}>
@@ -682,6 +747,42 @@ export default function LandingPage() {
 
         {/* HUD decorativo — removido (substituído pelo HeroFeed) */}
       </section>
+
+      {/* ══════════════════════════════════════ MOBILE: AO VIVO ══ */}
+      <div className="lnc-mob" style={{ padding:'20px 20px 0', background:'#06100a' }}>
+        <div className="lnc">
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'12px', paddingBottom:'10px', borderBottom:'1px solid rgba(0,255,136,0.10)' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+              <div style={{ position:'relative', width:'22px', height:'22px', flexShrink:0 }}>
+                <div style={{ position:'relative', zIndex:1, width:'100%', height:'100%', borderRadius:'50%', background:'rgba(0,255,136,0.12)', border:'1px solid rgba(0,255,136,0.38)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px' }}>🔥</div>
+                <div className="lnc-ring" />
+              </div>
+              <span style={{ fontSize:'10px', fontWeight:800, color:'rgba(0,255,136,0.9)', letterSpacing:'0.16em', textTransform:'uppercase' }}>AO VIVO AGORA</span>
+            </div>
+            <span style={{ fontSize:'9px', fontWeight:700, color:'rgba(0,255,136,0.55)', background:'rgba(0,255,136,0.08)', border:'1px solid rgba(0,255,136,0.18)', borderRadius:'100px', padding:'2px 8px', letterSpacing:'0.08em' }}>LIVE</span>
+          </div>
+          {[
+            { init:'JS', bg:'#1a5c3a', icon:'⭐', text:'João Silva recebeu nota 82', time:'2 min' },
+            { init:'PS', bg:'#1e3a5f', icon:'🎯', text:'Pedro Santos avaliado por treinador', time:'5 min' },
+            { init:'LO', bg:'#5f1e3a', icon:'📈', text:'Lucas Oliveira subiu +3 no OVR', time:'8 min' },
+            { init:'RK', bg:'#3a1e5f', icon:'🏆', text:'Ranking Sub-17 atualizado', time:'11 min' },
+            { init:'👁', bg:'#0d3320', icon:'🟢', text:'12 scouts estão online agora', time:'agora' },
+          ].map(({ init, bg, icon, text, time }, i) => (
+            <div key={text} className={`lnc-it li${i + 1}`}>
+              <div style={{ width:'28px', height:'28px', borderRadius:'50%', background:bg, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'9px', fontWeight:800, color:'white', flexShrink:0, border:'1px solid rgba(255,255,255,0.10)' }}>
+                {init}
+              </div>
+              <div style={{ flex:1, minWidth:0 }}>
+                <p style={{ margin:0, fontSize:'11px', fontWeight:600, color:'rgba(255,255,255,0.82)', lineHeight:1.3, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+                  {icon} {text}
+                </p>
+                <p style={{ margin:0, fontSize:'9px', color:'rgba(0,255,136,0.55)', fontWeight:600, marginTop:'2px' }}>{time === 'agora' ? 'agora' : `${time} atrás`}</p>
+              </div>
+              <div style={{ width:'5px', height:'5px', borderRadius:'50%', background:'#00FF88', flexShrink:0, boxShadow:'0 0 5px rgba(0,255,136,0.9)' }} />
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* ══════════════════════════════════════ TOP 3 ══ */}
       <TeamOfWeekSection />
