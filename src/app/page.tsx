@@ -218,32 +218,31 @@ export default function LandingPage() {
         /* ─── MOBILE HERO ─── */
         @media (max-width: 768px) {
           .hero-section { height:100dvh !important; min-height:0 !important; }
-          .hero-player-img { object-position:55% 12% !important; }
+          .hero-player-img { object-position:74% 8% !important; }
 
           .hero-ov1 {
+            /* Top-to-bottom darkness covers text area + left-to-right darkness separates text from player */
             background:
-              linear-gradient(to top, rgba(1,5,2,1.00) 0%, rgba(1,5,2,0.97) 22%, rgba(1,5,2,0.60) 44%, rgba(1,5,2,0.08) 62%, transparent 74%),
-              linear-gradient(to right, rgba(0,0,0,0.45) 0%, transparent 50%) !important;
+              linear-gradient(to bottom, rgba(0,2,1,0.98) 0%, rgba(0,2,1,0.86) 20%, rgba(0,2,1,0.40) 48%, transparent 68%),
+              linear-gradient(to right,  rgba(0,2,1,0.97) 0%, rgba(0,2,1,0.84) 28%, rgba(0,2,1,0.34) 54%, transparent 74%),
+              linear-gradient(to top,    rgba(0,2,1,1.00) 0%, rgba(0,2,1,0.75) 18%, transparent 48%) !important;
           }
           .hero-ov2 {
-            background:
-              linear-gradient(to bottom, rgba(1,5,2,0.86) 0%, rgba(1,5,2,0.36) 20%, transparent 40%),
-              radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(0,0,0,0.60) 100%) !important;
+            /* Deep vignette, bias toward left */
+            background: radial-gradient(ellipse at 38% 44%, transparent 14%, rgba(0,0,0,0.52) 100%) !important;
           }
           .hero-ov3 {
-            background:
-              radial-gradient(ellipse at 35% 72%, rgba(0,255,136,0.28) 0%, rgba(0,255,136,0.10) 28%, transparent 52%),
-              radial-gradient(ellipse at 14% 92%, rgba(0,255,136,0.12) 0%, transparent 36%),
-              radial-gradient(ellipse at 60% 88%, rgba(0,200,100,0.06) 0%, transparent 28%) !important;
-            animation:glowBreathe 4s ease-in-out infinite !important;
+            /* Cold stadium arc light — top right, no green glow on text */
+            background: radial-gradient(ellipse at 76% 4%, rgba(220,240,232,0.14) 0%, rgba(200,228,216,0.05) 38%, transparent 58%) !important;
+            animation: none !important;
           }
           .hero-ov4 {
-            background: radial-gradient(ellipse at 55% -6%, rgba(220,255,240,0.10) 0%, transparent 50%) !important;
+            /* Rim light tracks with player (now at 74%) */
+            background: radial-gradient(ellipse at 90% 26%, rgba(190,218,200,0.08) 0%, transparent 30%) !important;
           }
           .hero-ov5 {
-            background:
-              linear-gradient(to top, rgba(0,12,5,0.68) 0%, rgba(0,12,5,0.18) 16%, transparent 36%),
-              radial-gradient(ellipse at 50% 104%, rgba(0,255,136,0.10) 0%, transparent 40%) !important;
+            /* Heavy ground darkness */
+            background: linear-gradient(to top, rgba(0,2,1,1.00) 0%, rgba(0,2,1,0.72) 12%, rgba(0,2,1,0.20) 28%, transparent 46%) !important;
           }
 
           .hero-grid {
@@ -255,9 +254,12 @@ export default function LandingPage() {
           .hero-phones { display:none !important; }
           .hero-hud    { display:none !important; }
 
+          /* Badge says "APERTE O PLAY" — same as headline: causes visual duplication */
+          .h-badge  { display:none !important; }
+
           .hero-left {
-            display:flex !important; flex-direction:column !important; gap:20px !important;
-            padding-top:calc(11dvh + env(safe-area-inset-top)) !important;
+            display:flex !important; flex-direction:column !important; gap:22px !important;
+            padding-top:calc(14dvh + env(safe-area-inset-top)) !important;
             padding-bottom:calc(32px + env(safe-area-inset-bottom)) !important;
             padding-left:24px !important; padding-right:24px !important;
             min-width:0 !important; flex:1 !important;
@@ -267,20 +269,19 @@ export default function LandingPage() {
             letter-spacing:0.22em !important; margin-bottom:0 !important;
             align-self:flex-start !important;
           }
-          .hero-rule {
-            display:block !important; width:28px; height:1px;
-            background:rgba(255,255,255,0.18);
-            border-radius:2px;
-            margin:0 0 8px !important;
-          }
+          /* Rule was badge-separator — hide without badge */
+          .hero-rule { display:none !important; }
+
           .hero-left h1 { margin-bottom:0 !important; }
           .hero-h1-line {
             font-size:clamp(52px,11vw,78px) !important;
             letter-spacing:-0.058em !important; line-height:0.90 !important;
             text-shadow:
-              0 4px 44px rgba(0,0,0,0.95),
-              0 2px 12px rgba(0,0,0,0.80),
-              0 0 80px rgba(0,0,0,0.5) !important;
+              0 0 1px  rgba(0,0,0,1),
+              0 2px 8px  rgba(0,0,0,1),
+              0 4px 22px rgba(0,0,0,0.97),
+              0 8px 44px rgba(0,0,0,0.88),
+              0 16px 72px rgba(0,0,0,0.60) !important;
           }
           .hero-sub { display:none !important; }
           .hero-mob-sub {
