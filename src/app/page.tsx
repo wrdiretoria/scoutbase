@@ -375,9 +375,13 @@ export default function LandingPage() {
           .lnc-mob          { display:block !important; }
         }
 
+        @media (max-width: 768px) {
+          .three-cols { grid-template-columns:1fr !important; gap:40px !important; }
+          .video-grid { grid-template-columns:repeat(3,1fr) !important; }
+        }
         @media (max-width: 480px) {
           .cards-grid   { grid-template-columns:1fr !important; }
-          .hero-h1-line { font-size:clamp(48px,12vw,70px) !important; }
+          .hero-h1-line { font-size:clamp(58px,14vw,88px) !important; letter-spacing:-0.046em !important; }
           .hero-tagline { font-size:clamp(16px,4.5vw,22px) !important; margin-top:6px !important; }
           .hero-mob-sub { font-size:12px !important; max-width:260px !important; }
           .dep-grid     { grid-template-columns:1fr !important; }
@@ -396,7 +400,7 @@ export default function LandingPage() {
           style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', objectPosition:'center center', zIndex:0 }}
         />
         {/* Overlay 1 */}
-        <div className="hero-ov1" style={{ position:'absolute', inset:0, zIndex:1, background:'linear-gradient(108deg, rgba(2,7,4,0.97) 0%, rgba(2,7,4,0.82) 36%, rgba(2,7,4,0.10) 70%, transparent 100%), linear-gradient(to top, rgba(1,5,2,0.75) 0%, rgba(1,5,2,0.28) 26%, transparent 50%), linear-gradient(to bottom, rgba(1,5,2,0.62) 0%, transparent 20%)' }} />
+        <div className="hero-ov1" style={{ position:'absolute', inset:0, zIndex:1, background:'linear-gradient(105deg, rgba(1,4,2,0.98) 0%, rgba(1,4,2,0.90) 30%, rgba(1,4,2,0.40) 55%, rgba(1,4,2,0.08) 72%, transparent 100%), linear-gradient(to top, rgba(1,5,2,0.88) 0%, rgba(1,5,2,0.30) 22%, transparent 46%), linear-gradient(to bottom, rgba(1,5,2,0.70) 0%, transparent 18%)' }} />
         {/* Overlay 2 */}
         <div className="hero-ov2" style={{ position:'absolute', inset:0, zIndex:1, background:'radial-gradient(ellipse at 58% 50%, transparent 26%, rgba(0,0,0,0.46) 60%, rgba(0,0,0,0.82) 100%)' }} />
         {/* Overlay 3 — neon green */}
@@ -423,68 +427,60 @@ export default function LandingPage() {
           <div className="hero-left" style={{ display:'flex', flexDirection:'column', gap:'36px', minWidth:0 }}>
 
             {/* Indicator */}
-            <div className="h-badge" style={{ display:'inline-flex', alignItems:'center', gap:'10px' }}>
-              <span className="live-dot" />
+            <div className="h-badge" style={{ display:'inline-flex', alignItems:'center', gap:'8px' }}>
+              <span style={{ fontSize:'10px', color:'#00FF88', fontWeight:700 }}>▶</span>
               <span style={{
                 fontSize:'10px', fontWeight:700,
-                color:'rgba(255,255,255,0.36)',
-                letterSpacing:'0.22em', textTransform:'uppercase',
+                color:'rgba(255,255,255,0.42)',
+                letterSpacing:'0.20em', textTransform:'uppercase',
               }}>
                 APERTE O PLAY
-              </span>
-              <span style={{ color:'rgba(255,255,255,0.18)', fontSize:'11px', fontWeight:300 }}>—</span>
-              <span style={{
-                fontSize:'13px', fontWeight:300, fontStyle:'italic',
-                color:'rgba(255,255,255,0.48)',
-                letterSpacing:'0.01em',
-              }}>
-                vem pro jogo.
               </span>
             </div>
 
             {/* Accent rule — mobile only */}
             <div className="hero-rule" />
 
-            {/* Headline — domina a tela */}
+            {/* Headline */}
             <h1 style={{ margin:0, padding:0 }}>
               <span className="h-line-1 hero-h1-line" style={{
                 display:'block',
-                fontSize:'clamp(68px,8.2vw,116px)',
+                fontSize:'clamp(72px,9.5vw,152px)',
                 fontWeight:900,
                 color:'white',
-                letterSpacing:'-0.045em',
-                lineHeight:0.87,
+                letterSpacing:'-0.046em',
+                lineHeight:0.84,
                 textTransform:'uppercase',
                 WebkitFontSmoothing:'antialiased',
                 MozOsxFontSmoothing:'grayscale',
               }}>
-                MEU
+                APERTE
               </span>
               <span className="h-line-2 hero-h1-line" style={{
                 display:'block',
-                fontSize:'clamp(68px,8.2vw,116px)',
+                fontSize:'clamp(72px,9.5vw,152px)',
                 fontWeight:900,
-                color:'white',
-                letterSpacing:'-0.045em',
-                lineHeight:0.87,
+                letterSpacing:'-0.046em',
+                lineHeight:0.84,
                 textTransform:'uppercase',
                 WebkitFontSmoothing:'antialiased',
                 MozOsxFontSmoothing:'grayscale',
               }}>
-                CRAQUE.
+                <span style={{ color:'white' }}>O </span><span style={{ color:'#00FF88' }}>PLAY.</span>
               </span>
             </h1>
 
-            {/* Desktop subtitle */}
-            <p className="h-sub hero-sub" style={{
-              fontSize:'clamp(13px,0.95vw,14.5px)',
-              color:'rgba(255,255,255,0.32)',
-              lineHeight:1.82, margin:0, maxWidth:'300px',
-              fontWeight:400, letterSpacing:'0.01em',
+            {/* Subheadline */}
+            <p className="h-line-3" style={{
+              margin:0, padding:0,
+              fontSize:'clamp(20px,2.4vw,34px)',
+              fontWeight:300, fontStyle:'italic',
+              color:'rgba(255,255,255,0.70)',
+              letterSpacing:'0.01em', lineHeight:1,
             }}>
-              Crie seu perfil, receba avaliações de treinadores
-              certificados e entre no radar de scouts e clubes do Brasil.
+              vem pro jogo.
             </p>
+
 
             {/* Mobile subtitle */}
             <p className="hero-mob-sub">
@@ -534,11 +530,58 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* RIGHT — HeroFeed protagonista */}
-          <div className="hero-phones" style={{ display:'flex', alignItems:'center', justifyContent:'flex-end', minWidth:0 }}>
+          {/* RIGHT — AO VIVO card */}
+          <div className="hero-phones" style={{ display:'flex', alignItems:'flex-start', justifyContent:'flex-end', paddingTop:'clamp(48px,7vh,80px)', minWidth:0 }}>
+            <div style={{
+              width:'296px', flexShrink:0,
+              background:'rgba(4,9,5,0.88)',
+              backdropFilter:'blur(28px)', WebkitBackdropFilter:'blur(28px)',
+              border:'1px solid rgba(255,255,255,0.07)',
+              borderRadius:'18px', padding:'18px',
+              boxShadow:'0 32px 80px rgba(0,0,0,0.70)',
+            }}>
+              {/* Header */}
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'16px' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+                  <span className="live-dot" />
+                  <span style={{ fontSize:'11px', fontWeight:800, color:'white', letterSpacing:'0.12em', textTransform:'uppercase' }}>AO VIVO AGORA</span>
+                </div>
+                <span style={{ fontSize:'10px', color:'rgba(255,255,255,0.35)', fontWeight:500 }}>12 scouts online</span>
+              </div>
 
-            <div style={{ position:'relative', width:'360px', height:'clamp(400px,58vh,540px)', flexShrink:0 }}>
-              <HeroFeed />
+              {/* Activity items */}
+              {[
+                { init:'JS', bg:'#1a5c3a', text:'João Silva recebeu nota', bold:'82', icon:'↑', iconColor:'#00FF88', time:'há 2 min' },
+                { init:'PF', bg:'#1e3a5f', text:'Pedro foi avaliado por treinador', bold:'', icon:'👁', iconColor:'rgba(255,255,255,0.4)', time:'há 3 min' },
+                { init:'LO', bg:'#5f1e3a', text:'Lucas subiu', bold:'+3', suffix:' no OVR', icon:'↑', iconColor:'#00FF88', time:'há 5 min' },
+                { init:'NA', bg:'#2a4a1a', text:'Novo atleta de Recife entrou', bold:'', icon:'+', iconColor:'rgba(255,255,255,0.4)', time:'há 7 min' },
+              ].map(({ init, bg, text, bold, suffix, icon, iconColor, time }, i) => (
+                <div key={i} style={{
+                  display:'flex', alignItems:'center', gap:'10px',
+                  padding:'10px 0',
+                  borderBottom: i < 3 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                }}>
+                  <div style={{
+                    width:'30px', height:'30px', borderRadius:'50%', flexShrink:0,
+                    background:bg, display:'flex', alignItems:'center', justifyContent:'center',
+                    fontSize:'9px', fontWeight:800, color:'white',
+                  }}>{init}</div>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <p style={{ margin:0, fontSize:'12px', fontWeight:500, color:'rgba(255,255,255,0.80)', lineHeight:1.3, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+                      {text}{bold ? <span style={{ color:'#00FF88', fontWeight:800 }}> {bold}</span> : ''}{suffix ?? ''}
+                    </p>
+                    <p style={{ margin:0, fontSize:'9.5px', color:'rgba(255,255,255,0.28)', marginTop:'2px' }}>{time}</p>
+                  </div>
+                  <span style={{ fontSize:'14px', color:iconColor, flexShrink:0, fontWeight:700 }}>{icon}</span>
+                </div>
+              ))}
+
+              {/* Footer */}
+              <div style={{ marginTop:'14px', paddingTop:'12px', borderTop:'1px solid rgba(255,255,255,0.05)' }}>
+                <span style={{ fontSize:'12px', color:'rgba(255,255,255,0.32)', fontWeight:500, letterSpacing:'0.01em' }}>
+                  Ver todas as atividades →
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -562,6 +605,134 @@ export default function LandingPage() {
         </div>
 
         {/* HUD decorativo — removido (substituído pelo HeroFeed) */}
+      </section>
+
+      {/* ══════════════════════════════════════ RANKING | VÍDEOS | MAPA ══ */}
+      <section style={{ background:'#050906', padding:'56px 24px 40px' }}>
+        <div className="three-cols" style={{ maxWidth:'1200px', margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 1.5fr 1fr', gap:'32px' }}>
+
+          {/* ── COL 1: Ranking ── */}
+          <div>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'22px' }}>
+              <span style={{ fontSize:'9.5px', fontWeight:800, color:'rgba(255,255,255,0.38)', letterSpacing:'0.20em', textTransform:'uppercase' }}>Os mais vistos da semana</span>
+              <Link href="/ranking" style={{ fontSize:'11px', color:'#00FF88', textDecoration:'none', fontWeight:600, letterSpacing:'0.04em' }}>Ver ranking →</Link>
+            </div>
+            {[
+              { nome:'Kauã Ferreira',  pos:'ATA', ovr:91, delta:'+2' },
+              { nome:'Bruno Santos',   pos:'MAT', ovr:77, delta:'+6' },
+              { nome:'Thiago Mendes',  pos:'CA',  ovr:83, delta:'+1' },
+              { nome:'João Mendes',    pos:'ATA', ovr:85, delta:'+3' },
+              { nome:'Pedro Lima',     pos:'GK',  ovr:74, delta:'—'  },
+            ].map((a, i) => (
+              <div key={i} style={{
+                display:'flex', alignItems:'center', gap:'12px',
+                padding:'11px 0',
+                borderBottom:'1px solid rgba(255,255,255,0.04)',
+              }}>
+                <span style={{ fontSize:'11px', fontWeight:600, color:'rgba(255,255,255,0.22)', width:'14px', flexShrink:0 }}>{i+1}</span>
+                <div style={{ width:'32px', height:'32px', borderRadius:'50%', background:['#1a5c3a','#1e3a5f','#5f1e3a','#3a5f1e','#3a1e5f'][i], display:'flex', alignItems:'center', justifyContent:'center', fontSize:'9px', fontWeight:800, color:'white', flexShrink:0 }}>
+                  {a.nome.split(' ').map(w=>w[0]).slice(0,2).join('')}
+                </div>
+                <span style={{ flex:1, fontSize:'13px', fontWeight:600, color:'rgba(255,255,255,0.88)', minWidth:0, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{a.nome}</span>
+                <span style={{ fontSize:'8.5px', fontWeight:800, color:'#00FF88', background:'rgba(0,255,136,0.08)', padding:'2px 6px', borderRadius:'4px', letterSpacing:'0.05em', flexShrink:0 }}>{a.pos}</span>
+                <span style={{ fontSize:'11px', color:'rgba(255,255,255,0.45)', flexShrink:0 }}>OVR <strong style={{ color:'rgba(255,255,255,0.88)', fontWeight:900 }}>{a.ovr}</strong></span>
+                <span style={{ fontSize:'11px', fontWeight:700, color: a.delta === '—' ? 'rgba(255,255,255,0.25)' : '#00FF88', flexShrink:0 }}>{a.delta !== '—' ? `↑ ${a.delta.replace('+','')}` : '—'}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* ── COL 2: Vídeos ── */}
+          <div>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'22px' }}>
+              <span style={{ fontSize:'9.5px', fontWeight:800, color:'rgba(255,255,255,0.38)', letterSpacing:'0.20em', textTransform:'uppercase' }}>Lances que estão rodando o Brasil</span>
+              <span style={{ fontSize:'11px', color:'#00FF88', fontWeight:600, letterSpacing:'0.04em', cursor:'pointer' }}>Ver todos →</span>
+            </div>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'10px' }}>
+              {[
+                { views:'23.4K', likes:'1.2K', bg:'linear-gradient(180deg,#0a1a0f 0%,#051008 100%)' },
+                { views:'18.7K', likes:'932',  bg:'linear-gradient(180deg,#0d1208 0%,#060c04 100%)' },
+                { views:'15.2K', likes:'723',  bg:'linear-gradient(180deg,#0a0f15 0%,#050810 100%)' },
+              ].map((v, i) => (
+                <div key={i} style={{ borderRadius:'10px', overflow:'hidden', background:v.bg, position:'relative', aspectRatio:'9/14', minHeight:'160px' }}>
+                  {/* Cinematic overlay */}
+                  <div style={{ position:'absolute', inset:0, background:'linear-gradient(180deg,rgba(0,0,0,0.10) 0%,rgba(0,0,0,0.65) 100%)' }} />
+                  {/* Noise texture overlay */}
+                  <div style={{ position:'absolute', inset:0, opacity:0.06, backgroundImage:'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")', backgroundSize:'cover' }} />
+                  {/* Play button */}
+                  <div style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%)', width:'40px', height:'40px', borderRadius:'50%', background:'rgba(255,255,255,0.12)', backdropFilter:'blur(10px)', WebkitBackdropFilter:'blur(10px)', border:'1px solid rgba(255,255,255,0.20)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <span style={{ fontSize:'14px', color:'white', marginLeft:'3px' }}>▶</span>
+                  </div>
+                  {/* Stats */}
+                  <div style={{ position:'absolute', bottom:'8px', left:'8px', right:'8px', display:'flex', gap:'10px' }}>
+                    <span style={{ fontSize:'9px', color:'rgba(255,255,255,0.60)', fontWeight:600 }}>▷ {v.views}</span>
+                    <span style={{ fontSize:'9px', color:'rgba(255,255,255,0.60)', fontWeight:600 }}>♡ {v.likes}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── COL 3: Mapa ── */}
+          <div>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'22px' }}>
+              <span style={{ fontSize:'9.5px', fontWeight:800, color:'rgba(255,255,255,0.38)', letterSpacing:'0.20em', textTransform:'uppercase' }}>O futebol acontece em todo lugar</span>
+              <span style={{ fontSize:'11px', color:'#00FF88', fontWeight:600, letterSpacing:'0.04em', cursor:'pointer' }}>Ver mapa →</span>
+            </div>
+            {/* Brazil map SVG */}
+            <div style={{ position:'relative', width:'100%', height:'180px', marginBottom:'20px' }}>
+              <svg viewBox="0 0 340 300" style={{ width:'100%', height:'100%' }} fill="none">
+                <path d="M170,18 L205,22 L228,35 L248,42 L265,38 L278,50 L282,65 L275,78 L285,92 L290,108 L282,122 L290,138 L285,155 L272,168 L268,185 L258,198 L248,210 L238,222 L225,232 L215,245 L208,258 L198,268 L188,275 L178,272 L168,265 L158,258 L148,248 L138,235 L128,225 L118,215 L108,205 L98,192 L90,178 L85,165 L78,152 L72,138 L68,124 L62,110 L58,96 L62,82 L70,70 L78,58 L88,48 L100,40 L112,34 L125,28 L140,22 L155,18 L170,18Z" stroke="rgba(0,255,136,0.18)" strokeWidth="1.2" fill="rgba(0,255,136,0.03)" />
+                {/* Major city dots */}
+                {[
+                  [170,80],[145,105],[190,120],[155,148],[178,162],
+                  [130,135],[200,148],[162,188],[148,210],[185,205],
+                  [220,130],[105,155],[235,165],[170,230],[192,240],
+                ].map(([x,y],i) => (
+                  <g key={i}>
+                    <circle cx={x} cy={y} r="3.5" fill="#00FF88" opacity="0.7" />
+                    <circle cx={x} cy={y} r="7" fill="#00FF88" opacity="0.12" />
+                  </g>
+                ))}
+              </svg>
+            </div>
+            <div style={{ display:'flex', gap:'28px' }}>
+              <div>
+                <div style={{ fontSize:'clamp(24px,3vw,32px)', fontWeight:900, color:'white', lineHeight:1 }}>26</div>
+                <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.32)', marginTop:'4px' }}>estados</div>
+              </div>
+              <div>
+                <div style={{ fontSize:'clamp(24px,3vw,32px)', fontWeight:900, color:'white', lineHeight:1 }}>+480</div>
+                <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.32)', marginTop:'4px' }}>cidades</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════ LOGOS CLUBES ══ */}
+      <section style={{ background:'#040806', borderTop:'1px solid rgba(255,255,255,0.04)', padding:'28px 24px 32px' }}>
+        <p style={{ textAlign:'center', fontSize:'9px', fontWeight:700, letterSpacing:'0.22em', color:'rgba(255,255,255,0.22)', textTransform:'uppercase', margin:'0 0 24px' }}>
+          Confiança de quem faz o futebol acontecer
+        </p>
+        <div style={{ display:'flex', justifyContent:'center', alignItems:'center', gap:'clamp(20px,4vw,48px)', flexWrap:'wrap', opacity:0.50, filter:'grayscale(1) brightness(1.8)' }}>
+          {[
+            { abbr:'SPFC', label:'São Paulo FC' },
+            { abbr:'FLA',  label:'Flamengo' },
+            { abbr:'CAM',  label:'Atlético MG' },
+            { abbr:'SCO',  label:'Corinthians' },
+            { abbr:'GRE',  label:'Grêmio' },
+            { abbr:'INT',  label:'Internacional' },
+            { abbr:'RBB',  label:'Red Bull Bragantino' },
+            { abbr:'SAN',  label:'Santos FC' },
+          ].map(({ abbr, label }) => (
+            <div key={abbr} title={label} style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'4px' }}>
+              <div style={{ width:'40px', height:'40px', borderRadius:'50%', border:'1.5px solid rgba(255,255,255,0.45)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                <span style={{ fontSize:'8px', fontWeight:900, color:'white', letterSpacing:'0.02em' }}>{abbr}</span>
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* ══════════════════════════════════════ MOBILE: AO VIVO ══ */}
