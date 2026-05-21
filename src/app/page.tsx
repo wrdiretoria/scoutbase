@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import NavBar from './components/NavBar'
 import ActivityTicker from './components/ActivityTicker'
 import TeamOfWeekSection from './components/TeamOfWeekSection'
@@ -10,6 +10,7 @@ import ParaQuemSection from './components/ParaQuemSection'
 import StatsBar from './components/StatsBar'
 import PhotoBillboard from './components/PhotoBillboard'
 import HeroFeed from './components/HeroFeed'
+import LancesSection from './components/LancesSection'
 
 const cards = [
   {
@@ -19,7 +20,7 @@ const cards = [
       </svg>
     ),
     title: 'Para treinadores',
-    desc: 'Avalie atletas, construa reputação e seja reconhecido no futebol de base.',
+    desc: 'Avalie atletas, construa reputaÃ§Ã£o e seja reconhecido no futebol de base.',
     href: '/treinador/cadastro',
   },
   {
@@ -38,8 +39,8 @@ const cards = [
         <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
       </svg>
     ),
-    title: 'Para responsáveis',
-    desc: 'Acompanhe cada passo do seu filho com segurança e clareza.',
+    title: 'Para responsÃ¡veis',
+    desc: 'Acompanhe cada passo do seu filho com seguranÃ§a e clareza.',
     href: '/pais/entrar',
   },
   {
@@ -49,7 +50,7 @@ const cards = [
       </svg>
     ),
     title: 'Para scouts',
-    desc: 'Encontre novos talentos de forma rápida e eficiente.',
+    desc: 'Encontre novos talentos de forma rÃ¡pida e eficiente.',
     href: '/scout/busca',
   },
 ]
@@ -59,7 +60,7 @@ export default function LandingPage() {
     <div style={{ background: '#06100a', color: 'white', minHeight: '100vh', fontFamily: 'system-ui, sans-serif' }}>
 
       <style>{`
-        /* ─── KEYFRAMES ─── */
+        /* â”€â”€â”€ KEYFRAMES â”€â”€â”€ */
         @keyframes float        { 0%,100%{transform:translateY(0)}   50%{transform:translateY(-12px)} }
         @keyframes floatBack    { 0%,100%{transform:translateY(0)}   50%{transform:translateY(-8px)} }
         @keyframes heroFadeUp   { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
@@ -84,7 +85,7 @@ export default function LandingPage() {
         @keyframes lineGrow     { from{transform:scaleX(0)} to{transform:scaleX(1)} }
         @keyframes depCardIn    { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
 
-        /* ─── HERO ─── */
+        /* â”€â”€â”€ HERO â”€â”€â”€ */
         .card-item     { transition:background .2s; cursor:default; }
         .card-item:hover { background:rgba(34,197,94,0.06); }
 
@@ -95,7 +96,7 @@ export default function LandingPage() {
         .h-sub    { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards 0.66s; opacity:0; }
         .h-ctas   { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards 0.80s; opacity:0; }
         .h-social { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards 0.95s; opacity:0; }
-        .neon-word    { /* glow removido — headline domina sem efeito */ }
+        .neon-word    { /* glow removido â€” headline domina sem efeito */ }
         .live-dot     { display:inline-block; width:6px; height:6px; border-radius:50%; background:#00FF88; animation:pulseDot 2s ease-in-out infinite; box-shadow:0 0 8px rgba(0,255,136,0.8); }
         .hero-hud     { display:block; }
         .hero-h1-line { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
@@ -106,7 +107,7 @@ export default function LandingPage() {
         .hero-bolt { display:none; }
         .hero-rule { display:none; }
 
-        /* ── Desktop CTA hover ── */
+        /* â”€â”€ Desktop CTA hover â”€â”€ */
         .hero-cta-primary {
           transition:filter .18s ease, transform .18s ease, box-shadow .18s ease !important;
         }
@@ -122,7 +123,7 @@ export default function LandingPage() {
           color:rgba(255,255,255,0.70) !important;
         }
 
-        /* Stats panel — hidden desktop, shown mobile inside headline row */
+        /* Stats panel â€” hidden desktop, shown mobile inside headline row */
         .hero-stats-panel { display:none; position:relative; overflow:hidden; }
         .hero-stats-panel::before {
           content:''; position:absolute; top:0; left:0; right:0; height:52%;
@@ -131,7 +132,7 @@ export default function LandingPage() {
         }
         .hero-stats-panel > * { position:relative; z-index:1; }
 
-        /* ─── AO VIVO CARD ─── */
+        /* â”€â”€â”€ AO VIVO CARD â”€â”€â”€ */
         @keyframes liveIn { from{opacity:0;transform:translateX(10px)} to{opacity:1;transform:translateX(0)} }
         @keyframes lncIn  { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
         @keyframes pRing  { 0%{transform:scale(1);opacity:0.8} 100%{transform:scale(2.5);opacity:0} }
@@ -159,14 +160,14 @@ export default function LandingPage() {
         .lnc-ring { position:absolute; inset:0; border-radius:50%; border:1.5px solid #00FF88; animation:pRing 2s ease-out infinite; }
         .lnc-mob  { display:none; }
 
-        /* ─── COMO FUNCIONA ─── */
+        /* â”€â”€â”€ COMO FUNCIONA â”€â”€â”€ */
         .steps-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0; position:relative; }
         .steps-connector { position:absolute; top:44px; left:calc(16.66% + 20px); right:calc(16.66% + 20px); height:1px; background:linear-gradient(90deg,transparent 0%,rgba(0,255,136,0.25) 15%,rgba(0,255,136,0.25) 85%,transparent 100%); pointer-events:none; }
         .step-card { padding:0 36px; text-align:center; }
         .step-icon-wrap { width:88px; height:88px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:34px; margin:0 auto 24px; position:relative; }
         .step-icon-wrap::after { content:''; position:absolute; inset:-1px; border-radius:50%; background:inherit; filter:blur(16px); opacity:0.35; z-index:-1; }
 
-        /* ─── DEPOIMENTOS ─── */
+        /* â”€â”€â”€ DEPOIMENTOS â”€â”€â”€ */
         .dep-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
         .dep-card {
           background:linear-gradient(168deg,#0c1510 0%,#070d09 100%);
@@ -180,7 +181,7 @@ export default function LandingPage() {
           box-shadow:0 20px 48px rgba(0,0,0,0.6),0 0 32px rgba(0,255,136,0.06);
         }
 
-        /* ─── FINAL CTA ─── */
+        /* â”€â”€â”€ FINAL CTA â”€â”€â”€ */
         .fcta-primary {
           display:inline-flex; align-items:center; gap:10px;
           padding:18px 42px; border-radius:100px;
@@ -215,7 +216,7 @@ export default function LandingPage() {
           box-shadow:0 0 18px rgba(0,255,136,0.10);
         }
 
-        /* ─── MOBILE HERO ─── */
+        /* â”€â”€â”€ MOBILE HERO â”€â”€â”€ */
         @media (max-width: 768px) {
           .hero-section { height:100dvh !important; min-height:0 !important; }
           .hero-player-img { object-position:74% 8% !important; }
@@ -232,7 +233,7 @@ export default function LandingPage() {
             background: radial-gradient(ellipse at 38% 44%, transparent 14%, rgba(0,0,0,0.52) 100%) !important;
           }
           .hero-ov3 {
-            /* Cold stadium arc light — top right, no green glow on text */
+            /* Cold stadium arc light â€” top right, no green glow on text */
             background: radial-gradient(ellipse at 76% 4%, rgba(220,240,232,0.14) 0%, rgba(200,228,216,0.05) 38%, transparent 58%) !important;
             animation: none !important;
           }
@@ -254,7 +255,7 @@ export default function LandingPage() {
           .hero-phones { display:none !important; }
           .hero-hud    { display:none !important; }
 
-          /* Badge says "APERTE O PLAY" — same as headline: causes visual duplication */
+          /* Badge says "APERTE O PLAY" â€” same as headline: causes visual duplication */
           .h-badge  { display:none !important; }
 
           .hero-left {
@@ -269,7 +270,7 @@ export default function LandingPage() {
             letter-spacing:0.22em !important; margin-bottom:0 !important;
             align-self:flex-start !important;
           }
-          /* Rule was badge-separator — hide without badge */
+          /* Rule was badge-separator â€” hide without badge */
           .hero-rule { display:none !important; }
 
           .hero-left h1 { margin-bottom:0 !important; }
@@ -341,7 +342,7 @@ export default function LandingPage() {
           }
           .hero-social-txt { margin:0 !important; font-size:10.5px !important; color:rgba(255,255,255,0.52) !important; line-height:1.44 !important; }
           .hero-social-txt strong { color:rgba(255,255,255,0.92) !important; font-weight:800 !important; }
-          /* Headline + stats — flex row, stats sits flush next to h1 */
+          /* Headline + stats â€” flex row, stats sits flush next to h1 */
           .hero-headline-row {
             display:flex !important; flex-direction:row !important;
             align-items:flex-start !important; gap:12px !important;
@@ -398,63 +399,12 @@ export default function LandingPage() {
           .dep-grid     { grid-template-columns:1fr !important; }
         }
 
-        /* ─── LANCES / REELS ─── */
-        @keyframes reelPlay {
-          0%,100% { transform:translate(-50%,-50%) scale(1);   opacity:.80 }
-          50%      { transform:translate(-50%,-50%) scale(1.07); opacity:1   }
-        }
-        .reels-track {
-          display:flex; gap:14px;
-          padding:0 clamp(24px,5vw,80px) 6px;
-          overflow-x:auto; scroll-snap-type:x mandatory;
-          -webkit-overflow-scrolling:touch;
-          scrollbar-width:none; -ms-overflow-style:none;
-        }
-        .reels-track::-webkit-scrollbar { display:none; }
-        .reels-card {
-          flex:0 0 min(272px,72vw); scroll-snap-align:start;
-          border-radius:18px; overflow:hidden; position:relative;
-          cursor:pointer; aspect-ratio:9/16; min-height:390px;
-          transition:transform .28s cubic-bezier(.22,1,.36,1);
-        }
-        .reels-card:hover { transform:scale(1.018); }
-        .reels-card:hover .reel-play-btn { opacity:1 !important; transform:translate(-50%,-50%) scale(1.12) !important; }
-        .reel-play-btn {
-          position:absolute; top:50%; left:50%;
-          width:54px; height:54px; border-radius:50%;
-          background:rgba(255,255,255,0.10);
-          backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
-          border:1.5px solid rgba(255,255,255,0.22);
-          display:flex; align-items:center; justify-content:center;
-          animation:reelPlay 3.8s ease-in-out infinite;
-          transition:transform .22s ease, opacity .22s ease;
-          z-index:2;
-        }
-        .reel-play-triangle {
-          width:0; height:0;
-          border-top:10px solid transparent;
-          border-bottom:10px solid transparent;
-          border-left:17px solid rgba(255,255,255,0.88);
-          margin-left:4px;
-        }
-        @media (min-width:768px) {
-          .reels-track {
-            display:grid; grid-template-columns:repeat(4,1fr); gap:18px;
-            overflow-x:visible; max-width:1280px; margin:0 auto;
-            padding:0 clamp(24px,6vw,80px);
-          }
-          .reels-card { flex:none; width:auto; min-height:460px; }
-        }
-        @media (max-width:480px) {
-          .reels-card { min-height:360px; }
-          .reels-header-wrap { flex-direction:column !important; align-items:flex-start !important; gap:14px !important; }
-          .reels-see-all { align-self:flex-start !important; padding-bottom:0 !important; }
-        }
+        /* Lances / Reels â†’ LancesSection.tsx (client component) */
       `}</style>
 
       <NavBar />
 
-      {/* ══════════════════════════════════════════════ HERO ══ */}
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• HERO â•â• */}
       <section className="hero-section" style={{ position:'relative', height:'100svh', overflow:'hidden' }}>
         {/* BG */}
         <img
@@ -463,28 +413,28 @@ export default function LandingPage() {
           alt="" aria-hidden
           style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', objectPosition:'center center', zIndex:0 }}
         />
-        {/* Overlay 1 — escuridão cinematográfica esquerda */}
+        {/* Overlay 1 â€” escuridÃ£o cinematogrÃ¡fica esquerda */}
         <div className="hero-ov1" style={{ position:'absolute', inset:0, zIndex:1,
           background:'linear-gradient(100deg, rgba(0,1,0,1.00) 0%, rgba(0,1,0,0.97) 24%, rgba(0,1,0,0.64) 46%, rgba(0,1,0,0.18) 63%, transparent 80%), linear-gradient(to top, rgba(0,2,1,0.97) 0%, rgba(0,2,1,0.45) 15%, transparent 38%), linear-gradient(to bottom, rgba(0,2,1,0.82) 0%, transparent 20%)'
         }} />
-        {/* Overlay 2 — vinheta de profundidade */}
+        {/* Overlay 2 â€” vinheta de profundidade */}
         <div className="hero-ov2" style={{ position:'absolute', inset:0, zIndex:1,
           background:'radial-gradient(ellipse at 54% 46%, transparent 12%, rgba(0,0,0,0.15) 38%, rgba(0,0,0,0.68) 100%)'
         }} />
-        {/* Overlay 3 — luz de arco do estádio (de cima) */}
+        {/* Overlay 3 â€” luz de arco do estÃ¡dio (de cima) */}
         <div className="hero-ov3" style={{ position:'absolute', inset:0, zIndex:1, pointerEvents:'none',
           background:'radial-gradient(ellipse at 50% -24%, rgba(248,255,252,0.18) 0%, rgba(220,240,230,0.07) 30%, transparent 56%)'
         }} />
-        {/* Overlay 4 — rim light no jogador (direita) */}
+        {/* Overlay 4 â€” rim light no jogador (direita) */}
         <div className="hero-ov4" style={{ position:'absolute', inset:0, zIndex:1, pointerEvents:'none',
           background:'radial-gradient(ellipse at 84% 36%, rgba(190,218,200,0.07) 0%, transparent 30%)'
         }} />
-        {/* Overlay 5 — escuridão do chão */}
+        {/* Overlay 5 â€” escuridÃ£o do chÃ£o */}
         <div className="hero-ov5" style={{ position:'absolute', inset:0, zIndex:1, pointerEvents:'none',
           background:'linear-gradient(to top, rgba(0,2,1,0.98) 0%, rgba(0,2,1,0.58) 11%, rgba(0,2,1,0.14) 24%, transparent 40%)'
         }} />
 
-        {/* Floating particles — mobile only */}
+        {/* Floating particles â€” mobile only */}
         <div className="hero-particles" aria-hidden>
           <span className="hp hp1"/><span className="hp hp2"/><span className="hp hp3"/>
           <span className="hp hp4"/><span className="hp hp5"/><span className="hp hp6"/>
@@ -502,7 +452,7 @@ export default function LandingPage() {
 
             {/* Indicator */}
             <div className="h-badge" style={{ display:'inline-flex', alignItems:'center', gap:'8px' }}>
-              <span style={{ fontSize:'10px', color:'#00FF88', fontWeight:700 }}>▶</span>
+              <span style={{ fontSize:'10px', color:'#00FF88', fontWeight:700 }}>â–¶</span>
               <span style={{
                 fontSize:'10px', fontWeight:700,
                 color:'rgba(255,255,255,0.42)',
@@ -512,10 +462,10 @@ export default function LandingPage() {
               </span>
             </div>
 
-            {/* Accent rule — mobile only */}
+            {/* Accent rule â€” mobile only */}
             <div className="hero-rule" />
 
-            {/* Headline + stats — row on mobile (stats hidden on desktop) */}
+            {/* Headline + stats â€” row on mobile (stats hidden on desktop) */}
             <div className="hero-headline-row">
 
               <h1 style={{ margin:0, padding:0 }}>
@@ -548,12 +498,12 @@ export default function LandingPage() {
                 </span>
               </h1>
 
-              {/* Stats pill — mobile only, aligns to top of headline */}
+              {/* Stats pill â€” mobile only, aligns to top of headline */}
               <div className="hero-stats-panel">
                 {[
-                  { icon:'⚽', label:'ATLETAS', value:'GRÁTIS'   },
-                  { icon:'★',  label:'RANKING', value:'AO VIVO'  },
-                  { icon:'🛡', label:'DADOS',   value:'SEGUROS'  },
+                  { icon:'âš½', label:'ATLETAS', value:'GRÃTIS'   },
+                  { icon:'â˜…',  label:'RANKING', value:'AO VIVO'  },
+                  { icon:'ðŸ›¡', label:'DADOS',   value:'SEGUROS'  },
                 ].map(s => (
                   <div key={s.label} style={{ display:'flex', alignItems:'center', gap:'8px' }}>
                     <span style={{ fontSize:'13px', flexShrink:0 }}>{s.icon}</span>
@@ -575,13 +525,13 @@ export default function LandingPage() {
               color:'rgba(255,255,255,0.44)',
               letterSpacing:'0.04em', lineHeight:1,
             }}>
-              O jogo começa aqui.
+              O jogo comeÃ§a aqui.
             </p>
 
 
             {/* Mobile subtitle */}
             <p className="hero-mob-sub">
-              Crie seu perfil, receba avaliações e seja descoberto por scouts reais.
+              Crie seu perfil, receba avaliaÃ§Ãµes e seja descoberto por scouts reais.
             </p>
 
             {/* CTAs */}
@@ -594,7 +544,7 @@ export default function LandingPage() {
                 borderRadius:'100px', padding:'15px 38px', textDecoration:'none',
                 letterSpacing:'0.13em',
               }}>
-                CRIAR MEU CARD — GRÁTIS
+                CRIAR MEU CARD â€” GRÃTIS
               </Link>
               <Link href="/login" className="hero-cta-secondary" style={{
                 display:'inline-flex', alignItems:'center', gap:'5px',
@@ -602,11 +552,11 @@ export default function LandingPage() {
                 color:'rgba(255,255,255,0.36)',
                 textDecoration:'none', letterSpacing:'0.06em',
               }}>
-                Já tenho conta →
+                JÃ¡ tenho conta â†’
               </Link>
             </div>
 
-            {/* Social proof — mobile */}
+            {/* Social proof â€” mobile */}
             <div className="hero-social h-social">
               <div className="hero-avatars">
                 {[
@@ -620,12 +570,12 @@ export default function LandingPage() {
                 ))}
               </div>
               <p className="hero-social-txt">
-                <strong>+25.000</strong> atletas já estão no radar
+                <strong>+25.000</strong> atletas jÃ¡ estÃ£o no radar
               </p>
             </div>
           </div>
 
-          {/* RIGHT — AO VIVO card */}
+          {/* RIGHT â€” AO VIVO card */}
           <div className="hero-phones" style={{ display:'flex', alignItems:'flex-start', justifyContent:'flex-end', paddingTop:'clamp(48px,7vh,80px)', minWidth:0 }}>
             <div style={{
               width:'296px', flexShrink:0,
@@ -646,10 +596,10 @@ export default function LandingPage() {
 
               {/* Activity items */}
               {[
-                { init:'JS', bg:'#1a5c3a', text:'João Silva recebeu nota', bold:'82', icon:'↑', iconColor:'#00FF88', time:'há 2 min' },
-                { init:'PF', bg:'#1e3a5f', text:'Pedro foi avaliado por treinador', bold:'', icon:'👁', iconColor:'rgba(255,255,255,0.4)', time:'há 3 min' },
-                { init:'LO', bg:'#5f1e3a', text:'Lucas subiu', bold:'+3', suffix:' no OVR', icon:'↑', iconColor:'#00FF88', time:'há 5 min' },
-                { init:'NA', bg:'#2a4a1a', text:'Novo atleta de Recife entrou', bold:'', icon:'+', iconColor:'rgba(255,255,255,0.4)', time:'há 7 min' },
+                { init:'JS', bg:'#1a5c3a', text:'JoÃ£o Silva recebeu nota', bold:'82', icon:'â†‘', iconColor:'#00FF88', time:'hÃ¡ 2 min' },
+                { init:'PF', bg:'#1e3a5f', text:'Pedro foi avaliado por treinador', bold:'', icon:'ðŸ‘', iconColor:'rgba(255,255,255,0.4)', time:'hÃ¡ 3 min' },
+                { init:'LO', bg:'#5f1e3a', text:'Lucas subiu', bold:'+3', suffix:' no OVR', icon:'â†‘', iconColor:'#00FF88', time:'hÃ¡ 5 min' },
+                { init:'NA', bg:'#2a4a1a', text:'Novo atleta de Recife entrou', bold:'', icon:'+', iconColor:'rgba(255,255,255,0.4)', time:'hÃ¡ 7 min' },
               ].map(({ init, bg, text, bold, suffix, icon, iconColor, time }, i) => (
                 <div key={i} style={{
                   display:'flex', alignItems:'center', gap:'10px',
@@ -674,183 +624,35 @@ export default function LandingPage() {
               {/* Footer */}
               <div style={{ marginTop:'14px', paddingTop:'12px', borderTop:'1px solid rgba(255,255,255,0.05)' }}>
                 <span style={{ fontSize:'12px', color:'rgba(255,255,255,0.32)', fontWeight:500, letterSpacing:'0.01em' }}>
-                  Ver todas as atividades →
+                  Ver todas as atividades â†’
                 </span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* HUD decorativo — removido (substituído pelo HeroFeed) */}
+        {/* HUD decorativo â€” removido (substituÃ­do pelo HeroFeed) */}
       </section>
 
-      {/* ══════════════════════════════════════ LANCES / REELS ══ */}
-      <section style={{ background:'#020604', padding:'80px 0 88px', overflow:'hidden' }}>
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• LANCES / REELS â•â• */}
+      <LancesSection />
 
-        {/* Header */}
-        <div className="reels-header-wrap" style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', padding:'0 clamp(24px,5vw,80px)', marginBottom:'36px', maxWidth:'1280px', margin:'0 auto 36px' }}>
-          <div>
-            <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'12px' }}>
-              <span style={{ display:'inline-block', width:'5px', height:'5px', borderRadius:'50%', background:'#00FF88', animation:'pulseDot 2s ease-in-out infinite', flexShrink:0 }} />
-              <span style={{ fontSize:'9.5px', fontWeight:700, color:'rgba(0,255,136,0.50)', letterSpacing:'0.24em', textTransform:'uppercase' }}>
-                Plataforma viva · atualizado agora
-              </span>
-            </div>
-            <h2 style={{ margin:0, fontSize:'clamp(26px,3.8vw,44px)', fontWeight:900, color:'white', letterSpacing:'-0.032em', lineHeight:1.04, textTransform:'uppercase' }}>
-              Lances que estão<br/>
-              <span style={{ color:'#00FF88' }}>rodando o Brasil</span>
-            </h2>
-          </div>
-          <a href="#" className="reels-see-all" style={{ fontSize:'12px', fontWeight:600, color:'rgba(255,255,255,0.28)', textDecoration:'none', letterSpacing:'0.07em', paddingBottom:'7px', flexShrink:0, whiteSpace:'nowrap' }}>
-            Ver todos →
-          </a>
-        </div>
-
-        {/* Cards track — horizontal scroll on mobile, 4-col grid on desktop */}
-        <div className="reels-track">
-          {[
-            {
-              atleta: 'Kauã Ferreira',
-              pos:    'Atacante',
-              cidade: 'Recife',
-              views:  '23,4K',
-              likes:  '1,2K',
-              dur:    '0:47',
-              tag:    '🔥 Em alta',
-              tagColor: '#ff6b35',
-              tagBg:    'rgba(255,107,53,0.14)',
-              tagBorder:'rgba(255,107,53,0.30)',
-              bg:    'linear-gradient(170deg,#090f09 0%,#0d1c0d 40%,#091409 100%)',
-              light: 'radial-gradient(ellipse at 40% 15%, rgba(0,230,100,0.20) 0%, rgba(0,160,60,0.07) 40%, transparent 65%)',
-            },
-            {
-              atleta: 'Lucas Silva',
-              pos:    'Meia',
-              cidade: 'BH',
-              views:  '18,7K',
-              likes:  '932',
-              dur:    '0:31',
-              tag:    '👀 Scout assistiu',
-              tagColor: '#a78bfa',
-              tagBg:    'rgba(167,139,250,0.12)',
-              tagBorder:'rgba(167,139,250,0.28)',
-              bg:    'linear-gradient(170deg,#06081a 0%,#0a0f2e 40%,#070a20 100%)',
-              light: 'radial-gradient(ellipse at 60% 18%, rgba(100,130,255,0.20) 0%, rgba(70,90,200,0.06) 40%, transparent 65%)',
-            },
-            {
-              atleta: 'Gabriel Rocha',
-              pos:    'Ponta Direita',
-              cidade: 'Salvador',
-              views:  '15,2K',
-              likes:  '723',
-              dur:    '0:22',
-              tag:    '⚽ Golaço',
-              tagColor: '#fbbf24',
-              tagBg:    'rgba(251,191,36,0.12)',
-              tagBorder:'rgba(251,191,36,0.28)',
-              bg:    'linear-gradient(170deg,#120a00 0%,#201400 40%,#160e00 100%)',
-              light: 'radial-gradient(ellipse at 50% 14%, rgba(255,180,0,0.22) 0%, rgba(200,120,0,0.07) 40%, transparent 65%)',
-            },
-            {
-              atleta: 'João Mendes',
-              pos:    'Atacante',
-              cidade: 'São Paulo',
-              views:  '12,8K',
-              likes:  '601',
-              dur:    '0:38',
-              tag:    '⭐ Destaque',
-              tagColor: 'rgba(255,255,255,0.72)',
-              tagBg:    'rgba(255,255,255,0.08)',
-              tagBorder:'rgba(255,255,255,0.18)',
-              bg:    'linear-gradient(170deg,#0c070f 0%,#190d24 40%,#100818 100%)',
-              light: 'radial-gradient(ellipse at 55% 16%, rgba(180,90,255,0.18) 0%, rgba(130,60,200,0.06) 40%, transparent 65%)',
-            },
-          ].map((r, i) => (
-            <div key={i} className="reels-card" style={{ background:r.bg }}>
-
-              {/* Stadium atmospheric light */}
-              <div style={{ position:'absolute', inset:0, background:r.light }} />
-
-              {/* Film grain — cinematic texture */}
-              <div style={{
-                position:'absolute', inset:0, opacity:0.07,
-                backgroundImage:`url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-                backgroundSize:'cover',
-              }} />
-
-              {/* Bottom cinematic gradient */}
-              <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,0.96) 0%, rgba(0,0,0,0.62) 28%, rgba(0,0,0,0.12) 56%, transparent 100%)' }} />
-
-              {/* ── Top row: tag + duration ── */}
-              <div style={{ position:'absolute', top:'14px', left:'14px', right:'14px', display:'flex', justifyContent:'space-between', alignItems:'center', zIndex:3 }}>
-                <div style={{
-                  background:r.tagBg, border:`1px solid ${r.tagBorder}`,
-                  backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)',
-                  borderRadius:'100px', padding:'5px 12px',
-                  fontSize:'10px', fontWeight:700, color:r.tagColor,
-                  letterSpacing:'0.01em', lineHeight:1.3,
-                }}>
-                  {r.tag}
-                </div>
-                <div style={{
-                  background:'rgba(0,0,0,0.55)',
-                  backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)',
-                  borderRadius:'100px', padding:'5px 10px',
-                  fontSize:'10px', fontWeight:600, color:'rgba(255,255,255,0.62)',
-                  letterSpacing:'0.04em',
-                }}>
-                  {r.dur}
-                </div>
-              </div>
-
-              {/* ── Play button ── */}
-              <div className="reel-play-btn">
-                <div className="reel-play-triangle" />
-              </div>
-
-              {/* ── Bottom info ── */}
-              <div style={{ position:'absolute', bottom:0, left:0, right:0, padding:'18px 18px 20px', zIndex:3 }}>
-                {/* Stats */}
-                <div style={{ display:'flex', alignItems:'center', gap:'14px', marginBottom:'10px' }}>
-                  <span style={{ display:'flex', alignItems:'center', gap:'5px', fontSize:'11px', fontWeight:700, color:'rgba(255,255,255,0.50)' }}>
-                    <span style={{ opacity:0.6, fontSize:'10px' }}>▷</span>{r.views}
-                  </span>
-                  <span style={{ display:'flex', alignItems:'center', gap:'5px', fontSize:'11px', fontWeight:700, color:'rgba(255,255,255,0.50)' }}>
-                    <span style={{ opacity:0.6, fontSize:'10px' }}>♡</span>{r.likes}
-                  </span>
-                </div>
-                {/* Name */}
-                <div style={{ fontSize:'16px', fontWeight:900, color:'white', letterSpacing:'-0.02em', lineHeight:1.15, marginBottom:'4px' }}>
-                  {r.atleta}
-                </div>
-                {/* Position · City */}
-                <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.38)', fontWeight:500, letterSpacing:'0.01em' }}>
-                  {r.pos}&nbsp;·&nbsp;{r.cidade}
-                </div>
-              </div>
-
-            </div>
-          ))}
-        </div>
-
-      </section>
-
-      {/* ══════════════════════════════════════ RANKING | VÍDEOS | MAPA ══ */}
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• RANKING | VÃDEOS | MAPA â•â• */}
       <section style={{ background:'#050906', padding:'56px 24px 40px' }}>
         <div className="three-cols" style={{ maxWidth:'1200px', margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 1.5fr 1fr', gap:'32px' }}>
 
-          {/* ── COL 1: Ranking ── */}
+          {/* â”€â”€ COL 1: Ranking â”€â”€ */}
           <div>
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'22px' }}>
               <span style={{ fontSize:'9.5px', fontWeight:800, color:'rgba(255,255,255,0.38)', letterSpacing:'0.20em', textTransform:'uppercase' }}>Os mais vistos da semana</span>
-              <Link href="/ranking" style={{ fontSize:'11px', color:'#00FF88', textDecoration:'none', fontWeight:600, letterSpacing:'0.04em' }}>Ver ranking →</Link>
+              <Link href="/ranking" style={{ fontSize:'11px', color:'#00FF88', textDecoration:'none', fontWeight:600, letterSpacing:'0.04em' }}>Ver ranking â†’</Link>
             </div>
             {[
-              { nome:'Kauã Ferreira',  pos:'ATA', ovr:91, delta:'+2' },
+              { nome:'KauÃ£ Ferreira',  pos:'ATA', ovr:91, delta:'+2' },
               { nome:'Bruno Santos',   pos:'MAT', ovr:77, delta:'+6' },
               { nome:'Thiago Mendes',  pos:'CA',  ovr:83, delta:'+1' },
-              { nome:'João Mendes',    pos:'ATA', ovr:85, delta:'+3' },
-              { nome:'Pedro Lima',     pos:'GK',  ovr:74, delta:'—'  },
+              { nome:'JoÃ£o Mendes',    pos:'ATA', ovr:85, delta:'+3' },
+              { nome:'Pedro Lima',     pos:'GK',  ovr:74, delta:'â€”'  },
             ].map((a, i) => (
               <div key={i} style={{
                 display:'flex', alignItems:'center', gap:'12px',
@@ -864,16 +666,16 @@ export default function LandingPage() {
                 <span style={{ flex:1, fontSize:'13px', fontWeight:600, color:'rgba(255,255,255,0.88)', minWidth:0, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{a.nome}</span>
                 <span style={{ fontSize:'8.5px', fontWeight:800, color:'#00FF88', background:'rgba(0,255,136,0.08)', padding:'2px 6px', borderRadius:'4px', letterSpacing:'0.05em', flexShrink:0 }}>{a.pos}</span>
                 <span style={{ fontSize:'11px', color:'rgba(255,255,255,0.45)', flexShrink:0 }}>OVR <strong style={{ color:'rgba(255,255,255,0.88)', fontWeight:900 }}>{a.ovr}</strong></span>
-                <span style={{ fontSize:'11px', fontWeight:700, color: a.delta === '—' ? 'rgba(255,255,255,0.25)' : '#00FF88', flexShrink:0 }}>{a.delta !== '—' ? `↑ ${a.delta.replace('+','')}` : '—'}</span>
+                <span style={{ fontSize:'11px', fontWeight:700, color: a.delta === 'â€”' ? 'rgba(255,255,255,0.25)' : '#00FF88', flexShrink:0 }}>{a.delta !== 'â€”' ? `â†‘ ${a.delta.replace('+','')}` : 'â€”'}</span>
               </div>
             ))}
           </div>
 
-          {/* ── COL 2: Vídeos ── */}
+          {/* â”€â”€ COL 2: VÃ­deos â”€â”€ */}
           <div>
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'22px' }}>
-              <span style={{ fontSize:'9.5px', fontWeight:800, color:'rgba(255,255,255,0.38)', letterSpacing:'0.20em', textTransform:'uppercase' }}>Lances que estão rodando o Brasil</span>
-              <span style={{ fontSize:'11px', color:'#00FF88', fontWeight:600, letterSpacing:'0.04em', cursor:'pointer' }}>Ver todos →</span>
+              <span style={{ fontSize:'9.5px', fontWeight:800, color:'rgba(255,255,255,0.38)', letterSpacing:'0.20em', textTransform:'uppercase' }}>Lances que estÃ£o rodando o Brasil</span>
+              <span style={{ fontSize:'11px', color:'#00FF88', fontWeight:600, letterSpacing:'0.04em', cursor:'pointer' }}>Ver todos â†’</span>
             </div>
             <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'10px' }}>
               {[
@@ -888,23 +690,23 @@ export default function LandingPage() {
                   <div style={{ position:'absolute', inset:0, opacity:0.06, backgroundImage:'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")', backgroundSize:'cover' }} />
                   {/* Play button */}
                   <div style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%)', width:'40px', height:'40px', borderRadius:'50%', background:'rgba(255,255,255,0.12)', backdropFilter:'blur(10px)', WebkitBackdropFilter:'blur(10px)', border:'1px solid rgba(255,255,255,0.20)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                    <span style={{ fontSize:'14px', color:'white', marginLeft:'3px' }}>▶</span>
+                    <span style={{ fontSize:'14px', color:'white', marginLeft:'3px' }}>â–¶</span>
                   </div>
                   {/* Stats */}
                   <div style={{ position:'absolute', bottom:'8px', left:'8px', right:'8px', display:'flex', gap:'10px' }}>
-                    <span style={{ fontSize:'9px', color:'rgba(255,255,255,0.60)', fontWeight:600 }}>▷ {v.views}</span>
-                    <span style={{ fontSize:'9px', color:'rgba(255,255,255,0.60)', fontWeight:600 }}>♡ {v.likes}</span>
+                    <span style={{ fontSize:'9px', color:'rgba(255,255,255,0.60)', fontWeight:600 }}>â–· {v.views}</span>
+                    <span style={{ fontSize:'9px', color:'rgba(255,255,255,0.60)', fontWeight:600 }}>â™¡ {v.likes}</span>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* ── COL 3: Mapa ── */}
+          {/* â”€â”€ COL 3: Mapa â”€â”€ */}
           <div>
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'22px' }}>
               <span style={{ fontSize:'9.5px', fontWeight:800, color:'rgba(255,255,255,0.38)', letterSpacing:'0.20em', textTransform:'uppercase' }}>O futebol acontece em todo lugar</span>
-              <span style={{ fontSize:'11px', color:'#00FF88', fontWeight:600, letterSpacing:'0.04em', cursor:'pointer' }}>Ver mapa →</span>
+              <span style={{ fontSize:'11px', color:'#00FF88', fontWeight:600, letterSpacing:'0.04em', cursor:'pointer' }}>Ver mapa â†’</span>
             </div>
             {/* Brazil map SVG */}
             <div style={{ position:'relative', width:'100%', height:'180px', marginBottom:'20px' }}>
@@ -938,18 +740,18 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════ LOGOS CLUBES ══ */}
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• LOGOS CLUBES â•â• */}
       <section style={{ background:'#040806', borderTop:'1px solid rgba(255,255,255,0.04)', padding:'28px 24px 32px' }}>
         <p style={{ textAlign:'center', fontSize:'9px', fontWeight:700, letterSpacing:'0.22em', color:'rgba(255,255,255,0.22)', textTransform:'uppercase', margin:'0 0 24px' }}>
-          Confiança de quem faz o futebol acontecer
+          ConfianÃ§a de quem faz o futebol acontecer
         </p>
         <div style={{ display:'flex', justifyContent:'center', alignItems:'center', gap:'clamp(20px,4vw,48px)', flexWrap:'wrap', opacity:0.50, filter:'grayscale(1) brightness(1.8)' }}>
           {[
-            { abbr:'SPFC', label:'São Paulo FC' },
+            { abbr:'SPFC', label:'SÃ£o Paulo FC' },
             { abbr:'FLA',  label:'Flamengo' },
-            { abbr:'CAM',  label:'Atlético MG' },
+            { abbr:'CAM',  label:'AtlÃ©tico MG' },
             { abbr:'SCO',  label:'Corinthians' },
-            { abbr:'GRE',  label:'Grêmio' },
+            { abbr:'GRE',  label:'GrÃªmio' },
             { abbr:'INT',  label:'Internacional' },
             { abbr:'RBB',  label:'Red Bull Bragantino' },
             { abbr:'SAN',  label:'Santos FC' },
@@ -963,13 +765,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════ MOBILE: AO VIVO ══ */}
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• MOBILE: AO VIVO â•â• */}
       <div className="lnc-mob" style={{ padding:'20px 20px 0', background:'#06100a' }}>
         <div className="lnc">
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'12px', paddingBottom:'10px', borderBottom:'1px solid rgba(0,255,136,0.10)' }}>
             <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
               <div style={{ position:'relative', width:'22px', height:'22px', flexShrink:0 }}>
-                <div style={{ position:'relative', zIndex:1, width:'100%', height:'100%', borderRadius:'50%', background:'rgba(0,255,136,0.12)', border:'1px solid rgba(0,255,136,0.38)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px' }}>🔥</div>
+                <div style={{ position:'relative', zIndex:1, width:'100%', height:'100%', borderRadius:'50%', background:'rgba(0,255,136,0.12)', border:'1px solid rgba(0,255,136,0.38)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px' }}>ðŸ”¥</div>
                 <div className="lnc-ring" />
               </div>
               <span style={{ fontSize:'10px', fontWeight:800, color:'rgba(0,255,136,0.9)', letterSpacing:'0.16em', textTransform:'uppercase' }}>AO VIVO AGORA</span>
@@ -977,11 +779,11 @@ export default function LandingPage() {
             <span style={{ fontSize:'9px', fontWeight:700, color:'rgba(0,255,136,0.55)', background:'rgba(0,255,136,0.08)', border:'1px solid rgba(0,255,136,0.18)', borderRadius:'100px', padding:'2px 8px', letterSpacing:'0.08em' }}>LIVE</span>
           </div>
           {[
-            { init:'JS', bg:'#1a5c3a', icon:'⭐', text:'João Silva recebeu nota 82', time:'2 min' },
-            { init:'PS', bg:'#1e3a5f', icon:'🎯', text:'Pedro Santos avaliado por treinador', time:'5 min' },
-            { init:'LO', bg:'#5f1e3a', icon:'📈', text:'Lucas Oliveira subiu +3 no OVR', time:'8 min' },
-            { init:'RK', bg:'#3a1e5f', icon:'🏆', text:'Ranking Sub-17 atualizado', time:'11 min' },
-            { init:'👁', bg:'#0d3320', icon:'🟢', text:'12 scouts estão online agora', time:'agora' },
+            { init:'JS', bg:'#1a5c3a', icon:'â­', text:'JoÃ£o Silva recebeu nota 82', time:'2 min' },
+            { init:'PS', bg:'#1e3a5f', icon:'ðŸŽ¯', text:'Pedro Santos avaliado por treinador', time:'5 min' },
+            { init:'LO', bg:'#5f1e3a', icon:'ðŸ“ˆ', text:'Lucas Oliveira subiu +3 no OVR', time:'8 min' },
+            { init:'RK', bg:'#3a1e5f', icon:'ðŸ†', text:'Ranking Sub-17 atualizado', time:'11 min' },
+            { init:'ðŸ‘', bg:'#0d3320', icon:'ðŸŸ¢', text:'12 scouts estÃ£o online agora', time:'agora' },
           ].map(({ init, bg, icon, text, time }, i) => (
             <div key={text} className={`lnc-it li${i + 1}`}>
               <div style={{ width:'28px', height:'28px', borderRadius:'50%', background:bg, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'9px', fontWeight:800, color:'white', flexShrink:0, border:'1px solid rgba(255,255,255,0.10)' }}>
@@ -991,7 +793,7 @@ export default function LandingPage() {
                 <p style={{ margin:0, fontSize:'11px', fontWeight:600, color:'rgba(255,255,255,0.82)', lineHeight:1.3, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
                   {icon} {text}
                 </p>
-                <p style={{ margin:0, fontSize:'9px', color:'rgba(0,255,136,0.55)', fontWeight:600, marginTop:'2px' }}>{time === 'agora' ? 'agora' : `${time} atrás`}</p>
+                <p style={{ margin:0, fontSize:'9px', color:'rgba(0,255,136,0.55)', fontWeight:600, marginTop:'2px' }}>{time === 'agora' ? 'agora' : `${time} atrÃ¡s`}</p>
               </div>
               <div style={{ width:'5px', height:'5px', borderRadius:'50%', background:'#00FF88', flexShrink:0, boxShadow:'0 0 5px rgba(0,255,136,0.9)' }} />
             </div>
@@ -999,19 +801,19 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* ══════════════════════════════════════ TOP 3 ══ */}
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• TOP 3 â•â• */}
       <TeamOfWeekSection />
 
-      {/* ══════════════════════════════════════ CARD CRAQUE ══ */}
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• CARD CRAQUE â•â• */}
       <CardCraqueSection />
 
-      {/* ══════════════════════════════════════ BILLBOARD ══ */}
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• BILLBOARD â•â• */}
       <PhotoBillboard />
 
-      {/* ══════════════════════════════════════ ACTIVITY TICKER ══ */}
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• ACTIVITY TICKER â•â• */}
       <ActivityTicker />
 
-      {/* ══════════════════════════════════════ COMO FUNCIONA ══ */}
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• COMO FUNCIONA â•â• */}
       <section style={{ padding:'96px 20px 80px', background:'#030905', position:'relative', overflow:'hidden' }}>
         {/* Subtle grid background */}
         <div style={{
@@ -1032,13 +834,13 @@ export default function LandingPage() {
               Da escolinha ao contrato
             </h2>
             <p style={{ margin:0, fontSize:'clamp(14px,1.1vw,16px)', color:'rgba(255,255,255,0.38)', maxWidth:'460px', marginLeft:'auto', marginRight:'auto', lineHeight:1.70 }}>
-              Três passos simples que transformam um jovem talento em um atleta visível para o Brasil inteiro.
+              TrÃªs passos simples que transformam um jovem talento em um atleta visÃ­vel para o Brasil inteiro.
             </p>
           </div>
 
           {/* Steps */}
           <div className="steps-grid" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:0, position:'relative' }}>
-            {/* Connecting line — desktop */}
+            {/* Connecting line â€” desktop */}
             <div className="steps-connector" style={{
               position:'absolute', top:'44px', left:'calc(16.66% + 16px)', right:'calc(16.66% + 16px)',
               height:'1px',
@@ -1052,9 +854,9 @@ export default function LandingPage() {
             {[
               {
                 num:'01',
-                emoji:'⚡',
+                emoji:'âš¡',
                 title:'Crie seu perfil',
-                desc:'Em 2 minutos, de graça. Foto, posição, cidade, dados físicos e histórico completo de escolinhas.',
+                desc:'Em 2 minutos, de graÃ§a. Foto, posiÃ§Ã£o, cidade, dados fÃ­sicos e histÃ³rico completo de escolinhas.',
                 accentColor:'#00FF88',
                 iconBg:'rgba(0,255,136,0.08)',
                 iconBorder:'rgba(0,255,136,0.22)',
@@ -1062,9 +864,9 @@ export default function LandingPage() {
               },
               {
                 num:'02',
-                emoji:'🎯',
-                title:'Receba avaliações',
-                desc:'Treinadores certificados avaliam seus atributos e geram seu OVR — a nota oficial do Meu Craque.',
+                emoji:'ðŸŽ¯',
+                title:'Receba avaliaÃ§Ãµes',
+                desc:'Treinadores certificados avaliam seus atributos e geram seu OVR â€” a nota oficial do Meu Craque.',
                 accentColor:'#fbbf24',
                 iconBg:'rgba(251,191,36,0.08)',
                 iconBorder:'rgba(251,191,36,0.22)',
@@ -1072,9 +874,9 @@ export default function LandingPage() {
               },
               {
                 num:'03',
-                emoji:'🌎',
+                emoji:'ðŸŒŽ',
                 title:'Seja descoberto',
-                desc:'Scouts e clubes de todo o Brasil buscam ativamente por perfis como o seu. Sua janela está aberta.',
+                desc:'Scouts e clubes de todo o Brasil buscam ativamente por perfis como o seu. Sua janela estÃ¡ aberta.',
                 accentColor:'#a78bfa',
                 iconBg:'rgba(167,139,250,0.08)',
                 iconBorder:'rgba(167,139,250,0.22)',
@@ -1135,16 +937,16 @@ export default function LandingPage() {
               boxShadow:'0 0 36px rgba(0,255,136,0.30), 0 4px 18px rgba(0,0,0,0.4)',
               transition:'filter .2s, transform .15s',
             }}>
-              ⚽ COMEÇAR AGORA — É GRÁTIS
+              âš½ COMEÃ‡AR AGORA â€” Ã‰ GRÃTIS
             </Link>
             <p style={{ margin:'16px 0 0', fontSize:'12px', color:'rgba(255,255,255,0.22)', letterSpacing:'0.05em' }}>
-              SEM CARTÃO DE CRÉDITO · PERFIL PRONTO EM 2 MINUTOS
+              SEM CARTÃƒO DE CRÃ‰DITO Â· PERFIL PRONTO EM 2 MINUTOS
             </p>
           </div>
         </div>
       </section>
 
-      {/* ══════════════════════════════════════ DEPOIMENTOS ══ */}
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• DEPOIMENTOS â•â• */}
       <section style={{ padding:'80px 20px', background:'#040a06', position:'relative', overflow:'hidden' }}>
         {/* Subtle ambient */}
         <div style={{ position:'absolute', bottom:'-80px', left:'50%', transform:'translateX(-50%)', width:'700px', height:'300px', background:'radial-gradient(ellipse at center, rgba(0,255,136,0.04) 0%, transparent 65%)', pointerEvents:'none' }} />
@@ -1153,22 +955,22 @@ export default function LandingPage() {
           {/* Header */}
           <div style={{ textAlign:'center', marginBottom:'52px' }}>
             <div style={{ fontSize:'11px', fontWeight:700, color:'rgba(0,255,136,0.55)', letterSpacing:'0.20em', textTransform:'uppercase', marginBottom:'12px' }}>
-              Histórias reais
+              HistÃ³rias reais
             </div>
             <h2 style={{ margin:'0 0 12px', fontSize:'clamp(26px,5vw,40px)', fontWeight:900, color:'white', letterSpacing:'-0.03em' }}>
-              Quem usa, vira fã
+              Quem usa, vira fÃ£
             </h2>
             <p style={{ margin:0, fontSize:'15px', color:'rgba(255,255,255,0.35)' }}>
-              Atletas, treinadores e scouts que mudaram de nível com o Meu Craque.
+              Atletas, treinadores e scouts que mudaram de nÃ­vel com o Meu Craque.
             </p>
           </div>
 
           <div className="dep-grid" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'16px' }}>
             {[
               {
-                quote: '"Três semanas depois de criar meu perfil, recebi uma mensagem de um scout de Belo Horizonte. Nunca imaginei que algo assim fosse real."',
+                quote: '"TrÃªs semanas depois de criar meu perfil, recebi uma mensagem de um scout de Belo Horizonte. Nunca imaginei que algo assim fosse real."',
                 name: 'Rafael S.',
-                role: 'Atacante · 17 anos',
+                role: 'Atacante Â· 17 anos',
                 city: 'Santos, SP',
                 init: 'RS',
                 avatarBg: 'linear-gradient(135deg,#064e1e,#16a34a)',
@@ -1177,8 +979,8 @@ export default function LandingPage() {
                 topLine: 'rgba(0,255,136,0.35)',
               },
               {
-                quote: '"Finalmente tenho um histórico digital de cada atleta que avaliei. Meu trabalho ganhou o reconhecimento que nunca tive com papel e caneta."',
-                name: 'Coach André Lima',
+                quote: '"Finalmente tenho um histÃ³rico digital de cada atleta que avaliei. Meu trabalho ganhou o reconhecimento que nunca tive com papel e caneta."',
+                name: 'Coach AndrÃ© Lima',
                 role: 'Treinador certificado',
                 city: 'Campinas, SP',
                 init: 'AL',
@@ -1188,10 +990,10 @@ export default function LandingPage() {
                 topLine: 'rgba(96,165,250,0.35)',
               },
               {
-                quote: '"Em uma tarde, avaliei 40 perfis de atacantes de São Paulo e do Rio. Antes disso levaria semanas visitando escolinhas. É uma revolução."',
+                quote: '"Em uma tarde, avaliei 40 perfis de atacantes de SÃ£o Paulo e do Rio. Antes disso levaria semanas visitando escolinhas. Ã‰ uma revoluÃ§Ã£o."',
                 name: 'Marcus Veiga',
                 role: 'Scout profissional',
-                city: 'São Paulo, SP',
+                city: 'SÃ£o Paulo, SP',
                 init: 'MV',
                 avatarBg: 'linear-gradient(135deg,#3b1b8c,#a78bfa)',
                 stars: 5,
@@ -1210,7 +1012,7 @@ export default function LandingPage() {
 
                 {/* Stars */}
                 <div style={{ marginBottom:'18px', fontSize:'13px', letterSpacing:'2px', color:'#fbbf24' }}>
-                  {'★'.repeat(d.stars)}
+                  {'â˜…'.repeat(d.stars)}
                 </div>
 
                 {/* Quote */}
@@ -1232,7 +1034,7 @@ export default function LandingPage() {
                   </div>
                   <div>
                     <div style={{ fontSize:'14px', fontWeight:700, color:'white', marginBottom:'2px' }}>{d.name}</div>
-                    <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.32)', letterSpacing:'0.02em' }}>{d.role} · {d.city}</div>
+                    <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.32)', letterSpacing:'0.02em' }}>{d.role} Â· {d.city}</div>
                   </div>
                 </div>
               </div>
@@ -1241,22 +1043,22 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════ FEATURES ══ */}
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• FEATURES â•â• */}
       <FeaturesSection />
 
-      {/* ══════════════════════════════════════ PARA QUEM ══ */}
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• PARA QUEM â•â• */}
       <ParaQuemSection />
 
-      {/* ══════════════════════════════════════ PROSPECTS ══ */}
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• PROSPECTS â•â• */}
       <ProspectsSection />
 
-      {/* ══════════════════════════════════════ STATS ══ */}
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• STATS â•â• */}
       <StatsBar />
 
-      {/* ══════════════════════════════════════ RANKING ══ */}
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• RANKING â•â• */}
       <RankingSection />
 
-      {/* ══════════════════════════════════════ FINAL CTA ══ */}
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• FINAL CTA â•â• */}
       <section style={{ padding:'110px 20px', background:'#030905', position:'relative', overflow:'hidden' }}>
         {/* Background orb */}
         <div style={{
@@ -1284,7 +1086,7 @@ export default function LandingPage() {
             marginBottom:'28px',
           }}>
             <span className="live-dot" />
-            NÃO DEIXE PARA AMANHÃ
+            NÃƒO DEIXE PARA AMANHÃƒ
           </div>
 
           <h2 style={{
@@ -1299,18 +1101,18 @@ export default function LandingPage() {
               color:'#00FF88',
               textShadow:'0 0 40px rgba(0,255,136,0.45), 0 0 80px rgba(0,255,136,0.15)',
             }}>
-              A OPORTUNIDADE NÃO ESPERA.
+              A OPORTUNIDADE NÃƒO ESPERA.
             </span>
           </h2>
 
           <p style={{ margin:'0 0 44px', fontSize:'clamp(15px,1.2vw,18px)', color:'rgba(255,255,255,0.38)', lineHeight:1.68, maxWidth:'520px', marginLeft:'auto', marginRight:'auto' }}>
-            Crie seu perfil grátis agora e entre no radar dos scouts mais ativos do Brasil.
-            Seu próximo passo começa aqui.
+            Crie seu perfil grÃ¡tis agora e entre no radar dos scouts mais ativos do Brasil.
+            Seu prÃ³ximo passo comeÃ§a aqui.
           </p>
 
           <div className="fcta-wrap" style={{ display:'flex', gap:'14px', justifyContent:'center', flexWrap:'wrap', marginBottom:'28px' }}>
             <Link href="/atleta/cadastro" className="fcta-primary">
-              ⚽ SOU ATLETA — QUERO MEU CARD
+              âš½ SOU ATLETA â€” QUERO MEU CARD
             </Link>
             <Link href="/treinador/cadastro" className="fcta-secondary">
               SOU TREINADOR
@@ -1318,12 +1120,12 @@ export default function LandingPage() {
           </div>
 
           <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.18)', letterSpacing:'0.08em', textTransform:'uppercase' }}>
-            Grátis para atletas · Sem cartão · Perfil pronto em 2 minutos
+            GrÃ¡tis para atletas Â· Sem cartÃ£o Â· Perfil pronto em 2 minutos
           </p>
         </div>
       </section>
 
-      {/* ══════════════════════════════════════ CARDS BAR ══ */}
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• CARDS BAR â•â• */}
       <div style={{ background:'#080e09', borderTop:'1px solid rgba(34,197,94,0.12)' }}>
         <div className="cards-grid" style={{ maxWidth:'1280px', margin:'0 auto', display:'grid', gridTemplateColumns:'repeat(4,1fr)' }}>
           {cards.map((c, i) => (
@@ -1335,23 +1137,23 @@ export default function LandingPage() {
               <p style={{ margin:'0 0 6px', fontSize:'15px', fontWeight:700, color:'#22c55e' }}>{c.title}</p>
               <p style={{ margin:'0 0 14px', fontSize:'13px', color:'rgba(255,255,255,0.45)', lineHeight:1.58 }}>{c.desc}</p>
               <a href={c.href} style={{ fontSize:'13px', color:'rgba(0,255,136,0.75)', fontWeight:600, textDecoration:'none', letterSpacing:'0.01em' }}>
-                Saiba mais →
+                Saiba mais â†’
               </a>
             </div>
           ))}
         </div>
       </div>
 
-      {/* ══════════════════════════════════════ FOOTER ══ */}
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• FOOTER â•â• */}
       <footer style={{ background:'#06100a', borderTop:'1px solid rgba(255,255,255,0.04)', padding:'32px 40px' }}>
         <div className="footer-inner" style={{ maxWidth:'1280px', margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
           <span style={{ fontSize:'18px', fontWeight:800, letterSpacing:'0.04em', display:'flex', alignItems:'center', gap:'6px', flexShrink:0 }}>
-            <span>⚽</span>
+            <span>âš½</span>
             <span style={{ color:'white' }}>MEU </span>
             <span style={{ color:'#22c55e' }}>CRAQUE</span>
           </span>
           <p style={{ margin:0, fontSize:'13px', color:'rgba(255,255,255,0.24)', textAlign:'center' }}>
-            © {new Date().getFullYear()} Meu Craque. Todos os direitos reservados.
+            Â© {new Date().getFullYear()} Meu Craque. Todos os direitos reservados.
           </p>
           <div style={{ display:'flex', gap:'20px', flexShrink:0 }}>
             <Link href="/ranking" style={{ fontSize:'12px', color:'rgba(255,255,255,0.30)', textDecoration:'none', letterSpacing:'0.03em' }}>Ranking</Link>
