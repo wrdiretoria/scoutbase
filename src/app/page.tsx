@@ -95,7 +95,7 @@ export default function LandingPage() {
         .h-sub    { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards 0.66s; opacity:0; }
         .h-ctas   { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards 0.80s; opacity:0; }
         .h-social { animation:heroFadeUp 0.8s cubic-bezier(.22,1,.36,1) forwards 0.95s; opacity:0; }
-        .neon-word    { animation:glowPulse 3.5s ease-in-out infinite; }
+        .neon-word    { /* glow removido — headline domina sem efeito */ }
         .live-dot     { display:inline-block; width:6px; height:6px; border-radius:50%; background:#00FF88; animation:pulseDot 2s ease-in-out infinite; box-shadow:0 0 8px rgba(0,255,136,0.8); }
         .hero-hud     { display:block; }
         .hero-h1-line { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
@@ -108,25 +108,18 @@ export default function LandingPage() {
 
         /* ── Desktop CTA hover ── */
         .hero-cta-primary {
-          transition:filter .18s ease, transform .15s ease, box-shadow .18s ease !important;
+          transition:filter .18s ease, transform .18s ease, box-shadow .18s ease !important;
         }
         .hero-cta-primary:hover {
-          filter:brightness(1.10) !important;
-          transform:translateY(-1px) !important;
-          box-shadow:
-            0 0 0 1px rgba(0,255,136,0.48),
-            0 0 36px rgba(0,255,136,0.44),
-            0 0 72px rgba(0,255,136,0.16),
-            0 6px 22px rgba(0,0,0,0.46),
-            inset 0 1px 0 rgba(255,255,255,0.28) !important;
+          filter:brightness(1.07) !important;
+          transform:translateY(-2px) !important;
+          box-shadow:0 8px 32px rgba(0,0,0,0.52) !important;
         }
         .hero-cta-secondary {
-          transition:border-color .2s ease, box-shadow .2s ease, color .2s ease !important;
+          transition:color .2s ease !important;
         }
         .hero-cta-secondary:hover {
-          border-color:rgba(0,255,136,0.36) !important;
-          box-shadow:0 0 18px rgba(0,255,136,0.14) !important;
-          color:rgba(255,255,255,0.94) !important;
+          color:rgba(255,255,255,0.70) !important;
         }
 
         /* Stats panel shine */
@@ -144,13 +137,12 @@ export default function LandingPage() {
         @keyframes pRing  { 0%{transform:scale(1);opacity:0.8} 100%{transform:scale(2.5);opacity:0} }
 
         .lnc {
-          background:rgba(3,13,7,0.84);
-          backdrop-filter:blur(26px) saturate(170%);
-          -webkit-backdrop-filter:blur(26px) saturate(170%);
-          border:1px solid rgba(0,255,136,0.18);
-          border-top:1.5px solid rgba(0,255,136,0.46);
+          background:rgba(4,10,6,0.80);
+          backdrop-filter:blur(22px);
+          -webkit-backdrop-filter:blur(22px);
+          border:1px solid rgba(255,255,255,0.06);
           border-radius:18px; padding:14px;
-          box-shadow:0 0 36px rgba(0,255,136,0.11),0 20px 56px rgba(0,0,0,0.65),inset 0 0 28px rgba(0,255,136,0.03);
+          box-shadow:0 24px 60px rgba(0,0,0,0.60);
           animation:lncIn .55s cubic-bezier(.22,1,.36,1) forwards .45s; opacity:0;
         }
         .lnc-it {
@@ -272,19 +264,16 @@ export default function LandingPage() {
           }
 
           .hero-badge {
-            font-size:8px !important; padding:5px 14px !important;
-            letter-spacing:0.20em !important; margin-bottom:12px !important;
-            border-color:rgba(0,255,136,0.40) !important;
-            background:rgba(0,255,136,0.07) !important;
+            letter-spacing:0.22em !important; margin-bottom:0 !important;
             align-self:flex-start !important;
           }
           .hero-rule {
-            display:block !important; width:32px; height:2px;
-            background:linear-gradient(90deg,#00FF88,rgba(0,255,136,0.18));
-            border-radius:2px; box-shadow:0 0 14px rgba(0,255,136,0.90);
-            margin:0 0 16px !important;
+            display:block !important; width:28px; height:1px;
+            background:rgba(255,255,255,0.18);
+            border-radius:2px;
+            margin:0 0 8px !important;
           }
-          .hero-left h1 { margin-bottom:auto !important; }
+          .hero-left h1 { margin-bottom:0 !important; }
           .hero-h1-line {
             font-size:clamp(52px,11vw,78px) !important;
             letter-spacing:-0.058em !important; line-height:0.90 !important;
@@ -301,52 +290,36 @@ export default function LandingPage() {
             letter-spacing:0.010em !important; max-width:290px !important;
           }
           .hero-ctas-wrap {
-            flex-direction:column !important; align-items:stretch !important;
-            gap:10px !important; margin-top:0 !important; margin-bottom:14px !important;
+            flex-direction:column !important; align-items:flex-start !important;
+            gap:14px !important; margin-top:0 !important; margin-bottom:14px !important;
             width:100% !important; align-self:stretch !important;
           }
           .hero-cta-primary {
             position:relative !important; overflow:hidden !important;
-            width:100% !important; font-size:13px !important;
-            padding:13px 22px !important; border-radius:100px !important;
+            align-self:stretch !important;
+            font-size:13px !important;
+            padding:14px 22px !important; border-radius:100px !important;
             letter-spacing:0.09em !important; gap:7px !important; flex-shrink:0 !important;
             -webkit-tap-highlight-color:transparent !important;
             background:linear-gradient(160deg,#00FF99 0%,#00E07A 52%,#00CC66 100%) !important;
             color:#020c05 !important; font-weight:800 !important;
-            box-shadow:
-              0 0 0 1px rgba(0,255,136,0.42),
-              0 0 22px rgba(0,255,136,0.36),
-              0 0 50px rgba(0,255,136,0.12),
-              0 4px 16px rgba(0,0,0,0.55),
-              inset 0 1px 0 rgba(255,255,255,0.26) !important;
-            transition:transform .15s ease, box-shadow .18s ease, filter .15s ease !important;
+            box-shadow:0 4px 20px rgba(0,0,0,0.42) !important;
+            transition:transform .15s ease, filter .15s ease !important;
           }
           .hero-cta-primary:active {
-            transform:scale(0.95) !important;
-            filter:brightness(0.92) !important;
-          }
-          .hero-cta-primary::after {
-            content:''; position:absolute; top:0; bottom:0; width:45%;
-            background:linear-gradient(90deg,transparent,rgba(255,255,255,0.22),transparent);
-            transform:skewX(-18deg);
-            animation:shimmerFlow 3.5s ease-in-out infinite 1.8s;
+            transform:scale(0.96) !important;
+            filter:brightness(0.94) !important;
           }
           .hero-bolt { display:inline-block !important; font-style:normal; font-size:11px !important; }
           .hero-cta-secondary {
-            width:100% !important; font-size:12.5px !important;
-            padding:12px 16px !important; border-radius:100px !important;
-            text-align:center !important;
-            background:rgba(255,255,255,0.06) !important;
-            border:1px solid rgba(255,255,255,0.18) !important;
-            backdrop-filter:blur(12px) !important; -webkit-backdrop-filter:blur(12px) !important;
-            -webkit-tap-highlight-color:transparent !important;
-            white-space:nowrap !important; color:rgba(255,255,255,0.80) !important;
+            font-size:13px !important;
+            padding:4px 0 !important;
+            background:none !important;
+            border:none !important;
+            width:auto !important;
+            backdrop-filter:none !important; -webkit-backdrop-filter:none !important;
+            color:rgba(255,255,255,0.40) !important;
             font-weight:600 !important; letter-spacing:0.06em !important;
-            transition:border-color .2s ease, box-shadow .2s ease !important;
-          }
-          .hero-cta-secondary:active {
-            border-color:rgba(0,255,136,0.42) !important;
-            box-shadow:0 0 16px rgba(0,255,136,0.14) !important;
           }
           .hero-social {
             display:flex !important; align-items:center !important;
@@ -427,7 +400,7 @@ export default function LandingPage() {
         {/* Overlay 2 */}
         <div className="hero-ov2" style={{ position:'absolute', inset:0, zIndex:1, background:'radial-gradient(ellipse at 58% 50%, transparent 26%, rgba(0,0,0,0.46) 60%, rgba(0,0,0,0.82) 100%)' }} />
         {/* Overlay 3 — neon green */}
-        <div className="hero-ov3" style={{ position:'absolute', inset:0, zIndex:1, background:'radial-gradient(ellipse at 8% 78%, rgba(0,255,136,0.22) 0%, rgba(0,255,136,0.08) 28%, transparent 55%), radial-gradient(ellipse at 24% 96%, rgba(0,255,136,0.10) 0%, transparent 34%), radial-gradient(ellipse at 3% 54%, rgba(0,200,100,0.06) 0%, transparent 28%)', animation:'glowBreathe 4.5s ease-in-out infinite' }} />
+        <div className="hero-ov3" style={{ position:'absolute', inset:0, zIndex:1, background:'radial-gradient(ellipse at 8% 78%, rgba(0,255,136,0.06) 0%, transparent 50%), radial-gradient(ellipse at 24% 96%, rgba(0,255,136,0.03) 0%, transparent 38%)' }} />
         {/* Overlay 4 — stadium lights */}
         <div className="hero-ov4" style={{ position:'absolute', inset:0, zIndex:1, pointerEvents:'none', background:'radial-gradient(ellipse at 62% -8%, rgba(235,255,245,0.13) 0%, rgba(200,240,220,0.05) 32%, transparent 60%), radial-gradient(ellipse at 78% -4%, rgba(255,255,255,0.05) 0%, transparent 40%), radial-gradient(ellipse at 44% -14%, rgba(200,255,225,0.07) 0%, transparent 38%)' }} />
         {/* Overlay 5 — ground fog */}
@@ -447,77 +420,98 @@ export default function LandingPage() {
         }}>
 
           {/* LEFT */}
-          <div className="hero-left" style={{ display:'flex', flexDirection:'column', gap:'22px', minWidth:0 }}>
-            {/* Badge + CTA — mesma linha */}
-            <div className="h-badge hero-badge-row" style={{ display:'flex', alignItems:'center', gap:'14px', flexWrap:'wrap' }}>
-              <span className="hero-badge" style={{
-                display:'inline-flex', alignItems:'center', gap:'10px', flexShrink:0,
-                padding:'6px 18px 6px 12px', borderRadius:'100px',
-                border:'1px solid rgba(0,255,136,0.38)', background:'rgba(0,255,136,0.07)',
-                backdropFilter:'blur(10px)', WebkitBackdropFilter:'blur(10px)',
-                boxShadow:'0 0 18px rgba(0,255,136,0.14), inset 0 1px 0 rgba(255,255,255,0.06)',
-                fontSize:'9.5px', fontWeight:700, color:'rgba(0,255,136,0.88)', letterSpacing:'0.20em',
+          <div className="hero-left" style={{ display:'flex', flexDirection:'column', gap:'32px', minWidth:0 }}>
+
+            {/* Indicator — sem pill, sem glow */}
+            <div className="h-badge" style={{ display:'inline-flex', alignItems:'center', gap:'9px' }}>
+              <span className="live-dot" />
+              <span style={{
+                fontSize:'10px', fontWeight:700,
+                color:'rgba(255,255,255,0.36)',
+                letterSpacing:'0.22em', textTransform:'uppercase',
               }}>
-                <span className="live-dot" />
                 APERTE O PLAY
               </span>
-              <Link href="/atleta/cadastro" className="hero-cta-primary" style={{
-                display:'inline-flex', alignItems:'center', justifyContent:'center',
-                position:'relative', overflow:'hidden',
-                gap:'6px', flexShrink:0,
-                background:'linear-gradient(160deg,#00FF99 0%,#00E07A 52%,#00CC66 100%)',
-                color:'#020c05', fontWeight:800, fontSize:'13px',
-                borderRadius:'100px', padding:'10px 22px', textDecoration:'none',
-                letterSpacing:'0.08em', whiteSpace:'nowrap',
-                boxShadow:'0 0 0 1px rgba(0,255,136,0.38),0 0 24px rgba(0,255,136,0.32),0 0 52px rgba(0,255,136,0.10),0 4px 18px rgba(0,0,0,0.42),inset 0 1px 0 rgba(255,255,255,0.26)',
-              }}>
-                <span className="hero-bolt" aria-hidden>⚽</span>
-                CRIAR MEU CARD — GRÁTIS
-              </Link>
             </div>
 
             {/* Accent rule — mobile only */}
             <div className="hero-rule" />
 
-            {/* Tagline — minimalista */}
-            <p className="h-line-2 hero-tagline" style={{
-              margin:'10px 0 0', padding:0,
-              fontSize:'clamp(20px,2.2vw,32px)',
-              fontWeight:300, fontStyle:'italic',
-              color:'rgba(0,255,136,0.70)',
-              letterSpacing:'0.01em', lineHeight:1,
-            }}>
-              vem pro jogo.
-            </p>
+            {/* Headline — domina a tela */}
+            <h1 style={{ margin:0, padding:0 }}>
+              <span className="h-line-1 hero-h1-line" style={{
+                display:'block',
+                fontSize:'clamp(64px,6.8vw,110px)',
+                fontWeight:900,
+                color:'white',
+                letterSpacing:'-0.042em',
+                lineHeight:0.88,
+                textTransform:'uppercase',
+                WebkitFontSmoothing:'antialiased',
+              }}>
+                DO CAMPO
+              </span>
+              <span className="h-line-2 hero-h1-line" style={{
+                display:'block',
+                fontSize:'clamp(64px,6.8vw,110px)',
+                fontWeight:900,
+                color:'white',
+                letterSpacing:'-0.042em',
+                lineHeight:0.88,
+                textTransform:'uppercase',
+                WebkitFontSmoothing:'antialiased',
+              }}>
+                AO RADAR.
+              </span>
+              <span className="h-line-3" style={{
+                display:'block',
+                marginTop:'clamp(10px,1.2vw,18px)',
+                fontSize:'clamp(18px,1.8vw,26px)',
+                fontWeight:300,
+                fontStyle:'italic',
+                color:'rgba(255,255,255,0.35)',
+                letterSpacing:'0.01em',
+                lineHeight:1,
+              }}>
+                vem pro jogo.
+              </span>
+            </h1>
 
             {/* Desktop subtitle */}
             <p className="h-sub hero-sub" style={{
-              fontSize:'clamp(13.5px,1.05vw,15px)', color:'rgba(255,255,255,0.72)',
-              lineHeight:1.72, margin:0, maxWidth:'380px',
-              fontWeight:400, letterSpacing:'0.014em',
+              fontSize:'clamp(13px,1vw,15px)',
+              color:'rgba(255,255,255,0.40)',
+              lineHeight:1.78, margin:0, maxWidth:'340px',
+              fontWeight:400, letterSpacing:'0.01em',
             }}>
-              Crie seu perfil, receba avaliações de treinadores certificados e
-              conecte-se com{' '}
-              <span style={{ color:'#00FF88', fontWeight:500 }}>scouts e clubes do Brasil inteiro.</span>
+              Crie seu perfil, receba avaliações de treinadores certificados
+              e conecte-se com scouts e clubes do Brasil inteiro.
             </p>
 
             {/* Mobile subtitle */}
             <p className="hero-mob-sub">
-              Crie seu perfil, receba avaliações e seja descoberto por{' '}
-              <span style={{ color:'#00FF88', fontWeight:500 }}>scouts reais.</span>
+              Crie seu perfil, receba avaliações e seja descoberto por scouts reais.
             </p>
 
             {/* CTAs */}
-            <div className="h-ctas hero-ctas-wrap" style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', gap:'12px', marginTop:'4px' }}>
-              <Link href="/login" className="hero-cta-secondary" style={{
+            <div className="h-ctas hero-ctas-wrap" style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', gap:'16px', marginTop:0 }}>
+              <Link href="/atleta/cadastro" className="hero-cta-primary" style={{
                 display:'inline-flex', alignItems:'center', justifyContent:'center',
-                width:'248px',
-                fontSize:'13.5px', fontWeight:600, color:'rgba(255,255,255,0.72)',
+                position:'relative', overflow:'hidden',
+                gap:'8px',
+                background:'linear-gradient(160deg,#00FF99 0%,#00E07A 52%,#00CC66 100%)',
+                color:'#020c05', fontWeight:800, fontSize:'14px',
+                borderRadius:'100px', padding:'14px 32px', textDecoration:'none',
+                letterSpacing:'0.08em',
+                boxShadow:'0 4px 24px rgba(0,0,0,0.45)',
+              }}>
+                CRIAR MEU CARD — GRÁTIS
+              </Link>
+              <Link href="/login" className="hero-cta-secondary" style={{
+                display:'inline-flex', alignItems:'center', gap:'5px',
+                fontSize:'13px', fontWeight:600,
+                color:'rgba(255,255,255,0.36)',
                 textDecoration:'none', letterSpacing:'0.06em',
-                background:'rgba(255,255,255,0.05)',
-                backdropFilter:'blur(10px)', WebkitBackdropFilter:'blur(10px)',
-                border:'1px solid rgba(255,255,255,0.16)',
-                borderRadius:'100px', padding:'12px 0',
               }}>
                 Já tenho conta →
               </Link>
@@ -547,15 +541,15 @@ export default function LandingPage() {
 
             {/* 🔥 AO VIVO AGORA */}
             <div className="lnc" style={{ width:'310px' }}>
-              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'12px', paddingBottom:'10px', borderBottom:'1px solid rgba(0,255,136,0.10)' }}>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'12px', paddingBottom:'10px', borderBottom:'1px solid rgba(255,255,255,0.05)' }}>
                 <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
-                  <div style={{ position:'relative', width:'22px', height:'22px', flexShrink:0 }}>
-                    <div style={{ position:'relative', zIndex:1, width:'100%', height:'100%', borderRadius:'50%', background:'rgba(0,255,136,0.12)', border:'1px solid rgba(0,255,136,0.38)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px' }}>🔥</div>
+                  <div style={{ position:'relative', width:'18px', height:'18px', flexShrink:0 }}>
+                    <div style={{ position:'relative', zIndex:1, width:'100%', height:'100%', borderRadius:'50%', background:'rgba(255,255,255,0.06)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'10px' }}>🔥</div>
                     <div className="lnc-ring" />
                   </div>
-                  <span style={{ fontSize:'10px', fontWeight:800, color:'rgba(0,255,136,0.9)', letterSpacing:'0.16em', textTransform:'uppercase' }}>AO VIVO AGORA</span>
+                  <span style={{ fontSize:'9.5px', fontWeight:700, color:'rgba(255,255,255,0.50)', letterSpacing:'0.16em', textTransform:'uppercase' }}>AO VIVO AGORA</span>
                 </div>
-                <span style={{ fontSize:'9px', fontWeight:700, color:'rgba(0,255,136,0.55)', background:'rgba(0,255,136,0.08)', border:'1px solid rgba(0,255,136,0.18)', borderRadius:'100px', padding:'2px 8px', letterSpacing:'0.08em' }}>LIVE</span>
+                <span style={{ fontSize:'8px', fontWeight:700, color:'rgba(255,255,255,0.28)', letterSpacing:'0.10em' }}>LIVE</span>
               </div>
               {[
                 { init:'JS', bg:'#1a5c3a', icon:'⭐', text:'João Silva recebeu nota 82', time:'2 min' },
@@ -574,7 +568,7 @@ export default function LandingPage() {
                     </p>
                     <p style={{ margin:0, fontSize:'9px', color:'rgba(0,255,136,0.55)', fontWeight:600, marginTop:'2px' }}>{time === 'agora' ? 'agora' : `${time} atrás`}</p>
                   </div>
-                  <div style={{ width:'5px', height:'5px', borderRadius:'50%', background:'#00FF88', flexShrink:0, boxShadow:'0 0 5px rgba(0,255,136,0.9)' }} />
+                  <div style={{ width:'4px', height:'4px', borderRadius:'50%', background:'rgba(255,255,255,0.18)', flexShrink:0 }} />
                 </div>
               ))}
             </div>
