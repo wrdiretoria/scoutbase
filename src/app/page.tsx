@@ -464,15 +464,6 @@ export default function LandingPage() {
             {/* Accent rule — mobile only */}
             <div className="hero-rule" />
 
-            <h1 style={{ margin:0, padding:0, lineHeight:0.88, letterSpacing:'-0.055em' }}>
-              <span className="h-line-1 hero-h1-line" style={{
-                display:'block', fontSize:'clamp(58px,6.4vw,92px)',
-                fontWeight:900, color:'white',
-              }}>
-                APERTE O PLAY
-              </span>
-            </h1>
-
             {/* Tagline — minimalista */}
             <p className="h-line-2 hero-tagline" style={{
               margin:'10px 0 0', padding:0,
