@@ -457,70 +457,120 @@ export default async function JogadorPublicoPage({ params }: Props) {
           marginBottom: '16px',
         }}>
 
-          {/* Topo degradê */}
+          {/* ── Topo: foto full-cover OU gradiente ── */}
           <div style={{
-            position: 'relative', minHeight: '148px',
-            background: 'linear-gradient(160deg,#166534 0%,#052e16 100%)',
-            backgroundImage: 'linear-gradient(160deg,#166534 0%,#052e16 100%), repeating-linear-gradient(0deg,rgba(255,255,255,0.025) 0px,rgba(255,255,255,0.025) 1px,transparent 1px,transparent 28px),repeating-linear-gradient(90deg,rgba(255,255,255,0.025) 0px,rgba(255,255,255,0.025) 1px,transparent 1px,transparent 28px)',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            padding: '20px 16px 0',
+            position: 'relative',
+            height: avatarUrl ? '240px' : '148px',
+            overflow: 'hidden',
+            background: avatarUrl
+              ? '#0a120e'
+              : 'linear-gradient(160deg,#166534 0%,#052e16 100%)',
           }}>
-            {/* Badges */}
+            {/* Foto full-cover quando disponível */}
+            {avatarUrl && (
+              <img
+                src={avatarUrl}
+                alt={nome}
+                style={{
+                  position: 'absolute', inset: 0,
+                  width: '100%', height: '100%',
+                  objectFit: 'cover', objectPosition: 'center top',
+                }}
+              />
+            )}
+
+            {/* Grid sutil — só sem foto */}
+            {!avatarUrl && (
+              <div style={{
+                position: 'absolute', inset: 0, opacity: 1,
+                backgroundImage: 'repeating-linear-gradient(0deg,rgba(255,255,255,0.025) 0px,rgba(255,255,255,0.025) 1px,transparent 1px,transparent 28px),repeating-linear-gradient(90deg,rgba(255,255,255,0.025) 0px,rgba(255,255,255,0.025) 1px,transparent 1px,transparent 28px)',
+              }} />
+            )}
+
+            {/* Gradiente de leitura sobre foto */}
+            {avatarUrl && (
+              <div style={{
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(to bottom, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.08) 40%, rgba(0,0,0,0.60) 75%, rgba(0,0,0,0.85) 100%)',
+              }} />
+            )}
+
+            {/* Badges OVR + Categoria — topo do painel */}
             <div style={{
-              position: 'absolute', top: '14px', left: '14px', right: '14px',
+              position: 'absolute', top: 14, left: 14, right: 14,
               display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              zIndex: 10,
+              zIndex: 4,
             }}>
               <div style={{
-                background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
-                border: '1px solid rgba(34,197,94,0.3)',
-                borderRadius: '8px', padding: '6px 12px',
+                background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(8px)',
+                WebkitBackdropFilter: 'blur(8px)',
+                border: '1px solid rgba(34,197,94,0.35)',
+                borderRadius: '10px', padding: '6px 12px',
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
               }}>
-                <span style={{ fontSize: '8px', fontWeight: 800, color: 'rgba(0,255,136,0.7)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>OVR</span>
+                <span style={{ fontSize: '8px', fontWeight: 800, color: 'rgba(0,255,136,0.75)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>OVR</span>
                 <span style={{ fontSize: '22px', fontWeight: 900, color: 'white', lineHeight: 1, letterSpacing: '-0.03em' }}>{ovr ?? '—'}</span>
               </div>
-              {categoria
-                ? <div style={{
-                    background: 'rgba(34,197,94,0.18)', border: '1px solid rgba(34,197,94,0.35)',
-                    borderRadius: '8px', padding: '4px 10px',
-                    fontSize: '10px', fontWeight: 800, color: '#4ade80', letterSpacing: '0.06em',
-                  }}>{categoria}</div>
-                : <div />
-              }
+              {categoria ? (
+                <div style={{
+                  background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                  border: '1px solid rgba(34,197,94,0.35)',
+                  borderRadius: '8px', padding: '4px 10px',
+                  fontSize: '10px', fontWeight: 800, color: '#4ade80', letterSpacing: '0.06em',
+                }}>{categoria}</div>
+              ) : <div />}
             </div>
 
+            {/* Nome + posição sobre foto (rodapé do painel) */}
+            {avatarUrl && (
+              <div style={{
+                position: 'absolute', bottom: 0, left: 0, right: 0,
+                padding: '0 16px 14px', zIndex: 4,
+              }}>
+                <h1 style={{ margin: '0 0 2px', fontSize: '20px', fontWeight: 900, color: 'white', letterSpacing: '-0.01em', textShadow: '0 1px 8px rgba(0,0,0,0.8)' }}>
+                  {nome}
+                </h1>
+                <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255,255,255,0.70)', fontWeight: 500, textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
+                  {pos}{posicao !== pos ? ` · ${posicao}` : ''}{cidade ? ` · ${cidade}` : ''}
+                </p>
+              </div>
+            )}
           </div>
 
-          {/* Avatar */}
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '-34px', position: 'relative', zIndex: 2 }}>
-            <div style={{
-              width: '68px', height: '68px', borderRadius: '50%',
-              background: 'linear-gradient(135deg,#15803d,#4ade80)',
-              border: '3px solid #0b1610',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '20px', fontWeight: 900, color: 'white',
-              boxShadow: '0 8px 28px rgba(34,197,94,0.45)',
-              overflow: 'hidden',
-            }}>
-              {avatarUrl
-                ? <img src={avatarUrl} alt={nome} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
-                : initials}
+          {/* Avatar circular — só sem foto */}
+          {!avatarUrl && (
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '-34px', position: 'relative', zIndex: 2 }}>
+              <div style={{
+                width: '68px', height: '68px', borderRadius: '50%',
+                background: 'linear-gradient(135deg,#15803d,#4ade80)',
+                border: '3px solid #0b1610',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: '20px', fontWeight: 900, color: 'white',
+                boxShadow: '0 8px 28px rgba(34,197,94,0.45)',
+              }}>
+                {initials}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Dados */}
-          <div style={{ padding: '12px 20px 22px', textAlign: 'center' }}>
-            <h1 style={{ margin: '0 0 4px', fontSize: '20px', fontWeight: 800, color: 'white' }}>{nome}</h1>
-            <p style={{ margin: '0 0 4px', fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>
-              {posicao}{cidade ? ` · ${cidade}` : ''}
-            </p>
+          <div style={{ padding: avatarUrl ? '14px 20px 22px' : '12px 20px 22px', textAlign: 'center' }}>
+            {/* Nome + posição — só sem foto (com foto ficam sobre a imagem) */}
+            {!avatarUrl && (
+              <>
+                <h1 style={{ margin: '0 0 4px', fontSize: '20px', fontWeight: 800, color: 'white' }}>{nome}</h1>
+                <p style={{ margin: '0 0 4px', fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>
+                  {posicao}{cidade ? ` · ${cidade}` : ''}
+                </p>
+              </>
+            )}
             {clubeAtual && (
-              <p style={{ margin: '0 0 14px', fontSize: '12px', color: '#22c55e', fontWeight: 600 }}>
+              <p style={{ margin: avatarUrl ? '0 0 14px' : '0 0 14px', fontSize: '12px', color: '#22c55e', fontWeight: 600 }}>
                 ⚽ {clubeAtual}
               </p>
             )}
-            {!clubeAtual && <div style={{ marginBottom: '14px' }} />}
+            {!clubeAtual && <div style={{ marginBottom: avatarUrl ? '6px' : '14px' }} />}
 
             {/* Dados físicos inline */}
             {temFisico && (
