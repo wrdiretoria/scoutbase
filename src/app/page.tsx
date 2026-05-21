@@ -554,7 +554,6 @@ export default function LandingPage() {
                   { icon:'⚽', label:'ATLETAS', value:'GRÁTIS'   },
                   { icon:'★',  label:'RANKING', value:'AO VIVO'  },
                   { icon:'🛡', label:'DADOS',   value:'SEGUROS'  },
-                  { icon:'🌎', label:'BRASIL',  value:'NACIONAL' },
                 ].map(s => (
                   <div key={s.label} style={{ display:'flex', alignItems:'center', gap:'8px' }}>
                     <span style={{ fontSize:'13px', flexShrink:0 }}>{s.icon}</span>
