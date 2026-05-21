@@ -122,8 +122,8 @@ export default function LandingPage() {
           color:rgba(255,255,255,0.70) !important;
         }
 
-        /* Stats panel shine */
-        .hero-stats-panel { position:relative; overflow:hidden; }
+        /* Stats panel — hidden desktop, shown mobile inside headline row */
+        .hero-stats-panel { display:none; position:relative; overflow:hidden; }
         .hero-stats-panel::before {
           content:''; position:absolute; top:0; left:0; right:0; height:52%;
           background:linear-gradient(180deg,rgba(255,255,255,0.07) 0%,transparent 100%);
@@ -341,18 +341,28 @@ export default function LandingPage() {
           }
           .hero-social-txt { margin:0 !important; font-size:10.5px !important; color:rgba(255,255,255,0.52) !important; line-height:1.44 !important; }
           .hero-social-txt strong { color:rgba(255,255,255,0.92) !important; font-weight:800 !important; }
+          /* Headline + stats — flex row, stats sits flush next to h1 */
+          .hero-headline-row {
+            display:flex !important; flex-direction:row !important;
+            align-items:flex-start !important; gap:12px !important;
+            width:100% !important;
+          }
+          .hero-headline-row h1 { flex:1 !important; min-width:0 !important; }
           .hero-stats-panel {
             display:flex !important; flex-direction:column !important;
-            gap:13px !important; right:14px !important; top:42% !important;
-            transform:translateY(-50%) !important; padding:14px 16px !important;
-            background:rgba(2,18,8,0.28) !important;
-            backdrop-filter:blur(22px) saturate(170%) !important;
-            -webkit-backdrop-filter:blur(22px) saturate(170%) !important;
-            border:1px solid rgba(0,255,136,0.20) !important;
-            border-top:1px solid rgba(0,255,136,0.36) !important;
-            border-radius:18px !important;
-            box-shadow:0 0 28px rgba(0,255,136,0.18),0 16px 40px rgba(0,0,0,0.50),inset 0 0 18px rgba(0,255,136,0.04) !important;
-            animation:float 5s ease-in-out infinite !important;
+            gap:11px !important;
+            transform:none !important;
+            padding:11px 12px !important;
+            background:rgba(2,10,5,0.82) !important;
+            backdrop-filter:blur(24px) saturate(180%) !important;
+            -webkit-backdrop-filter:blur(24px) saturate(180%) !important;
+            border:1px solid rgba(0,255,136,0.15) !important;
+            border-top:1px solid rgba(0,255,136,0.28) !important;
+            border-radius:14px !important;
+            box-shadow:0 0 16px rgba(0,255,136,0.07),0 10px 28px rgba(0,0,0,0.68) !important;
+            flex-shrink:0 !important;
+            align-self:flex-start !important;
+            animation:none !important;
           }
           .hero-particles { display:block !important; position:absolute !important; inset:0 !important; z-index:1 !important; pointer-events:none !important; overflow:hidden !important; }
           .hp { position:absolute !important; display:block !important; border-radius:50% !important; background:#00FF88 !important; opacity:0 !important; box-shadow:0 0 4px rgba(0,255,136,0.8) !important; }
@@ -505,36 +515,58 @@ export default function LandingPage() {
             {/* Accent rule — mobile only */}
             <div className="hero-rule" />
 
-            {/* Headline */}
-            <h1 style={{ margin:0, padding:0 }}>
-              <span className="h-line-1 hero-h1-line" style={{
-                display:'block',
-                fontSize:'clamp(54px,6.5vw,100px)',
-                fontWeight:900,
-                color:'white',
-                letterSpacing:'-0.046em',
-                lineHeight:0.84,
-                textTransform:'uppercase',
-                WebkitFontSmoothing:'antialiased',
-                MozOsxFontSmoothing:'grayscale',
-                textShadow:'0 2px 32px rgba(0,0,0,0.75)',
-              }}>
-                APERTE
-              </span>
-              <span className="h-line-2 hero-h1-line" style={{
-                display:'block',
-                fontSize:'clamp(52px,6.2vw,96px)',
-                fontWeight:900,
-                letterSpacing:'-0.046em',
-                lineHeight:0.84,
-                textTransform:'uppercase',
-                WebkitFontSmoothing:'antialiased',
-                MozOsxFontSmoothing:'grayscale',
-                textShadow:'0 2px 32px rgba(0,0,0,0.75)',
-              }}>
-                <span style={{ color:'white' }}>O </span><span style={{ color:'#00FF88' }}>PLAY.</span>
-              </span>
-            </h1>
+            {/* Headline + stats — row on mobile (stats hidden on desktop) */}
+            <div className="hero-headline-row">
+
+              <h1 style={{ margin:0, padding:0 }}>
+                <span className="h-line-1 hero-h1-line" style={{
+                  display:'block',
+                  fontSize:'clamp(54px,6.5vw,100px)',
+                  fontWeight:900,
+                  color:'white',
+                  letterSpacing:'-0.046em',
+                  lineHeight:0.84,
+                  textTransform:'uppercase',
+                  WebkitFontSmoothing:'antialiased',
+                  MozOsxFontSmoothing:'grayscale',
+                  textShadow:'0 2px 32px rgba(0,0,0,0.75)',
+                }}>
+                  APERTE
+                </span>
+                <span className="h-line-2 hero-h1-line" style={{
+                  display:'block',
+                  fontSize:'clamp(52px,6.2vw,96px)',
+                  fontWeight:900,
+                  letterSpacing:'-0.046em',
+                  lineHeight:0.84,
+                  textTransform:'uppercase',
+                  WebkitFontSmoothing:'antialiased',
+                  MozOsxFontSmoothing:'grayscale',
+                  textShadow:'0 2px 32px rgba(0,0,0,0.75)',
+                }}>
+                  <span style={{ color:'white' }}>O </span><span style={{ color:'#00FF88' }}>PLAY.</span>
+                </span>
+              </h1>
+
+              {/* Stats pill — mobile only, aligns to top of headline */}
+              <div className="hero-stats-panel">
+                {[
+                  { icon:'⚽', label:'ATLETAS', value:'GRÁTIS'   },
+                  { icon:'★',  label:'RANKING', value:'AO VIVO'  },
+                  { icon:'🛡', label:'DADOS',   value:'SEGUROS'  },
+                  { icon:'🌎', label:'BRASIL',  value:'NACIONAL' },
+                ].map(s => (
+                  <div key={s.label} style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+                    <span style={{ fontSize:'13px', flexShrink:0 }}>{s.icon}</span>
+                    <div>
+                      <div style={{ fontSize:'6.5px', fontWeight:700, letterSpacing:'0.14em', color:'rgba(0,255,136,0.55)', textTransform:'uppercase', marginBottom:'1px' }}>{s.label}</div>
+                      <div style={{ fontSize:'11px', fontWeight:900, color:'rgba(255,255,255,0.92)', lineHeight:1.15, letterSpacing:'0.01em' }}>{s.value}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+            </div>
 
             {/* Subheadline */}
             <p className="h-line-3" style={{
@@ -648,24 +680,6 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Stats panel — mobile */}
-        <div className="hero-stats-panel" style={{ display:'none', position:'absolute', right:0, top:'50%', transform:'translateY(-50%)', zIndex:3 }}>
-          {[
-            { icon:'⚽', label:'ATLETAS', value:'GRÁTIS' },
-            { icon:'★',  label:'RANKING', value:'AO VIVO' },
-            { icon:'🛡', label:'DADOS',   value:'SEGUROS' },
-            { icon:'🌎', label:'BRASIL',  value:'NACIONAL' },
-          ].map(s => (
-            <div key={s.label} style={{ display:'flex', alignItems:'center', gap:'10px' }}>
-              <span style={{ fontSize:'15px', filter:'drop-shadow(0 0 6px rgba(0,255,136,0.5))' }}>{s.icon}</span>
-              <div>
-                <div style={{ fontSize:'7px', fontWeight:700, letterSpacing:'0.14em', color:'rgba(0,255,136,0.55)' }}>{s.label}</div>
-                <div style={{ fontSize:'12px', fontWeight:900, color:'rgba(255,255,255,0.95)', lineHeight:1.2, letterSpacing:'0.01em' }}>{s.value}</div>
-              </div>
-            </div>
-          ))}
         </div>
 
         {/* HUD decorativo — removido (substituído pelo HeroFeed) */}
