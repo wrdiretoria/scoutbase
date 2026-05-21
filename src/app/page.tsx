@@ -404,7 +404,8 @@ export default function LandingPage() {
 
         @media (max-width: 480px) {
           .cards-grid   { grid-template-columns:1fr !important; }
-          .hero-h1-line { font-size:clamp(42px,11vw,62px) !important; }
+          .hero-h1-line { font-size:clamp(48px,12vw,70px) !important; }
+          .hero-tagline { font-size:clamp(16px,4.5vw,22px) !important; margin-top:6px !important; }
           .hero-mob-sub { font-size:12px !important; max-width:260px !important; }
           .dep-grid     { grid-template-columns:1fr !important; }
         }
@@ -457,26 +458,31 @@ export default function LandingPage() {
               fontSize:'9.5px', fontWeight:700, color:'rgba(0,255,136,0.88)', letterSpacing:'0.20em',
             }}>
               <span className="live-dot" />
-              VOCÊ AO VIVO PARA O MUNDO DO FUTEBOL
+              APERTE O PLAY
             </span>
 
             {/* Accent rule — mobile only */}
             <div className="hero-rule" />
 
-            <h1 style={{ margin:0, padding:0, lineHeight:0.90, letterSpacing:'-0.050em' }}>
+            <h1 style={{ margin:0, padding:0, lineHeight:0.88, letterSpacing:'-0.055em' }}>
               <span className="h-line-1 hero-h1-line" style={{
-                display:'block', fontSize:'clamp(52px,5.5vw,78px)',
+                display:'block', fontSize:'clamp(58px,6.4vw,92px)',
                 fontWeight:900, color:'white',
               }}>
-                APERTA O PLAY
-              </span>
-              <span className="h-line-2 hero-h1-line" style={{
-                display:'block', fontSize:'clamp(52px,5.5vw,78px)',
-                fontWeight:900,
-              }}>
-                <span className="neon-word" style={{ color:'#00FF88' }}>E VEM PRO JOGO.</span>
+                APERTE O PLAY
               </span>
             </h1>
+
+            {/* Tagline — minimalista */}
+            <p className="h-line-2 hero-tagline" style={{
+              margin:'10px 0 0', padding:0,
+              fontSize:'clamp(20px,2.2vw,32px)',
+              fontWeight:300, fontStyle:'italic',
+              color:'rgba(0,255,136,0.70)',
+              letterSpacing:'0.01em', lineHeight:1,
+            }}>
+              vem pro jogo.
+            </p>
 
             {/* Desktop subtitle */}
             <p className="h-sub hero-sub" style={{
