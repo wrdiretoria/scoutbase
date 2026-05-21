@@ -399,16 +399,26 @@ export default function LandingPage() {
           alt="" aria-hidden
           style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', objectPosition:'center center', zIndex:0 }}
         />
-        {/* Overlay 1 */}
-        <div className="hero-ov1" style={{ position:'absolute', inset:0, zIndex:1, background:'linear-gradient(105deg, rgba(1,4,2,0.98) 0%, rgba(1,4,2,0.90) 30%, rgba(1,4,2,0.40) 55%, rgba(1,4,2,0.08) 72%, transparent 100%), linear-gradient(to top, rgba(1,5,2,0.88) 0%, rgba(1,5,2,0.30) 22%, transparent 46%), linear-gradient(to bottom, rgba(1,5,2,0.70) 0%, transparent 18%)' }} />
-        {/* Overlay 2 */}
-        <div className="hero-ov2" style={{ position:'absolute', inset:0, zIndex:1, background:'radial-gradient(ellipse at 58% 50%, transparent 26%, rgba(0,0,0,0.46) 60%, rgba(0,0,0,0.82) 100%)' }} />
-        {/* Overlay 3 — neon green */}
-        <div className="hero-ov3" style={{ position:'absolute', inset:0, zIndex:1, background:'radial-gradient(ellipse at 8% 78%, rgba(0,255,136,0.06) 0%, transparent 50%), radial-gradient(ellipse at 24% 96%, rgba(0,255,136,0.03) 0%, transparent 38%)' }} />
-        {/* Overlay 4 — stadium lights */}
-        <div className="hero-ov4" style={{ position:'absolute', inset:0, zIndex:1, pointerEvents:'none', background:'radial-gradient(ellipse at 62% -8%, rgba(235,255,245,0.13) 0%, rgba(200,240,220,0.05) 32%, transparent 60%), radial-gradient(ellipse at 78% -4%, rgba(255,255,255,0.05) 0%, transparent 40%), radial-gradient(ellipse at 44% -14%, rgba(200,255,225,0.07) 0%, transparent 38%)' }} />
-        {/* Overlay 5 — ground fog */}
-        <div className="hero-ov5" style={{ position:'absolute', inset:0, zIndex:1, pointerEvents:'none', background:'linear-gradient(to top, rgba(0,16,7,0.72) 0%, rgba(0,16,7,0.22) 18%, transparent 40%), radial-gradient(ellipse at 50% 102%, rgba(0,255,136,0.08) 0%, transparent 42%)' }} />
+        {/* Overlay 1 — escuridão cinematográfica esquerda */}
+        <div className="hero-ov1" style={{ position:'absolute', inset:0, zIndex:1,
+          background:'linear-gradient(100deg, rgba(0,1,0,1.00) 0%, rgba(0,1,0,0.97) 24%, rgba(0,1,0,0.64) 46%, rgba(0,1,0,0.18) 63%, transparent 80%), linear-gradient(to top, rgba(0,2,1,0.97) 0%, rgba(0,2,1,0.45) 15%, transparent 38%), linear-gradient(to bottom, rgba(0,2,1,0.82) 0%, transparent 20%)'
+        }} />
+        {/* Overlay 2 — vinheta de profundidade */}
+        <div className="hero-ov2" style={{ position:'absolute', inset:0, zIndex:1,
+          background:'radial-gradient(ellipse at 54% 46%, transparent 12%, rgba(0,0,0,0.15) 38%, rgba(0,0,0,0.68) 100%)'
+        }} />
+        {/* Overlay 3 — luz de arco do estádio (de cima) */}
+        <div className="hero-ov3" style={{ position:'absolute', inset:0, zIndex:1, pointerEvents:'none',
+          background:'radial-gradient(ellipse at 50% -24%, rgba(248,255,252,0.18) 0%, rgba(220,240,230,0.07) 30%, transparent 56%)'
+        }} />
+        {/* Overlay 4 — rim light no jogador (direita) */}
+        <div className="hero-ov4" style={{ position:'absolute', inset:0, zIndex:1, pointerEvents:'none',
+          background:'radial-gradient(ellipse at 84% 36%, rgba(190,218,200,0.07) 0%, transparent 30%)'
+        }} />
+        {/* Overlay 5 — escuridão do chão */}
+        <div className="hero-ov5" style={{ position:'absolute', inset:0, zIndex:1, pointerEvents:'none',
+          background:'linear-gradient(to top, rgba(0,2,1,0.98) 0%, rgba(0,2,1,0.58) 11%, rgba(0,2,1,0.14) 24%, transparent 40%)'
+        }} />
 
         {/* Floating particles — mobile only */}
         <div className="hero-particles" aria-hidden>
@@ -424,7 +434,7 @@ export default function LandingPage() {
         }}>
 
           {/* LEFT */}
-          <div className="hero-left" style={{ display:'flex', flexDirection:'column', gap:'36px', minWidth:0 }}>
+          <div className="hero-left" style={{ display:'flex', flexDirection:'column', gap:'40px', minWidth:0 }}>
 
             {/* Indicator */}
             <div className="h-badge" style={{ display:'inline-flex', alignItems:'center', gap:'8px' }}>
@@ -445,7 +455,7 @@ export default function LandingPage() {
             <h1 style={{ margin:0, padding:0 }}>
               <span className="h-line-1 hero-h1-line" style={{
                 display:'block',
-                fontSize:'clamp(72px,9.5vw,152px)',
+                fontSize:'clamp(54px,6.5vw,100px)',
                 fontWeight:900,
                 color:'white',
                 letterSpacing:'-0.046em',
@@ -453,6 +463,7 @@ export default function LandingPage() {
                 textTransform:'uppercase',
                 WebkitFontSmoothing:'antialiased',
                 MozOsxFontSmoothing:'grayscale',
+                textShadow:'0 2px 32px rgba(0,0,0,0.75)',
               }}>
                 APERTE
               </span>
@@ -465,6 +476,7 @@ export default function LandingPage() {
                 textTransform:'uppercase',
                 WebkitFontSmoothing:'antialiased',
                 MozOsxFontSmoothing:'grayscale',
+                textShadow:'0 2px 32px rgba(0,0,0,0.75)',
               }}>
                 <span style={{ color:'white' }}>O </span><span style={{ color:'#00FF88' }}>PLAY.</span>
               </span>
@@ -473,12 +485,12 @@ export default function LandingPage() {
             {/* Subheadline */}
             <p className="h-line-3" style={{
               margin:0, padding:0,
-              fontSize:'clamp(20px,2.4vw,34px)',
-              fontWeight:300, fontStyle:'italic',
-              color:'rgba(255,255,255,0.70)',
-              letterSpacing:'0.01em', lineHeight:1,
+              fontSize:'clamp(14px,1.5vw,20px)',
+              fontWeight:400, fontStyle:'italic',
+              color:'rgba(255,255,255,0.44)',
+              letterSpacing:'0.04em', lineHeight:1,
             }}>
-              vem pro jogo.
+              O jogo começa aqui.
             </p>
 
 
@@ -491,13 +503,11 @@ export default function LandingPage() {
             <div className="h-ctas hero-ctas-wrap" style={{ display:'flex', flexDirection:'column', alignItems:'flex-start', gap:'16px', marginTop:0 }}>
               <Link href="/atleta/cadastro" className="hero-cta-primary" style={{
                 display:'inline-flex', alignItems:'center', justifyContent:'center',
-                position:'relative', overflow:'hidden',
                 gap:'8px',
-                background:'linear-gradient(160deg,#00FF99 0%,#00E07A 52%,#00CC66 100%)',
-                color:'#020c05', fontWeight:800, fontSize:'14px',
-                borderRadius:'100px', padding:'14px 32px', textDecoration:'none',
-                letterSpacing:'0.08em',
-                boxShadow:'0 4px 24px rgba(0,0,0,0.45)',
+                background:'#00E87A',
+                color:'#020c05', fontWeight:800, fontSize:'13px',
+                borderRadius:'100px', padding:'15px 38px', textDecoration:'none',
+                letterSpacing:'0.13em',
               }}>
                 CRIAR MEU CARD — GRÁTIS
               </Link>
