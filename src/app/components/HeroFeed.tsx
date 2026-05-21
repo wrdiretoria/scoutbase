@@ -79,10 +79,10 @@ function AtletaCard({ atleta }: { atleta: HeroAtleta }) {
     <div style={{
       display:'flex', alignItems:'center', gap:'12px',
       padding:'12px 16px', marginBottom:'8px', flexShrink:0,
-      background:'rgba(255,255,255,0.03)',
-      border:'1px solid rgba(255,255,255,0.06)',
-      borderRadius:'14px',
-      backdropFilter:'blur(8px)',
+      background:'rgba(255,255,255,0.025)',
+      border:'1px solid rgba(255,255,255,0.04)',
+      borderRadius:'12px',
+      backdropFilter:'blur(6px)',
       transition:'border-color .2s',
     }}>
       {/* Avatar */}
@@ -138,7 +138,7 @@ function AtletaCard({ atleta }: { atleta: HeroAtleta }) {
           minWidth:'44px',
         }}>
           <span style={{ fontSize:'8px', fontWeight:800, color:cor, letterSpacing:'0.08em' }}>OVR</span>
-          <span style={{ fontSize:'16px', fontWeight:900, color:cor, lineHeight:1, textShadow:`0 0 12px ${cor}60` }}>
+          <span style={{ fontSize:'16px', fontWeight:900, color:cor, lineHeight:1 }}>
             {atleta.ovr}
           </span>
         </div>
@@ -226,8 +226,8 @@ export default function HeroFeed() {
       }}>
         <div style={{
           display:'flex', alignItems:'center', gap:'6px',
-          background:'rgba(6,13,8,0.90)', padding:'5px 12px', borderRadius:'8px',
-          border:'1px solid rgba(0,255,136,0.20)',
+          background:'rgba(6,13,8,0.85)', padding:'5px 12px', borderRadius:'8px',
+          border:'1px solid rgba(255,255,255,0.07)',
         }}>
           <div style={{
             width:'6px', height:'6px', borderRadius:'50%',

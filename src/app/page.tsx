@@ -187,7 +187,7 @@ export default function LandingPage() {
           background:linear-gradient(160deg,#00FF99 0%,#00E07A 52%,#00CC66 100%);
           color:#020c05; font-weight:800; font-size:16px;
           text-decoration:none; letter-spacing:0.08em;
-          box-shadow:0 0 48px rgba(0,255,136,0.40),0 0 80px rgba(0,255,136,0.15),0 6px 22px rgba(0,0,0,0.5);
+          box-shadow:0 6px 28px rgba(0,0,0,0.50);
           transition:filter .2s ease,transform .15s ease;
           position:relative; overflow:hidden;
         }
@@ -256,7 +256,7 @@ export default function LandingPage() {
           .hero-hud    { display:none !important; }
 
           .hero-left {
-            display:flex !important; flex-direction:column !important; gap:0 !important;
+            display:flex !important; flex-direction:column !important; gap:20px !important;
             padding-top:calc(11dvh + env(safe-area-inset-top)) !important;
             padding-bottom:calc(32px + env(safe-area-inset-bottom)) !important;
             padding-left:24px !important; padding-right:24px !important;
@@ -325,10 +325,10 @@ export default function LandingPage() {
             display:flex !important; align-items:center !important;
             gap:10px !important; padding:10px 14px !important;
             border-radius:14px !important; align-self:flex-start !important;
-            background:rgba(4,10,6,0.52) !important;
-            border:1px solid rgba(0,255,136,0.13) !important;
+            background:rgba(4,10,6,0.45) !important;
+            border:1px solid rgba(255,255,255,0.06) !important;
             backdrop-filter:blur(22px) !important; -webkit-backdrop-filter:blur(22px) !important;
-            box-shadow:0 0 28px rgba(0,255,136,0.06),0 8px 28px rgba(0,0,0,0.50),inset 0 1px 0 rgba(255,255,255,0.06) !important;
+            box-shadow:0 8px 28px rgba(0,0,0,0.40) !important;
           }
           .hero-avatars { display:flex !important; flex-direction:row-reverse !important; flex-shrink:0 !important; }
           .hero-av {
@@ -420,7 +420,7 @@ export default function LandingPage() {
         }}>
 
           {/* LEFT */}
-          <div className="hero-left" style={{ display:'flex', flexDirection:'column', gap:'40px', minWidth:0 }}>
+          <div className="hero-left" style={{ display:'flex', flexDirection:'column', gap:'36px', minWidth:0 }}>
 
             {/* Indicator */}
             <div className="h-badge" style={{ display:'inline-flex', alignItems:'center', gap:'10px' }}>
@@ -445,15 +445,45 @@ export default function LandingPage() {
             {/* Accent rule — mobile only */}
             <div className="hero-rule" />
 
+            {/* Headline — domina a tela */}
+            <h1 style={{ margin:0, padding:0 }}>
+              <span className="h-line-1 hero-h1-line" style={{
+                display:'block',
+                fontSize:'clamp(68px,8.2vw,116px)',
+                fontWeight:900,
+                color:'white',
+                letterSpacing:'-0.045em',
+                lineHeight:0.87,
+                textTransform:'uppercase',
+                WebkitFontSmoothing:'antialiased',
+                MozOsxFontSmoothing:'grayscale',
+              }}>
+                MEU
+              </span>
+              <span className="h-line-2 hero-h1-line" style={{
+                display:'block',
+                fontSize:'clamp(68px,8.2vw,116px)',
+                fontWeight:900,
+                color:'white',
+                letterSpacing:'-0.045em',
+                lineHeight:0.87,
+                textTransform:'uppercase',
+                WebkitFontSmoothing:'antialiased',
+                MozOsxFontSmoothing:'grayscale',
+              }}>
+                CRAQUE.
+              </span>
+            </h1>
+
             {/* Desktop subtitle */}
             <p className="h-sub hero-sub" style={{
-              fontSize:'clamp(13px,1vw,15px)',
-              color:'rgba(255,255,255,0.40)',
-              lineHeight:1.78, margin:0, maxWidth:'340px',
+              fontSize:'clamp(13px,0.95vw,14.5px)',
+              color:'rgba(255,255,255,0.32)',
+              lineHeight:1.82, margin:0, maxWidth:'300px',
               fontWeight:400, letterSpacing:'0.01em',
             }}>
-              Crie seu perfil, receba avaliações de treinadores certificados
-              e conecte-se com scouts e clubes do Brasil inteiro.
+              Crie seu perfil, receba avaliações de treinadores
+              certificados e entre no radar de scouts e clubes do Brasil.
             </p>
 
             {/* Mobile subtitle */}
@@ -504,186 +534,11 @@ export default function LandingPage() {
             </div>
           </div>
 
-          {/* RIGHT — AO VIVO card + live feed */}
-          <div className="hero-phones" style={{ display:'flex', flexDirection:'column', alignItems:'flex-end', justifyContent:'center', gap:'14px', minWidth:0 }}>
+          {/* RIGHT — HeroFeed protagonista */}
+          <div className="hero-phones" style={{ display:'flex', alignItems:'center', justifyContent:'flex-end', minWidth:0 }}>
 
-            {/* 🔥 AO VIVO AGORA */}
-            <div className="lnc" style={{ width:'310px' }}>
-              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'12px', paddingBottom:'10px', borderBottom:'1px solid rgba(255,255,255,0.05)' }}>
-                <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
-                  <div style={{ position:'relative', width:'18px', height:'18px', flexShrink:0 }}>
-                    <div style={{ position:'relative', zIndex:1, width:'100%', height:'100%', borderRadius:'50%', background:'rgba(255,255,255,0.06)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'10px' }}>🔥</div>
-                    <div className="lnc-ring" />
-                  </div>
-                  <span style={{ fontSize:'9.5px', fontWeight:700, color:'rgba(255,255,255,0.50)', letterSpacing:'0.16em', textTransform:'uppercase' }}>AO VIVO AGORA</span>
-                </div>
-                <span style={{ fontSize:'8px', fontWeight:700, color:'rgba(255,255,255,0.28)', letterSpacing:'0.10em' }}>LIVE</span>
-              </div>
-              {[
-                { init:'JS', bg:'#1a5c3a', icon:'⭐', text:'João Silva recebeu nota 82', time:'2 min' },
-                { init:'PS', bg:'#1e3a5f', icon:'🎯', text:'Pedro Santos avaliado por treinador', time:'5 min' },
-                { init:'LO', bg:'#5f1e3a', icon:'📈', text:'Lucas Oliveira subiu +3 no OVR', time:'8 min' },
-                { init:'RK', bg:'#3a1e5f', icon:'🏆', text:'Ranking Sub-17 atualizado', time:'11 min' },
-                { init:'👁', bg:'#0d3320', icon:'🟢', text:'12 scouts estão online agora', time:'agora' },
-              ].map(({ init, bg, icon, text, time }, i) => (
-                <div key={text} className={`lnc-it li${i + 1}`}>
-                  <div style={{ width:'28px', height:'28px', borderRadius:'50%', background:bg, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'9px', fontWeight:800, color:'white', flexShrink:0, border:'1px solid rgba(255,255,255,0.10)' }}>
-                    {init}
-                  </div>
-                  <div style={{ flex:1, minWidth:0 }}>
-                    <p style={{ margin:0, fontSize:'11px', fontWeight:600, color:'rgba(255,255,255,0.82)', lineHeight:1.3, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
-                      {icon} {text}
-                    </p>
-                    <p style={{ margin:0, fontSize:'9px', color:'rgba(0,255,136,0.55)', fontWeight:600, marginTop:'2px' }}>{time === 'agora' ? 'agora' : `${time} atrás`}</p>
-                  </div>
-                  <div style={{ width:'4px', height:'4px', borderRadius:'50%', background:'rgba(255,255,255,0.18)', flexShrink:0 }} />
-                </div>
-              ))}
-            </div>
-
-            <div style={{ position:'relative', width:'310px', height:'380px', flexShrink:0 }}>
+            <div style={{ position:'relative', width:'360px', height:'clamp(400px,58vh,540px)', flexShrink:0 }}>
               <HeroFeed />
-              {/* PHONE FRONT — removed */}
-              <div style={{ display:'none' }}>
-                <div style={{ background:'white', borderRadius:'30px', overflow:'hidden' }}>
-                  <div style={{ background:'#fff', padding:'8px 16px 4px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                    <span style={{ fontSize:'10px', fontWeight:700, color:'#111' }}>9:41</span>
-                    <div style={{ display:'flex', gap:'4px', alignItems:'center' }}>
-                      <svg width="12" height="8" viewBox="0 0 12 8" fill="#111"><rect x="0" y="3" width="2" height="5" rx="0.5"/><rect x="3" y="2" width="2" height="6" rx="0.5"/><rect x="6" y="1" width="2" height="7" rx="0.5"/><rect x="9" y="0" width="2" height="8" rx="0.5"/></svg>
-                      <svg width="14" height="8" viewBox="0 0 14 8" fill="none"><rect x="0.5" y="0.5" width="11" height="7" rx="1.5" stroke="#111"/><rect x="2" y="2" width="7" height="4" rx="0.5" fill="#111"/><path d="M13 2.5v3a1.5 1.5 0 000-3z" fill="#111"/></svg>
-                    </div>
-                  </div>
-                  <div style={{ padding:'10px 14px 14px' }}>
-                    <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'10px' }}>
-                      <div style={{ width:'34px', height:'34px', borderRadius:'50%', background:'linear-gradient(135deg,#16a34a,#4ade80)', display:'flex', alignItems:'center', justifyContent:'center', color:'white', fontSize:'11px', fontWeight:700, flexShrink:0 }}>RS</div>
-                      <div style={{ flex:1 }}>
-                        <p style={{ margin:0, fontSize:'12px', fontWeight:700, color:'#111' }}>Olá, Rafael! 👋</p>
-                        <p style={{ margin:0, fontSize:'9px', color:'#888' }}>Aqui está o resumo do seu craque</p>
-                      </div>
-                    </div>
-                    <p style={{ margin:'0 0 6px', fontSize:'10px', fontWeight:700, color:'#111' }}>Resumo</p>
-                    <div style={{ background:'#16a34a', borderRadius:'12px', padding:'10px 12px', marginBottom:'10px', display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
-                      <div>
-                        <p style={{ margin:0, fontSize:'8px', color:'rgba(255,255,255,0.75)' }}>Presenças</p>
-                        <p style={{ margin:'2px 0 0', fontSize:'18px', fontWeight:900, color:'white', lineHeight:1 }}>18/20</p>
-                        <div style={{ display:'flex', alignItems:'center', gap:'4px', marginTop:'3px' }}>
-                          <div style={{ height:'3px', width:'40px', background:'rgba(255,255,255,0.3)', borderRadius:'2px', overflow:'hidden' }}>
-                            <div style={{ width:'90%', height:'100%', background:'white', borderRadius:'2px' }}/>
-                          </div>
-                          <span style={{ fontSize:'8px', color:'rgba(255,255,255,0.9)', fontWeight:700 }}>90%</span>
-                        </div>
-                      </div>
-                      <div style={{ textAlign:'right' }}>
-                        <p style={{ margin:0, fontSize:'8px', color:'rgba(255,255,255,0.75)' }}>OVR</p>
-                        <p style={{ margin:'2px 0 0', fontSize:'22px', fontWeight:900, color:'white', lineHeight:1 }}>87</p>
-                        <p style={{ margin:'2px 0 0', fontSize:'9px', color:'#fbbf24', letterSpacing:'1px' }}>★★★★★</p>
-                      </div>
-                    </div>
-                    <p style={{ margin:'0 0 5px', fontSize:'10px', fontWeight:700, color:'#111' }}>Próximo compromisso</p>
-                    <div style={{ display:'flex', alignItems:'center', gap:'8px', background:'#f8faf8', borderRadius:'10px', padding:'8px 10px', marginBottom:'10px' }}>
-                      <div style={{ width:'28px', height:'28px', borderRadius:'8px', background:'#dcfce7', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                        <svg width="14" height="14" fill="none" stroke="#16a34a" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path strokeLinecap="round" d="M16 2v4M8 2v4M3 10h18"/></svg>
-                      </div>
-                      <div style={{ flex:1 }}>
-                        <p style={{ margin:0, fontSize:'9px', fontWeight:700, color:'#111' }}>Treino</p>
-                        <p style={{ margin:0, fontSize:'8px', color:'#888' }}>Terça, 21/05 · 18:00 · CT Arena</p>
-                      </div>
-                    </div>
-                    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'6px' }}>
-                      <p style={{ margin:0, fontSize:'10px', fontWeight:700, color:'#111' }}>Desempenho</p>
-                      <span style={{ fontSize:'8px', color:'#16a34a', fontWeight:600 }}>Ver evolução &gt;</span>
-                    </div>
-                    <div style={{ background:'#f8faf8', borderRadius:'10px', padding:'8px', marginBottom:'8px' }}>
-                      <svg viewBox="0 0 180 60" style={{ width:'100%', height:'48px' }}>
-                        <defs>
-                          <linearGradient id="lg" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#22c55e" stopOpacity="0.25"/>
-                            <stop offset="100%" stopColor="#22c55e" stopOpacity="0"/>
-                          </linearGradient>
-                        </defs>
-                        <path d="M10 48 L45 38 L80 32 L115 22 L150 14 L170 8 L170 60 L10 60 Z" fill="url(#lg)"/>
-                        <polyline points="10,48 45,38 80,32 115,22 150,14 170,8" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        {[['10','48','82'],['45','38','84'],['80','32','85'],['115','22','86'],['150','14','87']].map(([x,y,v]) => (
-                          <g key={x}>
-                            <circle cx={x} cy={y} r="3" fill="#22c55e"/>
-                            <text x={x} y={Number(y)+12} textAnchor="middle" fontSize="7" fill="#888">{v}</text>
-                          </g>
-                        ))}
-                      </svg>
-                    </div>
-                    <div style={{ display:'flex', justifyContent:'space-around', marginTop:'10px', paddingTop:'8px', borderTop:'1px solid #f0f0f0' }}>
-                      {[['🏠','Início',true],['📅','Agenda',false],['📈','OVR',false],['⭐','Scouts',false]].map(([ic,lb,ac]) => (
-                        <div key={String(lb)} style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'2px' }}>
-                          <span style={{ fontSize:'12px' }}>{String(ic)}</span>
-                          <span style={{ fontSize:'7px', color:ac?'#16a34a':'#bbb', fontWeight:ac?700:400 }}>{String(lb)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* PHONE BACK — removed */}
-              <div style={{ display:'none' }}>
-                <div style={{ background:'white', borderRadius:'28px', overflow:'hidden' }}>
-                  <div style={{ background:'#fff', padding:'8px 14px 4px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                    <span style={{ fontSize:'10px', fontWeight:700, color:'#111' }}>9:41</span>
-                  </div>
-                  <div style={{ padding:'8px 12px 12px' }}>
-                    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'8px' }}>
-                      <span style={{ fontSize:'13px', fontWeight:700, color:'#111' }}>🏆 Ranking</span>
-                    </div>
-                    <div style={{ display:'flex', gap:'3px', marginBottom:'10px' }}>
-                      {['Geral','Meia','Atacante','ZG'].map((t,i) => (
-                        <span key={t} style={{ fontSize:'7px', fontWeight:700, padding:'3px 6px', borderRadius:'20px', flexShrink:0, background:i===0?'#16a34a':'#f3f4f6', color:i===0?'white':'#888' }}>{t}</span>
-                      ))}
-                    </div>
-                    <div style={{ display:'flex', justifyContent:'center', alignItems:'flex-end', gap:'4px', marginBottom:'8px' }}>
-                      <div style={{ textAlign:'center' }}>
-                        <div style={{ width:'36px', height:'36px', borderRadius:'50%', background:'linear-gradient(135deg,#d1d5db,#9ca3af)', margin:'0 auto 2px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'9px', fontWeight:700, color:'white', border:'2px solid #e5e7eb' }}>LP</div>
-                        <p style={{ margin:0, fontSize:'7px', color:'#555', fontWeight:600 }}>Lucas P.</p>
-                        <p style={{ margin:0, fontSize:'11px', fontWeight:900, color:'#111' }}>89</p>
-                        <div style={{ width:'38px', height:'22px', background:'#d1d5db', borderRadius:'4px 4px 0 0', margin:'2px auto 0', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                          <span style={{ fontSize:'9px', fontWeight:700, color:'white' }}>2</span>
-                        </div>
-                      </div>
-                      <div style={{ textAlign:'center' }}>
-                        <div style={{ width:'44px', height:'44px', borderRadius:'50%', background:'linear-gradient(135deg,#fbbf24,#f59e0b)', margin:'0 auto 2px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'10px', fontWeight:700, color:'white', border:'2.5px solid #fbbf24', position:'relative' }}>
-                          RS
-                          <span style={{ position:'absolute', top:'-8px', fontSize:'12px' }}>👑</span>
-                        </div>
-                        <p style={{ margin:0, fontSize:'7px', color:'#111', fontWeight:700 }}>Rafael S.</p>
-                        <p style={{ margin:0, fontSize:'13px', fontWeight:900, color:'#111' }}>94</p>
-                        <div style={{ width:'38px', height:'30px', background:'#fbbf24', borderRadius:'4px 4px 0 0', margin:'2px auto 0', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                          <span style={{ fontSize:'11px', fontWeight:700, color:'white' }}>1</span>
-                        </div>
-                      </div>
-                      <div style={{ textAlign:'center' }}>
-                        <div style={{ width:'36px', height:'36px', borderRadius:'50%', background:'linear-gradient(135deg,#d97706,#b45309)', margin:'0 auto 2px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'9px', fontWeight:700, color:'white', border:'2px solid #d97706' }}>GM</div>
-                        <p style={{ margin:0, fontSize:'7px', color:'#555', fontWeight:600 }}>Gabriel M.</p>
-                        <p style={{ margin:0, fontSize:'11px', fontWeight:900, color:'#111' }}>87</p>
-                        <div style={{ width:'38px', height:'16px', background:'#d97706', borderRadius:'4px 4px 0 0', margin:'2px auto 0', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                          <span style={{ fontSize:'8px', fontWeight:700, color:'white' }}>3</span>
-                        </div>
-                      </div>
-                    </div>
-                    {[
-                      { pos:4, name:'Nicolas L.', score:'85', hi:false },
-                      { pos:5, name:'Pedro H.',   score:'84', hi:false },
-                      { pos:12, name:'Você',      score:'72', hi:true  },
-                    ].map(r => (
-                      <div key={r.pos} style={{ display:'flex', alignItems:'center', gap:'4px', padding:'3px 5px', borderRadius:'6px', marginBottom:'2px', background:r.hi?'rgba(34,197,94,0.12)':'transparent' }}>
-                        <span style={{ fontSize:'7px', color:'#aaa', width:'14px' }}>#{r.pos}</span>
-                        <div style={{ width:'18px', height:'18px', borderRadius:'50%', background:r.hi?'#16a34a':'#e5e7eb', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                          <span style={{ fontSize:'6px', fontWeight:700, color:r.hi?'white':'#666' }}>{r.name.slice(0,2).toUpperCase()}</span>
-                        </div>
-                        <span style={{ fontSize:'8px', fontWeight:r.hi?700:500, color:r.hi?'#16a34a':'#333', flex:1 }}>{r.name}</span>
-                        <span style={{ fontSize:'9px', fontWeight:900, color:r.hi?'#16a34a':'#111' }}>{r.score}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
