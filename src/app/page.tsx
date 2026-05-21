@@ -420,7 +420,7 @@ export default function LandingPage() {
         }}>
 
           {/* LEFT */}
-          <div className="hero-left" style={{ display:'flex', flexDirection:'column', gap:'32px', minWidth:0 }}>
+          <div className="hero-left" style={{ display:'flex', flexDirection:'column', gap:'40px', minWidth:0 }}>
 
             {/* Indicator — sem pill, sem glow */}
             <div className="h-badge" style={{ display:'inline-flex', alignItems:'center', gap:'9px' }}>
@@ -436,46 +436,6 @@ export default function LandingPage() {
 
             {/* Accent rule — mobile only */}
             <div className="hero-rule" />
-
-            {/* Headline — domina a tela */}
-            <h1 style={{ margin:0, padding:0 }}>
-              <span className="h-line-1 hero-h1-line" style={{
-                display:'block',
-                fontSize:'clamp(64px,6.8vw,110px)',
-                fontWeight:900,
-                color:'white',
-                letterSpacing:'-0.042em',
-                lineHeight:0.88,
-                textTransform:'uppercase',
-                WebkitFontSmoothing:'antialiased',
-              }}>
-                DO CAMPO
-              </span>
-              <span className="h-line-2 hero-h1-line" style={{
-                display:'block',
-                fontSize:'clamp(64px,6.8vw,110px)',
-                fontWeight:900,
-                color:'white',
-                letterSpacing:'-0.042em',
-                lineHeight:0.88,
-                textTransform:'uppercase',
-                WebkitFontSmoothing:'antialiased',
-              }}>
-                AO RADAR.
-              </span>
-              <span className="h-line-3" style={{
-                display:'block',
-                marginTop:'clamp(10px,1.2vw,18px)',
-                fontSize:'clamp(18px,1.8vw,26px)',
-                fontWeight:300,
-                fontStyle:'italic',
-                color:'rgba(255,255,255,0.35)',
-                letterSpacing:'0.01em',
-                lineHeight:1,
-              }}>
-                vem pro jogo.
-              </span>
-            </h1>
 
             {/* Desktop subtitle */}
             <p className="h-sub hero-sub" style={{
