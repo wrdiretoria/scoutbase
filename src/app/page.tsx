@@ -422,8 +422,8 @@ export default function LandingPage() {
           {/* LEFT */}
           <div className="hero-left" style={{ display:'flex', flexDirection:'column', gap:'40px', minWidth:0 }}>
 
-            {/* Indicator — sem pill, sem glow */}
-            <div className="h-badge" style={{ display:'inline-flex', alignItems:'center', gap:'9px' }}>
+            {/* Indicator */}
+            <div className="h-badge" style={{ display:'inline-flex', alignItems:'center', gap:'10px' }}>
               <span className="live-dot" />
               <span style={{
                 fontSize:'10px', fontWeight:700,
@@ -431,6 +431,14 @@ export default function LandingPage() {
                 letterSpacing:'0.22em', textTransform:'uppercase',
               }}>
                 APERTE O PLAY
+              </span>
+              <span style={{ color:'rgba(255,255,255,0.18)', fontSize:'11px', fontWeight:300 }}>—</span>
+              <span style={{
+                fontSize:'13px', fontWeight:300, fontStyle:'italic',
+                color:'rgba(255,255,255,0.48)',
+                letterSpacing:'0.01em',
+              }}>
+                vem pro jogo.
               </span>
             </div>
 
