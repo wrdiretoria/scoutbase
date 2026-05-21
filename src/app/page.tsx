@@ -381,7 +381,7 @@ export default function LandingPage() {
         }
         @media (max-width: 480px) {
           .cards-grid   { grid-template-columns:1fr !important; }
-          .hero-h1-line { font-size:clamp(58px,14vw,88px) !important; letter-spacing:-0.046em !important; }
+          .hero-h1-line { font-size:clamp(42px,11vw,64px) !important; letter-spacing:-0.046em !important; }
           .hero-tagline { font-size:clamp(16px,4.5vw,22px) !important; margin-top:6px !important; }
           .hero-mob-sub { font-size:12px !important; max-width:260px !important; }
           .dep-grid     { grid-template-columns:1fr !important; }
@@ -458,7 +458,7 @@ export default function LandingPage() {
               </span>
               <span className="h-line-2 hero-h1-line" style={{
                 display:'block',
-                fontSize:'clamp(72px,9.5vw,152px)',
+                fontSize:'clamp(52px,6.2vw,96px)',
                 fontWeight:900,
                 letterSpacing:'-0.046em',
                 lineHeight:0.84,
