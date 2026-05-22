@@ -5,12 +5,11 @@ import TeamOfWeekSection from './components/TeamOfWeekSection'
 import ProspectsSection from './components/ProspectsSection'
 import RankingSection from './components/RankingSection'
 import CardCraqueSection from './components/CardCraqueSection'
-import FeaturesSection from './components/FeaturesSection'
-import ParaQuemSection from './components/ParaQuemSection'
 import StatsBar from './components/StatsBar'
 import PhotoBillboard from './components/PhotoBillboard'
 import HeroFeed from './components/HeroFeed'
 import LancesSection from './components/LancesSection'
+import LiveFeed from './components/LiveFeed'
 
 const cards = [
   {
@@ -636,6 +635,7 @@ export default function LandingPage() {
 
       {/* ══════════════════════════════════════ LANCES / REELS ══ */}
       <LancesSection />
+      <LiveFeed />
       {/* ══════════════════════════════════════ RANKING | VÍDEOS | MAPA ══ */}
       <section style={{ background:'#050906', padding:'56px 24px 40px' }}>
         <div className="three-cols" style={{ maxWidth:'1200px', margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 1.5fr 1fr', gap:'32px' }}>
@@ -812,241 +812,6 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════ ACTIVITY TICKER ══ */}
       <ActivityTicker />
 
-      {/* ══════════════════════════════════════ COMO FUNCIONA ══ */}
-      <section style={{ padding:'96px 20px 80px', background:'#030905', position:'relative', overflow:'hidden' }}>
-        {/* Subtle grid background */}
-        <div style={{
-          position:'absolute', inset:0, pointerEvents:'none',
-          backgroundImage:'linear-gradient(rgba(0,255,136,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,136,0.025) 1px, transparent 1px)',
-          backgroundSize:'72px 72px',
-        }} />
-        {/* Corner glow */}
-        <div style={{ position:'absolute', top:'-120px', right:'-120px', width:'500px', height:'500px', background:'radial-gradient(circle, rgba(0,255,136,0.04) 0%, transparent 65%)', pointerEvents:'none' }} />
-
-        <div style={{ maxWidth:'1080px', margin:'0 auto', position:'relative' }}>
-          {/* Header */}
-          <div style={{ textAlign:'center', marginBottom:'72px' }}>
-            <div style={{ fontSize:'11px', fontWeight:700, color:'rgba(0,255,136,0.55)', letterSpacing:'0.20em', textTransform:'uppercase', marginBottom:'14px' }}>
-              Como funciona
-            </div>
-            <h2 style={{ margin:'0 0 16px', fontSize:'clamp(28px,5vw,46px)', fontWeight:900, color:'white', letterSpacing:'-0.035em', lineHeight:1.05 }}>
-              Da escolinha ao contrato
-            </h2>
-            <p style={{ margin:0, fontSize:'clamp(14px,1.1vw,16px)', color:'rgba(255,255,255,0.38)', maxWidth:'460px', marginLeft:'auto', marginRight:'auto', lineHeight:1.70 }}>
-              Três passos simples que transformam um jovem talento em um atleta visível para o Brasil inteiro.
-            </p>
-          </div>
-
-          {/* Steps */}
-          <div className="steps-grid" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:0, position:'relative' }}>
-            {/* Connecting line — desktop */}
-            <div className="steps-connector" style={{
-              position:'absolute', top:'44px', left:'calc(16.66% + 16px)', right:'calc(16.66% + 16px)',
-              height:'1px',
-              background:'linear-gradient(90deg, transparent 0%, rgba(0,255,136,0.20) 12%, rgba(0,255,136,0.20) 88%, transparent 100%)',
-              pointerEvents:'none',
-            }}>
-              {/* Dots on the line */}
-              <div style={{ position:'absolute', left:'50%', top:'-3px', width:'7px', height:'7px', borderRadius:'50%', background:'rgba(0,255,136,0.25)', border:'1px solid rgba(0,255,136,0.45)', transform:'translateX(-50%)' }} />
-            </div>
-
-            {[
-              {
-                num:'01',
-                emoji:'⚡',
-                title:'Crie seu perfil',
-                desc:'Em 2 minutos, de graça. Foto, posição, cidade, dados físicos e histórico completo de escolinhas.',
-                accentColor:'#00FF88',
-                iconBg:'rgba(0,255,136,0.08)',
-                iconBorder:'rgba(0,255,136,0.22)',
-                iconGlow:'rgba(0,255,136,0.15)',
-              },
-              {
-                num:'02',
-                emoji:'🎯',
-                title:'Receba avaliações',
-                desc:'Treinadores certificados avaliam seus atributos e geram seu OVR — a nota oficial do Meu Craque.',
-                accentColor:'#fbbf24',
-                iconBg:'rgba(251,191,36,0.08)',
-                iconBorder:'rgba(251,191,36,0.22)',
-                iconGlow:'rgba(251,191,36,0.15)',
-              },
-              {
-                num:'03',
-                emoji:'🌎',
-                title:'Seja descoberto',
-                desc:'Scouts e clubes de todo o Brasil buscam ativamente por perfis como o seu. Sua janela está aberta.',
-                accentColor:'#a78bfa',
-                iconBg:'rgba(167,139,250,0.08)',
-                iconBorder:'rgba(167,139,250,0.22)',
-                iconGlow:'rgba(167,139,250,0.15)',
-              },
-            ].map((step) => (
-              <div key={step.num} className="step-card" style={{ padding:'0 40px', textAlign:'center' }}>
-                {/* Step label */}
-                <div style={{
-                  fontSize:'10px', fontWeight:900, letterSpacing:'0.22em',
-                  color:`${step.accentColor}55`, marginBottom:'18px',
-                }}>
-                  PASSO {step.num}
-                </div>
-
-                {/* Icon */}
-                <div style={{
-                  width:'88px', height:'88px', borderRadius:'50%',
-                  background:step.iconBg, border:`1px solid ${step.iconBorder}`,
-                  display:'flex', alignItems:'center', justifyContent:'center',
-                  fontSize:'36px', margin:'0 auto 28px',
-                  boxShadow:`0 0 36px ${step.iconGlow}`,
-                  position:'relative',
-                }}>
-                  {step.emoji}
-                  {/* Outer ring */}
-                  <div style={{
-                    position:'absolute', inset:'-8px', borderRadius:'50%',
-                    border:`1px solid ${step.accentColor}12`,
-                    pointerEvents:'none',
-                  }} />
-                </div>
-
-                <h3 style={{
-                  margin:'0 0 14px', fontSize:'clamp(18px,1.4vw,22px)',
-                  fontWeight:800, color:'white', letterSpacing:'-0.025em',
-                }}>
-                  {step.title}
-                </h3>
-                <p style={{
-                  margin:0, fontSize:'14px', color:'rgba(255,255,255,0.38)',
-                  lineHeight:1.72, maxWidth:'240px', marginLeft:'auto', marginRight:'auto',
-                }}>
-                  {step.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* CTA */}
-          <div style={{ textAlign:'center', marginTop:'64px' }}>
-            <Link href="/atleta/cadastro" style={{
-              display:'inline-flex', alignItems:'center', gap:'10px',
-              padding:'15px 36px', borderRadius:'100px',
-              background:'linear-gradient(160deg,#00FF99 0%,#00E07A 52%,#00CC66 100%)',
-              color:'#020c05', fontWeight:800, fontSize:'14px',
-              textDecoration:'none', letterSpacing:'0.09em',
-              boxShadow:'0 0 36px rgba(0,255,136,0.30), 0 4px 18px rgba(0,0,0,0.4)',
-              transition:'filter .2s, transform .15s',
-            }}>
-              ⚽ COMEÇAR AGORA — É GRÁTIS
-            </Link>
-            <p style={{ margin:'16px 0 0', fontSize:'12px', color:'rgba(255,255,255,0.22)', letterSpacing:'0.05em' }}>
-              SEM CARTÃO DE CRÉDITO · PERFIL PRONTO EM 2 MINUTOS
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════ DEPOIMENTOS ══ */}
-      <section style={{ padding:'80px 20px', background:'#040a06', position:'relative', overflow:'hidden' }}>
-        {/* Subtle ambient */}
-        <div style={{ position:'absolute', bottom:'-80px', left:'50%', transform:'translateX(-50%)', width:'700px', height:'300px', background:'radial-gradient(ellipse at center, rgba(0,255,136,0.04) 0%, transparent 65%)', pointerEvents:'none' }} />
-
-        <div style={{ maxWidth:'1080px', margin:'0 auto', position:'relative' }}>
-          {/* Header */}
-          <div style={{ textAlign:'center', marginBottom:'52px' }}>
-            <div style={{ fontSize:'11px', fontWeight:700, color:'rgba(0,255,136,0.55)', letterSpacing:'0.20em', textTransform:'uppercase', marginBottom:'12px' }}>
-              Histórias reais
-            </div>
-            <h2 style={{ margin:'0 0 12px', fontSize:'clamp(26px,5vw,40px)', fontWeight:900, color:'white', letterSpacing:'-0.03em' }}>
-              Quem usa, vira fã
-            </h2>
-            <p style={{ margin:0, fontSize:'15px', color:'rgba(255,255,255,0.35)' }}>
-              Atletas, treinadores e scouts que mudaram de nível com o Meu Craque.
-            </p>
-          </div>
-
-          <div className="dep-grid" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'16px' }}>
-            {[
-              {
-                quote: '"Três semanas depois de criar meu perfil, recebi uma mensagem de um scout de Belo Horizonte. Nunca imaginei que algo assim fosse real."',
-                name: 'Rafael S.',
-                role: 'Atacante · 17 anos',
-                city: 'Santos, SP',
-                init: 'RS',
-                avatarBg: 'linear-gradient(135deg,#064e1e,#16a34a)',
-                stars: 5,
-                accent: '#00FF88',
-                topLine: 'rgba(0,255,136,0.35)',
-              },
-              {
-                quote: '"Finalmente tenho um histórico digital de cada atleta que avaliei. Meu trabalho ganhou o reconhecimento que nunca tive com papel e caneta."',
-                name: 'Coach André Lima',
-                role: 'Treinador certificado',
-                city: 'Campinas, SP',
-                init: 'AL',
-                avatarBg: 'linear-gradient(135deg,#1e3a5f,#3b82f6)',
-                stars: 5,
-                accent: '#60a5fa',
-                topLine: 'rgba(96,165,250,0.35)',
-              },
-              {
-                quote: '"Em uma tarde, avaliei 40 perfis de atacantes de São Paulo e do Rio. Antes disso levaria semanas visitando escolinhas. É uma revolução."',
-                name: 'Marcus Veiga',
-                role: 'Scout profissional',
-                city: 'São Paulo, SP',
-                init: 'MV',
-                avatarBg: 'linear-gradient(135deg,#3b1b8c,#a78bfa)',
-                stars: 5,
-                accent: '#a78bfa',
-                topLine: 'rgba(167,139,250,0.35)',
-              },
-            ].map((d) => (
-              <div key={d.name} className="dep-card" style={{
-                background:'linear-gradient(168deg,#0c1510 0%,#060d09 100%)',
-                border:'1px solid rgba(255,255,255,0.06)',
-                borderRadius:'20px', padding:'28px',
-                position:'relative', overflow:'hidden',
-              }}>
-                {/* Top accent line */}
-                <div style={{ position:'absolute', top:0, left:0, right:0, height:'2px', background:`linear-gradient(90deg, transparent, ${d.topLine}, transparent)` }} />
-
-                {/* Stars */}
-                <div style={{ marginBottom:'18px', fontSize:'13px', letterSpacing:'2px', color:'#fbbf24' }}>
-                  {'★'.repeat(d.stars)}
-                </div>
-
-                {/* Quote */}
-                <p style={{ margin:'0 0 24px', fontSize:'14px', color:'rgba(255,255,255,0.60)', lineHeight:1.76, fontStyle:'italic', fontWeight:400 }}>
-                  {d.quote}
-                </p>
-
-                {/* Author */}
-                <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
-                  <div style={{
-                    width:'40px', height:'40px', borderRadius:'50%',
-                    background:d.avatarBg,
-                    border:`1px solid ${d.accent}33`,
-                    display:'flex', alignItems:'center', justifyContent:'center',
-                    fontSize:'13px', fontWeight:800, color:'white', flexShrink:0,
-                    boxShadow:`0 0 16px ${d.accent}18`,
-                  }}>
-                    {d.init}
-                  </div>
-                  <div>
-                    <div style={{ fontSize:'14px', fontWeight:700, color:'white', marginBottom:'2px' }}>{d.name}</div>
-                    <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.32)', letterSpacing:'0.02em' }}>{d.role} · {d.city}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════ FEATURES ══ */}
-      <FeaturesSection />
-
-      {/* ══════════════════════════════════════ PARA QUEM ══ */}
-      <ParaQuemSection />
 
       {/* ══════════════════════════════════════ PROSPECTS ══ */}
       <ProspectsSection />
