@@ -10,6 +10,7 @@ import PhotoBillboard from './components/PhotoBillboard'
 import HeroFeed from './components/HeroFeed'
 import LancesSection from './components/LancesSection'
 import LiveFeed from './components/LiveFeed'
+import SpinningGlobe from './components/SpinningGlobe'
 
 const cards = [
   {
@@ -707,23 +708,8 @@ export default function LandingPage() {
               <span style={{ fontSize:'9.5px', fontWeight:800, color:'rgba(255,255,255,0.38)', letterSpacing:'0.20em', textTransform:'uppercase' }}>O futebol acontece em todo lugar</span>
               <span style={{ fontSize:'11px', color:'#00FF88', fontWeight:600, letterSpacing:'0.04em', cursor:'pointer' }}>Ver mapa →</span>
             </div>
-            {/* Brazil map SVG */}
-            <div style={{ position:'relative', width:'100%', height:'180px', marginBottom:'20px' }}>
-              <svg viewBox="0 0 340 300" style={{ width:'100%', height:'100%' }} fill="none">
-                <path d="M170,18 L205,22 L228,35 L248,42 L265,38 L278,50 L282,65 L275,78 L285,92 L290,108 L282,122 L290,138 L285,155 L272,168 L268,185 L258,198 L248,210 L238,222 L225,232 L215,245 L208,258 L198,268 L188,275 L178,272 L168,265 L158,258 L148,248 L138,235 L128,225 L118,215 L108,205 L98,192 L90,178 L85,165 L78,152 L72,138 L68,124 L62,110 L58,96 L62,82 L70,70 L78,58 L88,48 L100,40 L112,34 L125,28 L140,22 L155,18 L170,18Z" stroke="rgba(0,255,136,0.18)" strokeWidth="1.2" fill="rgba(0,255,136,0.03)" />
-                {/* Major city dots */}
-                {[
-                  [170,80],[145,105],[190,120],[155,148],[178,162],
-                  [130,135],[200,148],[162,188],[148,210],[185,205],
-                  [220,130],[105,155],[235,165],[170,230],[192,240],
-                ].map(([x,y],i) => (
-                  <g key={i}>
-                    <circle cx={x} cy={y} r="3.5" fill="#00FF88" opacity="0.7" />
-                    <circle cx={x} cy={y} r="7" fill="#00FF88" opacity="0.12" />
-                  </g>
-                ))}
-              </svg>
-            </div>
+            {/* Spinning Globe */}
+            <SpinningGlobe />
             <div style={{ display:'flex', gap:'28px' }}>
               <div>
                 <div style={{ fontSize:'clamp(24px,3vw,32px)', fontWeight:900, color:'white', lineHeight:1 }}>26</div>
