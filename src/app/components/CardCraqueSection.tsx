@@ -1,28 +1,130 @@
-// Server Component
+// Async Server Component — dados reais do Supabase
+import { createAdminClient } from '@/lib/supabase'
 
-const attrs = [
-  { label: 'TÉCNICA',       val: 88 },
-  { label: 'VELOCIDADE',    val: 90 },
-  { label: 'VISÃO DE JOGO', val: 82 },
-  { label: 'FINALIZAÇÃO',   val: 85 },
-  { label: 'FORÇA',         val: 78 },
-  { label: 'MENTALIDADE',   val: 87 },
-]
+type AtletaData = {
+  nome:         string
+  posicao:      string
+  athlete_id:   string
+  foto:         string | null
+  ovr:          number
+  treinadorNome: string
+  attrs: { label: string; val: number }[]
+  cardStats: [string, string][]
+}
 
-const cardStats = [
-  ['RIT','90'], ['FIN','85'], ['PAS','82'],
-  ['CON','88'], ['DEF','60'], ['FIS','78'],
-]
+async function fetchTopAtleta(): Promise<AtletaData | null> {
+  try {
+    const admin = createAdminClient()
 
-// OVR 85+ = OURO | 70–84 = PRATA | <70 = BRONZE
-const OVR = 87
-const tier = OVR >= 85
-  ? { label: 'OURO',   card: 'linear-gradient(160deg,#2a1a00 0%,#1e1200 55%,#0e0900 100%)', border: 'rgba(212,168,67,0.55)',  glow: 'rgba(212,168,67,0.30)', ovr: '#f0c040', accent: '#d4a843', badge: 'linear-gradient(135deg,#b8860b,#f0c040)' }
-  : OVR >= 70
-  ? { label: 'PRATA',  card: 'linear-gradient(160deg,#1a1a1f 0%,#111118 55%,#08080e 100%)', border: 'rgba(192,192,210,0.45)', glow: 'rgba(180,180,200,0.22)', ovr: '#d0d0e8', accent: '#a0a0c0', badge: 'linear-gradient(135deg,#707080,#c0c0d8)' }
-  : { label: 'BRONZE', card: 'linear-gradient(160deg,#1f1008 0%,#140b05 55%,#0a0603 100%)', border: 'rgba(180,100,40,0.50)',  glow: 'rgba(180,100,40,0.22)', ovr: '#d4804a', accent: '#c87040', badge: 'linear-gradient(135deg,#7a3a10,#d4804a)' }
+    // Busca a avaliação com maior scout_score
+    const { data: av } = await admin
+      .from('avaliacoes')
+      .select('aluno_id, professor_id, scout_score, velocidade, tecnica, visao_jogo, finalizacao, forca, posicionamento')
+      .not('scout_score', 'is', null)
+      .order('scout_score', { ascending: false })
+      .limit(1)
+      .maybeSingle()
 
-export default function CardCraqueSection() {
+    if (!av || !av.aluno_id) return null
+
+    // Busca profile do atleta
+    const { data: profile } = await admin
+      .from('profiles')
+      .select('nome, athlete_id, fotos, avatar_url')
+      .eq('id', av.aluno_id as string)
+      .maybeSingle()
+
+    // Busca posição via auth metadata
+    const { data: { user: atletaUser } } = await admin.auth.admin.getUserById(av.aluno_id as string)
+    const posicao = (atletaUser?.user_metadata?.posicao as string | null) ?? 'ATL'
+
+    // Busca nome do treinador
+    const { data: tProfile } = await admin
+      .from('profiles')
+      .select('nome')
+      .eq('id', av.professor_id as string)
+      .maybeSingle()
+
+    // Foto: prioridade fotos[0] > avatar_url > null
+    const fotosArr = profile?.fotos as (string | null)[] | null
+    const foto = fotosArr?.[0] ?? (profile?.avatar_url as string | null) ?? null
+
+    // Atributos (escala 0-10 no DB → ×10 para exibir 0-100)
+    const v   = (n: unknown) => Math.round((typeof n === 'number' ? n : 0) * 10)
+    const ovr = Math.round(av.scout_score as number)
+
+    const attrs = [
+      { label: 'TÉCNICA',       val: v(av.tecnica) },
+      { label: 'VELOCIDADE',    val: v(av.velocidade) },
+      { label: 'VISÃO DE JOGO', val: v(av.visao_jogo) },
+      { label: 'FINALIZAÇÃO',   val: v(av.finalizacao) },
+      { label: 'FORÇA',         val: v(av.forca) },
+      { label: 'POSICIONAMENTO',val: v(av.posicionamento) },
+    ]
+
+    const cardStats: [string, string][] = [
+      ['VEL', String(v(av.velocidade))],
+      ['FIN', String(v(av.finalizacao))],
+      ['TEC', String(v(av.tecnica))],
+      ['VIS', String(v(av.visao_jogo))],
+      ['FOR', String(v(av.forca))],
+      ['POS', String(v(av.posicionamento))],
+    ]
+
+    const posAbrev = (pos: string) => {
+      const m: Record<string, string> = {
+        'Goleiro':'GK','Lateral Direito':'LD','Lateral Esquerdo':'LE',
+        'Zagueiro':'ZG','Volante':'VOL','Meia':'MEI','Meia-Atacante':'MAT',
+        'Ponta Direita':'PD','Ponta Esquerda':'PE','Atacante':'ATA','Centro-Avante':'CA',
+      }
+      return m[pos] ?? pos.slice(0,3).toUpperCase()
+    }
+
+    return {
+      nome:          (profile?.nome as string | null) ?? 'Atleta',
+      posicao:       posAbrev(posicao),
+      athlete_id:    (profile?.athlete_id as string | null)?.replace('MC-','') ?? '—',
+      foto,
+      ovr,
+      treinadorNome: (tProfile?.nome as string | null) ?? 'Treinador',
+      attrs,
+      cardStats,
+    }
+  } catch {
+    return null
+  }
+}
+
+// Fallback estático
+const FALLBACK: AtletaData = {
+  nome: 'Rafael Silva', posicao: 'MEI', athlete_id: '04729', foto: null, ovr: 87,
+  treinadorNome: 'Carlos Mendes',
+  attrs: [
+    { label: 'TÉCNICA',        val: 88 },
+    { label: 'VELOCIDADE',     val: 90 },
+    { label: 'VISÃO DE JOGO',  val: 82 },
+    { label: 'FINALIZAÇÃO',    val: 85 },
+    { label: 'FORÇA',          val: 78 },
+    { label: 'POSICIONAMENTO', val: 87 },
+  ],
+  cardStats: [
+    ['VEL','90'],['FIN','85'],['TEC','88'],
+    ['VIS','82'],['FOR','78'],['POS','87'],
+  ],
+}
+
+export default async function CardCraqueSection() {
+  const atleta = (await fetchTopAtleta()) ?? FALLBACK
+
+  const { nome, posicao, athlete_id, foto, ovr, treinadorNome, attrs, cardStats } = atleta
+
+  // OVR 85+ = OURO | 70–84 = PRATA | <70 = BRONZE
+  const tier = ovr >= 85
+    ? { label: 'OURO',   card: 'linear-gradient(160deg,#2a1a00 0%,#1e1200 55%,#0e0900 100%)', border: 'rgba(212,168,67,0.55)',  glow: 'rgba(212,168,67,0.30)', ovr: '#f0c040', accent: '#d4a843', badge: 'linear-gradient(135deg,#b8860b,#f0c040)' }
+    : ovr >= 70
+    ? { label: 'PRATA',  card: 'linear-gradient(160deg,#1a1a1f 0%,#111118 55%,#08080e 100%)', border: 'rgba(192,192,210,0.45)', glow: 'rgba(180,180,200,0.22)', ovr: '#d0d0e8', accent: '#a0a0c0', badge: 'linear-gradient(135deg,#707080,#c0c0d8)' }
+    : { label: 'BRONZE', card: 'linear-gradient(160deg,#1f1008 0%,#140b05 55%,#0a0603 100%)', border: 'rgba(180,100,40,0.50)',  glow: 'rgba(180,100,40,0.22)', ovr: '#d4804a', accent: '#c87040', badge: 'linear-gradient(135deg,#7a3a10,#d4804a)' }
+
   return (
     <section style={{
       background: 'linear-gradient(180deg, #060d08 0%, #071209 50%, #060d08 100%)',
@@ -174,11 +276,11 @@ export default function CardCraqueSection() {
                   fontSize: '56px', fontWeight: 900, color: tier.ovr,
                   lineHeight: 1, letterSpacing: '-0.04em',
                   textShadow: `0 0 28px ${tier.glow}`,
-                }}>{OVR}</div>
+                }}>{ovr}</div>
                 <div style={{
                   fontSize: '12px', fontWeight: 800, color: 'rgba(255,255,255,0.65)',
                   letterSpacing: '0.12em', marginTop: '3px',
-                }}>MEI</div>
+                }}>{posicao}</div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '7px' }}>
                 {/* Tier badge */}
@@ -206,17 +308,31 @@ export default function CardCraqueSection() {
               borderRadius: '14px', overflow: 'hidden',
               position: 'relative',
               border: `1px solid ${tier.border}`,
+              background: '#0a140d',
             }}>
-              <img
-                src="/images/hero-player.png"
-                alt="Atleta"
-                style={{
+              {foto ? (
+                <img
+                  src={foto}
+                  alt={nome}
+                  style={{
+                    width: '100%', height: '100%',
+                    objectFit: 'cover',
+                    objectPosition: 'center top',
+                    display: 'block',
+                  }}
+                />
+              ) : (
+                /* Fallback: initials avatar */
+                <div style={{
                   width: '100%', height: '100%',
-                  objectFit: 'cover',
-                  objectPosition: 'center 12%',
-                  display: 'block',
-                }}
-              />
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: `linear-gradient(135deg, ${tier.accent}22, ${tier.glow})`,
+                }}>
+                  <span style={{ fontSize: '52px', fontWeight: 900, color: tier.ovr, opacity: 0.6 }}>
+                    {nome.split(' ').slice(0,2).map(w => w[0]).join('')}
+                  </span>
+                </div>
+              )}
               {/* Bottom fade so name reads clean */}
               <div style={{
                 position: 'absolute', bottom: 0, left: 0, right: 0, height: '60%',
@@ -237,7 +353,7 @@ export default function CardCraqueSection() {
                 <span style={{
                   fontSize: '12px', fontWeight: 900, color: 'white',
                   letterSpacing: '0.12em', textTransform: 'uppercase',
-                }}>RAFAEL SILVA</span>
+                }}>{nome.split(' ').slice(0,2).join(' ')}</span>
                 <div style={{ height: '1px', flex: 1, background: `${tier.border}` }} />
               </div>
               {/* Trainer seal */}
@@ -249,7 +365,10 @@ export default function CardCraqueSection() {
               }}>
                 <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#00FF88' }} />
                 <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.06em' }}>
-                  avaliado por <span style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 700 }}>Carlos Mendes</span>
+                  avaliado por{' '}
+                  <span style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 700 }}>
+                    {treinadorNome.split(' ')[0]}
+                  </span>
                 </span>
               </div>
             </div>
@@ -314,7 +433,9 @@ export default function CardCraqueSection() {
               borderRadius: '10px',
               textAlign: 'center',
             }}>
-              <span style={{ fontSize: '15px', fontWeight: 900, color: tier.ovr, letterSpacing: '0.12em' }}>04729</span>
+              <span style={{ fontSize: '15px', fontWeight: 900, color: tier.ovr, letterSpacing: '0.12em' }}>
+                {athlete_id}
+              </span>
             </div>
           </div>
         </div>
