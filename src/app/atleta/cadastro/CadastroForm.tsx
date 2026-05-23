@@ -115,20 +115,25 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
         } catch { /* indicação falhou — não bloqueia */ }
       }
 
-      // 4. Upload da foto
+      // 4. Upload da foto via API (admin client — sem RLS)
       let avatarUrl: string | null = null
       if (photo) {
-        const ext = photo.name.split('.').pop() ?? 'jpg'
-        const { error: uploadErr } = await supabase.storage
-          .from('avatars')
-          .upload(`${userId}.${ext}`, photo, { upsert: true, contentType: photo.type })
-        if (!uploadErr) {
-          const { data: { publicUrl } } = supabase.storage
-            .from('avatars')
-            .getPublicUrl(`${userId}.${ext}`)
-          avatarUrl = publicUrl
-        } else {
-          console.warn('[cadastro-atleta] foto não salva:', uploadErr.message)
+        try {
+          const fd = new FormData()
+          fd.append('file', photo)
+          const uploadRes = await fetch('/api/atleta/upload-foto-cadastro', {
+            method: 'POST',
+            headers: { 'x-athlete-id': userId },
+            body: fd,
+          })
+          if (uploadRes.ok) {
+            const uploadJson = await uploadRes.json() as { url?: string }
+            avatarUrl = uploadJson.url ?? null
+          } else {
+            console.warn('[cadastro-atleta] foto não salva:', await uploadRes.text())
+          }
+        } catch (uploadErr) {
+          console.warn('[cadastro-atleta] foto não salva:', uploadErr)
         }
       }
 
