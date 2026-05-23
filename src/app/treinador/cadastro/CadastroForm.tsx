@@ -97,75 +97,75 @@ export default function CadastroForm({ isEscola }: { isEscola: boolean }) {
 
     setLoading(true)
 
-    const verificar = await fetch('/api/cadastro/verificar-cpf', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cpf }),
-    })
-    const verificarData = await verificar.json() as { disponivel?: boolean; error?: string }
+    try {
+      const verificar = await fetch('/api/cadastro/verificar-cpf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cpf }),
+      })
+      const verificarData = await verificar.json() as { disponivel?: boolean; error?: string }
 
-    if (!verificar.ok || verificarData.disponivel === false) {
-      setError('Este CPF já está cadastrado.')
-      setLoading(false)
-      return
-    }
-
-    const supabase = createClient()
-    const { data, error: signUpErr } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          nome,
-          tipo: isEscola ? 'escola' : 'treinador',
-          ...(isEscola && nomeEscola ? { nome_escola: nomeEscola } : {}),
-        },
-      },
-    })
-
-    if (signUpErr || !data.user) {
-      console.error('[cadastro] signUp error:', signUpErr?.message, signUpErr?.status)
-      let msg = 'Não foi possível criar a conta. Tente novamente.'
-      if (signUpErr?.message) {
-        const m = signUpErr.message.toLowerCase()
-        if (m.includes('already registered') || m.includes('user already registered')) {
-          msg = 'Este e-mail já está cadastrado. Tente fazer login.'
-        } else if (m.includes('password should be at least') || m.includes('password')) {
-          msg = 'A senha deve ter pelo menos 6 caracteres.'
-        } else if (m.includes('rate limit') || m.includes('email rate limit exceeded')) {
-          msg = 'Muitas tentativas. Aguarde alguns minutos e tente novamente.'
-        } else if (m.includes('invalid email') || m.includes('unable to validate')) {
-          msg = 'E-mail inválido. Verifique e tente novamente.'
-        } else if (m.includes('signup') && m.includes('disabled')) {
-          msg = 'Cadastros estão temporariamente desabilitados.'
-        }
+      if (!verificar.ok || verificarData.disponivel === false) {
+        throw new Error('Este CPF já está cadastrado.')
       }
+
+      const supabase = createClient()
+      const { data, error: signUpErr } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            nome,
+            tipo: isEscola ? 'escola' : 'treinador',
+            ...(isEscola && nomeEscola ? { nome_escola: nomeEscola } : {}),
+          },
+        },
+      })
+
+      if (signUpErr || !data.user) {
+        console.error('[cadastro-treinador] signUp error:', signUpErr?.message, signUpErr?.status)
+        let msg = 'Não foi possível criar a conta. Tente novamente.'
+        if (signUpErr?.message) {
+          const m = signUpErr.message.toLowerCase()
+          if (m.includes('already registered') || m.includes('user already registered')) {
+            msg = 'Este e-mail já está cadastrado. Tente fazer login.'
+          } else if (m.includes('password should be at least') || m.includes('password')) {
+            msg = 'A senha deve ter pelo menos 6 caracteres.'
+          } else if (m.includes('rate limit') || m.includes('email rate limit exceeded')) {
+            msg = 'Muitas tentativas. Aguarde alguns minutos e tente novamente.'
+          } else if (m.includes('invalid email') || m.includes('unable to validate')) {
+            msg = 'E-mail inválido. Verifique e tente novamente.'
+          } else if (m.includes('signup') && m.includes('disabled')) {
+            msg = 'Cadastros estão temporariamente desabilitados.'
+          }
+        }
+        throw new Error(msg)
+      }
+
+      // Supabase retorna user sem identities quando o e-mail já está cadastrado
+      if (!data.user.identities || data.user.identities.length === 0) {
+        throw new Error('Este e-mail já está cadastrado. Tente fazer login ou use outro e-mail.')
+      }
+
+      const salvar = await fetch('/api/cadastro/salvar-perfil', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: data.user.id, cpf, dataNascimento: dataNasc, nome, email, tipo: isEscola ? 'escola' : 'treinador' }),
+      })
+
+      if (!salvar.ok) {
+        const salvarData = await salvar.json().catch(() => ({})) as { error?: string }
+        throw new Error(salvar.status === 409 ? 'Este CPF já está cadastrado.' : (salvarData.error ?? 'Erro ao salvar perfil.'))
+      }
+
+      router.push('/treinador/configurar')
+
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Erro inesperado. Tente novamente.'
+      console.error('[cadastro-treinador]', err)
       setError(msg)
       setLoading(false)
-      return
     }
-
-    // Supabase retorna user sem identities quando o e-mail já está cadastrado
-    if (!data.user.identities || data.user.identities.length === 0) {
-      setError('Este e-mail já está cadastrado. Tente fazer login ou use outro e-mail.')
-      setLoading(false)
-      return
-    }
-
-    const salvar = await fetch('/api/cadastro/salvar-perfil', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: data.user.id, cpf, dataNascimento: dataNasc, nome, email, tipo: isEscola ? 'escola' : 'treinador' }),
-    })
-
-    if (!salvar.ok) {
-      const salvarData = await salvar.json() as { error?: string }
-      setError(salvar.status === 409 ? 'Este CPF já está cadastrado.' : (salvarData.error ?? 'Erro ao salvar perfil.'))
-      setLoading(false)
-      return
-    }
-
-    router.push('/treinador/configurar')
   }
 
   const fieldStyle = {

@@ -37,6 +37,27 @@ function useCounter(target: number, delay = 300, duration = 800) {
   return v
 }
 
+/** Comprime a imagem para JPEG no browser antes do upload */
+async function compressImage(file: File, maxPx = 900, quality = 0.82): Promise<Blob> {
+  return new Promise((resolve) => {
+    const img = new Image()
+    const objectUrl = URL.createObjectURL(file)
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl)
+      const ratio = Math.min(maxPx / img.width, maxPx / img.height, 1)
+      const w = Math.round(img.width  * ratio)
+      const h = Math.round(img.height * ratio)
+      const canvas = document.createElement('canvas')
+      canvas.width = w; canvas.height = h
+      const ctx = canvas.getContext('2d')!
+      ctx.drawImage(img, 0, 0, w, h)
+      canvas.toBlob(blob => resolve(blob ?? file), 'image/jpeg', quality)
+    }
+    img.onerror = () => { URL.revokeObjectURL(objectUrl); resolve(file) }
+    img.src = objectUrl
+  })
+}
+
 export default function TreinadorConfigurarPage() {
   const router  = useRouter()
   const fileRef = useRef<HTMLInputElement>(null)
@@ -45,6 +66,7 @@ export default function TreinadorConfigurarPage() {
   const [nome,        setNome]        = useState('')
   const [step,        setStep]        = useState<Step>('foto')
   const [saving,      setSaving]      = useState(false)
+  const [saveErr,     setSaveErr]     = useState<string | null>(null)
   const [authReady,   setAuthReady]   = useState(false)
 
   // form fields
@@ -102,28 +124,55 @@ export default function TreinadorConfigurarPage() {
 
   async function uploadFoto(): Promise<string | null> {
     if (!fotoFile) return null
-    const fd = new FormData()
-    fd.append('file', fotoFile)
-    const res = await fetch('/api/atleta/upload-foto', { method: 'POST', body: fd })
-    if (!res.ok) return null
-    const json = await res.json() as { url?: string }
-    return json.url ?? null
+    try {
+      const compressed = await compressImage(fotoFile)
+      const fd = new FormData()
+      fd.append('file', new File([compressed], 'photo.jpg', { type: 'image/jpeg' }))
+      const res = await fetch('/api/atleta/upload-foto', { method: 'POST', body: fd })
+      if (!res.ok) return null
+      const json = await res.json() as { url?: string }
+      return json.url ?? null
+    } catch {
+      return null
+    }
   }
 
   async function handleConcluir() {
     setSaving(true)
-    let avatarUrl = savedAvatarUrl
-    if (fotoFile) {
-      avatarUrl = await uploadFoto()
-      if (avatarUrl) setSavedAvatarUrl(avatarUrl)
+    setSaveErr(null)
+
+    try {
+      let avatarUrl = savedAvatarUrl
+      if (fotoFile) {
+        avatarUrl = await uploadFoto()
+        if (avatarUrl) setSavedAvatarUrl(avatarUrl)
+      }
+
+      const res = await fetch('/api/treinador/salvar-perfil', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          avatarUrl,
+          especialidade: especialidade || null,
+          cidade:        cidade        || null,
+          bio:           bio           || null,
+        }),
+      })
+
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({})) as { error?: string }
+        throw new Error(json.error ?? 'Não foi possível salvar. Tente novamente.')
+      }
+
+      setStep('concluido')
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Erro inesperado. Tente novamente.'
+      console.error('[treinador/configurar]', err)
+      setSaveErr(msg)
+    } finally {
+      setSaving(false)
     }
-    await fetch('/api/treinador/salvar-perfil', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, avatarUrl, especialidade: especialidade || null, cidade: cidade || null, bio: bio || null }),
-    })
-    setSaving(false)
-    setStep('concluido')
   }
 
   const primeiroNome = nome.split(' ')[0]
@@ -425,6 +474,15 @@ export default function TreinadorConfigurarPage() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '28px' }}>
+              {saveErr && (
+                <p style={{
+                  margin: 0, padding: '10px 14px', borderRadius: '10px',
+                  background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)',
+                  fontSize: '13px', color: '#f87171', lineHeight: 1.5,
+                }}>
+                  {saveErr}
+                </p>
+              )}
               <button
                 className="btn-primary"
                 onClick={handleConcluir}
