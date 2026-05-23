@@ -664,7 +664,7 @@ function BemVindoContent() {
                 margin: '0 0 4px', fontSize: '14px', fontWeight: 900,
                 color: '#00FF88', letterSpacing: '-0.01em',
               }}>
-                Boost seu OVR
+                Qual seu estilo de jogo?
               </p>
               <p style={{
                 margin: 0, fontSize: '12px',
