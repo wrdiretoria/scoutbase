@@ -1,10 +1,30 @@
 ﻿'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 import TreinadorBottomNav from '@/components/TreinadorBottomNav'
+
+async function compressImage(file: File, maxPx = 900, quality = 0.82): Promise<Blob> {
+  return new Promise((resolve) => {
+    const img = new Image()
+    const objectUrl = URL.createObjectURL(file)
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl)
+      const ratio = Math.min(maxPx / img.width, maxPx / img.height, 1)
+      const w = Math.round(img.width * ratio)
+      const h = Math.round(img.height * ratio)
+      const canvas = document.createElement('canvas')
+      canvas.width = w; canvas.height = h
+      const ctx = canvas.getContext('2d')!
+      ctx.drawImage(img, 0, 0, w, h)
+      canvas.toBlob(blob => resolve(blob ?? file), 'image/jpeg', quality)
+    }
+    img.onerror = () => { URL.revokeObjectURL(objectUrl); resolve(file) }
+    img.src = objectUrl
+  })
+}
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -44,13 +64,15 @@ function formatarTempo(dateStr?: string): string {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function TreinadorPerfilPage() {
-  const router = useRouter()
+  const router   = useRouter()
+  const fotoRef  = useRef<HTMLInputElement>(null)
 
-  const [perfil,     setPerfil]     = useState<Perfil | null>(null)
-  const [nomeEscola, setNomeEscola] = useState('')
-  const [metricas,   setMetricas]   = useState<Metricas>({ avaliacoes: 0, atletas: 0, destaques: 0 })
-  const [loading,    setLoading]    = useState(true)
-  const [copied,     setCopied]     = useState(false)
+  const [perfil,        setPerfil]        = useState<Perfil | null>(null)
+  const [nomeEscola,    setNomeEscola]    = useState('')
+  const [metricas,      setMetricas]      = useState<Metricas>({ avaliacoes: 0, atletas: 0, destaques: 0 })
+  const [loading,       setLoading]       = useState(true)
+  const [copied,        setCopied]        = useState(false)
+  const [uploadingFoto, setUploadingFoto] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -120,6 +142,31 @@ export default function TreinadorPerfilPage() {
         setTimeout(() => setCopied(false), 3000)
       }
     } catch { /* cancelado */ }
+  }
+
+  // ── Upload de foto ─────────────────────────────────────────────────────────
+
+  async function handleFotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploadingFoto(true)
+    try {
+      const compressed = await compressImage(file)
+      const fd = new FormData()
+      fd.append('file', new File([compressed], 'photo.jpg', { type: 'image/jpeg' }))
+      const res  = await fetch('/api/atleta/upload-foto', { method: 'POST', body: fd })
+      const json = await res.json() as { ok?: boolean; url?: string; error?: string }
+      if (!res.ok || !json.url) {
+        alert(json.error ?? 'Erro ao enviar foto. Tente novamente.')
+        return
+      }
+      setPerfil(prev => prev ? { ...prev, avatar_url: json.url } : prev)
+    } catch {
+      alert('Erro ao enviar foto. Verifique sua conexão.')
+    } finally {
+      setUploadingFoto(false)
+      if (fotoRef.current) fotoRef.current.value = ''
+    }
   }
 
   // ── Loading ────────────────────────────────────────────────────────────────
@@ -255,34 +302,57 @@ export default function TreinadorPerfilPage() {
         ══════════════════════════════════════ */}
         <div className="a2" style={{ display:'flex', flexDirection:'column', alignItems:'center', textAlign:'center', marginBottom:'20px' }}>
 
-          {/* Foto com ring de autoridade */}
+          {/* Foto com ring de autoridade — clicável para trocar */}
           <div style={{ position:'relative', width:'96px', height:'96px', marginBottom:'16px' }}>
 
-            {perfil.avatar_url ? (
-              <img
-                src={perfil.avatar_url} alt={perfil.nome}
-                style={{
-                  width:'100%', height:'100%', borderRadius:'50%',
-                  objectFit:'cover', objectPosition:'center 15%', display:'block',
-                  filter:'contrast(1.05) saturate(1.08)',
-                }}
+            <label htmlFor="treinador-foto-input" style={{ display:'block', width:'96px', height:'96px', borderRadius:'50%', overflow:'hidden', cursor: uploadingFoto ? 'wait' : 'pointer', position:'relative' }}>
+              <input
+                id="treinador-foto-input"
+                ref={fotoRef}
+                type="file"
+                accept="image/*"
+                disabled={uploadingFoto}
+                style={{ position:'absolute', width:'1px', height:'1px', opacity:0, pointerEvents:'none' }}
+                onChange={handleFotoChange}
               />
-            ) : (
+
+              {perfil.avatar_url ? (
+                <img
+                  src={perfil.avatar_url} alt={perfil.nome}
+                  style={{
+                    width:'100%', height:'100%', borderRadius:'50%',
+                    objectFit:'cover', objectPosition:'center 15%', display:'block',
+                    filter:'contrast(1.05) saturate(1.08)',
+                  }}
+                />
+              ) : (
+                <div style={{
+                  width:'100%', height:'100%', borderRadius:'50%',
+                  background:'linear-gradient(145deg,#166534,#22c55e,#4ade80)',
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                  fontSize:'30px', fontWeight:900, color:'white', letterSpacing:'-0.02em',
+                  boxShadow:'inset 0 1px 0 rgba(255,255,255,0.2)',
+                }}>
+                  {initials}
+                </div>
+              )}
+
+              {/* Overlay câmera — sempre visível */}
               <div style={{
-                width:'100%', height:'100%', borderRadius:'50%',
-                background:'linear-gradient(145deg,#166534,#22c55e,#4ade80)',
+                position:'absolute', inset:0, borderRadius:'50%',
+                background: uploadingFoto ? 'rgba(0,0,0,0.65)' : 'rgba(0,0,0,0.38)',
                 display:'flex', alignItems:'center', justifyContent:'center',
-                fontSize:'30px', fontWeight:900, color:'white', letterSpacing:'-0.02em',
-                boxShadow:'inset 0 1px 0 rgba(255,255,255,0.2)',
+                transition:'background 0.2s',
               }}>
-                {initials}
+                <span style={{ fontSize:'20px' }}>{uploadingFoto ? '⏳' : '📷'}</span>
               </div>
-            )}
+            </label>
 
             {/* Ring de autoridade — pulsa sutilmente */}
             <div className="ring-pulse" style={{
               position:'absolute', inset:'-5px', borderRadius:'50%',
               border:'2px solid rgba(0,255,136,0.45)',
+              pointerEvents:'none',
             }} />
 
             {/* Checkmark de verificação */}
@@ -293,6 +363,7 @@ export default function TreinadorPerfilPage() {
               display:'flex', alignItems:'center', justifyContent:'center',
               fontSize:'14px', fontWeight:900, color:'#020d04',
               boxShadow:'0 0 14px rgba(0,255,136,0.7), 0 2px 8px rgba(0,0,0,0.6), 0 0 0 2px #030a05',
+              pointerEvents:'none',
             }}>
               ✓
             </div>

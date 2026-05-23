@@ -12,6 +12,26 @@ import {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+async function compressImage(file: File, maxPx = 900, quality = 0.82): Promise<Blob> {
+  return new Promise((resolve) => {
+    const img = new Image()
+    const objectUrl = URL.createObjectURL(file)
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl)
+      const ratio = Math.min(maxPx / img.width, maxPx / img.height, 1)
+      const w = Math.round(img.width * ratio)
+      const h = Math.round(img.height * ratio)
+      const canvas = document.createElement('canvas')
+      canvas.width = w; canvas.height = h
+      const ctx = canvas.getContext('2d')!
+      ctx.drawImage(img, 0, 0, w, h)
+      canvas.toBlob(blob => resolve(blob ?? file), 'image/jpeg', quality)
+    }
+    img.onerror = () => { URL.revokeObjectURL(objectUrl); resolve(file) }
+    img.src = objectUrl
+  })
+}
+
 function calcularCategoria(dataNasc: string): string {
   const hoje = new Date()
   const nasc = new Date(dataNasc)
@@ -657,8 +677,10 @@ function AtletaPerfilContent() {
     if (!file) return
     setUploadingFoto(true)
     try {
+      // Comprime para JPEG antes de enviar
+      const compressed = await compressImage(file)
       const fd = new FormData()
-      fd.append('file', file)
+      fd.append('file', new File([compressed], 'photo.jpg', { type: 'image/jpeg' }))
       const res = await fetch('/api/atleta/upload-foto', { method: 'POST', body: fd })
       const json = await res.json() as { ok?: boolean; url?: string; error?: string }
       if (!res.ok || !json.url) {
@@ -668,7 +690,6 @@ function AtletaPerfilContent() {
       setAvatarUrl(json.url)
     } finally {
       setUploadingFoto(false)
-      // limpa o input para permitir re-upload do mesmo arquivo
       if (fotoInputRef.current) fotoInputRef.current.value = ''
     }
   }
@@ -1059,16 +1080,17 @@ function AtletaPerfilContent() {
                     {initials}
                   </div>
                 )}
-                {/* overlay câmera — só aparece sem foto ou durante upload */}
-                {(!avatarUrl || uploadingFoto) && (
-                  <div style={{
-                    position:'absolute', inset:0, borderRadius:'50%',
-                    background: uploadingFoto ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.30)',
-                    display:'flex', alignItems:'center', justifyContent:'center',
-                  }}>
-                    <span style={{ fontSize:'18px' }}>{uploadingFoto ? '⏳' : '📷'}</span>
-                  </div>
-                )}
+                {/* overlay câmera — sempre visível para indicar que é clicável */}
+                <div style={{
+                  position:'absolute', inset:0, borderRadius:'50%',
+                  background: uploadingFoto
+                    ? 'rgba(0,0,0,0.65)'
+                    : avatarUrl ? 'rgba(0,0,0,0.38)' : 'rgba(0,0,0,0.32)',
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                  transition:'background 0.2s',
+                }}>
+                  <span style={{ fontSize:'18px' }}>{uploadingFoto ? '⏳' : '📷'}</span>
+                </div>
               </label>
             </div>
             <div style={{ paddingBottom:'16px' }}>
