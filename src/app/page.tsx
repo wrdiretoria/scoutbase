@@ -219,7 +219,7 @@ export default function LandingPage() {
         /* ─── MOBILE HERO ─── */
         @media (max-width: 768px) {
           .hero-section { height:100dvh !important; min-height:0 !important; }
-          .hero-player-img { object-position:74% 8% !important; }
+          .hero-player-img { object-position:78% 28% !important; }
 
           .hero-ov1 {
             /* Top-to-bottom darkness covers text area + left-to-right darkness separates text from player */
