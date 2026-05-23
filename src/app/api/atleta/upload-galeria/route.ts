@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   const slot  = Number(formData.get('slot'))  // 0, 1, ou 2
 
   if (!file)                        return NextResponse.json({ error: 'Nenhum arquivo enviado.' }, { status: 400 })
-  if (![0, 1, 2].includes(slot))    return NextResponse.json({ error: 'Slot inválido.' },          { status: 400 })
+  if (![0, 1, 2, 3, 4].includes(slot))    return NextResponse.json({ error: 'Slot inválido.' },          { status: 400 })
 
   const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
   if (!allowed.includes(file.type)) return NextResponse.json({ error: 'Formato inválido. Use JPG, PNG ou WEBP.' }, { status: 400 })
@@ -45,9 +45,9 @@ export async function POST(req: NextRequest) {
 
   const fotosAtual: (string | null)[] = Array.isArray((profile as { fotos?: unknown })?.fotos)
     ? ((profile as { fotos: (string | null)[] }).fotos)
-    : [null, null, null]
+    : [null, null, null, null, null]
 
-  const novas = [fotosAtual[0] ?? null, fotosAtual[1] ?? null, fotosAtual[2] ?? null]
+  const novas: (string | null)[] = [0,1,2,3,4].map(i => fotosAtual[i] ?? null)
   novas[slot] = urlComCache
 
   await admin.from('profiles').update({ fotos: novas }).eq('id', user.id)

@@ -12,15 +12,16 @@ type ReelAtleta = {
   ovr:     number | null
   tipo:    'avaliado' | 'novo'
   ts:      string
+  fotos:   string[]
 }
 
 // ── Fallback ───────────────────────────────────────────────────────────────────
 
 const FALLBACK: ReelAtleta[] = [
-  { id:'f1', nome:'Kauã Ferreira',  posicao:'Atacante',     cidade:'Recife, PE',          ovr:91, tipo:'avaliado', ts:'' },
-  { id:'f2', nome:'Lucas Silva',    posicao:'Meia',          cidade:'Belo Horizonte, MG',  ovr:89, tipo:'avaliado', ts:'' },
-  { id:'f3', nome:'Gabriel Rocha',  posicao:'Ponta Direita', cidade:'Salvador, BA',        ovr:79, tipo:'avaliado', ts:'' },
-  { id:'f4', nome:'João Mendes',    posicao:'Atacante',      cidade:'São Paulo, SP',       ovr:85, tipo:'avaliado', ts:'' },
+  { id:'f1', nome:'Kauã Ferreira',  posicao:'Atacante',     cidade:'Recife, PE',          ovr:91, tipo:'avaliado', ts:'', fotos:[] },
+  { id:'f2', nome:'Lucas Silva',    posicao:'Meia',          cidade:'Belo Horizonte, MG',  ovr:89, tipo:'avaliado', ts:'', fotos:[] },
+  { id:'f3', nome:'Gabriel Rocha',  posicao:'Ponta Direita', cidade:'Salvador, BA',        ovr:79, tipo:'avaliado', ts:'', fotos:[] },
+  { id:'f4', nome:'João Mendes',    posicao:'Atacante',      cidade:'São Paulo, SP',       ovr:85, tipo:'avaliado', ts:'', fotos:[] },
 ]
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
@@ -123,6 +124,17 @@ const GRAIN_BG = `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='ht
 // ── ReelCard ───────────────────────────────────────────────────────────────────
 
 function ReelCard({ atleta, index }: { atleta: ReelAtleta; index: number }) {
+  const fotos   = atleta.fotos ?? []
+  const [photoIdx, setPhotoIdx] = useState(0)
+
+  useEffect(() => {
+    if (fotos.length <= 1) return
+    const iv = setInterval(() => setPhotoIdx(p => (p + 1) % fotos.length), 2500)
+    return () => clearInterval(iv)
+  }, [fotos.length])
+
+  const currentFoto = fotos[photoIdx] ?? null
+
   const palette  = getPalette(atleta.posicao)
   const tag      = getTag(atleta.tipo, atleta.ovr)
   const time     = timeAgo(atleta.ts)
@@ -144,15 +156,36 @@ function ReelCard({ atleta, index }: { atleta: ReelAtleta; index: number }) {
       overflow:    'hidden',
       cursor:      'pointer',
       scrollSnapAlign: 'start',
-      background:  palette.bg,           // ← gradient on the element itself
+      background:  palette.bg,
       transition:  'transform .28s cubic-bezier(.22,1,.36,1), box-shadow .28s ease',
       boxShadow:   '0 8px 32px rgba(0,0,0,0.55)',
-      // Stagger entrance — subtle fade-up
       animation:   `lncCardIn .5s cubic-bezier(.22,1,.36,1) both ${index * 0.08}s`,
     }}>
 
-      {/* Atmospheric stadium light */}
-      <div style={{ position:'absolute', inset:0, background:palette.light, pointerEvents:'none' }} />
+      {/* Foto real do atleta (ciclando) */}
+      {currentFoto && (
+        <img
+          key={currentFoto}
+          src={currentFoto}
+          alt={atleta.nome}
+          style={{
+            position:      'absolute',
+            inset:         0,
+            zIndex:        0,
+            width:         '100%',
+            height:        '100%',
+            objectFit:     'cover',
+            objectPosition:'center top',
+            display:       'block',
+            transition:    'opacity 0.7s ease',
+          }}
+        />
+      )}
+
+      {/* Atmospheric stadium light (só quando sem foto) */}
+      {!currentFoto && (
+        <div style={{ position:'absolute', inset:0, background:palette.light, pointerEvents:'none' }} />
+      )}
 
       {/* Giant initials — background texture */}
       <div style={{

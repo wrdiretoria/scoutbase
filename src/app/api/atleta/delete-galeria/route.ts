@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 })
 
   const { slot } = await req.json() as { slot: number }
-  if (![0, 1, 2].includes(slot)) return NextResponse.json({ error: 'Slot inválido.' }, { status: 400 })
+  if (![0, 1, 2, 3, 4].includes(slot)) return NextResponse.json({ error: 'Slot inválido.' }, { status: 400 })
 
   const admin = createAdminClient()
 
@@ -26,9 +26,9 @@ export async function POST(req: NextRequest) {
 
   const fotosAtual: (string | null)[] = Array.isArray((profile as { fotos?: unknown })?.fotos)
     ? ((profile as { fotos: (string | null)[] }).fotos)
-    : [null, null, null]
+    : [null, null, null, null, null]
 
-  const novas = [fotosAtual[0] ?? null, fotosAtual[1] ?? null, fotosAtual[2] ?? null]
+  const novas: (string | null)[] = [0,1,2,3,4].map(i => fotosAtual[i] ?? null)
   novas[slot] = null
 
   await admin.from('profiles').update({ fotos: novas }).eq('id', user.id)

@@ -465,10 +465,12 @@ function AtletaPerfilContent() {
   const [uploadingFoto,  setUploadingFoto]  = useState(false)
   const fotoInputRef = useRef<HTMLInputElement>(null)
 
-  // ── Galeria (3 fotos para o billboard da landing) ──
-  const [galeriaFotos,    setGaleriaFotos]    = useState<(string|null)[]>([null, null, null])
+  // ── Galeria (até 5 fotos para o feed ao vivo da landing) ──
+  const [galeriaFotos,    setGaleriaFotos]    = useState<(string|null)[]>([null, null, null, null, null])
   const [uploadingSlot,   setUploadingSlot]   = useState<number|null>(null)
   const galeriaRefs = [
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
@@ -545,7 +547,7 @@ function AtletaPerfilContent() {
       if (profile?.avatar_url)      setAvatarUrl(profile.avatar_url as string)
       if (Array.isArray((profile as { fotos?: unknown })?.fotos)) {
         const f = (profile as { fotos: (string|null)[] }).fotos
-        setGaleriaFotos([f[0] ?? null, f[1] ?? null, f[2] ?? null])
+        setGaleriaFotos([f[0] ?? null, f[1] ?? null, f[2] ?? null, f[3] ?? null, f[4] ?? null])
       }
       // visit_count, favorito_count e cards_disponiveis vêm do user_metadata
       setVisitCount(        (user.user_metadata?.visit_count      as number | null) ?? 0)
@@ -2093,13 +2095,13 @@ function AtletaPerfilContent() {
         <div style={{ marginBottom:'24px' }}>
 
           {/* Header */}
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'12px' }}>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'10px' }}>
             <div>
               <p style={{ margin:'0 0 2px', fontSize:'12px', fontWeight:700, color:'rgba(255,255,255,0.4)', letterSpacing:'0.08em', textTransform:'uppercase' }}>
                 Fotos de ação
               </p>
               <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.2)' }}>
-                Aparecem no painel ao vivo da página inicial
+                Aparecem no feed ao vivo da página inicial
               </p>
             </div>
             <div style={{
@@ -2112,9 +2114,32 @@ function AtletaPerfilContent() {
             </div>
           </div>
 
-          {/* 3 slots */}
+          {/* Nudge — aparece enquanto tem menos de 3 fotos */}
+          {galeriaFotos.filter(Boolean).length < 3 && (
+            <div style={{
+              display:'flex', alignItems:'center', gap:'12px',
+              background:'linear-gradient(135deg, rgba(0,255,136,0.09), rgba(0,255,136,0.03))',
+              border:'1px solid rgba(0,255,136,0.25)',
+              borderRadius:'14px', padding:'12px 14px', marginBottom:'12px',
+            }}>
+              <span style={{ fontSize:'26px', flexShrink:0 }}>📸</span>
+              <div style={{ flex:1 }}>
+                <p style={{ margin:'0 0 3px', fontSize:'13px', fontWeight:800, color:'#00FF88' }}>
+                  Suba {3 - galeriaFotos.filter(Boolean).length} foto{3 - galeriaFotos.filter(Boolean).length !== 1 ? 's' : ''} para aparecer em destaque!
+                </p>
+                <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.42)', lineHeight:1.5 }}>
+                  Atletas com 3+ fotos aparecem com ciclagem automática no card da home.
+                  {galeriaFotos.filter(Boolean).length > 0
+                    ? ` Você tem ${galeriaFotos.filter(Boolean).length} de 5 fotos.`
+                    : ' Adicione treinos, jogos ou lances em campo.'}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* 5 slots — 3 colunas na primeira linha + 2 na segunda */}
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'10px' }}>
-            {[0,1,2].map(slot => {
+            {[0,1,2,3,4].map(slot => {
               const url       = galeriaFotos[slot]
               const uploading = uploadingSlot === slot
               return (
@@ -2199,7 +2224,7 @@ function AtletaPerfilContent() {
           </div>
 
           <p style={{ margin:'8px 0 0', fontSize:'10.5px', color:'rgba(255,255,255,0.18)', lineHeight:1.5 }}>
-            Fotos de treino, jogos ou ação. Aparecem no billboard ao vivo da landing page.
+            Fotos de treino, jogos ou ação · até 5 fotos · ciclam automaticamente no feed da home.
           </p>
         </div>
 

@@ -11,6 +11,7 @@ export type HeroAtleta = {
   ovr:      number | null
   tipo:     'avaliado' | 'novo'
   ts:       string
+  fotos:    string[]
 }
 
 export async function GET() {
@@ -28,7 +29,7 @@ export async function GET() {
     // Últimos 15 cadastros de atletas
     const { data: profiles } = await admin
       .from('profiles')
-      .select('id, nome, cidade, athlete_id, created_at')
+      .select('id, nome, cidade, athlete_id, created_at, fotos')
       .not('athlete_id', 'is', null)
       .not('nome', 'is', null)
       .order('created_at', { ascending: false })
@@ -60,6 +61,7 @@ export async function GET() {
       const p    = profileMap.get(id)
       const nome = p?.nome as string | undefined
       if (!nome) continue
+      const fotosArr = p?.fotos as (string | null)[] | null
       items.push({
         id,
         nome,
@@ -68,6 +70,7 @@ export async function GET() {
         ovr:     ovrMap.get(id) ?? null,
         tipo:    'avaliado',
         ts:      (avs ?? []).find(a => a.aluno_id === id)?.created_at as string ?? '',
+        fotos:   (fotosArr ?? []).filter((f): f is string => !!f),
       })
     }
 
@@ -77,6 +80,7 @@ export async function GET() {
       if (items.find(i => i.id === id)) continue
       const aid = p.athlete_id as string
       if (!aid?.startsWith('MC-')) continue
+      const fotosNArr = p.fotos as (string | null)[] | null
       items.push({
         id,
         nome:    p.nome as string,
@@ -85,6 +89,7 @@ export async function GET() {
         ovr:     null,
         tipo:    'novo',
         ts:      p.created_at as string,
+        fotos:   (fotosNArr ?? []).filter((f): f is string => !!f),
       })
     }
 
