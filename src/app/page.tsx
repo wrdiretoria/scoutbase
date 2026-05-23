@@ -87,6 +87,7 @@ export default function LandingPage() {
         @keyframes depCardIn    { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
 
         /* ─── HERO ─── */
+        .hero-section  { height:100svh; }
         .card-item     { transition:background .2s; cursor:default; }
         .card-item:hover { background:rgba(34,197,94,0.06); }
 
@@ -219,7 +220,8 @@ export default function LandingPage() {
 
         /* ─── MOBILE HERO ─── */
         @media (max-width: 768px) {
-          .hero-section { height:100dvh !important; min-height:0 !important; }
+          .hero-section { height:auto !important; min-height:0 !important; }
+          .hero-grid    { height:auto !important; }
           .hero-player-img { object-position:74% 8% !important; }
 
           .hero-ov1 {
@@ -251,7 +253,7 @@ export default function LandingPage() {
             display:flex !important; flex-direction:column !important;
             align-items:stretch !important; justify-content:flex-start !important;
             grid-template-columns:none !important; padding:0 !important;
-            gap:0 !important; height:100% !important; width:100% !important;
+            gap:0 !important; height:auto !important; width:100% !important;
           }
           .hero-phones { display:none !important; }
           .hero-hud    { display:none !important; }
@@ -262,7 +264,7 @@ export default function LandingPage() {
           .hero-left {
             display:flex !important; flex-direction:column !important; gap:22px !important;
             padding-top:calc(14dvh + env(safe-area-inset-top)) !important;
-            padding-bottom:calc(32px + env(safe-area-inset-bottom)) !important;
+            padding-bottom:20px !important;
             padding-left:24px !important; padding-right:24px !important;
             min-width:0 !important; flex:1 !important;
           }
@@ -406,7 +408,7 @@ export default function LandingPage() {
       <NavBar />
 
       {/* ══════════════════════════════════════════════ HERO ══ */}
-      <section className="hero-section" style={{ position:'relative', height:'100svh', overflow:'hidden' }}>
+      <section className="hero-section" style={{ position:'relative', overflow:'hidden' }}>
         {/* BG */}
         <img
           className="hero-player-img"

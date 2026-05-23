@@ -200,44 +200,30 @@ export default function TacticalBoard() {
     return () => clearInterval(iv)
   }, [data])
 
-  // Sem atletas = oculta a seção
-  if (!loading && data) {
-    const hasAny = data.gol !== null
-      || data.def.some(Boolean)
-      || data.mid.some(Boolean)
-      || data.atk.some(Boolean)
-    if (!hasAny) return null
-  }
+  // Enquanto carrega → não renderiza nada (evita bloco vazio enorme no mobile)
+  if (loading) return null
+
+  // Se a API falhou (data null) ou não há atletas → oculta a seção
+  if (!data) return null
+  const hasAny = data.gol !== null
+    || data.def.some(Boolean)
+    || data.mid.some(Boolean)
+    || data.atk.some(Boolean)
+  if (!hasAny) return null
 
   // Normaliza arrays (garante tamanho correto mesmo com dados parciais)
   const padRow = (arr: (TacticalPlayer | null)[], n: number): (TacticalPlayer | null)[] =>
     [...(arr ?? []), ...Array(n).fill(null)].slice(0, n)
 
-  const gol = data?.gol ?? null
-  const def = padRow(data?.def ?? [], 4)
-  const mid = padRow(data?.mid ?? [], 3)
-  const atk = padRow(data?.atk ?? [], 3)
-  const treinador = data?.treinador ?? null
-
-  // ── Skeleton ────────────────────────────────────────────────────────────────
-  if (loading) {
-    return (
-      <section style={{ background: '#060c09', padding: '64px 24px' }}>
-        <style>{`@keyframes tbPulse{0%,100%{opacity:.35}50%{opacity:.6}}`}</style>
-        <div style={{ maxWidth: '420px', margin: '0 auto' }}>
-          <div style={{
-            height: '540px', borderRadius: '20px',
-            background: 'rgba(255,255,255,0.02)',
-            border: '1px solid rgba(255,255,255,0.05)',
-            animation: 'tbPulse 2s ease infinite',
-          }} />
-        </div>
-      </section>
-    )
-  }
+  const gol = data.gol
+  const def = padRow(data.def, 4)
+  const mid = padRow(data.mid, 3)
+  const atk = padRow(data.atk, 3)
+  const treinador = data.treinador ?? null
 
   return (
-    <section style={{ background: '#060c09', padding: '64px 24px 56px' }}>
+    <section className="tactical-section" style={{ background: '#060c09', padding: '64px 24px 56px' }}>
+      <style>{`@media(max-width:768px){.tactical-section{padding-top:28px!important}}`}</style>
       <div style={{ maxWidth: '420px', margin: '0 auto' }}>
 
         {/* ── Header ── */}

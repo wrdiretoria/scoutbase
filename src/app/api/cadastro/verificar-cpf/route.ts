@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     }
 
     const digits = cpf.replace(/\D/g, '')
-    if (digits.length !== 11) {
+    if (digits.length !== 11 && digits.length !== 14) {
       return NextResponse.json({ error: 'CPF inválido.' }, { status: 400 })
     }
 
