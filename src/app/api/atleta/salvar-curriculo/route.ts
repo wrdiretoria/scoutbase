@@ -47,23 +47,24 @@ export async function POST(req: Request) {
       }
     }
 
+    const patch: Record<string, unknown> = {}
+    if (bio         !== undefined) patch.bio          = bio         || null
+    if (altura      !== undefined) patch.altura        = altura      || null
+    if (peso        !== undefined) patch.peso          = peso        || null
+    if (peDominante !== undefined) patch.pe_dominante  = peDominante || null
+    if (clubeAtual  !== undefined) patch.clube_atual   = clubeAtual  || null
+
     const { error } = await admin
       .from('profiles')
-      .upsert(
-        {
-          id: userId,
-          ...(bio          !== undefined && { bio:          bio          || null }),
-          ...(altura       !== undefined && { altura:       altura       || null }),
-          ...(peso         !== undefined && { peso:         peso         || null }),
-          ...(peDominante  !== undefined && { pe_dominante: peDominante  || null }),
-          ...(clubeAtual   !== undefined && { clube_atual:  clubeAtual   || null }),
-        },
-        { onConflict: 'id' }
-      )
+      .update(patch)
+      .eq('id', userId)
 
     if (error) {
-      console.error('[atleta/salvar-curriculo]', error)
-      return NextResponse.json({ error: 'Erro ao salvar currículo.' }, { status: 500 })
+      console.error('[atleta/salvar-curriculo] db error:', error.code, error.message)
+      return NextResponse.json(
+        { error: `Erro ao salvar currículo. (${error.code})` },
+        { status: 500 }
+      )
     }
 
     return NextResponse.json({ ok: true })
