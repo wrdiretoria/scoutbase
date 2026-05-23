@@ -469,16 +469,15 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
 
             <div>
               <label style={labelStyle}>
-                Email de recuperação{' '}
-                <span style={{ fontWeight: 400, color: 'rgba(255,255,255,0.3)', textTransform: 'none', letterSpacing: 0 }}>(opcional)</span>
+                Email de recuperação <span style={{ color: '#ef4444' }}>*</span>
               </label>
               <input
-                type="email" value={recoveryEmail} onChange={e => setRecoveryEmail(e.target.value)}
-                placeholder="email do responsável"
+                type="email" required value={recoveryEmail} onChange={e => setRecoveryEmail(e.target.value)}
+                placeholder="email do responsável / pai ou mãe"
                 style={inputStyle}
               />
               <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.25)', lineHeight: 1.5 }}>
-                Se esquecer o ID, use este email para recuperar. Um pai pode colocar o mesmo email nos filhos.
+                Se esquecer o ID, use este email para recuperar. Um pai pode colocar o mesmo email em vários filhos.
               </p>
             </div>
 

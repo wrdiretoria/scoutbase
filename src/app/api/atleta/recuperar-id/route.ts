@@ -1,32 +1,72 @@
 /**
  * POST /api/atleta/recuperar-id
- * Recebe { email } → retorna lista de athlete_ids vinculados a esse email de recuperação
+ *
+ * Modo 1 — por email de recuperação:
+ *   { email } → lista de { athlete_id, nome } vinculados ao recovery_email
+ *
+ * Modo 2 — por nome + data de nascimento (fallback):
+ *   { nome, dataNascimento } → lista de { athlete_id, nome }
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
 
 export async function POST(req: NextRequest) {
-  const { email } = await req.json() as { email?: string }
-
-  if (!email) {
-    return NextResponse.json({ error: 'Email obrigatório.' }, { status: 400 })
+  const body = await req.json() as {
+    email?: string
+    nome?: string
+    dataNascimento?: string
   }
 
   const admin = createAdminClient()
 
-  const { data, error } = await admin
-    .from('profiles')
-    .select('athlete_id, nome')
-    .eq('recovery_email', email.toLowerCase().trim())
-    .not('athlete_id', 'is', null)
+  // ── Modo 1: por email de recuperação ─────────────────────────
+  if (body.email) {
+    const { data, error } = await admin
+      .from('profiles')
+      .select('athlete_id, nome')
+      .eq('recovery_email', body.email.toLowerCase().trim())
+      .not('athlete_id', 'is', null)
 
-  if (error) {
-    return NextResponse.json({ error: 'Erro ao buscar.' }, { status: 500 })
+    if (error) return NextResponse.json({ error: 'Erro ao buscar.' }, { status: 500 })
+
+    if (!data || data.length === 0) {
+      return NextResponse.json(
+        { error: 'Nenhum atleta encontrado com este email.' },
+        { status: 404 }
+      )
+    }
+
+    return NextResponse.json({ atletas: data })
   }
 
-  if (!data || data.length === 0) {
-    return NextResponse.json({ error: 'Nenhum atleta encontrado com este email.' }, { status: 404 })
+  // ── Modo 2: por nome + data de nascimento ────────────────────
+  if (body.nome && body.dataNascimento) {
+    const nomeLimpo = body.nome.trim()
+    if (nomeLimpo.length < 3) {
+      return NextResponse.json({ error: 'Nome muito curto.' }, { status: 400 })
+    }
+
+    const { data, error } = await admin
+      .from('profiles')
+      .select('athlete_id, nome')
+      .ilike('nome', `%${nomeLimpo}%`)
+      .eq('data_nascimento', body.dataNascimento)
+      .not('athlete_id', 'is', null)
+
+    if (error) return NextResponse.json({ error: 'Erro ao buscar.' }, { status: 500 })
+
+    if (!data || data.length === 0) {
+      return NextResponse.json(
+        { error: 'Nenhum atleta encontrado com esse nome e data de nascimento.' },
+        { status: 404 }
+      )
+    }
+
+    return NextResponse.json({ atletas: data })
   }
 
-  return NextResponse.json({ atletas: data })
+  return NextResponse.json(
+    { error: 'Informe o email de recuperação ou o nome + data de nascimento.' },
+    { status: 400 }
+  )
 }

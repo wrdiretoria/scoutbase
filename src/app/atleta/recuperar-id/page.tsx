@@ -1,29 +1,39 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import Link from 'next/link'
 
+type Atleta = { athlete_id: string; nome: string }
+type Modo = 'email' | 'nome'
+
 export default function RecuperarIdPage() {
-  const [email,   setEmail]   = useState('')
+  const [modo, setModo]       = useState<Modo>('email')
+  const [email, setEmail]     = useState('')
+  const [nome, setNome]       = useState('')
+  const [dataNasc, setDataNasc] = useState('')
   const [loading, setLoading] = useState(false)
-  const [atletas, setAtletas] = useState<{ athlete_id: string; nome: string }[]>([])
-  const [error,   setError]   = useState<string | null>(null)
-  const [done,    setDone]    = useState(false)
+  const [atletas, setAtletas] = useState<Atleta[]>([])
+  const [error, setError]     = useState<string | null>(null)
+  const [done, setDone]       = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
     setLoading(true)
 
-    const res = await fetch('/api/atleta/recuperar-id', {
+    const body = modo === 'email'
+      ? { email }
+      : { nome, dataNascimento: dataNasc }
+
+    const res  = await fetch('/api/atleta/recuperar-id', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify(body),
     })
-    const data = await res.json() as { atletas?: { athlete_id: string; nome: string }[]; error?: string }
+    const data = await res.json() as { atletas?: Atleta[]; error?: string }
 
     if (!res.ok || data.error) {
-      setError(data.error ?? 'Nenhum atleta encontrado com este email.')
+      setError(data.error ?? 'Nenhum atleta encontrado.')
     } else {
       setAtletas(data.atletas ?? [])
       setDone(true)
@@ -32,10 +42,20 @@ export default function RecuperarIdPage() {
     setLoading(false)
   }
 
+  function handleReset() {
+    setDone(false); setAtletas([]); setError(null)
+    setEmail(''); setNome(''); setDataNasc('')
+  }
+
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '12px 16px', borderRadius: '12px', boxSizing: 'border-box',
     background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
     color: 'white', fontSize: '15px', outline: 'none', fontFamily: 'system-ui, sans-serif',
+  }
+  const labelStyle: React.CSSProperties = {
+    display: 'block', fontSize: '12px', fontWeight: 700,
+    color: 'rgba(255,255,255,0.5)', marginBottom: '8px',
+    letterSpacing: '0.04em', textTransform: 'uppercase',
   }
 
   return (
@@ -46,6 +66,7 @@ export default function RecuperarIdPage() {
     }}>
       <div style={{ width: '100%', maxWidth: '360px' }}>
 
+        {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <Link href="/" style={{ fontSize: '18px', fontWeight: 800, color: 'white', textDecoration: 'none' }}>
             ⚽ MEU <span style={{ color: '#22c55e' }}>CRAQUE</span>
@@ -54,33 +75,89 @@ export default function RecuperarIdPage() {
 
         {!done ? (
           <>
-            <div style={{ marginBottom: '28px' }}>
+            {/* Título */}
+            <div style={{ marginBottom: '24px' }}>
               <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', color: '#22c55e', textTransform: 'uppercase' }}>
-                Recuperar ID
+                Atleta
               </p>
               <h1 style={{ margin: '0 0 8px', fontSize: '22px', fontWeight: 900, color: 'white' }}>
                 Esqueceu o ID?
               </h1>
               <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>
-                Digite o email de recuperação cadastrado. Vamos mostrar os IDs de todos os atletas vinculados a ele.
+                Escolha como prefere buscar.
               </p>
             </div>
 
+            {/* Abas */}
+            <div style={{
+              display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '24px',
+            }}>
+              {(['email', 'nome'] as Modo[]).map(m => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => { setModo(m); setError(null) }}
+                  style={{
+                    padding: '11px', borderRadius: '12px', border: 'none', cursor: 'pointer',
+                    fontWeight: 700, fontSize: '13px',
+                    background: modo === m ? '#22c55e' : 'rgba(255,255,255,0.06)',
+                    color: modo === m ? 'black' : 'rgba(255,255,255,0.45)',
+                    transition: 'all 0.18s',
+                  }}
+                >
+                  {m === 'email' ? '📧 Email' : '👤 Nome'}
+                </button>
+              ))}
+            </div>
+
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'rgba(255,255,255,0.5)', marginBottom: '8px', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-                  Email de recuperação
-                </label>
-                <input
-                  type="email" required value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="email do responsável"
-                  style={inputStyle}
-                />
-              </div>
+
+              {modo === 'email' && (
+                <div>
+                  <label style={labelStyle}>Email de recuperação</label>
+                  <input
+                    type="email" required value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    placeholder="email do responsável"
+                    style={inputStyle}
+                  />
+                  <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.25)', lineHeight: 1.5 }}>
+                    O email cadastrado no momento do registro do atleta.
+                  </p>
+                </div>
+              )}
+
+              {modo === 'nome' && (
+                <>
+                  <div>
+                    <label style={labelStyle}>Nome do atleta</label>
+                    <input
+                      type="text" required value={nome} minLength={3}
+                      onChange={e => setNome(e.target.value)}
+                      placeholder="Nome completo"
+                      style={inputStyle}
+                    />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Data de nascimento</label>
+                    <input
+                      type="date" required value={dataNasc}
+                      onChange={e => setDataNasc(e.target.value)}
+                      style={inputStyle}
+                    />
+                  </div>
+                  <p style={{ margin: '-8px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.25)', lineHeight: 1.5 }}>
+                    Use apenas se não tiver acesso ao email de recuperação.
+                  </p>
+                </>
+              )}
 
               {error && (
-                <p style={{ margin: 0, padding: '10px 14px', borderRadius: '10px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '13px', color: '#f87171' }}>
+                <p style={{
+                  margin: 0, padding: '10px 14px', borderRadius: '10px',
+                  background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)',
+                  fontSize: '13px', color: '#f87171',
+                }}>
                   {error}
                 </p>
               )}
@@ -94,12 +171,13 @@ export default function RecuperarIdPage() {
                   fontSize: '15px', opacity: loading ? 0.6 : 1,
                 }}
               >
-                {loading ? 'Buscando…' : 'Buscar meus atletas →'}
+                {loading ? 'Buscando…' : 'Buscar meu ID →'}
               </button>
             </form>
           </>
         ) : (
           <>
+            {/* Resultado */}
             <div style={{ marginBottom: '24px', textAlign: 'center' }}>
               <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', color: '#22c55e', textTransform: 'uppercase' }}>
                 ✓ Encontrado
@@ -108,7 +186,7 @@ export default function RecuperarIdPage() {
                 {atletas.length === 1 ? '1 atleta encontrado' : `${atletas.length} atletas encontrados`}
               </h1>
               <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.35)' }}>
-                Use o ID e a senha para entrar
+                Use o ID + senha para entrar
               </p>
             </div>
 
@@ -134,6 +212,18 @@ export default function RecuperarIdPage() {
             }}>
               Ir para o login →
             </Link>
+
+            <button
+              type="button" onClick={handleReset}
+              style={{
+                display: 'block', width: '100%', marginTop: '12px', padding: '12px',
+                borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)',
+                background: 'transparent', color: 'rgba(255,255,255,0.35)',
+                fontSize: '13px', cursor: 'pointer',
+              }}
+            >
+              Buscar novamente
+            </button>
           </>
         )}
 
