@@ -219,18 +219,18 @@ export default function LandingPage() {
         /* ─── MOBILE HERO ─── */
         @media (max-width: 768px) {
           .hero-section { height:100dvh !important; min-height:0 !important; }
-          .hero-player-img { object-position:78% 28% !important; }
+          .hero-player-img { object-position:68% 8% !important; }
 
           .hero-ov1 {
             /* Top-to-bottom darkness covers text area + left-to-right darkness separates text from player */
             background:
-              linear-gradient(to bottom, rgba(0,2,1,0.98) 0%, rgba(0,2,1,0.86) 20%, rgba(0,2,1,0.40) 48%, transparent 68%),
-              linear-gradient(to right,  rgba(0,2,1,0.97) 0%, rgba(0,2,1,0.84) 28%, rgba(0,2,1,0.34) 54%, transparent 74%),
-              linear-gradient(to top,    rgba(0,2,1,1.00) 0%, rgba(0,2,1,0.75) 18%, transparent 48%) !important;
+              linear-gradient(to bottom, rgba(0,2,1,0.98) 0%, rgba(0,2,1,0.82) 18%, rgba(0,2,1,0.28) 44%, transparent 60%),
+              linear-gradient(to right,  rgba(0,2,1,0.97) 0%, rgba(0,2,1,0.80) 22%, rgba(0,2,1,0.18) 46%, transparent 58%),
+              linear-gradient(to top,    rgba(0,2,1,1.00) 0%, rgba(0,2,1,0.70) 14%, transparent 42%) !important;
           }
           .hero-ov2 {
             /* Deep vignette, bias toward left */
-            background: radial-gradient(ellipse at 38% 44%, transparent 14%, rgba(0,0,0,0.52) 100%) !important;
+            background: radial-gradient(ellipse at 32% 44%, transparent 18%, rgba(0,0,0,0.38) 100%) !important;
           }
           .hero-ov3 {
             /* Cold stadium arc light — top right, no green glow on text */
