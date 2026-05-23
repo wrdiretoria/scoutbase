@@ -46,7 +46,7 @@ export default async function RankingSection() {
   type RankItem = {
     id: string; nome: string; posicao: string; cidade: string
     dataNasc: string | null; ovr: number; initials: string
-    avatarUrl: string | null; pos: string
+    avatarUrl: string | null; fotos: string[]; pos: string
   }
 
   let top: RankItem[] = []
@@ -58,7 +58,7 @@ export default async function RankingSection() {
     const ids = atletaUsers.map(u => u.id)
 
     const [profilesRes, ovrMap] = await Promise.all([
-      admin.from('profiles').select('id, athlete_id, data_nascimento, avatar_url').in('id', ids),
+      admin.from('profiles').select('id, athlete_id, data_nascimento, avatar_url, fotos').in('id', ids),
       fetchOvrMap(admin),
     ])
 
@@ -72,6 +72,7 @@ export default async function RankingSection() {
         const ovr = athleteId ? (ovrMap.get(athleteId) ?? null) : null
         if (!ovr) return null
         const nome = meta.nome ?? 'Atleta'
+        const fotosArr = (profile?.fotos as (string | null)[] | null) ?? []
         return {
           id:        u.id,
           nome,
@@ -81,6 +82,7 @@ export default async function RankingSection() {
           ovr,
           initials:  getInitials(nome),
           avatarUrl: (profile?.avatar_url as string | null) ?? null,
+          fotos:     fotosArr.filter((f): f is string => !!f),
           pos:       posAbrev(meta.posicao ?? ''),
         }
       })
@@ -170,21 +172,26 @@ export default async function RankingSection() {
                 {rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`}
               </div>
 
-              {/* Avatar */}
-              <div style={{
-                width: '64px', height: '64px', borderRadius: '50%',
-                background: 'linear-gradient(135deg,#15803d,#4ade80)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '20px', fontWeight: 900, color: 'white',
-                margin: '8px auto 12px',
-                boxShadow: `0 6px 20px ${oc}40`,
-                overflow: 'hidden',
-                border: `2px solid ${oc}50`,
-              }}>
-                {a.avatarUrl
-                  ? <img src={a.avatarUrl} alt={a.nome} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  : a.initials}
-              </div>
+              {/* Avatar — fotos[0] > avatarUrl > iniciais */}
+              {(() => {
+                const photo = a.fotos[0] ?? a.avatarUrl
+                return (
+                  <div style={{
+                    width: '64px', height: '64px', borderRadius: '50%',
+                    background: 'linear-gradient(135deg,#15803d,#4ade80)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '20px', fontWeight: 900, color: 'white',
+                    margin: '8px auto 12px',
+                    boxShadow: `0 6px 20px ${oc}40`,
+                    overflow: 'hidden',
+                    border: `2px solid ${oc}50`,
+                  }}>
+                    {photo
+                      ? <img src={photo} alt={a.nome} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} />
+                      : a.initials}
+                  </div>
+                )
+              })()}
 
               {/* OVR */}
               <div style={{ textAlign: 'center', marginBottom: '10px' }}>

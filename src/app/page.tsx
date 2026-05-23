@@ -11,6 +11,7 @@ import HeroFeed from './components/HeroFeed'
 import LancesSection from './components/LancesSection'
 import LiveFeed from './components/LiveFeed'
 import SpinningGlobe from './components/SpinningGlobe'
+import TacticalBoard from './components/TacticalBoard'
 
 const cards = [
   {
@@ -633,6 +634,9 @@ export default function LandingPage() {
 
         {/* HUD decorativo — removido (substituído pelo HeroFeed) */}
       </section>
+
+      {/* ══════════════════════════════════════ CAMPO TÁTICO ══ */}
+      <TacticalBoard />
 
       {/* ══════════════════════════════════════ LANCES / REELS ══ */}
       <LancesSection />

@@ -106,7 +106,7 @@ function EventCard({
         padding: expanded ? '14px 14px 14px 12px' : '13px 14px',
         minWidth: 0,
       }}>
-        {/* Avatar */}
+        {/* Avatar — foto real quando disponível, iniciais como fallback */}
         <div style={{
           width:        '40px',
           height:       '40px',
@@ -121,8 +121,21 @@ function EventCard({
           fontWeight:   900,
           color:        'white',
           boxShadow:    '0 2px 8px rgba(0,0,0,0.4)',
+          overflow:     'hidden',
+          position:     'relative',
         }}>
-          {initials(event.nome)}
+          {event.fotos[0] ? (
+            <img
+              src={event.fotos[0]}
+              alt={event.nome}
+              style={{
+                position: 'absolute', inset: 0,
+                width: '100%', height: '100%',
+                objectFit: 'cover', objectPosition: 'center top',
+              }}
+            />
+          ) : null}
+          {!event.fotos[0] && initials(event.nome)}
         </div>
 
         {/* Texto */}
