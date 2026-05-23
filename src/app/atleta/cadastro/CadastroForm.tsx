@@ -73,98 +73,97 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
     setError(null)
     setLoading(true)
 
-    // 1. Gerar ID único antes do signUp
-    let athleteId: string
     try {
+      // 1. Gerar ID único antes do signUp
       const idRes = await fetch('/api/atleta/gerar-id', { method: 'POST' })
-      if (!idRes.ok) throw new Error('status ' + idRes.status)
-      const json = await idRes.json() as { athleteId?: string }
-      if (!json.athleteId) throw new Error('athleteId ausente')
-      athleteId = json.athleteId
-    } catch (err) {
-      console.error('[cadastro] gerar-id falhou:', err)
-      setError('Não foi possível gerar seu ID. Verifique sua conexão e tente novamente.')
-      setLoading(false)
-      return
-    }
+      if (!idRes.ok) throw new Error('Não foi possível gerar seu ID. Verifique sua conexão.')
+      const idJson = await idRes.json() as { athleteId?: string; error?: string }
+      if (!idJson.athleteId) throw new Error(idJson.error ?? 'ID não gerado. Tente novamente.')
+      const athleteId = idJson.athleteId
 
-    // 2. Criar conta com email interno baseado no ID
-    const internalEmail = `${athleteId.toLowerCase()}@meucraque.app`
-    const supabase = createClient()
-    const { data, error: signUpErr } = await supabase.auth.signUp({
-      email: internalEmail,
-      password,
-      options: {
-        data: { nome, posicao, cidade, estado: estado || undefined, tipo: 'atleta' },
-      },
-    })
+      // 2. Criar conta com email interno baseado no ID
+      const internalEmail = `${athleteId.toLowerCase()}@meucraque.app`
+      const supabase = createClient()
+      const { data, error: signUpErr } = await supabase.auth.signUp({
+        email: internalEmail,
+        password,
+        options: {
+          data: { nome, posicao, cidade, estado: estado || undefined, tipo: 'atleta' },
+        },
+      })
 
-    if (signUpErr || !data.user) {
-      setError('Não foi possível criar a conta. Tente novamente.')
-      setLoading(false)
-      return
-    }
-
-    const userId = data.user.id
-
-    // 3. Registrar indicação se houver código de referência
-    if (refCode) {
-      try {
-        await fetch('/api/indicacao/registrar', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ refCode, newUserId: userId }),
-        })
-      } catch {
-        // indicação falhou — não bloqueia o cadastro
+      if (signUpErr) {
+        console.error('[cadastro-atleta] signUp:', signUpErr.message, signUpErr.status)
+        const m = signUpErr.message.toLowerCase()
+        if (m.includes('rate limit') || m.includes('email rate limit')) {
+          throw new Error('Muitas tentativas. Aguarde alguns minutos e tente novamente.')
+        }
+        throw new Error('Não foi possível criar a conta. Verifique sua conexão e tente novamente.')
       }
-    }
+      if (!data.user) throw new Error('Conta não criada. Tente novamente.')
 
-    // 4. Upload da foto se houver
-    let avatarUrl: string | null = null
-    if (photo) {
-      const ext = photo.name.split('.').pop() ?? 'jpg'
-      const { error: uploadErr } = await supabase.storage
-        .from('avatars')
-        .upload(`${userId}.${ext}`, photo, { upsert: true, contentType: photo.type })
+      const userId = data.user.id
 
-      if (!uploadErr) {
-        const { data: { publicUrl } } = supabase.storage
+      // 3. Registrar indicação se houver código de referência
+      if (refCode) {
+        try {
+          await fetch('/api/indicacao/registrar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refCode, newUserId: userId }),
+          })
+        } catch { /* indicação falhou — não bloqueia */ }
+      }
+
+      // 4. Upload da foto
+      let avatarUrl: string | null = null
+      if (photo) {
+        const ext = photo.name.split('.').pop() ?? 'jpg'
+        const { error: uploadErr } = await supabase.storage
           .from('avatars')
-          .getPublicUrl(`${userId}.${ext}`)
-        avatarUrl = publicUrl
-      } else {
-        console.warn('Foto não salva, continuando sem avatar:', uploadErr.message)
+          .upload(`${userId}.${ext}`, photo, { upsert: true, contentType: photo.type })
+        if (!uploadErr) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('avatars')
+            .getPublicUrl(`${userId}.${ext}`)
+          avatarUrl = publicUrl
+        } else {
+          console.warn('[cadastro-atleta] foto não salva:', uploadErr.message)
+        }
       }
-    }
 
-    // 5. Salvar perfil
-    const saveRes = await fetch('/api/atleta/salvar-perfil', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        userId,
-        dataNascimento: dataNasc,
-        nome,
-        athleteId,
-        avatarUrl,
-        recoveryEmail: recoveryEmail.trim().toLowerCase() || null,
-        ...(escolaId ? { escolaId } : {}),
-      }),
-    })
+      // 5. Salvar perfil
+      const saveRes = await fetch('/api/atleta/salvar-perfil', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId,
+          dataNascimento: dataNasc,
+          nome,
+          athleteId,
+          avatarUrl,
+          recoveryEmail: recoveryEmail.trim().toLowerCase() || null,
+          ...(escolaId ? { escolaId } : {}),
+        }),
+      })
 
-    if (!saveRes.ok) {
-      const saveJson = await saveRes.json().catch(() => ({})) as { error?: string }
-      setError(saveJson.error ?? 'Erro ao salvar perfil. Tente novamente.')
+      if (!saveRes.ok) {
+        const saveJson = await saveRes.json().catch(() => ({})) as { error?: string }
+        throw new Error(saveJson.error ?? 'Erro ao salvar perfil. Tente novamente.')
+      }
+
+      const params = new URLSearchParams({
+        nome, posicao, cidade, dataNasc, uid: userId, athleteId,
+        ...(avatarUrl ? { avatarUrl } : {}),
+      })
+      router.push(`/atleta/bem-vindo?${params.toString()}`)
+
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Erro inesperado. Tente novamente.'
+      console.error('[cadastro-atleta]', err)
+      setError(msg)
       setLoading(false)
-      return
     }
-
-    const params = new URLSearchParams({
-      nome, posicao, cidade, dataNasc, uid: userId, athleteId,
-      ...(avatarUrl ? { avatarUrl } : {}),
-    })
-    router.push(`/atleta/bem-vindo?${params.toString()}`)
   }
 
   const inputStyle: React.CSSProperties = {
