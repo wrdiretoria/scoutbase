@@ -328,7 +328,6 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
-                capture="user"
                 onChange={handlePhotoChange}
                 style={{ display: 'none' }}
               />
