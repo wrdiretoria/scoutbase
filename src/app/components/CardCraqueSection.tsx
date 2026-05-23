@@ -310,29 +310,16 @@ export default async function CardCraqueSection() {
               border: `1px solid ${tier.border}`,
               background: '#0a140d',
             }}>
-              {foto ? (
-                <img
-                  src={foto}
-                  alt={nome}
-                  style={{
-                    width: '100%', height: '100%',
-                    objectFit: 'cover',
-                    objectPosition: 'center top',
-                    display: 'block',
-                  }}
-                />
-              ) : (
-                /* Fallback: initials avatar */
-                <div style={{
+              <img
+                src={foto ?? '/images/hero-player.png'}
+                alt={nome}
+                style={{
                   width: '100%', height: '100%',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: `linear-gradient(135deg, ${tier.accent}22, ${tier.glow})`,
-                }}>
-                  <span style={{ fontSize: '52px', fontWeight: 900, color: tier.ovr, opacity: 0.6 }}>
-                    {nome.split(' ').slice(0,2).map(w => w[0]).join('')}
-                  </span>
-                </div>
-              )}
+                  objectFit: 'cover',
+                  objectPosition: 'center 12%',
+                  display: 'block',
+                }}
+              />
               {/* Bottom fade so name reads clean */}
               <div style={{
                 position: 'absolute', bottom: 0, left: 0, right: 0, height: '60%',
