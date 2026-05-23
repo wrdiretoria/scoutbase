@@ -17,6 +17,32 @@ type Props = {
   refCode:   string | null
 }
 
+/** Comprime a imagem para JPEG no browser antes do upload (~300 KB max) */
+async function compressImage(file: File, maxPx = 900, quality = 0.82): Promise<Blob> {
+  return new Promise((resolve) => {
+    const img = new Image()
+    const objectUrl = URL.createObjectURL(file)
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl)
+      const ratio = Math.min(maxPx / img.width, maxPx / img.height, 1)
+      const w = Math.round(img.width  * ratio)
+      const h = Math.round(img.height * ratio)
+      const canvas = document.createElement('canvas')
+      canvas.width  = w
+      canvas.height = h
+      const ctx = canvas.getContext('2d')!
+      ctx.drawImage(img, 0, 0, w, h)
+      canvas.toBlob(
+        blob => resolve(blob ?? file),
+        'image/jpeg',
+        quality,
+      )
+    }
+    img.onerror = () => { URL.revokeObjectURL(objectUrl); resolve(file) }
+    img.src = objectUrl
+  })
+}
+
 export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
   const router = useRouter()
   const [step, setStep] = useState<1 | 2>(1)
@@ -119,8 +145,10 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
       let avatarUrl: string | null = null
       if (photo) {
         try {
+          // Comprime no browser → JPEG garantido, sem problemas de HEIC ou tamanho
+          const compressed = await compressImage(photo)
           const fd = new FormData()
-          fd.append('file', photo)
+          fd.append('file', new File([compressed], 'photo.jpg', { type: 'image/jpeg' }))
           const uploadRes = await fetch('/api/atleta/upload-foto-cadastro', {
             method: 'POST',
             headers: { 'x-athlete-id': userId },
