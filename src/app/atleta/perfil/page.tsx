@@ -743,36 +743,48 @@ function AtletaPerfilContent() {
     if (!uid) return
     setSaving(true); setSaveErr(null); setSaved(false)
 
-    // 1. Campos DB (bio, altura, peso, pé, clube atual)
-    const res = await fetch('/api/atleta/salvar-curriculo', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        userId:      uid,
-        bio:         curriculo.bio.trim(),
-        altura:      curriculo.altura ? Number(curriculo.altura) : null,
-        peso:        curriculo.peso   ? Number(curriculo.peso)   : null,
-        peDominante: curriculo.peDominante,
-        clubeAtual:  curriculo.clubeAtual.trim(),
-      }),
-    })
+    try {
+      // 1. Campos DB (bio, altura, peso, pé, clube atual)
+      const res = await fetch('/api/atleta/salvar-curriculo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId:      uid,
+          bio:         curriculo.bio.trim(),
+          altura:      curriculo.altura ? Number(curriculo.altura) : null,
+          peso:        curriculo.peso   ? Number(curriculo.peso)   : null,
+          peDominante: curriculo.peDominante,
+          clubeAtual:  curriculo.clubeAtual.trim(),
+        }),
+      })
 
-    // 2. Campos extras via user_metadata (sem alteração de schema)
-    const supabase = createClient()
-    await supabase.auth.updateUser({
-      data: {
-        telefone:          curriculo.telefone.trim(),
-        clubes_anteriores: curriculo.clubesAnteriores.trim(),
-        campeonatos:       curriculo.campeonatos.trim(),
-        titulos:           curriculo.titulos.trim(),
-        premiacoes:        curriculo.premiacoes.trim(),
-      },
-    })
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({})) as { error?: string }
+        throw new Error(json.error ?? 'Não foi possível salvar. Tente novamente.')
+      }
 
-    if (res.ok) { setSaved(true); setTimeout(() => setSaved(false), 3000) }
-    else { setSaveErr('Não foi possível salvar. Tente novamente.') }
+      // 2. Campos extras via user_metadata (sem alteração de schema)
+      const supabase = createClient()
+      const { error: metaErr } = await supabase.auth.updateUser({
+        data: {
+          telefone:          curriculo.telefone.trim(),
+          clubes_anteriores: curriculo.clubesAnteriores.trim(),
+          campeonatos:       curriculo.campeonatos.trim(),
+          titulos:           curriculo.titulos.trim(),
+          premiacoes:        curriculo.premiacoes.trim(),
+        },
+      })
+      if (metaErr) console.warn('[perfil] updateUser:', metaErr.message)
 
-    setSaving(false)
+      setSaved(true)
+      setTimeout(() => setSaved(false), 3000)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Erro inesperado. Tente novamente.'
+      console.error('[perfil/handleSave]', err)
+      setSaveErr(msg)
+    } finally {
+      setSaving(false)
+    }
   }
 
   // ── Salvar identidade (nome / posição / cidade) ──────────────
