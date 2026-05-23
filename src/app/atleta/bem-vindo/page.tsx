@@ -157,7 +157,9 @@ function BemVindoContent() {
   const ovrPerfil  = calcularOVRPerfil(!!avatarUrl)
   const ovr        = ovrPerfil   // total = perfil + avaliação; avaliação=0 agora
   // Quantos pontos de OVR o questionário ainda pode dar nesta sessão
-  const ovrGainQuest = Math.round((25 / 100) * 50) // = 12
+  const ovrGainQuest     = Math.round((25 / 100) * 50) // = 12
+  // Currículo: clubes(15) + campeonatos(10) + títulos(10) + telefone(5) = 40 pts → 20 OVR
+  const ovrGainCurriculo = Math.round((40 / 100) * 50) // = 20
   const status     = getStatus(ovrPerfil)
   const ovrAnim    = useCounter(ovr, 700, 900)
   const cardUrl    = uid ? `https://meucraque.com.br/jogador/${uid}` : 'https://meucraque.com.br'
@@ -209,7 +211,8 @@ function BemVindoContent() {
         .anim-status { animation: fadeUp  .5s ease forwards 1.0s; opacity:0 }
         .anim-id     { animation: fadeUp  .5s ease forwards 1.1s; opacity:0 }
         .anim-btns   { animation: fadeUp  .5s ease forwards 1.25s; opacity:0 }
-        .anim-quest  { animation: fadeUp  .5s ease forwards 1.15s; opacity:0 }
+        .anim-quest      { animation: fadeUp  .5s ease forwards 1.15s; opacity:0 }
+        .anim-curriculo  { animation: fadeUp  .5s ease forwards 1.20s; opacity:0 }
 
         .card-glow { animation: pulseGlow 4.5s ease-in-out infinite 1.5s }
 
@@ -678,6 +681,56 @@ function BemVindoContent() {
             {/* Seta */}
             <span style={{
               color: 'rgba(0,255,136,0.5)', fontSize: '20px', flexShrink: 0,
+              lineHeight: 1,
+            }}>→</span>
+          </div>
+        </Link>
+
+        {/* ── CTA: Currículo ── */}
+        <Link href="/atleta/perfil" style={{ textDecoration: 'none', width: '100%' }} className="anim-curriculo">
+          <div style={{
+            width: '100%',
+            padding: '16px 18px',
+            borderRadius: '16px',
+            background: 'linear-gradient(135deg, rgba(96,165,250,0.07) 0%, rgba(59,130,246,0.04) 100%)',
+            border: '1px solid rgba(96,165,250,0.22)',
+            display: 'flex', alignItems: 'center', gap: '14px',
+            cursor: 'pointer',
+            boxShadow: '0 0 24px rgba(96,165,250,0.06)',
+          }}>
+            {/* Ícone */}
+            <div style={{
+              width: '46px', height: '46px', borderRadius: '13px', flexShrink: 0,
+              background: 'linear-gradient(135deg, rgba(96,165,250,0.15), rgba(59,130,246,0.08))',
+              border: '1px solid rgba(96,165,250,0.25)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '22px',
+              boxShadow: '0 0 16px rgba(96,165,250,0.12)',
+            }}>📋</div>
+
+            {/* Texto */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{
+                margin: '0 0 4px', fontSize: '14px', fontWeight: 900,
+                color: '#60a5fa', letterSpacing: '-0.01em',
+              }}>
+                Complete seu currículo
+              </p>
+              <p style={{
+                margin: 0, fontSize: '12px',
+                color: 'rgba(255,255,255,0.42)', lineHeight: 1.5,
+              }}>
+                Clube, histórico e contato valem{' '}
+                <span style={{ color: 'rgba(96,165,250,0.85)', fontWeight: 700 }}>
+                  +{ovrGainCurriculo} pontos
+                </span>{' '}
+                — scouts precisam dessas info
+              </p>
+            </div>
+
+            {/* Seta */}
+            <span style={{
+              color: 'rgba(96,165,250,0.5)', fontSize: '20px', flexShrink: 0,
               lineHeight: 1,
             }}>→</span>
           </div>
