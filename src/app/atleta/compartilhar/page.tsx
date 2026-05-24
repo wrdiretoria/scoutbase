@@ -47,10 +47,13 @@ function getInitials(nome: string) {
   return nome.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase()
 }
 
-function calcularOVR(temFoto: boolean): number {
-  // Perfil vale até 50 OVR — avaliação de treinador adiciona os outros 50
-  const pontos = 15 + (temFoto ? 20 : 0)  // base (nome+pos+cidade+dob=15) + foto(20)
-  return Math.round((pontos / 100) * 50)
+function calcularOVR(temFoto: boolean, temPosicao: boolean, temCidade: boolean, temDataNasc: boolean): number {
+  let ovr = 62
+  if (temFoto)     ovr += 14
+  if (temPosicao)  ovr += 10
+  if (temCidade)   ovr +=  5
+  if (temDataNasc) ovr +=  4
+  return Math.min(ovr, 95)
 }
 
 function useCounter(target: number, delay = 400, duration = 900) {
@@ -120,7 +123,7 @@ function CompartilharContent() {
   }, [avatarUrl])
 
   // OVR: real (avaliações) tem prioridade; completude de perfil como fallback
-  const ovrBase      = calcularOVR(!!avatarUrl)
+  const ovrBase      = calcularOVR(!!avatarUrl, !!posicao, !!cidade, !!dataNasc)
   const ovr          = realOvr ?? ovrBase
   const ovrAnim      = useCounter(ovr, 600, 1000)
   const [shareStatus, setShareStatus] = useState<'idle' | 'sharing'>('idle')
