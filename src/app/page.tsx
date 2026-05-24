@@ -718,12 +718,12 @@ export default function LandingPage() {
             <SpinningGlobe />
             <div style={{ display:'flex', gap:'28px' }}>
               <div>
-                <div style={{ fontSize:'clamp(24px,3vw,32px)', fontWeight:900, color:'white', lineHeight:1 }}>26</div>
-                <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.32)', marginTop:'4px' }}>estados</div>
+                <div style={{ fontSize:'clamp(24px,3vw,32px)', fontWeight:900, color:'white', lineHeight:1 }}>+30</div>
+                <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.32)', marginTop:'4px' }}>países</div>
               </div>
               <div>
-                <div style={{ fontSize:'clamp(24px,3vw,32px)', fontWeight:900, color:'white', lineHeight:1 }}>+480</div>
-                <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.32)', marginTop:'4px' }}>cidades</div>
+                <div style={{ fontSize:'clamp(24px,3vw,32px)', fontWeight:900, color:'#00FF88', lineHeight:1 }}>global</div>
+                <div style={{ fontSize:'11px', color:'rgba(0,255,136,0.45)', marginTop:'4px' }}>presença</div>
               </div>
             </div>
           </div>
@@ -731,26 +731,25 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════ LOGOS CLUBES ══ */}
+      {/* ══════════════════════════════════════ PAÍSES ══ */}
       <section style={{ background:'#040806', borderTop:'1px solid rgba(255,255,255,0.04)', padding:'28px 24px 32px' }}>
-        <p style={{ textAlign:'center', fontSize:'9px', fontWeight:700, letterSpacing:'0.22em', color:'rgba(255,255,255,0.22)', textTransform:'uppercase', margin:'0 0 24px' }}>
-          Confiança de quem faz o futebol acontecer
+        <p style={{ textAlign:'center', fontSize:'9px', fontWeight:700, letterSpacing:'0.22em', color:'rgba(255,255,255,0.22)', textTransform:'uppercase', margin:'0 0 20px' }}>
+          Atletas de todo o mundo
         </p>
-        <div style={{ display:'flex', justifyContent:'center', alignItems:'center', gap:'clamp(20px,4vw,48px)', flexWrap:'wrap', opacity:0.50, filter:'grayscale(1) brightness(1.8)' }}>
+        <div style={{ display:'flex', justifyContent:'center', alignItems:'center', gap:'clamp(14px,3vw,32px)', flexWrap:'wrap' }}>
           {[
-            { abbr:'SPFC', label:'São Paulo FC' },
-            { abbr:'FLA',  label:'Flamengo' },
-            { abbr:'CAM',  label:'Atlético MG' },
-            { abbr:'SCO',  label:'Corinthians' },
-            { abbr:'GRE',  label:'Grêmio' },
-            { abbr:'INT',  label:'Internacional' },
-            { abbr:'RBB',  label:'Red Bull Bragantino' },
-            { abbr:'SAN',  label:'Santos FC' },
-          ].map(({ abbr, label }) => (
-            <div key={abbr} title={label} style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'4px' }}>
-              <div style={{ width:'40px', height:'40px', borderRadius:'50%', border:'1.5px solid rgba(255,255,255,0.45)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                <span style={{ fontSize:'8px', fontWeight:900, color:'white', letterSpacing:'0.02em' }}>{abbr}</span>
-              </div>
+            { flag:'🇧🇷', label:'Brasil' },
+            { flag:'🇦🇷', label:'Argentina' },
+            { flag:'🇵🇹', label:'Portugal' },
+            { flag:'🇪🇸', label:'Espanha' },
+            { flag:'🇫🇷', label:'França' },
+            { flag:'🇩🇪', label:'Alemanha' },
+            { flag:'🇮🇹', label:'Itália' },
+            { flag:'🇯🇵', label:'Japão' },
+          ].map(({ flag, label }) => (
+            <div key={label} title={label} style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'5px' }}>
+              <span style={{ fontSize:'clamp(28px,5vw,36px)', lineHeight:1, filter:'drop-shadow(0 2px 8px rgba(0,0,0,0.5))' }}>{flag}</span>
+              <span style={{ fontSize:'8px', fontWeight:600, color:'rgba(255,255,255,0.25)', letterSpacing:'0.06em', textTransform:'uppercase' }}>{label}</span>
             </div>
           ))}
         </div>
