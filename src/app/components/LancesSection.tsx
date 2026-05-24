@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -10,7 +11,7 @@ type ReelAtleta = {
   posicao: string
   cidade:  string
   ovr:     number | null
-  tipo:    'avaliado' | 'novo'
+  tipo:    'avaliado' | 'novo' | 'patrocinado'
   ts:      string
   fotos:   string[]
 }
@@ -108,7 +109,9 @@ function getPalette(pos: string): Palette {
 
 type Tag = { label: string; color: string; bg: string; border: string }
 
-function getTag(tipo: 'avaliado' | 'novo', ovr: number | null): Tag {
+function getTag(tipo: 'avaliado' | 'novo' | 'patrocinado', ovr: number | null): Tag {
+  if (tipo === 'patrocinado')
+    return { label:'💎 Patrocinado',   color:'#a78bfa', bg:'rgba(167,139,250,0.13)', border:'rgba(167,139,250,0.32)' }
   if (tipo === 'novo')
     return { label:'🔥 Entrou agora',  color:'#ff6b35', bg:'rgba(255,107,53,0.15)', border:'rgba(255,107,53,0.35)' }
   if (ovr !== null && ovr >= 85)
@@ -144,6 +147,7 @@ function ReelCard({ atleta, index }: { atleta: ReelAtleta; index: number }) {
   const ovr      = atleta.ovr ?? 0
   const cor      = hasOvr ? ovrColor(ovr) : 'rgba(0,255,136,0.65)'
   const rgb      = hasOvr ? ovrRgb(ovr)   : '0,255,136'
+  const isReal   = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(atleta.id)
 
   return (
     // ── Card root — background & size set INLINE (not via CSS class) ──
@@ -154,13 +158,22 @@ function ReelCard({ atleta, index }: { atleta: ReelAtleta; index: number }) {
       height:      '420px',
       borderRadius:'18px',
       overflow:    'hidden',
-      cursor:      'pointer',
+      cursor:      isReal ? 'pointer' : 'default',
       scrollSnapAlign: 'start',
       background:  palette.bg,
       transition:  'transform .28s cubic-bezier(.22,1,.36,1), box-shadow .28s ease',
       boxShadow:   '0 8px 32px rgba(0,0,0,0.55)',
       animation:   `lncCardIn .5s cubic-bezier(.22,1,.36,1) both ${index * 0.08}s`,
     }}>
+
+      {/* Link invisível sobre o card → perfil do atleta */}
+      {isReal && (
+        <Link
+          href={`/jogador/${atleta.id}`}
+          style={{ position:'absolute', inset:0, zIndex:50 }}
+          aria-label={`Ver perfil de ${atleta.nome}`}
+        />
+      )}
 
       {/* Foto real do atleta (ciclando) */}
       {currentFoto && (
@@ -250,26 +263,25 @@ function ReelCard({ atleta, index }: { atleta: ReelAtleta; index: number }) {
         </div>
       </div>
 
-      {/* ── Play button (center) ── */}
-      <div style={{
-        position:'absolute', top:'50%', left:'50%',
-        transform:'translate(-50%, -50%)',
-        zIndex:2,
-        width:52, height:52, borderRadius:'50%',
-        background:'rgba(255,255,255,0.10)',
-        backdropFilter:'blur(14px)', WebkitBackdropFilter:'blur(14px)',
-        border:'1.5px solid rgba(255,255,255,0.22)',
-        display:'flex', alignItems:'center', justifyContent:'center',
-        animation:'lancesPlayPulse 3.6s ease-in-out infinite',
-      }}>
+      {/* ── Avatar central (quando sem foto) ── */}
+      {!currentFoto && (
         <div style={{
-          width:0, height:0,
-          borderTop:'9px solid transparent',
-          borderBottom:'9px solid transparent',
-          borderLeft:'16px solid rgba(255,255,255,0.88)',
-          marginLeft:3,
-        }} />
-      </div>
+          position:'absolute', top:'50%', left:'50%',
+          transform:'translate(-50%, -58%)',
+          zIndex:2,
+          width:84, height:84, borderRadius:'50%',
+          background:`rgba(${rgb},0.10)`,
+          backdropFilter:'blur(14px)', WebkitBackdropFilter:'blur(14px)',
+          border:`1.5px solid rgba(${rgb},0.28)`,
+          display:'flex', alignItems:'center', justifyContent:'center',
+          fontSize:30, fontWeight:900,
+          color:`rgba(${rgb},0.75)`,
+          letterSpacing:'-0.03em',
+          boxShadow:`0 0 32px rgba(${rgb},0.18)`,
+        }}>
+          {initials(atleta.nome)}
+        </div>
+      )}
 
       {/* ── Bottom info ── */}
       <div style={{ position:'absolute', bottom:0, left:0, right:0, padding:'0 16px 18px', zIndex:3 }}>
@@ -361,10 +373,6 @@ export default function LancesSection() {
 
       {/* Keyframes injetados uma vez */}
       <style>{`
-        @keyframes lancesPlayPulse {
-          0%,100% { transform:translate(-50%,-50%) scale(1);    opacity:.74 }
-          50%      { transform:translate(-50%,-50%) scale(1.09); opacity:1   }
-        }
         @keyframes lncCardIn {
           from { opacity:0; transform:translateY(18px) }
           to   { opacity:1; transform:translateY(0)    }
@@ -419,8 +427,8 @@ export default function LancesSection() {
             lineHeight:1.06,
             textTransform:'uppercase',
           }}>
-            Atletas que estão<br/>
-            <span style={{ color:'#00FF88' }}>entrando agora</span>
+            Atletas em<br/>
+            <span style={{ color:'#00FF88' }}>destaque</span>
           </h2>
         </div>
 
