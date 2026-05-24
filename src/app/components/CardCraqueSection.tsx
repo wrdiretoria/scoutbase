@@ -1,5 +1,7 @@
 // Async Server Component — dados reais do Supabase
+import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase'
+import { AtletaFoto } from './AtletaFoto'
 
 type AtletaData = {
   nome:         string
@@ -8,6 +10,7 @@ type AtletaData = {
   foto:         string | null
   ovr:          number
   treinadorNome: string
+  userId:       string
   attrs: { label: string; val: number }[]
   cardStats: [string, string][]
 }
@@ -87,6 +90,7 @@ async function fetchTopAtleta(): Promise<AtletaData | null> {
       foto,
       ovr,
       treinadorNome: (tProfile?.nome as string | null) ?? 'Treinador',
+      userId:        av.aluno_id as string,
       attrs,
       cardStats,
     }
@@ -99,6 +103,7 @@ async function fetchTopAtleta(): Promise<AtletaData | null> {
 const FALLBACK: AtletaData = {
   nome: 'Rafael Silva', posicao: 'MEI', athlete_id: '04729', foto: null, ovr: 87,
   treinadorNome: 'Carlos Mendes',
+  userId: '',
   attrs: [
     { label: 'TÉCNICA',        val: 88 },
     { label: 'VELOCIDADE',     val: 90 },
@@ -262,9 +267,18 @@ export default async function CardCraqueSection() {
             overflow: 'hidden',
             boxShadow: `0 0 90px ${tier.glow}, 0 0 30px ${tier.glow}, 0 32px 72px rgba(0,0,0,0.85)`,
             position: 'relative',
+            cursor: atleta.userId ? 'pointer' : 'default',
           }}>
             {/* Shimmer sweep */}
             <div className="card-shimmer" />
+            {/* Link invisível → perfil do atleta */}
+            {atleta.userId && (
+              <Link
+                href={`/jogador/${atleta.userId}`}
+                style={{ position:'absolute', inset:0, zIndex:20 }}
+                aria-label={`Ver perfil de ${nome}`}
+              />
+            )}
 
             {/* Top accent line */}
             <div style={{ height: '3px', background: `linear-gradient(90deg, transparent, ${tier.accent}, transparent)` }} />
@@ -310,16 +324,7 @@ export default async function CardCraqueSection() {
               border: `1px solid ${tier.border}`,
               background: '#0a140d',
             }}>
-              <img
-                src={foto ?? '/images/hero-player.png'}
-                alt={nome}
-                style={{
-                  width: '100%', height: '100%',
-                  objectFit: 'cover',
-                  objectPosition: 'center 12%',
-                  display: 'block',
-                }}
-              />
+              <AtletaFoto src={foto} alt={nome} />
               {/* Bottom fade so name reads clean */}
               <div style={{
                 position: 'absolute', bottom: 0, left: 0, right: 0, height: '60%',
