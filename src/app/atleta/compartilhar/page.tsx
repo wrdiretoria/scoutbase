@@ -1,10 +1,21 @@
 ﻿'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { Suspense, useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import html2canvas from 'html2canvas'
+
+// ── Canvas helper ─────────────────────────────────────────────────────────────
+
+function rrect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+  ctx.beginPath()
+  ctx.moveTo(x + r, y)
+  ctx.lineTo(x + w - r, y); ctx.arcTo(x + w, y,     x + w, y + r,     r)
+  ctx.lineTo(x + w, y + h - r); ctx.arcTo(x + w, y + h, x + w - r, y + h, r)
+  ctx.lineTo(x + r, y + h); ctx.arcTo(x,     y + h, x,     y + h - r, r)
+  ctx.lineTo(x, y + r); ctx.arcTo(x, y,         x + r, y,             r)
+  ctx.closePath()
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -88,21 +99,35 @@ function CompartilharContent() {
 
   const categoria    = dataNasc ? calcularCategoria(dataNasc) : ''
   const initials     = getInitials(nome)
-  const posAbrev     = posicao ? posLabel(posicao) : '—'
   const idNumerico   = athleteId.replace('MC-', '')
   const primeiroNome = nome.split(' ')[0]
   const sobrenome    = nome.split(' ').slice(1).join(' ')
 
   // Hooks de estado — DEVEM vir antes de qualquer uso
   const [realOvr, setRealOvr]   = useState<number | null>(null)
-  const cardRef = useRef<HTMLDivElement>(null)
+
+  // Pré-carrega avatar como data URL (sem CORS na hora de desenhar no canvas)
+  const [avatarDataUrl, setAvatarDataUrl] = useState<string>('')
+  useEffect(() => {
+    if (!avatarUrl) return
+    fetch(avatarUrl)
+      .then(r => r.blob())
+      .then(blob => new Promise<string>((res, rej) => {
+        const reader = new FileReader()
+        reader.onload = () => res(reader.result as string)
+        reader.onerror = rej
+        reader.readAsDataURL(blob)
+      }))
+      .then(dataUrl => setAvatarDataUrl(dataUrl))
+      .catch(() => { /* usa URL original como fallback */ })
+  }, [avatarUrl])
 
   // OVR: real (avaliações) tem prioridade; completude de perfil como fallback
   const ovrBase      = calcularOVR(!!avatarUrl, !!posicao, !!cidade, !!dataNasc)
   const ovr          = realOvr ?? ovrBase
   const ovrAnim      = useCounter(ovr, 600, 1000)
   const [shareStatus, setShareStatus] = useState<'idle' | 'sharing'>('idle')
-  const [downloading, setDownloading] = useState(false)
+  const [shareErr,   setShareErr]    = useState<string | null>(null)
 
   // Busca OVR real das avaliações
   useEffect(() => {
@@ -112,66 +137,213 @@ function CompartilharContent() {
       .then(d => { if (typeof d.ovr === 'number') setRealOvr(d.ovr) })
       .catch(() => {/* mantém OVR de completude */})
   }, [athleteId])
-  const [copied,      setCopied]      = useState(false)
+  const [copied, setCopied] = useState(false)
 
-  // ── Captura ────────────────────────────────────────────────────────────────
+  // ── Geração do card via Canvas 2D (sem html2canvas) ────────────────────────
 
-  async function captureCard() {
-    if (!cardRef.current) return null
-    return html2canvas(cardRef.current, {
-      useCORS: true, allowTaint: false,
-      backgroundColor: null, scale: 2, logging: false, imageTimeout: 8000,
-    })
+  async function generateCard(): Promise<HTMLCanvasElement> {
+    const W = 600, H = 800
+    const canvas = document.createElement('canvas')
+    canvas.width = W; canvas.height = H
+    const ctx = canvas.getContext('2d')!
+
+    // Clip com bordas arredondadas
+    ctx.save()
+    rrect(ctx, 0, 0, W, H, 40)
+    ctx.clip()
+
+    // ── Background ─────────────────────────────────────────────────────────
+    const src = avatarDataUrl || avatarUrl
+    if (src) {
+      const img = new Image()
+      img.src = src
+      await new Promise<void>(res => { img.onload = () => res(); img.onerror = () => res() })
+      if (img.naturalWidth > 0) {
+        const ir = img.naturalWidth / img.naturalHeight, cr = W / H
+        let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight
+        if (ir > cr) { sw = img.naturalHeight * cr; sx = (img.naturalWidth - sw) / 2 }
+        else         { sh = img.naturalWidth  / cr; sy = (img.naturalHeight - sh) / 2 * 0.3 }
+        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, W, H)
+      }
+    } else {
+      // Gradiente escuro + círculo com iniciais
+      const bg = ctx.createLinearGradient(0, 0, W, H)
+      bg.addColorStop(0, '#1a3828'); bg.addColorStop(0.5, '#0e2018'); bg.addColorStop(1, '#040c07')
+      ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H)
+      ctx.beginPath(); ctx.arc(W/2, H*0.42, W*0.22, 0, Math.PI*2)
+      const cg = ctx.createLinearGradient(W*0.28, H*0.2, W*0.72, H*0.64)
+      cg.addColorStop(0, '#1a7a42'); cg.addColorStop(0.5, '#22c55e'); cg.addColorStop(1, '#4ade80')
+      ctx.fillStyle = cg; ctx.fill()
+      ctx.font = `900 ${Math.round(W * 0.15)}px system-ui`
+      ctx.fillStyle = 'white'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+      ctx.fillText(initials, W/2, H*0.42)
+      ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'
+    }
+
+    // ── Overlay cinematográfico ─────────────────────────────────────────────
+    const ov = ctx.createLinearGradient(0, 0, 0, H)
+    ov.addColorStop(0,    'rgba(0,0,0,0.55)')
+    ov.addColorStop(0.30, 'rgba(0,0,0,0.10)')
+    ov.addColorStop(0.55, 'rgba(0,0,0,0.00)')
+    ov.addColorStop(0.65, 'rgba(0,0,0,0.15)')
+    ov.addColorStop(1.00, 'rgba(0,0,0,0.92)')
+    ctx.fillStyle = ov; ctx.fillRect(0, 0, W, H)
+    ctx.restore() // fim do clip arredondado
+
+    // ── OVR ────────────────────────────────────────────────────────────────
+    ctx.save()
+    ctx.font = '900 104px system-ui'; ctx.fillStyle = 'white'
+    ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 20
+    ctx.fillText(String(ovr), 32, 116)
+    ctx.font = '900 20px system-ui'; ctx.fillStyle = '#00FF88'
+    ctx.shadowColor = 'rgba(0,255,136,0.7)'; ctx.shadowBlur = 12
+    ctx.fillText('OVR', 34, 142)
+    ctx.restore()
+
+    // ── Badge Meu Craque (brasão de clube) ────────────────────────────────
+    {
+      const bx = 32, by = 162, bw = 64, bh = 64, br = 12
+      ctx.save()
+      rrect(ctx, bx, by, bw, bh, br)
+      const bg = ctx.createLinearGradient(bx, by, bx + bw, by + bh)
+      bg.addColorStop(0, '#16a34a'); bg.addColorStop(1, '#15803d')
+      ctx.fillStyle = bg; ctx.fill()
+      ctx.shadowColor = 'rgba(0,255,136,0.5)'; ctx.shadowBlur = 16
+      ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1.5; ctx.stroke()
+      ctx.shadowBlur = 0
+      // Letra "M"
+      ctx.font = '900 34px Arial Black, system-ui'
+      ctx.fillStyle = 'white'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+      ctx.fillText('M', bx + bw / 2, by + bh / 2 - 7)
+      // "MEU CRAQUE" texto pequeno
+      ctx.font = '700 9px system-ui'
+      ctx.fillStyle = 'rgba(255,255,255,0.8)'
+      ctx.fillText('MEU CRAQUE', bx + bw / 2, by + bh - 12)
+      ctx.restore()
+    }
+
+    // ── Categoria badge (top right) ─────────────────────────────────────────
+    if (categoria) {
+      ctx.save()
+      ctx.font = '800 17px system-ui'
+      const tw = ctx.measureText(categoria).width
+      const bw = tw + 24, bh = 30, bx = W - bw - 20, by = 20
+      rrect(ctx, bx, by, bw, bh, 9)
+      ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fill()
+      ctx.strokeStyle = 'rgba(0,255,136,0.4)'; ctx.lineWidth = 1.5; ctx.stroke()
+      ctx.fillStyle = '#00FF88'; ctx.shadowColor = 'rgba(0,255,136,0.6)'; ctx.shadowBlur = 12
+      ctx.textAlign = 'center'; ctx.fillText(categoria, bx + bw/2, by + 21)
+      ctx.restore()
+    }
+
+    // ── Nome (bottom) ───────────────────────────────────────────────────────
+    ctx.save()
+    ctx.font = `900 ${Math.min(76, Math.round(W * 0.12))}px system-ui`
+    ctx.fillStyle = 'white'; ctx.shadowColor = 'rgba(0,0,0,0.95)'; ctx.shadowBlur = 24
+    ctx.fillText(primeiroNome, 32, H - 150)
+    if (sobrenome) {
+      ctx.font = '700 20px system-ui'; ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.shadowBlur = 0
+      ctx.fillText(sobrenome.toUpperCase(), 34, H - 120)
+    }
+
+    // ── Posição badge ────────────────────────────────────────────────────────
+    if (posicao) {
+      ctx.shadowBlur = 0; ctx.font = '800 17px system-ui'
+      const ptw = ctx.measureText(posicao).width
+      const pbw = ptw + 24, pbh = 28, pbx = 32, pby = H - 98
+      rrect(ctx, pbx, pby, pbw, pbh, 8)
+      ctx.fillStyle = 'rgba(0,255,136,0.12)'; ctx.fill()
+      ctx.strokeStyle = 'rgba(0,255,136,0.3)'; ctx.lineWidth = 1; ctx.stroke()
+      ctx.fillStyle = '#00FF88'; ctx.fillText(posicao, pbx + 12, pby + 19)
+      if (cidade) {
+        ctx.font = '600 15px system-ui'; ctx.fillStyle = 'rgba(255,255,255,0.38)'
+        ctx.fillText(`· ${cidade}`, pbx + pbw + 10, pby + 19)
+      }
+    }
+    ctx.restore()
+
+    // ── ID watermark ──────────────────────────────────────────────────────────
+    const ly = H - 46
+    ctx.save()
+    const lg1 = ctx.createLinearGradient(32, 0, W/2 - 52, 0)
+    lg1.addColorStop(0, 'rgba(0,0,0,0)'); lg1.addColorStop(1, 'rgba(255,255,255,0.08)')
+    ctx.strokeStyle = lg1; ctx.lineWidth = 1
+    ctx.beginPath(); ctx.moveTo(32, ly); ctx.lineTo(W/2 - 52, ly); ctx.stroke()
+    const lg2 = ctx.createLinearGradient(W/2 + 52, 0, W - 32, 0)
+    lg2.addColorStop(0, 'rgba(255,255,255,0.08)'); lg2.addColorStop(1, 'rgba(0,0,0,0)')
+    ctx.strokeStyle = lg2
+    ctx.beginPath(); ctx.moveTo(W/2 + 52, ly); ctx.lineTo(W - 32, ly); ctx.stroke()
+    ctx.font = '900 21px system-ui'; ctx.fillStyle = 'rgba(0,255,136,0.7)'
+    ctx.textAlign = 'center'; ctx.fillText(idNumerico ? `ID: ${idNumerico}` : 'Meu Craque', W/2, H - 24)
+    ctx.restore()
+
+    // ── Corner accents ────────────────────────────────────────────────────────
+    ctx.save(); ctx.lineWidth = 2
+    ctx.strokeStyle = 'rgba(0,255,136,0.75)'
+    ctx.beginPath(); ctx.moveTo(2, 28); ctx.lineTo(2, 12); ctx.arcTo(2, 2, 12, 2, 10); ctx.lineTo(28, 2); ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(W-2, 28); ctx.lineTo(W-2, 12); ctx.arcTo(W-2, 2, W-12, 2, 10); ctx.lineTo(W-28, 2); ctx.stroke()
+    ctx.strokeStyle = 'rgba(0,255,136,0.3)'
+    ctx.beginPath(); ctx.moveTo(2, H-28); ctx.lineTo(2, H-12); ctx.arcTo(2, H-2, 12, H-2, 10); ctx.lineTo(28, H-2); ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(W-2, H-28); ctx.lineTo(W-2, H-12); ctx.arcTo(W-2, H-2, W-12, H-2, 10); ctx.lineTo(W-28, H-2); ctx.stroke()
+    ctx.restore()
+
+    return canvas
   }
 
   async function handleShare() {
     setShareStatus('sharing')
+    setShareErr(null)
     try {
-      const canvas = await captureCard(); if (!canvas) return
-      const blob: Blob = await new Promise(res => canvas.toBlob(b => res(b!), 'image/png'))
-      const file = new File([blob], `${nome.replace(/\s+/g, '_')}_MeuCraque.png`, { type: 'image/png' })
+      const canvas = await generateCard()
+      const blob: Blob = await new Promise((res, rej) =>
+        canvas.toBlob(b => b ? res(b) : rej(new Error('toBlob falhou')), 'image/png')
+      )
+      const fileName = `${nome.replace(/\s+/g, '_')}_MeuCraque.png`
+      const file = new File([blob], fileName, { type: 'image/png' })
+
       if (navigator.canShare?.({ files: [file] })) {
+        // Compartilha como imagem (iOS/Android)
         await navigator.share({ files: [file], title: `${nome} · Meu Craque`, text: `⚽ OVR ${ovr} · ${posicao}${cidade ? ` · ${cidade}` : ''}` })
       } else if (navigator.share) {
-        await navigator.share({ title: `${nome} · Meu Craque`, text: `⚽ Atleta OVR ${ovr} no Meu Craque!` })
+        // Compartilha como link (desktop/fallback)
+        await navigator.share({ title: `${nome} · Meu Craque`, url: `${window.location.origin}/jogador/${uid}` })
       } else {
+        // Download direto
         const url = URL.createObjectURL(blob)
-        const a = Object.assign(document.createElement('a'), { href: url, download: file.name })
+        const a = Object.assign(document.createElement('a'), { href: url, download: fileName })
         document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url)
       }
-    } catch { /* cancelado */ }
-    setShareStatus('idle')
-  }
-
-  async function handleDownload() {
-    setDownloading(true)
-    try {
-      const canvas = await captureCard(); if (!canvas) return
-      const a = Object.assign(document.createElement('a'), {
-        href: canvas.toDataURL('image/png'),
-        download: `${nome.replace(/\s+/g, '_')}_MeuCraque.png`,
-      })
-      document.body.appendChild(a); a.click(); document.body.removeChild(a)
-    } catch { handleShare() }
-    setDownloading(false)
+    } catch (err) {
+      if (err instanceof Error && err.name !== 'AbortError') {
+        setShareErr('Erro ao compartilhar. Tente "Copiar link do perfil" abaixo.')
+        console.error('[compartilhar/handleShare]', err)
+      }
+    } finally {
+      setShareStatus('idle')
+    }
   }
 
   async function handleCopy() {
+    const link = `${window.location.origin}/jogador/${uid}`
     try {
-      await navigator.clipboard.writeText(`https://meucraque.com.br/jogador/${uid}`)
+      await navigator.clipboard.writeText(link)
       setCopied(true); setTimeout(() => setCopied(false), 3000)
-    } catch { /* sem permissão */ }
+    } catch {
+      // Fallback: mostra link para cópia manual
+      prompt('Copie o link do seu perfil:', link)
+    }
   }
 
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
     <main style={{
-      background: '#030a05', minHeight: '100dvh',
+      background: '#030a05',
+      minHeight: '100svh',
       display: 'flex', flexDirection: 'column', alignItems: 'center',
       padding: '28px 20px',
       paddingTop: 'max(28px, env(safe-area-inset-top))',
-      paddingBottom: '40px',
+      paddingBottom: 'max(40px, env(safe-area-inset-bottom))',
       fontFamily: 'system-ui, sans-serif',
     }}>
 
@@ -277,7 +449,7 @@ function CompartilharContent() {
             }} />
 
             {/* Corner accents */}
-            <div ref={cardRef} style={{ position: 'relative', width: 'min(320px,92vw)', zIndex: 1 }}>
+            <div style={{ position: 'relative', width: 'min(320px,92vw)', zIndex: 1 }}>
               {[
                 { top: -1, left: -1,     borderTop:    '1.5px solid rgba(0,255,136,.75)', borderLeft:   '1.5px solid rgba(0,255,136,.75)', borderTopLeftRadius:     '24px' },
                 { top: -1, right: -1,    borderTop:    '1.5px solid rgba(0,255,136,.75)', borderRight:  '1.5px solid rgba(0,255,136,.75)', borderTopRightRadius:    '24px' },
@@ -293,10 +465,10 @@ function CompartilharContent() {
               }}>
 
                 {/* FOTO — 100% do card */}
-                {avatarUrl ? (
+                {/* avatarDataUrl = data URL pré-carregado; avatarUrl = fallback de exibição */}
+                {(avatarDataUrl || avatarUrl) ? (
                   <img
-                    src={avatarUrl} alt={nome}
-                    crossOrigin="anonymous"
+                    src={avatarDataUrl || avatarUrl} alt={nome}
                     style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block' }}
                   />
                 ) : (
@@ -334,7 +506,7 @@ function CompartilharContent() {
                   }} />
                 </div>
 
-                {/* ── TOP LEFT: OVR + Posição ── */}
+                {/* ── TOP LEFT: OVR + badge Meu Craque ── */}
                 <div style={{ position: 'absolute', top: '16px', left: '18px', zIndex: 10 }}>
                   <div style={{
                     fontSize: '52px', fontWeight: 900, color: 'white', lineHeight: 1,
@@ -351,6 +523,18 @@ function CompartilharContent() {
                     marginTop: '2px',
                   }}>
                     OVR
+                  </div>
+                  {/* Badge Meu Craque — como brasão de clube */}
+                  <div style={{
+                    marginTop: '10px',
+                    width: '34px', height: '34px', borderRadius: '8px',
+                    background: 'linear-gradient(145deg, #16a34a, #15803d)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 0 0 1px rgba(255,255,255,0.18), 0 0 16px rgba(0,255,136,0.35), 0 2px 8px rgba(0,0,0,0.6)',
+                    flexDirection: 'column', gap: '0px',
+                  }}>
+                    <span style={{ fontSize: '18px', fontWeight: 900, color: 'white', lineHeight: 1, fontFamily: 'Arial Black, system-ui', letterSpacing: '-0.02em' }}>M</span>
+                    <span style={{ fontSize: '4.5px', fontWeight: 700, color: 'rgba(255,255,255,0.75)', letterSpacing: '0.06em', lineHeight: 1, marginTop: '1px', textTransform: 'uppercase' }}>MEU CRAQUE</span>
                   </div>
                 </div>
 
@@ -415,7 +599,7 @@ function CompartilharContent() {
                 </div>
 
               </div>{/* end card body */}
-            </div>{/* end cardRef */}
+            </div>{/* end card wrapper */}
           </div>
         </div>
 
@@ -437,10 +621,23 @@ function CompartilharContent() {
           <span style={{ color: 'rgba(0,255,136,.55)', fontWeight: 700 }}>Compartilhe com treinadores, amigos e clubes.</span>
         </p>
 
+        {/* Erro de compartilhamento */}
+        {shareErr && (
+          <div className="a5" style={{
+            width: '100%', marginBottom: '6px',
+            padding: '11px 14px', borderRadius: '12px',
+            background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)',
+          }}>
+            <p style={{ margin: 0, fontSize: '13px', color: '#f87171', fontWeight: 600 }}>
+              ⚠️ {shareErr}
+            </p>
+          </div>
+        )}
+
         {/* Ações */}
         <div className="a5" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <button className="btn-primary" onClick={handleShare} disabled={shareStatus === 'sharing'} style={{ opacity: shareStatus === 'sharing' ? .7 : 1 }}>
-            {shareStatus === 'sharing' ? '…' : '📲 Compartilhar card'}
+            {shareStatus === 'sharing' ? 'Gerando card…' : '📲 Compartilhar card'}
           </button>
           <button className="btn-ghost" onClick={handleCopy}>
             {copied ? '✓ Link copiado!' : '🔗 Copiar link do perfil'}
