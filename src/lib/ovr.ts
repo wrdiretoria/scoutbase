@@ -46,12 +46,16 @@ function calcProfileScore(p: ProfileRow, meta: UserMeta): number {
 }
 
 function calcOvr(profileScore: number, trainerAvg: number | null): number {
+  // Perfil vale até 50 OVR (0–100 pts × 0.5)
+  const profileOvr = Math.round(profileScore * 0.5)
+
   if (trainerAvg === null) {
-    // Sem avaliação: OVR = nota do perfil (0–100)
-    return profileScore
+    // Sem avaliação: máx 50 OVR
+    return profileOvr
   }
-  // Com avaliação: média simples das duas notas (ambas 0–100)
-  return Math.round((profileScore + trainerAvg) / 2)
+  // Com avaliação: perfil (0–50) + avaliação (0–50) = max 100 OVR
+  const trainerOvr = Math.round(trainerAvg * 0.5)
+  return profileOvr + trainerOvr
 }
 
 // ── fetchOvrMap ────────────────────────────────────────────────────────────────

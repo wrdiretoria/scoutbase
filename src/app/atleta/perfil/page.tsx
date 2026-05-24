@@ -809,9 +809,12 @@ function AtletaPerfilContent() {
     temFoto, temQuestionario, temClubes, temCampeonatos, temTitulos, temPremiacoes, temTelefone,
   })
   const ovrAvaliacao = avaliacao ? avaliacao.scout_score : null
-  const ovrTotal     = ovrAvaliacao !== null
-    ? Math.round((ovrPerfil + ovrAvaliacao) / 2)
-    : ovrPerfil
+  // Perfil: 0–100 pts → 0–50 OVR | Avaliação: 0–100 pts → 0–50 OVR | Total: 0–100
+  const ovrPerfilOvr   = Math.round(ovrPerfil * 0.5)
+  const ovrAvaliacaoOvr = ovrAvaliacao !== null ? Math.round(ovrAvaliacao * 0.5) : null
+  const ovrTotal = ovrAvaliacaoOvr !== null
+    ? ovrPerfilOvr + ovrAvaliacaoOvr
+    : ovrPerfilOvr
 
   // ── Próximo Passo — sugestões baseadas no estado do perfil ────
   const passos: { icon: string; titulo: string; sub: string; href: string }[] = []
@@ -1343,7 +1346,7 @@ function AtletaPerfilContent() {
               <div style={{ display:'flex', flexDirection:'column', gap:'4px' }}>
                 <div style={{ display:'flex', justifyContent:'space-between' }}>
                   <span style={{ fontSize:'9px', fontWeight:700, letterSpacing:'0.08em', color:'rgba(255,255,255,0.35)', textTransform:'uppercase' }}>Perfil</span>
-                  <span style={{ fontSize:'10px', fontWeight:800, color:'#22c55e', fontVariantNumeric:'tabular-nums' }}>{ovrPerfil}/100</span>
+                  <span style={{ fontSize:'10px', fontWeight:800, color:'#22c55e', fontVariantNumeric:'tabular-nums' }}>{ovrPerfilOvr}/50</span>
                 </div>
                 <div style={{ height:'4px', background:'rgba(255,255,255,0.08)', borderRadius:'3px', overflow:'hidden' }}>
                   <div style={{
@@ -1359,7 +1362,7 @@ function AtletaPerfilContent() {
               <div style={{ display:'flex', flexDirection:'column', gap:'4px' }}>
                 <div style={{ display:'flex', justifyContent:'space-between' }}>
                   <span style={{ fontSize:'9px', fontWeight:700, letterSpacing:'0.08em', color: ovrAvaliacao !== null ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.18)', textTransform:'uppercase' }}>Avaliação</span>
-                  <span style={{ fontSize:'10px', fontWeight:800, color: ovrAvaliacao !== null ? '#22c55e' : 'rgba(255,255,255,0.18)', fontVariantNumeric:'tabular-nums' }}>{ovrAvaliacao !== null ? `${ovrAvaliacao}/100` : '—/100'}</span>
+                  <span style={{ fontSize:'10px', fontWeight:800, color: ovrAvaliacaoOvr !== null ? '#22c55e' : 'rgba(255,255,255,0.18)', fontVariantNumeric:'tabular-nums' }}>{ovrAvaliacaoOvr !== null ? `${ovrAvaliacaoOvr}/50` : '—/50'}</span>
                 </div>
                 <div style={{ height:'4px', background:'rgba(255,255,255,0.06)', borderRadius:'3px', overflow:'hidden' }}>
                   <div style={{
