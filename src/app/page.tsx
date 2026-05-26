@@ -5,7 +5,6 @@ import TeamOfWeekSection from './components/TeamOfWeekSection'
 import ProspectsSection from './components/ProspectsSection'
 import RankingSection from './components/RankingSection'
 import CardCraqueSection from './components/CardCraqueSection'
-import StatsBar from './components/StatsBar'
 import PhotoBillboard from './components/PhotoBillboard'
 import HeroFeed from './components/HeroFeed'
 import LiveFeed from './components/LiveFeed'
@@ -773,8 +772,6 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════ PROSPECTS ══ */}
       <ProspectsSection />
 
-      {/* ══════════════════════════════════════ STATS ══ */}
-      <StatsBar />
 
       {/* ══════════════════════════════════════ RANKING ══ */}
       <RankingSection />
