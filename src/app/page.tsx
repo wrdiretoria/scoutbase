@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import { createAdminClient } from '@/lib/supabase'
+import { fetchOvrMap } from '@/lib/ovr'
 import NavBar from './components/NavBar'
 import ActivityTicker from './components/ActivityTicker'
 import TeamOfWeekSection from './components/TeamOfWeekSection'
@@ -54,7 +56,32 @@ const cards = [
   },
 ]
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  // Top 5 atletas por OVR para o ranking inline
+  let top5: { id: string; nome: string; pos: string; ovr: number }[] = []
+  try {
+    const admin = createAdminClient()
+    const { data: { users } } = await admin.auth.admin.listUsers({ perPage: 1000 })
+    const atletas = users.filter(u => u.user_metadata?.tipo === 'atleta')
+    const ids = atletas.map(u => u.id)
+    const [profilesRes, ovrMap] = await Promise.all([
+      admin.from('profiles').select('id, athlete_id').in('id', ids),
+      fetchOvrMap(admin),
+    ])
+    const profileMap = new Map((profilesRes.data ?? []).map((p: { id: string; athlete_id: string | null }) => [p.id, p]))
+    top5 = atletas
+      .map(u => {
+        const meta = u.user_metadata as { nome?: string; posicao?: string }
+        const profile = profileMap.get(u.id)
+        const athleteId = (profile?.athlete_id as string | null) ?? null
+        const ovr = athleteId ? (ovrMap.get(athleteId) ?? null) : null
+        if (!ovr) return null
+        return { id: u.id, nome: meta.nome ?? 'Atleta', pos: meta.posicao ?? '', ovr }
+      })
+      .filter((a): a is { id: string; nome: string; pos: string; ovr: number } => a !== null)
+      .sort((a, b) => b.ovr - a.ovr)
+      .slice(0, 5)
+  } catch { /* fallback: lista vazia */ }
   return (
     <div style={{ background: '#06100a', color: 'white', minHeight: '100vh', fontFamily: 'system-ui, sans-serif' }}>
 
@@ -649,27 +676,23 @@ export default function LandingPage() {
               <span style={{ fontSize:'9.5px', fontWeight:800, color:'rgba(255,255,255,0.38)', letterSpacing:'0.20em', textTransform:'uppercase' }}>Os mais vistos da semana</span>
               <Link href="/ranking" style={{ fontSize:'11px', color:'#00FF88', textDecoration:'none', fontWeight:600, letterSpacing:'0.04em' }}>Ver ranking →</Link>
             </div>
-            {[
-              { nome:'Kauã Ferreira',  pos:'ATA', ovr:91, delta:'+2' },
-              { nome:'Bruno Santos',   pos:'MAT', ovr:77, delta:'+6' },
-              { nome:'Thiago Mendes',  pos:'CA',  ovr:83, delta:'+1' },
-              { nome:'João Mendes',    pos:'ATA', ovr:85, delta:'+3' },
-              { nome:'Pedro Lima',     pos:'GK',  ovr:74, delta:'—'  },
-            ].map((a, i) => (
-              <div key={i} style={{
-                display:'flex', alignItems:'center', gap:'12px',
-                padding:'11px 0',
-                borderBottom:'1px solid rgba(255,255,255,0.04)',
-              }}>
-                <span style={{ fontSize:'11px', fontWeight:600, color:'rgba(255,255,255,0.22)', width:'14px', flexShrink:0 }}>{i+1}</span>
-                <div style={{ width:'32px', height:'32px', borderRadius:'50%', background:['#1a5c3a','#1e3a5f','#5f1e3a','#3a5f1e','#3a1e5f'][i], display:'flex', alignItems:'center', justifyContent:'center', fontSize:'9px', fontWeight:800, color:'white', flexShrink:0 }}>
-                  {a.nome.split(' ').map(w=>w[0]).slice(0,2).join('')}
+            {top5.map((a, i) => (
+              <Link key={a.id} href={`/jogador/${a.id}`} style={{ textDecoration:'none', color:'inherit' }}>
+                <div style={{
+                  display:'flex', alignItems:'center', gap:'12px',
+                  padding:'11px 0',
+                  borderBottom:'1px solid rgba(255,255,255,0.04)',
+                  cursor:'pointer',
+                }}>
+                  <span style={{ fontSize:'11px', fontWeight:600, color:'rgba(255,255,255,0.22)', width:'14px', flexShrink:0 }}>{i+1}</span>
+                  <div style={{ width:'32px', height:'32px', borderRadius:'50%', background:['#1a5c3a','#1e3a5f','#5f1e3a','#3a5f1e','#3a1e5f'][i], display:'flex', alignItems:'center', justifyContent:'center', fontSize:'9px', fontWeight:800, color:'white', flexShrink:0 }}>
+                    {a.nome.split(' ').map((w: string) => w[0]).slice(0,2).join('')}
+                  </div>
+                  <span style={{ flex:1, fontSize:'13px', fontWeight:600, color:'rgba(255,255,255,0.88)', minWidth:0, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{a.nome}</span>
+                  <span style={{ fontSize:'8.5px', fontWeight:800, color:'#00FF88', background:'rgba(0,255,136,0.08)', padding:'2px 6px', borderRadius:'4px', letterSpacing:'0.05em', flexShrink:0 }}>{a.pos}</span>
+                  <span style={{ fontSize:'11px', color:'rgba(255,255,255,0.45)', flexShrink:0 }}>OVR <strong style={{ color:'rgba(255,255,255,0.88)', fontWeight:900 }}>{a.ovr}</strong></span>
                 </div>
-                <span style={{ flex:1, fontSize:'13px', fontWeight:600, color:'rgba(255,255,255,0.88)', minWidth:0, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{a.nome}</span>
-                <span style={{ fontSize:'8.5px', fontWeight:800, color:'#00FF88', background:'rgba(0,255,136,0.08)', padding:'2px 6px', borderRadius:'4px', letterSpacing:'0.05em', flexShrink:0 }}>{a.pos}</span>
-                <span style={{ fontSize:'11px', color:'rgba(255,255,255,0.45)', flexShrink:0 }}>OVR <strong style={{ color:'rgba(255,255,255,0.88)', fontWeight:900 }}>{a.ovr}</strong></span>
-                <span style={{ fontSize:'11px', fontWeight:700, color: a.delta === '—' ? 'rgba(255,255,255,0.25)' : '#00FF88', flexShrink:0 }}>{a.delta !== '—' ? `↑ ${a.delta.replace('+','')}` : '—'}</span>
-              </div>
+              </Link>
             ))}
           </div>
 
