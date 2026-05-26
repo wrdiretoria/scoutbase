@@ -329,13 +329,24 @@ async function main() {
 
     let userId = existingEmails.get(email)
 
+    // Currículo completo → garante profileScore 100 → profileOvr 50
+    // Sem isso, OVR exibido = ~7 (perfil base) + scout_score/2 ≈ 50–54 em vez de 72–96
+    const curriculoMeta = {
+      questionario_completo: true,
+      clubes_anteriores:     `${a.cidade} FC`,
+      campeonatos:           'Copa Regional Sub-17',
+      titulos:               'Campeão Estadual Sub-17',
+      premiacoes:            'Melhor Jogador do Torneio',
+      telefone:              '11999999999',
+    }
+
     if (userId) {
-      console.log(`  ↩   ${a.nome} já existe`)
-      // Atualiza user_metadata com cidade e posicao
+      console.log(`  ↩   ${a.nome} já existe — atualizando metadados`)
       await admin.auth.admin.updateUserById(userId, {
         user_metadata: {
           tipo: 'atleta', posicao: a.posicao, nome: a.nome,
           cidade: a.cidade, cards_disponiveis: 0,
+          ...curriculoMeta,
         },
       })
     } else {
@@ -343,13 +354,13 @@ async function main() {
         email,
         password: 'SeedAtleta2024!',
         email_confirm: true,
-        // cidade e posicao em user_metadata (feed lê daqui via posMap)
         user_metadata: {
           tipo:              'atleta',
           posicao:           a.posicao,
           nome:              a.nome,
           cidade:            a.cidade,
           cards_disponiveis: 0,
+          ...curriculoMeta,
         },
       })
       if (error) { console.error(`  ❌  ${a.nome}: ${error.message}`); continue }
@@ -360,13 +371,12 @@ async function main() {
     const { error: pErr } = await admin.from('profiles').upsert({
       id:              userId,
       nome:            a.nome,
-      // cidade não é coluna — está em user_metadata
       athlete_id:      mcId,
       email:           `${mcId.toLowerCase()}@meucraque.app`,
       data_nascimento: a.nasc,
       fotos:           fotos,
-      // created_at: não aceita override via PostgREST (coluna auto-gerada)
-      // Os timestamps ficam em avaliacoes.created_at (feed de avaliações) ✓
+      // avatar_url = primeira foto → +20 pts no profileScore
+      avatar_url:      fotos[0] ?? null,
     }, { onConflict: 'id' })
 
     if (pErr) console.error(`  ❌  profile ${mcId}: ${pErr.message}`)
