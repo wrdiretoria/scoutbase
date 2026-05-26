@@ -61,6 +61,7 @@ type TopAtleta = {
   cidade: string
   ovr: number
   avatarUrl: string | null
+  athleteId: string | null
 }
 
 export default async function TeamOfWeekSection() {
@@ -93,6 +94,7 @@ export default async function TeamOfWeekSection() {
           cidade: meta.cidade ?? '',
           ovr,
           avatarUrl: (profile?.avatar_url as string | null) ?? null,
+          athleteId: athleteId ?? null,
         }
       })
       .filter((a): a is TopAtleta => a !== null)
@@ -280,6 +282,17 @@ export default async function TeamOfWeekSection() {
                   }}>
                     Ver perfil →
                   </div>
+
+                  {/* ID do atleta */}
+                  {atleta.athleteId && (
+                    <div style={{
+                      marginTop: '10px',
+                      fontSize: '10px', fontWeight: 800,
+                      color: 'rgba(255,255,255,0.28)', letterSpacing: '0.1em',
+                    }}>
+                      ID: {atleta.athleteId.replace('MC-', '')}
+                    </div>
+                  )}
                 </div>
               </div>
 

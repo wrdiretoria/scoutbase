@@ -58,7 +58,7 @@ const cards = [
 
 export default async function LandingPage() {
   // Top 5 atletas por OVR para o ranking inline
-  let top5: { id: string; nome: string; pos: string; ovr: number }[] = []
+  let top5: { id: string; nome: string; pos: string; ovr: number; athleteId: string | null }[] = []
   try {
     const admin = createAdminClient()
     const { data: { users } } = await admin.auth.admin.listUsers({ perPage: 1000 })
@@ -76,9 +76,9 @@ export default async function LandingPage() {
         const athleteId = (profile?.athlete_id as string | null) ?? null
         const ovr = athleteId ? (ovrMap.get(athleteId) ?? null) : null
         if (!ovr) return null
-        return { id: u.id, nome: meta.nome ?? 'Atleta', pos: meta.posicao ?? '', ovr }
+        return { id: u.id, nome: meta.nome ?? 'Atleta', pos: meta.posicao ?? '', ovr, athleteId }
       })
-      .filter((a): a is { id: string; nome: string; pos: string; ovr: number } => a !== null)
+      .filter((a): a is { id: string; nome: string; pos: string; ovr: number; athleteId: string | null } => a !== null)
       .sort((a, b) => b.ovr - a.ovr)
       .slice(0, 5)
   } catch { /* fallback: lista vazia */ }
@@ -691,6 +691,7 @@ export default async function LandingPage() {
                   <span style={{ flex:1, fontSize:'13px', fontWeight:600, color:'rgba(255,255,255,0.88)', minWidth:0, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{a.nome}</span>
                   <span style={{ fontSize:'8.5px', fontWeight:800, color:'#00FF88', background:'rgba(0,255,136,0.08)', padding:'2px 6px', borderRadius:'4px', letterSpacing:'0.05em', flexShrink:0 }}>{a.pos}</span>
                   <span style={{ fontSize:'11px', color:'rgba(255,255,255,0.45)', flexShrink:0 }}>OVR <strong style={{ color:'rgba(255,255,255,0.88)', fontWeight:900 }}>{a.ovr}</strong></span>
+                  {a.athleteId && <span style={{ fontSize:'9px', fontWeight:700, color:'rgba(255,255,255,0.22)', letterSpacing:'0.06em', flexShrink:0 }}>ID: {a.athleteId.replace('MC-', '')}</span>}
                 </div>
               </Link>
             ))}

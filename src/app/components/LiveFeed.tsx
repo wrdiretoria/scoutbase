@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase'
 import type { FeedEvent } from '@/app/api/landing/livefeed/route'
@@ -70,7 +71,16 @@ function EventCard({
       transition:    'border-color .4s ease',
       animation:     isNew ? 'feedSlideIn .45s cubic-bezier(.22,1,.36,1) both' : 'none',
       position:      'relative',
+      cursor:        'pointer',
     }}>
+      {/* Link invisível sobre o card → perfil do atleta */}
+      {event.atletaId && (
+        <Link
+          href={`/jogador/${event.atletaId}`}
+          style={{ position:'absolute', inset:0, zIndex:20 }}
+          aria-label={`Ver perfil de ${event.nome}`}
+        />
+      )}
       {/* ── Foto lateral (cards de avaliação expandidos) ── */}
       {expanded && currentFoto && (
         <div style={{
@@ -208,6 +218,13 @@ function EventCard({
               : <>{pos && <>{pos} · </>}{event.cidade ? event.cidade.split(',')[0] : 'atleta novo'}</>
             }
           </div>
+
+          {/* ID do atleta */}
+          {event.mcId && (
+            <div style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.20)', letterSpacing: '0.08em', marginTop: '3px' }}>
+              ID: {event.mcId.replace('MC-', '')}
+            </div>
+          )}
         </div>
 
         {/* OVR ou ícone + timestamp */}

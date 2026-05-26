@@ -128,6 +128,14 @@ function PlayerDot({
         }}>
           {p.nome.split(' ')[0]}
         </span>
+        {p.mcId && (
+          <span style={{
+            fontSize: '7px', fontWeight: 700, color: 'rgba(255,255,255,0.22)',
+            letterSpacing: '0.06em', lineHeight: 1,
+          }}>
+            ID: {p.mcId.replace('MC-', '')}
+          </span>
+        )}
       </div>
     </Link>
   )

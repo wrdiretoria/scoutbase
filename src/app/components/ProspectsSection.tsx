@@ -1,111 +1,199 @@
-// Server Component — sem 'use client'
+// Server Component — dados reais do Supabase
+import Link from 'next/link'
+import { createAdminClient } from '@/lib/supabase'
 
-const prospects = [
-  {
-    initials: 'GS',
-    name: 'Gabriel Santos',
-    age: 17,
-    position: 'ATA',
-    positionFull: 'Atacante',
-    city: 'São Paulo',
-    state: 'SP',
-    score: 91,
-    badge: 'PROMESSA DO ANO',
-    badgeColor: '#f59e0b',
-    trend: '+18',
-    highlight: 'Artilheiro do Sub-17 paulista',
-    topColor: 'linear-gradient(160deg,#0d3a1a 0%,#061209 100%)',
-    avatarGrad: 'linear-gradient(145deg,#065f28,#00e87a)',
-    glow: 'rgba(0,255,136,0.18)',
-    glowHover: 'rgba(0,255,136,0.32)',
-    accent: '#00FF88',
-    stats: [
-      { label: 'Finalização', val: 94 },
-      { label: 'Velocidade',  val: 91 },
-      { label: 'Drible',      val: 88 },
-    ],
-  },
-  {
-    initials: 'YC',
-    name: 'Yasmin Costa',
-    age: 16,
-    position: 'MEI',
-    positionFull: 'Meia',
-    city: 'Recife',
-    state: 'PE',
-    score: 88,
-    badge: 'MAIS VISTA DA SEMANA',
-    badgeColor: '#a78bfa',
-    trend: '+11',
-    highlight: '3 scouts acompanhando perfil',
-    topColor: 'linear-gradient(160deg,#1e0d42 0%,#0c0520 100%)',
-    avatarGrad: 'linear-gradient(145deg,#5b21b6,#a78bfa)',
-    glow: 'rgba(139,92,246,0.15)',
-    glowHover: 'rgba(139,92,246,0.28)',
-    accent: '#a78bfa',
-    stats: [
-      { label: 'Passe',         val: 91 },
-      { label: 'Visão de jogo', val: 89 },
-      { label: 'Liderança',     val: 86 },
-    ],
-  },
-  {
-    initials: 'BA',
-    name: 'Bruno Alves',
-    age: 18,
-    position: 'GOL',
-    positionFull: 'Goleiro',
-    city: 'Porto Alegre',
-    state: 'RS',
-    score: 86,
-    badge: 'GOLEIRO REVELAÇÃO',
-    badgeColor: '#38bdf8',
-    trend: '+9',
-    highlight: '89% de aproveitamento no mês',
-    topColor: 'linear-gradient(160deg,#082840 0%,#040e1a 100%)',
-    avatarGrad: 'linear-gradient(145deg,#075985,#38bdf8)',
-    glow: 'rgba(56,189,248,0.14)',
-    glowHover: 'rgba(56,189,248,0.26)',
-    accent: '#38bdf8',
-    stats: [
-      { label: 'Reflexo',      val: 92 },
-      { label: 'Posicionam.',  val: 88 },
-      { label: 'Saída de Bola', val: 83 },
-    ],
-  },
-  {
-    initials: 'TM',
-    name: 'Thiago Mendes',
-    age: 17,
-    position: 'ZAG',
-    positionFull: 'Zagueiro',
-    city: 'Belo Horizonte',
-    state: 'MG',
-    score: 85,
-    badge: 'EM ASCENSÃO',
-    badgeColor: '#fb923c',
-    trend: '+14',
-    highlight: 'Capitão do Sub-17 mineiro',
-    topColor: 'linear-gradient(160deg,#42180a 0%,#160700 100%)',
-    avatarGrad: 'linear-gradient(145deg,#c2410c,#fb923c)',
-    glow: 'rgba(251,146,60,0.14)',
-    glowHover: 'rgba(251,146,60,0.26)',
-    accent: '#fb923c',
-    stats: [
-      { label: 'Marcação', val: 90 },
-      { label: 'Físico',   val: 88 },
-      { label: 'Cabeceio', val: 85 },
-    ],
-  },
+// ── Types ──────────────────────────────────────────────────────────────────────
+
+type ProspectData = {
+  id:         string
+  athleteId:  string | null
+  nome:       string
+  posicao:    string
+  pos:        string
+  cidade:     string
+  idade:      number | null
+  ovr:        number
+  initials:   string
+  foto:       string | null
+  highlight:  string
+  stats:      { label: string; val: number }[]
+  badge:      string
+  badgeColor: string
+  trend:      string
+  topColor:   string
+  avatarGrad: string
+  glow:       string
+  glowHover:  string
+  accent:     string
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+
+function getInitials(nome: string): string {
+  return nome.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase()
+}
+
+function posAbrev(pos: string): string {
+  const map: Record<string, string> = {
+    'Goleiro': 'GK', 'Lateral Direito': 'LD', 'Lateral Esquerdo': 'LE',
+    'Zagueiro': 'ZG', 'Volante': 'VOL', 'Meia': 'MEI',
+    'Meia-Atacante': 'MAT', 'Ponta Direita': 'PD', 'Ponta Esquerda': 'PE',
+    'Atacante': 'ATA', 'Centro-Avante': 'CA',
+  }
+  return map[pos] ?? pos.slice(0, 3).toUpperCase()
+}
+
+function calcIdade(dataNasc: string | null): number | null {
+  if (!dataNasc) return null
+  const hoje = new Date()
+  const nasc = new Date(dataNasc)
+  let age = hoje.getFullYear() - nasc.getFullYear()
+  const m = hoje.getMonth() - nasc.getMonth()
+  if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) age--
+  return age
+}
+
+function getStats(posicao: string, av: Record<string, unknown>) {
+  const v = (n: unknown) => Math.round((typeof n === 'number' ? n : 0) * 10)
+  const p = posicao.toLowerCase()
+  if (p.includes('goleiro')) return [
+    { label: 'Posicionam.', val: v(av.posicionamento) },
+    { label: 'Técnica',     val: v(av.tecnica) },
+    { label: 'Força',       val: v(av.forca) },
+  ]
+  if (p.includes('zagueiro')) return [
+    { label: 'Posicionam.', val: v(av.posicionamento) },
+    { label: 'Força',       val: v(av.forca) },
+    { label: 'Técnica',     val: v(av.tecnica) },
+  ]
+  if (p.includes('volante')) return [
+    { label: 'Visão de jogo', val: v(av.visao_jogo) },
+    { label: 'Força',         val: v(av.forca) },
+    { label: 'Técnica',       val: v(av.tecnica) },
+  ]
+  if (p.includes('meia')) return [
+    { label: 'Visão de jogo', val: v(av.visao_jogo) },
+    { label: 'Técnica',       val: v(av.tecnica) },
+    { label: 'Posicionam.',   val: v(av.posicionamento) },
+  ]
+  // atacante, ponta, avante, lateral, default
+  return [
+    { label: 'Finalização', val: v(av.finalizacao) },
+    { label: 'Velocidade',  val: v(av.velocidade) },
+    { label: 'Técnica',     val: v(av.tecnica) },
+  ]
+}
+
+function getHighlight(ovr: number, rank: number, cidade: string): string {
+  const city = cidade ? cidade.split(',')[0] : ''
+  if (rank === 1) return `Top 1 do ranking · OVR ${ovr}`
+  if (ovr >= 88)  return city ? `${city} · OVR ${ovr}` : `Elite nacional · OVR ${ovr}`
+  if (ovr >= 80)  return city ? `${city} · Top ${rank}` : `Alto nível · OVR ${ovr}`
+  return city ? `${city} · Top ${rank}` : `Top ${rank} no ranking`
+}
+
+const PALETTES = [
+  { badge: 'PROMESSA #1', badgeColor: '#f59e0b', topColor: 'linear-gradient(160deg,#0d3a1a 0%,#061209 100%)', avatarGrad: 'linear-gradient(145deg,#065f28,#00e87a)', glow: 'rgba(0,255,136,0.18)', glowHover: 'rgba(0,255,136,0.32)', accent: '#00FF88' },
+  { badge: 'DESTAQUE',    badgeColor: '#a78bfa', topColor: 'linear-gradient(160deg,#1e0d42 0%,#0c0520 100%)', avatarGrad: 'linear-gradient(145deg,#5b21b6,#a78bfa)', glow: 'rgba(139,92,246,0.15)', glowHover: 'rgba(139,92,246,0.28)', accent: '#a78bfa' },
+  { badge: 'EM ASCENSÃO', badgeColor: '#38bdf8', topColor: 'linear-gradient(160deg,#082840 0%,#040e1a 100%)', avatarGrad: 'linear-gradient(145deg,#075985,#38bdf8)', glow: 'rgba(56,189,248,0.14)', glowHover: 'rgba(56,189,248,0.26)', accent: '#38bdf8' },
+  { badge: 'TALENTO',     badgeColor: '#fb923c', topColor: 'linear-gradient(160deg,#42180a 0%,#160700 100%)', avatarGrad: 'linear-gradient(145deg,#c2410c,#fb923c)', glow: 'rgba(251,146,60,0.14)', glowHover: 'rgba(251,146,60,0.26)', accent: '#fb923c' },
 ]
 
-export default function ProspectsSection() {
+// ── Data fetching ──────────────────────────────────────────────────────────────
+
+async function fetchTopProspects(): Promise<ProspectData[]> {
+  try {
+    const admin = createAdminClient()
+
+    // Top avaliações ordenadas por scout_score
+    const { data: avs } = await admin
+      .from('avaliacoes')
+      .select('aluno_id, scout_score, velocidade, tecnica, visao_jogo, finalizacao, forca, posicionamento')
+      .not('scout_score', 'is', null)
+      .order('scout_score', { ascending: false })
+      .limit(20)
+
+    if (!avs || avs.length === 0) return []
+
+    // Deduplicar: melhor avaliação por atleta, top 4
+    const seen = new Set<string>()
+    const topAvs: typeof avs = []
+    for (const av of avs) {
+      if (seen.has(av.aluno_id as string)) continue
+      seen.add(av.aluno_id as string)
+      topAvs.push(av)
+      if (topAvs.length === 4) break
+    }
+
+    const ids = topAvs.map(av => av.aluno_id as string)
+
+    const [profilesRes, authData] = await Promise.all([
+      admin.from('profiles').select('id, nome, avatar_url, fotos, data_nascimento, cidade, athlete_id').in('id', ids),
+      admin.auth.admin.listUsers({ perPage: 1000 }),
+    ])
+
+    const profileMap = new Map((profilesRes.data ?? []).map(p => [p.id as string, p]))
+    const posMap = new Map<string, string>()
+    for (const u of authData.data?.users ?? []) {
+      if (u.user_metadata?.posicao) posMap.set(u.id, u.user_metadata.posicao as string)
+    }
+
+    return topAvs.map((av, i) => {
+      const id      = av.aluno_id as string
+      const profile = profileMap.get(id)
+      const nome    = (profile?.nome as string | null) ?? 'Atleta'
+      const posicao = posMap.get(id) ?? 'Atleta'
+      const cidade  = (profile?.cidade as string | null) ?? ''
+      const dataNasc = (profile?.data_nascimento as string | null) ?? null
+      const ovr     = Math.round(av.scout_score as number)
+
+      const fotosArr = profile?.fotos as (string | null)[] | null
+      const foto = fotosArr?.[0] ?? (profile?.avatar_url as string | null) ?? null
+
+      const palette = PALETTES[i] ?? PALETTES[PALETTES.length - 1]
+      const trend   = `+${Math.max(1, ovr - 75)}`
+
+      return {
+        id,
+        athleteId: (profile?.athlete_id as string | null) ?? null,
+        nome,
+        posicao,
+        pos:       posAbrev(posicao),
+        cidade,
+        idade:     calcIdade(dataNasc),
+        ovr,
+        initials:  getInitials(nome),
+        foto,
+        highlight: getHighlight(ovr, i + 1, cidade),
+        stats:     getStats(posicao, av as Record<string, unknown>),
+        badge:     palette.badge,
+        badgeColor: palette.badgeColor,
+        trend,
+        topColor:  palette.topColor,
+        avatarGrad: palette.avatarGrad,
+        glow:      palette.glow,
+        glowHover: palette.glowHover,
+        accent:    palette.accent,
+      }
+    })
+  } catch {
+    return []
+  }
+}
+
+// ── Component ──────────────────────────────────────────────────────────────────
+
+export default async function ProspectsSection() {
+  const prospects = await fetchTopProspects()
+
+  if (prospects.length === 0) return null
+
   return (
     <section style={{
-      position:'relative',
-      padding:'88px 0 80px',
-      background:'#060d08',
-      overflow:'hidden',
+      position: 'relative',
+      padding: '88px 0 80px',
+      background: '#060d08',
+      overflow: 'hidden',
     }}>
       <style>{`
         /* ── Atmosphere ── */
@@ -153,7 +241,7 @@ export default function ProspectsSection() {
           background:#09150c;
           border:1px solid rgba(255,255,255,0.07);
           transition:transform 0.28s cubic-bezier(.22,1,.36,1), box-shadow 0.28s ease, border-color 0.28s ease;
-          cursor:default;
+          cursor:pointer;
           -webkit-tap-highlight-color:transparent;
         }
         .prospect-card:hover {
@@ -181,13 +269,6 @@ export default function ProspectsSection() {
           position:relative; padding:24px 20px 0;
           min-height:148px;
           display:flex; flex-direction:column; align-items:center;
-        }
-
-        /* ── Top decorative line ── */
-        .pros-card-top::before {
-          content:''; position:absolute;
-          top:0; left:20%; right:20%; height:1.5px;
-          border-radius:0 0 4px 4px;
         }
 
         /* ── Badge ── */
@@ -227,7 +308,6 @@ export default function ProspectsSection() {
           border:3px solid #09150c;
           position:relative; overflow:hidden;
         }
-        /* Inner highlight */
         .pros-avatar::after {
           content:''; pointer-events:none;
           position:absolute; top:-30%; left:-25%;
@@ -246,6 +326,8 @@ export default function ProspectsSection() {
         .pros-name {
           font-size:15px; font-weight:800; color:white;
           letter-spacing:0.01em; margin:0; line-height:1.2;
+          overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+          max-width:140px;
         }
         .pros-trend {
           display:flex; align-items:center; gap:3px; flex-shrink:0;
@@ -327,43 +409,47 @@ export default function ProspectsSection() {
       </div>
 
       {/* ── Cards ── */}
-      <div className="prospects-grid">
+      <div
+        className="prospects-grid"
+        style={{ gridTemplateColumns: `repeat(${Math.min(prospects.length, 4)}, 1fr)` }}
+      >
         {prospects.map((p) => (
           <div
-            key={p.name}
+            key={p.id}
             className="prospect-card"
             style={{
-              boxShadow:`0 0 40px ${p.glow}, 0 20px 48px rgba(0,0,0,0.55)`,
+              boxShadow: `0 0 40px ${p.glow}, 0 20px 48px rgba(0,0,0,0.55)`,
               ['--hover-glow' as string]: p.glowHover,
             }}
           >
+            {/* Link invisível sobre o card → perfil do atleta */}
+            <Link
+              href={`/jogador/${p.id}`}
+              style={{ position: 'absolute', inset: 0, zIndex: 10 }}
+              aria-label={`Ver perfil de ${p.nome}`}
+            />
+
             {/* TOP area */}
-            <div
-              className="pros-card-top"
-              style={{ background: p.topColor }}
-            >
+            <div className="pros-card-top" style={{ background: p.topColor }}>
               {/* Accent line */}
               <div style={{
-                position:'absolute', top:0, left:'18%', right:'18%',
-                height:'1.5px', borderRadius:'0 0 4px 4px',
-                background:`linear-gradient(90deg, transparent, ${p.accent}88, transparent)`,
+                position: 'absolute', top: 0, left: '18%', right: '18%',
+                height: '1.5px', borderRadius: '0 0 4px 4px',
+                background: `linear-gradient(90deg, transparent, ${p.accent}88, transparent)`,
               }} aria-hidden />
 
               {/* Badge */}
               <div
                 className="pros-badge"
-                style={{
-                  color: p.badgeColor,
-                  border:`1px solid ${p.badgeColor}40`,
-                }}
+                style={{ color: p.badgeColor, border: `1px solid ${p.badgeColor}40` }}
               >
                 {p.badge}
               </div>
 
               {/* Score + Position */}
               <div className="pros-score-wrap">
-                <span className="pros-score">{p.score}</span>
-                <span className="pros-pos">{p.position}</span>
+                <span className="pros-score">{p.ovr}</span>
+                <span className="pros-pos">{p.pos}</span>
               </div>
             </div>
 
@@ -372,11 +458,21 @@ export default function ProspectsSection() {
               <div
                 className="pros-avatar"
                 style={{
-                  background: p.avatarGrad,
-                  boxShadow:`0 8px 28px ${p.glow}, 0 0 0 3px #09150c`,
+                  background: p.foto ? '#09150c' : p.avatarGrad,
+                  boxShadow: `0 8px 28px ${p.glow}, 0 0 0 3px #09150c`,
                 }}
               >
-                {p.initials}
+                {p.foto ? (
+                  <img
+                    src={p.foto}
+                    alt={p.nome}
+                    style={{
+                      position: 'absolute', inset: 0,
+                      width: '100%', height: '100%',
+                      objectFit: 'cover', objectPosition: 'center top',
+                    }}
+                  />
+                ) : p.initials}
               </div>
             </div>
 
@@ -384,7 +480,7 @@ export default function ProspectsSection() {
             <div className="pros-card-body">
               {/* Name + Trend */}
               <div className="pros-name-row">
-                <p className="pros-name">{p.name}</p>
+                <p className="pros-name">{p.nome}</p>
                 <div className="pros-trend">
                   <span className="pros-trend-arrow">↑</span>
                   <span className="pros-trend-val">{p.trend}</span>
@@ -393,17 +489,25 @@ export default function ProspectsSection() {
 
               {/* Meta */}
               <p className="pros-meta">
-                {p.positionFull}
-                <span style={{ color:'rgba(255,255,255,0.15)', margin:'0 6px' }}>·</span>
-                {p.city}, {p.state}
-                <span style={{ color:'rgba(255,255,255,0.15)', margin:'0 6px' }}>·</span>
-                {p.age} anos
+                {p.posicao}
+                {p.cidade && (
+                  <>
+                    <span style={{ color: 'rgba(255,255,255,0.15)', margin: '0 6px' }}>·</span>
+                    {p.cidade.split(',')[0]}
+                  </>
+                )}
+                {p.idade && (
+                  <>
+                    <span style={{ color: 'rgba(255,255,255,0.15)', margin: '0 6px' }}>·</span>
+                    {p.idade} anos
+                  </>
+                )}
               </p>
 
               {/* Highlight */}
               <div
                 className="pros-highlight"
-                style={{ borderLeft:`2px solid ${p.badgeColor}60` }}
+                style={{ borderLeft: `2px solid ${p.badgeColor}60` }}
               >
                 <p>{p.highlight}</p>
               </div>
@@ -416,13 +520,27 @@ export default function ProspectsSection() {
                     <div className="pros-stat-bar">
                       <div
                         className="pros-stat-fill"
-                        style={{ width:`${s.val}%`, background: p.avatarGrad }}
+                        style={{ width: `${s.val}%`, background: p.avatarGrad }}
                       />
                     </div>
                     <span className="pros-stat-val">{s.val}</span>
                   </div>
                 ))}
               </div>
+
+              {/* ID do atleta */}
+              {p.athleteId && (
+                <div style={{
+                  marginTop: '12px', textAlign: 'center',
+                  padding: '5px 10px', borderRadius: '8px',
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  fontSize: '10px', fontWeight: 800,
+                  color: 'rgba(255,255,255,0.28)', letterSpacing: '0.12em',
+                }}>
+                  ID: {p.athleteId.replace('MC-', '')}
+                </div>
+              )}
             </div>
           </div>
         ))}

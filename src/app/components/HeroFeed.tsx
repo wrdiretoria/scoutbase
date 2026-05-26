@@ -1,17 +1,19 @@
 'use client'
 
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 type HeroAtleta = {
-  id:      string
-  nome:    string
-  posicao: string
-  cidade:  string
-  ovr:     number | null
-  tipo:    'avaliado' | 'novo'
-  ts:      string
+  id:         string
+  nome:       string
+  posicao:    string
+  cidade:     string
+  ovr:        number | null
+  tipo:       'avaliado' | 'novo'
+  ts:         string
+  athleteId?: string | null
 }
 
 // ── Static fallback ───────────────────────────────────────────────────────────
@@ -75,8 +77,11 @@ function AtletaCard({ atleta }: { atleta: HeroAtleta }) {
     ? atleta.ovr >= 80 ? '0,255,136' : atleta.ovr >= 65 ? '251,191,36' : '249,115,22'
     : '255,255,255'
 
+  const isReal = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(atleta.id)
+
   return (
     <div style={{
+      position:'relative',
       display:'flex', alignItems:'center', gap:'12px',
       padding:'12px 16px', marginBottom:'8px', flexShrink:0,
       background:'rgba(255,255,255,0.025)',
@@ -84,7 +89,15 @@ function AtletaCard({ atleta }: { atleta: HeroAtleta }) {
       borderRadius:'12px',
       backdropFilter:'blur(6px)',
       transition:'border-color .2s',
+      cursor: isReal ? 'pointer' : 'default',
     }}>
+      {isReal && (
+        <Link
+          href={`/jogador/${atleta.id}`}
+          style={{ position:'absolute', inset:0, zIndex:5, borderRadius:'12px' }}
+          aria-label={`Ver perfil de ${atleta.nome}`}
+        />
+      )}
       {/* Avatar */}
       <div style={{
         width:'40px', height:'40px', borderRadius:'50%', flexShrink:0,
@@ -126,6 +139,11 @@ function AtletaCard({ atleta }: { atleta: HeroAtleta }) {
             · {atleta.tipo === 'avaliado' ? 'avaliado' : 'entrou'} {timeAgo(atleta.ts)}
           </span>
         </div>
+        {atleta.athleteId && (
+          <div style={{ fontSize:'9px', fontWeight:700, color:'rgba(255,255,255,0.20)', letterSpacing:'0.08em', marginTop:'2px' }}>
+            ID: {atleta.athleteId.replace('MC-', '')}
+          </div>
+        )}
       </div>
 
       {/* OVR */}

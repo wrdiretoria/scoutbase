@@ -12,6 +12,7 @@ export type TacticalPlayer = {
   ovr:     number
   fotos:   string[]
   cidade:  string
+  mcId:    string | null
 }
 
 export type TacticalCoach = {
@@ -81,16 +82,17 @@ export async function GET() {
 
     // ── 2. Profiles (nome, fotos) + auth users (posicao, cidade) em paralelo ──
     const [profilesRes, authRes] = await Promise.all([
-      admin.from('profiles').select('id, nome, fotos').in('id', atletaIds),
+      admin.from('profiles').select('id, nome, fotos, athlete_id').in('id', atletaIds),
       admin.auth.admin.listUsers({ perPage: 1000 }),
     ])
 
-    const profileMap = new Map<string, { nome: string; fotos: string[] }>()
+    const profileMap = new Map<string, { nome: string; fotos: string[]; mcId: string | null }>()
     for (const p of profilesRes.data ?? []) {
       const raw = (p.fotos as (string | null)[] | null) ?? []
       profileMap.set(p.id as string, {
         nome:  (p.nome as string) ?? '',
         fotos: raw.filter((f): f is string => !!f),
+        mcId:  (p.athlete_id as string | null) ?? null,
       })
     }
 
@@ -125,6 +127,7 @@ export async function GET() {
           ovr,
           fotos:   p?.fotos ?? [],
           cidade:  m?.cidade ?? '',
+          mcId:    p?.mcId ?? null,
         }
       })
       .filter((p): p is TacticalPlayer => p !== null)

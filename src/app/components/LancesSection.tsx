@@ -330,7 +330,7 @@ function ReelCard({ atleta, index }: { atleta: ReelAtleta; index: number }) {
             fontSize: '10px', fontWeight: 800,
             color: 'rgba(255,255,255,0.25)', letterSpacing: '0.10em',
           }}>
-            ID {atleta.athleteId.replace('MC-', '')}
+            ID: {atleta.athleteId.replace('MC-', '')}
           </div>
         )}
 

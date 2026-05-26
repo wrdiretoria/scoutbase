@@ -47,6 +47,7 @@ export default async function RankingSection() {
     id: string; nome: string; posicao: string; cidade: string
     dataNasc: string | null; ovr: number; initials: string
     avatarUrl: string | null; fotos: string[]; pos: string
+    athleteId: string | null
   }
 
   let top: RankItem[] = []
@@ -62,7 +63,7 @@ export default async function RankingSection() {
       fetchOvrMap(admin),
     ])
 
-    const profileMap = new Map((profilesRes.data ?? []).map((p: { id: string; athlete_id: string | null; data_nascimento: string | null; avatar_url: string | null }) => [p.id, p]))
+    const profileMap = new Map((profilesRes.data ?? []).map((p: { id: string; athlete_id: string | null; data_nascimento: string | null; avatar_url: string | null; fotos: (string | null)[] | null }) => [p.id, p]))
 
     top = atletaUsers
       .map(u => {
@@ -84,6 +85,7 @@ export default async function RankingSection() {
           avatarUrl: (profile?.avatar_url as string | null) ?? null,
           fotos:     fotosArr.filter((f): f is string => !!f),
           pos:       posAbrev(meta.posicao ?? ''),
+          athleteId: athleteId ?? null,
         }
       })
       .filter((a): a is RankItem => a !== null)
@@ -248,6 +250,20 @@ export default async function RankingSection() {
                   fontSize: '10px', color: 'rgba(255,255,255,0.2)',
                 }}>
                   {idade} anos
+                </div>
+              )}
+
+              {/* ID do atleta */}
+              {a.athleteId && (
+                <div style={{
+                  marginTop: '10px', textAlign: 'center',
+                  padding: '4px 8px', borderRadius: '6px',
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  fontSize: '10px', fontWeight: 800, color: 'rgba(255,255,255,0.3)',
+                  letterSpacing: '0.1em',
+                }}>
+                  ID: {a.athleteId.replace('MC-', '')}
                 </div>
               )}
             </Link>
