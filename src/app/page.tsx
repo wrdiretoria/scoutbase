@@ -8,7 +8,6 @@ import CardCraqueSection from './components/CardCraqueSection'
 import StatsBar from './components/StatsBar'
 import PhotoBillboard from './components/PhotoBillboard'
 import HeroFeed from './components/HeroFeed'
-import LancesSection from './components/LancesSection'
 import LiveFeed from './components/LiveFeed'
 import SpinningGlobe from './components/SpinningGlobe'
 import TacticalBoard from './components/TacticalBoard'
@@ -402,7 +401,6 @@ export default function LandingPage() {
           .dep-grid     { grid-template-columns:1fr !important; }
         }
 
-        /* Lances / Reels → LancesSection.tsx (client component) */
       `}</style>
 
       <NavBar />
@@ -640,8 +638,7 @@ export default function LandingPage() {
       {/* ══════════════════════════════════════ CAMPO TÁTICO ══ */}
       <TacticalBoard />
 
-      {/* ══════════════════════════════════════ LANCES / REELS ══ */}
-      <LancesSection />
+      {/* ══════════════════════════════════════ LIVE FEED ══ */}
       <LiveFeed />
       {/* ══════════════════════════════════════ RANKING | VÍDEOS | MAPA ══ */}
       <section style={{ background:'#050906', padding:'56px 24px 40px' }}>

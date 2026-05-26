@@ -7,6 +7,29 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+/**
+ * Rotas explicitamente públicas — nunca redirecionam para /login.
+ * Lista aqui garante que qualquer mudança futura em PRIVATE_PREFIXES
+ * não bloqueie acidentalmente páginas que devem ser abertas sem login.
+ */
+const ALWAYS_PUBLIC = [
+  '/ranking',
+  '/jogador',
+  '/scout/busca',
+  '/scout/cadastro',
+  '/scout/entrar',
+  '/atleta/cadastro',
+  '/atleta/recuperar-id',
+  '/atleta/recuperar-senha',
+  '/treinador/cadastro',
+  '/treinador/recuperar-id',
+  '/treinador/recuperar-senha',
+  '/cadastro',
+  '/planos',
+  '/termos',
+  '/p',
+]
+
 /** Prefixos de rotas que exigem sessão ativa */
 const PRIVATE_PREFIXES = [
   '/atleta/perfil',
@@ -30,13 +53,16 @@ const PRIVATE_PREFIXES = [
   '/configuracoes',
   '/financeiro',
   '/presencas',
-  '/ranking',
   '/relatorios',
   '/turmas',
 ]
 
 /** Rotas de entrada que usuários autenticados devem ser redirecionados para fora */
 const AUTH_ROUTES = ['/login']
+
+function isAlwaysPublic(pathname: string) {
+  return ALWAYS_PUBLIC.some(p => pathname === p || pathname.startsWith(p + '/'))
+}
 
 function isPrivate(pathname: string) {
   return PRIVATE_PREFIXES.some(p => pathname === p || pathname.startsWith(p + '/'))
@@ -73,6 +99,9 @@ export async function proxy(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   const { pathname } = request.nextUrl
+
+  // Rota sempre pública → nunca redireciona para /login
+  if (isAlwaysPublic(pathname)) return supabaseResponse
 
   // Rota privada sem sessão → /login
   if (isPrivate(pathname) && !user) {
