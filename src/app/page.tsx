@@ -640,9 +640,9 @@ export default function LandingPage() {
 
       {/* ══════════════════════════════════════ LIVE FEED ══ */}
       <LiveFeed />
-      {/* ══════════════════════════════════════ RANKING | VÍDEOS | MAPA ══ */}
+      {/* ══════════════════════════════════════ RANKING | MAPA ══ */}
       <section style={{ background:'#050906', padding:'56px 24px 40px' }}>
-        <div className="three-cols" style={{ maxWidth:'1200px', margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 1.5fr 1fr', gap:'32px' }}>
+        <div className="three-cols" style={{ maxWidth:'1200px', margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'32px' }}>
 
           {/* ── COL 1: Ranking ── */}
           <div>
@@ -674,38 +674,7 @@ export default function LandingPage() {
             ))}
           </div>
 
-          {/* ── COL 2: Vídeos ── */}
-          <div>
-            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'22px' }}>
-              <span style={{ fontSize:'9.5px', fontWeight:800, color:'rgba(255,255,255,0.38)', letterSpacing:'0.20em', textTransform:'uppercase' }}>Lances que estão rodando o Brasil</span>
-              <span style={{ fontSize:'11px', color:'#00FF88', fontWeight:600, letterSpacing:'0.04em', cursor:'pointer' }}>Ver todos →</span>
-            </div>
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:'10px' }}>
-              {[
-                { views:'23.4K', likes:'1.2K', bg:'linear-gradient(180deg,#0a1a0f 0%,#051008 100%)' },
-                { views:'18.7K', likes:'932',  bg:'linear-gradient(180deg,#0d1208 0%,#060c04 100%)' },
-                { views:'15.2K', likes:'723',  bg:'linear-gradient(180deg,#0a0f15 0%,#050810 100%)' },
-              ].map((v, i) => (
-                <div key={i} style={{ borderRadius:'10px', overflow:'hidden', background:v.bg, position:'relative', aspectRatio:'9/14', minHeight:'160px' }}>
-                  {/* Cinematic overlay */}
-                  <div style={{ position:'absolute', inset:0, background:'linear-gradient(180deg,rgba(0,0,0,0.10) 0%,rgba(0,0,0,0.65) 100%)' }} />
-                  {/* Noise texture overlay */}
-                  <div style={{ position:'absolute', inset:0, opacity:0.06, backgroundImage:'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")', backgroundSize:'cover' }} />
-                  {/* Play button */}
-                  <div style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%)', width:'40px', height:'40px', borderRadius:'50%', background:'rgba(255,255,255,0.12)', backdropFilter:'blur(10px)', WebkitBackdropFilter:'blur(10px)', border:'1px solid rgba(255,255,255,0.20)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                    <span style={{ fontSize:'14px', color:'white', marginLeft:'3px' }}>▶</span>
-                  </div>
-                  {/* Stats */}
-                  <div style={{ position:'absolute', bottom:'8px', left:'8px', right:'8px', display:'flex', gap:'10px' }}>
-                    <span style={{ fontSize:'9px', color:'rgba(255,255,255,0.60)', fontWeight:600 }}>▷ {v.views}</span>
-                    <span style={{ fontSize:'9px', color:'rgba(255,255,255,0.60)', fontWeight:600 }}>♡ {v.likes}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* ── COL 3: Mapa ── */}
+          {/* ── COL 2: Mapa ── */}
           <div>
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'22px' }}>
               <span style={{ fontSize:'9.5px', fontWeight:800, color:'rgba(255,255,255,0.38)', letterSpacing:'0.20em', textTransform:'uppercase' }}>O futebol acontece em todo lugar</span>
