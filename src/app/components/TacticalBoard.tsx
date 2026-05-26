@@ -200,8 +200,87 @@ export default function TacticalBoard() {
     return () => clearInterval(iv)
   }, [data])
 
-  // Enquanto carrega → não renderiza nada (evita bloco vazio enorme no mobile)
-  if (loading) return null
+  // ── Skeleton de carregamento ──────────────────────────────────────────────
+  if (loading) {
+    return (
+      <section className="tactical-section" style={{ background: '#060c09', padding: '64px 24px 56px' }}>
+        <style>{`
+          @media(max-width:768px){.tactical-section{padding-top:28px!important}}
+          @keyframes tacticalPulse {
+            0%,100% { opacity: 0.35 }
+            50%      { opacity: 0.70 }
+          }
+          .t-sk { animation: tacticalPulse 1.6s ease-in-out infinite; background: rgba(255,255,255,0.07); border-radius: 6px; }
+          .t-sk-circle { animation: tacticalPulse 1.6s ease-in-out infinite; background: rgba(255,255,255,0.06); border-radius: 50%; border: 2px solid rgba(255,255,255,0.08); }
+        `}</style>
+        <div style={{ maxWidth: '420px', margin: '0 auto' }}>
+
+          {/* Header skeleton */}
+          <div style={{ textAlign: 'center', marginBottom: '36px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+            <div className="t-sk" style={{ width: '110px', height: '10px', animationDelay: '0s' }} />
+            <div className="t-sk" style={{ width: '220px', height: '28px', animationDelay: '0.1s' }} />
+            <div className="t-sk" style={{ width: '160px', height: '12px', animationDelay: '0.2s' }} />
+          </div>
+
+          {/* Campo skeleton */}
+          <div style={{
+            borderRadius: '20px', overflow: 'hidden',
+            background: 'linear-gradient(180deg,#0c1f13 0%,#071309 55%,#0c1f13 100%)',
+            border: '1.5px solid rgba(255,255,255,0.06)',
+            padding: '22px 0',
+          }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px,2.5vw,18px)' }}>
+              {/* Ataque — 3 */}
+              {[3, 3, 4, 1].map((count, row) => (
+                <div key={row} style={{ display: 'flex', justifyContent: 'space-evenly', padding: '0 8px' }}>
+                  {Array.from({ length: count }).map((_, i) => (
+                    <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+                      <div className="t-sk-circle" style={{ width: row === 0 ? 52 : row === 1 ? 48 : 44, height: row === 0 ? 52 : row === 1 ? 48 : 44, animationDelay: `${(row * 4 + i) * 0.07}s` }} />
+                      <div className="t-sk" style={{ width: 34, height: 7, animationDelay: `${(row * 4 + i) * 0.07 + 0.05}s` }} />
+                      <div className="t-sk" style={{ width: 44, height: 8, animationDelay: `${(row * 4 + i) * 0.07 + 0.1}s` }} />
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+
+            {/* Legenda skeleton */}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginTop: '20px', padding: '0 12px' }}>
+              {[0, 1, 2, 3].map(i => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <div className="t-sk-circle" style={{ width: 7, height: 7, animationDelay: `${i * 0.1}s` }} />
+                  <div className="t-sk" style={{ width: 30, height: 8, animationDelay: `${i * 0.1 + 0.05}s` }} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Card treinador skeleton */}
+          <div style={{
+            marginTop: '14px',
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid rgba(255,255,255,0.06)',
+            borderRadius: '16px', padding: '16px',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+              <div className="t-sk-circle" style={{ width: 44, height: 44, flexShrink: 0 }} />
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div className="t-sk" style={{ width: '65%', height: '13px' }} />
+                <div className="t-sk" style={{ width: '45%', height: '10px', animationDelay: '0.1s' }} />
+              </div>
+              <div className="t-sk" style={{ width: 36, height: 36, borderRadius: '8px', animationDelay: '0.15s' }} />
+            </div>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+              <div className="t-sk" style={{ flex: 1, height: '52px', borderRadius: '10px', animationDelay: '0.2s' }} />
+              <div className="t-sk" style={{ flex: 1, height: '52px', borderRadius: '10px', animationDelay: '0.27s' }} />
+            </div>
+            <div className="t-sk" style={{ width: '100%', height: '52px', borderRadius: '10px', animationDelay: '0.34s' }} />
+          </div>
+
+        </div>
+      </section>
+    )
+  }
 
   // Se a API falhou (data null) ou não há atletas → oculta a seção
   if (!data) return null

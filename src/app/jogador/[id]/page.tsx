@@ -15,6 +15,9 @@ import {
 import VisitTracker from './VisitTracker'
 import CopiarLink from './CopiarLink'
 import FavoritoButton from './FavoritoButton'
+import FotoSlideshow from './FotoSlideshow'
+import CardShare from './CardShare'
+import { SERVER_BASE_URL } from '@/lib/base-url'
 
 function isUuid(s: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s)
@@ -46,7 +49,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title,
       description,
-      url: `https://meucraque.com.br/jogador/${id}`,
+      url: `${SERVER_BASE_URL}/jogador/${id}`,
       type: 'profile',
     },
     twitter: {
@@ -272,7 +275,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
 
   const { data: profile } = await admin
     .from('profiles')
-    .select('athlete_id, data_nascimento, bio, altura, peso, pe_dominante, clube_atual, avatar_url')
+    .select('athlete_id, data_nascimento, bio, altura, peso, pe_dominante, clube_atual, avatar_url, fotos')
     .eq('id', id)
     .single()
 
@@ -284,6 +287,13 @@ export default async function JogadorPublicoPage({ params }: Props) {
   const peDominante = (profile?.pe_dominante as string | null) ?? null
   const clubeAtual  = (profile?.clube_atual  as string | null) ?? null
   const avatarUrl   = (profile?.avatar_url  as string | null) ?? null
+  const fotosArray: string[] = (() => {
+    const raw = profile?.fotos
+    if (!Array.isArray(raw)) return avatarUrl ? [avatarUrl] : []
+    const filtered = (raw as (string | null)[]).filter((f): f is string => !!f)
+    return filtered.length > 0 ? filtered : (avatarUrl ? [avatarUrl] : [])
+  })()
+  const hasPhoto = fotosArray.length > 0
   // +1 porque esta visita ainda não foi contabilizada (acontece client-side após render)
   const visitCount     = (meta.visit_count     ?? 0) + 1
   const favoritoCount  = meta.favorito_count   ?? 0
@@ -366,6 +376,10 @@ export default async function JogadorPublicoPage({ params }: Props) {
         @keyframes ctaShimmer {
           0%   { left:-70% }
           100% { left:140% }
+        }
+        @keyframes photoFadeIn {
+          from { opacity:0 }
+          to   { opacity:1 }
         }
         .pub-card { animation: cardIn .5s cubic-bezier(.22,.68,0,1.2) forwards; }
         .pub-ovr  { animation: ovrIn .5s cubic-bezier(.22,.68,0,1.2) forwards .3s, glowPulse 3s ease-in-out infinite 1s; opacity:0; }
@@ -460,27 +474,17 @@ export default async function JogadorPublicoPage({ params }: Props) {
           {/* ── Topo: foto full-cover OU gradiente ── */}
           <div style={{
             position: 'relative',
-            height: avatarUrl ? '240px' : '148px',
+            height: hasPhoto ? '240px' : '148px',
             overflow: 'hidden',
-            background: avatarUrl
+            background: hasPhoto
               ? '#0a120e'
               : 'linear-gradient(160deg,#166534 0%,#052e16 100%)',
           }}>
-            {/* Foto full-cover quando disponível */}
-            {avatarUrl && (
-              <img
-                src={avatarUrl}
-                alt={nome}
-                style={{
-                  position: 'absolute', inset: 0,
-                  width: '100%', height: '100%',
-                  objectFit: 'cover', objectPosition: 'center top',
-                }}
-              />
-            )}
+            {/* Slideshow de fotos ciclando de 2 em 2 segundos */}
+            {hasPhoto && <FotoSlideshow fotos={fotosArray} nome={nome} />}
 
             {/* Grid sutil — só sem foto */}
-            {!avatarUrl && (
+            {!hasPhoto && (
               <div style={{
                 position: 'absolute', inset: 0, opacity: 1,
                 backgroundImage: 'repeating-linear-gradient(0deg,rgba(255,255,255,0.025) 0px,rgba(255,255,255,0.025) 1px,transparent 1px,transparent 28px),repeating-linear-gradient(90deg,rgba(255,255,255,0.025) 0px,rgba(255,255,255,0.025) 1px,transparent 1px,transparent 28px)',
@@ -488,7 +492,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
             )}
 
             {/* Gradiente de leitura sobre foto */}
-            {avatarUrl && (
+            {hasPhoto && (
               <div style={{
                 position: 'absolute', inset: 0,
                 background: 'linear-gradient(to bottom, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.08) 40%, rgba(0,0,0,0.60) 75%, rgba(0,0,0,0.85) 100%)',
@@ -523,7 +527,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
             </div>
 
             {/* Nome + posição sobre foto (rodapé do painel) */}
-            {avatarUrl && (
+            {hasPhoto && (
               <div style={{
                 position: 'absolute', bottom: 0, left: 0, right: 0,
                 padding: '0 16px 14px', zIndex: 4,
@@ -539,7 +543,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
           </div>
 
           {/* Avatar circular — só sem foto */}
-          {!avatarUrl && (
+          {!hasPhoto && (
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '-34px', position: 'relative', zIndex: 2 }}>
               <div style={{
                 width: '68px', height: '68px', borderRadius: '50%',
@@ -555,9 +559,9 @@ export default async function JogadorPublicoPage({ params }: Props) {
           )}
 
           {/* Dados */}
-          <div style={{ padding: avatarUrl ? '14px 20px 22px' : '12px 20px 22px', textAlign: 'center' }}>
+          <div style={{ padding: hasPhoto ? '14px 20px 22px' : '12px 20px 22px', textAlign: 'center' }}>
             {/* Nome + posição — só sem foto (com foto ficam sobre a imagem) */}
-            {!avatarUrl && (
+            {!hasPhoto && (
               <>
                 <h1 style={{ margin: '0 0 4px', fontSize: '20px', fontWeight: 800, color: 'white' }}>{nome}</h1>
                 <p style={{ margin: '0 0 4px', fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>
@@ -570,7 +574,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
                 ⚽ {clubeAtual}
               </p>
             )}
-            {!clubeAtual && <div style={{ marginBottom: avatarUrl ? '6px' : '14px' }} />}
+            {!clubeAtual && <div style={{ marginBottom: hasPhoto ? '6px' : '14px' }} />}
 
             {/* Dados físicos inline */}
             {temFisico && (
@@ -872,10 +876,23 @@ export default async function JogadorPublicoPage({ params }: Props) {
           </div>
         )}
 
+        {/* ── Card compartilhável ── */}
+        <div style={{ marginTop: '20px' }}>
+          <CardShare
+            nome={nome}
+            pos={pos}
+            ovr={ovr}
+            categoria={categoria}
+            fotoUrl={fotosArray[0] ?? null}
+            initials={initials}
+            athleteId={athleteId}
+          />
+        </div>
+
         {/* ── Compartilhar ── */}
-        <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+        <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
           <a
-            href={`https://wa.me/?text=${encodeURIComponent(`⚽ ${nome} – OVR ${ovr ?? '?'} no Meu Craque!\nConfira o perfil completo:\nhttps://meucraque.com.br/jogador/${id}`)}`}
+            href={`https://wa.me/?text=${encodeURIComponent(`⚽ ${nome} – OVR ${ovr ?? '?'} no Meu Craque!\nConfira o perfil completo:\n${SERVER_BASE_URL}/jogador/${id}`)}`}
             target="_blank"
             rel="noopener noreferrer"
             style={{
@@ -890,7 +907,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
             </svg>
             WhatsApp
           </a>
-          <CopiarLink url={`https://meucraque.com.br/jogador/${id}`} />
+          <CopiarLink url={`${SERVER_BASE_URL}/jogador/${id}`} />
         </div>
 
         {/* ── CTA Scout ── */}
