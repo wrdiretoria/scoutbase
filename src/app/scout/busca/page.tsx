@@ -4,7 +4,7 @@
  */
 
 import Link from 'next/link'
-import { createAdminClient } from '@/lib/supabase'
+import { createAdminClient, createServerClient } from '@/lib/supabase'
 import { fetchOvrMap } from '@/lib/ovr'
 import ScoutFiltros from './ScoutFiltros'
 
@@ -52,6 +52,11 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
   const { posicao: posicaoFiltro, categoria: categoriaFiltro, cidade: cidadeFiltro } = await searchParams
 
   const admin = createAdminClient()
+
+  // Verifica se o visitante é um scout logado (para nav condicional)
+  const supabase = await createServerClient()
+  const { data: { user: visitor } } = await supabase.auth.getUser()
+  const isScoutLogado = visitor?.user_metadata?.tipo === 'scout'
 
   const { data: { users } } = await admin.auth.admin.listUsers({ perPage: 1000 })
   const agora = new Date()
@@ -133,26 +138,33 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
           ⚽ MEU <span style={{ color: '#22c55e' }}>CRAQUE</span>
         </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Link href="/scout/favoritos" style={{
-            padding: '7px 14px', borderRadius: '8px',
-            background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)',
-            color: '#fbbf24', fontWeight: 700, fontSize: '12px', textDecoration: 'none',
-          }}>
-            ⭐ Favoritos
-          </Link>
-          <Link href="/scout/dashboard" style={{
-            padding: '7px 14px', borderRadius: '8px',
-            background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
-            color: 'rgba(255,255,255,0.7)', fontWeight: 700, fontSize: '12px', textDecoration: 'none',
-          }}>
-            Meu painel
-          </Link>
-          <Link href="/scout/entrar" style={{
-            padding: '7px 14px', borderRadius: '8px', background: '#22c55e',
-            color: 'black', fontWeight: 800, fontSize: '12px', textDecoration: 'none',
-          }}>
-            Entrar
-          </Link>
+          {isScoutLogado ? (
+            // Scout logado: mostra favoritos + painel
+            <>
+              <Link href="/scout/favoritos" style={{
+                padding: '7px 14px', borderRadius: '8px',
+                background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)',
+                color: '#fbbf24', fontWeight: 700, fontSize: '12px', textDecoration: 'none',
+              }}>
+                ⭐ Favoritos
+              </Link>
+              <Link href="/scout/dashboard" style={{
+                padding: '7px 14px', borderRadius: '8px',
+                background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
+                color: 'rgba(255,255,255,0.7)', fontWeight: 700, fontSize: '12px', textDecoration: 'none',
+              }}>
+                Meu painel
+              </Link>
+            </>
+          ) : (
+            // Anônimo ou não-scout: só mostra Entrar (sem botão que pede login)
+            <Link href="/scout/entrar" style={{
+              padding: '7px 14px', borderRadius: '8px', background: '#22c55e',
+              color: 'black', fontWeight: 800, fontSize: '12px', textDecoration: 'none',
+            }}>
+              Entrar como scout
+            </Link>
+          )}
         </div>
       </nav>
 

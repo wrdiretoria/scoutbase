@@ -417,7 +417,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
         {/* Nav */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
           <Link
-            href="/scout/busca"
+            href="/ranking"
             style={{
               display: 'inline-flex', alignItems: 'center', gap: '6px',
               fontSize: '13px', fontWeight: 600, color: 'rgba(255,255,255,0.45)',
@@ -427,7 +427,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
               transition: 'color .15s',
             }}
           >
-            ← Busca
+            ← Ranking
           </Link>
           <Link href="/" style={{ fontSize: '16px', fontWeight: 800, color: 'white', textDecoration: 'none', letterSpacing: '0.04em' }}>
             ⚽ MEU <span style={{ color: '#22c55e' }}>CRAQUE</span>
