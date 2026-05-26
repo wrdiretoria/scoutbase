@@ -63,7 +63,7 @@ function PlayerDot({
   const label = posLabel(p.posicao)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+    <Link href={`/jogador/${p.id}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', textDecoration: 'none' }}>
       {/* Círculo principal */}
       <div style={{
         width:          size,
@@ -129,7 +129,7 @@ function PlayerDot({
           {p.nome.split(' ')[0]}
         </span>
       </div>
-    </div>
+    </Link>
   )
 }
 
