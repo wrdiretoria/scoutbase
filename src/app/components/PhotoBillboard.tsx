@@ -1,34 +1,37 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import Link from 'next/link'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 type FotoItem = {
-  userId:  string
-  nome:    string
-  posicao: string
-  cidade:  string
-  ovr:     number | null
-  fotos:   string[]
+  userId:    string
+  nome:      string
+  posicao:   string
+  cidade:    string
+  ovr:       number | null
+  fotos:     string[]
+  athleteId: string | null
 }
 
 type Slide = {
-  userId:  string
-  nome:    string
-  posicao: string
-  cidade:  string
-  ovr:     number | null
-  url:     string
+  userId:    string
+  nome:      string
+  posicao:   string
+  cidade:    string
+  ovr:       number | null
+  url:       string
+  athleteId: string | null
 }
 
 // ── Static fallback (exibido enquanto sem dados reais) ────────────────────────
 // Usa gradientes estilo LED para parecer um painel de anúncios mesmo sem fotos reais
 
 const PLACEHOLDER_SLIDES: Slide[] = [
-  { userId:'1', nome:'Seu perfil aqui',    posicao:'Atacante',     cidade:'São Paulo, SP',   ovr:null, url:'' },
-  { userId:'2', nome:'João Silva',         posicao:'Meia',         cidade:'Rio de Janeiro',  ovr:82,   url:'' },
-  { userId:'3', nome:'Pedro Lima',         posicao:'Goleiro',      cidade:'Belo Horizonte',  ovr:74,   url:'' },
+  { userId:'1', nome:'Seu perfil aqui',    posicao:'Atacante',     cidade:'São Paulo, SP',   ovr:null, url:'', athleteId:null },
+  { userId:'2', nome:'João Silva',         posicao:'Meia',         cidade:'Rio de Janeiro',  ovr:82,   url:'', athleteId:null },
+  { userId:'3', nome:'Pedro Lima',         posicao:'Goleiro',      cidade:'Belo Horizonte',  ovr:74,   url:'', athleteId:null },
 ]
 
 function ovrColor(ovr: number) {
@@ -83,7 +86,7 @@ export default function PhotoBillboard() {
     const out: Slide[] = []
     for (const item of items) {
       for (const url of item.fotos) {
-        out.push({ userId: item.userId, nome: item.nome, posicao: item.posicao, cidade: item.cidade, ovr: item.ovr, url })
+        out.push({ userId: item.userId, nome: item.nome, posicao: item.posicao, cidade: item.cidade, ovr: item.ovr, url, athleteId: item.athleteId })
       }
     }
     return out
@@ -123,6 +126,7 @@ export default function PhotoBillboard() {
   const slide   = list[current % list.length]
   const hasReal = !!slide.url
   const total   = list.length
+  const isRealUser = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slide.userId)
 
   return (
     <div
@@ -179,8 +183,9 @@ export default function PhotoBillboard() {
         }} />
 
         {/* ── Content overlay ── */}
-        <div style={{
-          position:'absolute', inset:0, zIndex:6,
+        <Link
+          href={isRealUser ? `/jogador/${slide.userId}` : '/ranking'}
+          style={{ position:'absolute', inset:0, zIndex:6, textDecoration:'none', cursor: isRealUser ? 'pointer' : 'default',
           background:'linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.40) 40%, rgba(0,0,0,0.10) 70%, transparent 100%)',
           display:'flex', flexDirection:'column', justifyContent:'flex-end',
           padding:'clamp(20px,4vw,48px)',
@@ -233,8 +238,13 @@ export default function PhotoBillboard() {
                 <span style={{ fontSize:'15px', fontWeight:900, color:ovrColor(slide.ovr) }}>{slide.ovr}</span>
               </div>
             )}
+            {slide.athleteId && (
+              <span style={{ fontSize:'11px', fontWeight:700, color:'rgba(255,255,255,0.30)', letterSpacing:'0.10em' }}>
+                ID {slide.athleteId.replace('MC-', '')}
+              </span>
+            )}
           </div>
-        </div>
+        </Link>
 
         {/* ── Dot indicators ── */}
         {total > 1 && (
