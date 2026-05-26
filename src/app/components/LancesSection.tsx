@@ -6,14 +6,15 @@ import { useEffect, useState } from 'react'
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 type ReelAtleta = {
-  id:      string
-  nome:    string
-  posicao: string
-  cidade:  string
-  ovr:     number | null
-  tipo:    'avaliado' | 'novo' | 'patrocinado'
-  ts:      string
-  fotos:   string[]
+  id:         string
+  nome:       string
+  posicao:    string
+  cidade:     string
+  ovr:        number | null
+  tipo:       'avaliado' | 'novo' | 'patrocinado'
+  ts:         string
+  fotos:      string[]
+  athleteId?: string | null
 }
 
 // ── Fallback ───────────────────────────────────────────────────────────────────
@@ -322,6 +323,17 @@ function ReelCard({ atleta, index }: { atleta: ReelAtleta; index: number }) {
           {pos}&nbsp;·&nbsp;{city}
         </div>
 
+        {/* ID do atleta */}
+        {atleta.athleteId && (
+          <div style={{
+            marginTop: '8px',
+            fontSize: '10px', fontWeight: 800,
+            color: 'rgba(255,255,255,0.25)', letterSpacing: '0.10em',
+          }}>
+            ID {atleta.athleteId.replace('MC-', '')}
+          </div>
+        )}
+
       </div>
     </div>
   )
@@ -359,9 +371,7 @@ export default function LancesSection() {
     ? atletas.slice(0, 4)
     : [...atletas, ...FALLBACK].slice(0, 4)
 
-  const liveLabel = liveCount > 0
-    ? `${liveCount} atletas · ao vivo`
-    : 'Plataforma viva · ao vivo'
+  const liveLabel = 'confira'
 
   return (
     <section style={{
@@ -413,7 +423,7 @@ export default function LancesSection() {
               color:'rgba(0,255,136,0.52)',
               letterSpacing:'0.24em', textTransform:'uppercase',
             }}>
-              {mounted ? liveLabel : 'Plataforma viva · ao vivo'}
+              confira
             </span>
           </div>
 
