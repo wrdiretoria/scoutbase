@@ -696,6 +696,25 @@ export default function TreinadorCurriculoPage() {
               Perfil atualizado ✓
             </p>
           )}
+
+          {/* Ver perfil público */}
+          {userId && (
+            <a
+              href={`/treinador/${userId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                marginTop: '12px', padding: '14px', borderRadius: '14px',
+                border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)',
+                color: 'rgba(255,255,255,0.5)', fontSize: '14px', fontWeight: 700,
+                textDecoration: 'none', fontFamily: 'system-ui, sans-serif',
+                transition: 'border-color .2s, color .2s',
+              }}
+            >
+              👁 Ver meu currículo público
+            </a>
+          )}
         </div>
 
       </div>
