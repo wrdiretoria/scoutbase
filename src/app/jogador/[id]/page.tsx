@@ -881,11 +881,21 @@ export default async function JogadorPublicoPage({ params }: Props) {
           <CardShare
             nome={nome}
             pos={pos}
+            posicao={posicao}
             ovr={ovr}
             categoria={categoria}
             fotoUrl={fotosArray[0] ?? null}
             initials={initials}
             athleteId={athleteId}
+            cidade={cidade || null}
+            idade={dataNasc ? (() => {
+              const h = new Date(), n = new Date(dataNasc)
+              let a = h.getFullYear() - n.getFullYear()
+              const m = h.getMonth() - n.getMonth()
+              if (m < 0 || (m === 0 && h.getDate() < n.getDate())) a--
+              return a
+            })() : null}
+            profileUrl={`${SERVER_BASE_URL}/jogador/${id}`}
           />
         </div>
 
