@@ -301,7 +301,7 @@ function AtributoBar({ icon, label, value }: { icon: string; label: string; valu
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type AtletaMeta = { nome: string; posicao: string; cidade: string; tipo: string }
+type AtletaMeta = { nome: string; posicao: string; cidade: string; pais: string; tipo: string }
 
 type Curriculo = {
   bio: string; altura: string; peso: string; peDominante: string; clubeAtual: string
@@ -686,6 +686,7 @@ function AtletaPerfilContent() {
   const [editNome,     setEditNome]     = useState('')
   const [editPosicao,  setEditPosicao]  = useState('')
   const [editCidade,   setEditCidade]   = useState('')
+  const [editPais,     setEditPais]     = useState('')
   const [savingId,     setSavingId]     = useState(false)
   const [savedId,      setSavedId]      = useState(false)
 
@@ -713,6 +714,7 @@ function AtletaPerfilContent() {
         nome:    m.nome    ?? 'Atleta',
         posicao: m.posicao ?? '',
         cidade:  m.cidade  ?? '',
+        pais:    (m as Record<string, string>).pais ?? '',
         tipo:    'atleta',
       })
 
@@ -983,10 +985,11 @@ function AtletaPerfilContent() {
         nome:    editNome.trim(),
         posicao: editPosicao,
         cidade:  editCidade.trim(),
+        pais:    editPais.trim(),
       },
     })
     if (!error) {
-      setMeta(m => m ? { ...m, nome: editNome.trim(), posicao: editPosicao, cidade: editCidade.trim() } : m)
+      setMeta(m => m ? { ...m, nome: editNome.trim(), posicao: editPosicao, cidade: editCidade.trim(), pais: editPais.trim() } : m)
       setSavedId(true)
       setTimeout(() => { setSavedId(false); setEditingId(false) }, 1500)
     }
@@ -1298,6 +1301,15 @@ function AtletaPerfilContent() {
                     style={{ background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.15)', borderRadius:'10px', padding:'10px 14px', color:'white', fontSize:'14px', outline:'none' }}
                   />
                 </div>
+                {/* País */}
+                <div style={{ display:'flex', flexDirection:'column', gap:'4px' }}>
+                  <label style={{ fontSize:'10px', fontWeight:700, color:'rgba(255,255,255,0.4)', letterSpacing:'0.08em', textTransform:'uppercase' }}>País</label>
+                  <input
+                    value={editPais} onChange={e => setEditPais(e.target.value)}
+                    placeholder="Ex: Brasil"
+                    style={{ background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.15)', borderRadius:'10px', padding:'10px 14px', color:'white', fontSize:'14px', outline:'none' }}
+                  />
+                </div>
                 {/* Ações */}
                 <div style={{ display:'flex', gap:'8px', marginTop:'2px' }}>
                   <button type="submit" disabled={savingId}
@@ -1320,11 +1332,11 @@ function AtletaPerfilContent() {
                   <div>
                     <h1 style={{ margin:'0 0 4px', fontSize:'20px', fontWeight:800 }}>{meta.nome}</h1>
                     <p style={{ margin:0, fontSize:'13px', color:'rgba(255,255,255,0.4)' }}>
-                      {meta.posicao}{meta.cidade ? ` · ${meta.cidade}` : ''}
+                      {meta.posicao}{meta.cidade ? ` · ${meta.cidade}` : ''}{meta.pais ? ` · ${meta.pais}` : ''}
                     </p>
                   </div>
                   <button
-                    onClick={() => { setEditNome(meta.nome); setEditPosicao(meta.posicao); setEditCidade(meta.cidade); setEditingId(true) }}
+                    onClick={() => { setEditNome(meta.nome); setEditPosicao(meta.posicao); setEditCidade(meta.cidade); setEditPais(meta.pais ?? ''); setEditingId(true) }}
                     style={{ flexShrink:0, marginTop:'2px', padding:'6px 12px', borderRadius:'8px', border:'1px solid rgba(255,255,255,0.12)', background:'rgba(255,255,255,0.05)', color:'rgba(255,255,255,0.5)', cursor:'pointer', fontSize:'12px', fontWeight:600 }}>
                     ✏️ Editar
                   </button>

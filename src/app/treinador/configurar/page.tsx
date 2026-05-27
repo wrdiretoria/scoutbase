@@ -79,6 +79,7 @@ export default function TreinadorConfigurarPage() {
   const [instagram,      setInstagram]      = useState('')
   const [tiktok,         setTiktok]         = useState('')
   const [youtube,        setYoutube]        = useState('')
+  const [pais,           setPais]           = useState('')
   const [outras,         setOutras]         = useState('')
   const [savedAvatarUrl, setSavedAvatarUrl] = useState<string | null>(null)
   const [treinadorId,    setTreinadorId]    = useState<string | null>(null)
@@ -116,6 +117,7 @@ export default function TreinadorConfigurarPage() {
       if (meta?.tiktok)    setTiktok(meta.tiktok as string)
       if (meta?.youtube)   setYoutube(meta.youtube as string)
       if (meta?.outras)    setOutras(meta.outras as string)
+      if (meta?.pais)      setPais(meta.pais as string)
 
       setAuthReady(true)
     }
@@ -165,6 +167,7 @@ export default function TreinadorConfigurarPage() {
           avatarUrl,
           especialidade: especialidade || null,
           cidade:        cidade        || null,
+          pais:          pais.trim()   || null,
           bio:           bio           || null,
           instagram:     instagram.replace(/^@/, '').trim() || null,
           tiktok:        tiktok.replace(/^@/, '').trim()    || null,
@@ -383,6 +386,16 @@ export default function TreinadorConfigurarPage() {
                   type="text" value={cidade}
                   onChange={e => setCidade(e.target.value)}
                   placeholder="Ex: São Paulo – SP"
+                  style={inp}
+                />
+              </div>
+
+              <div>
+                <label style={lbl}>País</label>
+                <input
+                  type="text" value={pais}
+                  onChange={e => setPais(e.target.value)}
+                  placeholder="Ex: Brasil"
                   style={inp}
                 />
               </div>
