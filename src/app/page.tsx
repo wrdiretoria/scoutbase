@@ -7,11 +7,10 @@ import TeamOfWeekSection from './components/TeamOfWeekSection'
 import ProspectsSection from './components/ProspectsSection'
 import RankingSection from './components/RankingSection'
 import HeroCard from './components/HeroCard'
+import DestaquesGrid from './components/DestaquesGrid'
 import PhotoBillboard from './components/PhotoBillboard'
 import HeroFeed from './components/HeroFeed'
-import LiveFeed from './components/LiveFeed'
 import SpinningGlobe from './components/SpinningGlobe'
-import TacticalBoard from './components/TacticalBoard'
 
 const cards = [
   {
@@ -611,11 +610,9 @@ export default async function LandingPage() {
         {/* HUD decorativo — removido (substituído pelo HeroFeed) */}
       </section>
 
-      {/* ══════════════════════════════════════ CAMPO TÁTICO ══ */}
-      <TacticalBoard />
+      {/* ══════════════════════════════════════ DESTAQUES GRID ══ */}
+      <DestaquesGrid />
 
-      {/* ══════════════════════════════════════ LIVE FEED ══ */}
-      <LiveFeed />
       {/* ══════════════════════════════════════ RANKING | MAPA ══ */}
       <section style={{ background:'#050906', padding:'56px 24px 40px' }}>
         <div className="three-cols" style={{ maxWidth:'1200px', margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'32px' }}>
