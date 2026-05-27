@@ -35,9 +35,9 @@ function filtroUrl(
 export default function ScoutFiltros({ posicaoFiltro, categoriaFiltro, cidadeFiltro }: Props) {
   const temFiltro = posicaoFiltro || categoriaFiltro || cidadeFiltro
 
-  const [idInput,    setIdInput]    = useState('')
-  const [idLoading,  setIdLoading]  = useState(false)
-  const [idError,    setIdError]    = useState<string | null>(null)
+  const [idInput,   setIdInput]   = useState('')
+  const [idLoading, setIdLoading] = useState(false)
+  const [idError,   setIdError]   = useState<string | null>(null)
 
   async function handleBuscarId(e: React.FormEvent) {
     e.preventDefault()
@@ -47,11 +47,8 @@ export default function ScoutFiltros({ posicaoFiltro, categoriaFiltro, cidadeFil
     setIdError(null)
     try {
       const res  = await fetch(`/api/scout/buscar-id?q=${encodeURIComponent(q)}`)
-      const json = await res.json() as { ok?: boolean; href?: string; tipo?: string; error?: string }
-      if (!res.ok || !json.href) {
-        setIdError(json.error ?? 'ID não encontrado.')
-        return
-      }
+      const json = await res.json() as { ok?: boolean; href?: string; error?: string }
+      if (!res.ok || !json.href) { setIdError(json.error ?? 'ID não encontrado.'); return }
       window.location.href = json.href
     } catch {
       setIdError('Erro de conexão. Tente novamente.')

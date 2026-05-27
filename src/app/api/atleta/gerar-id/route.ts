@@ -5,22 +5,25 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
 
+// Verifica se o número já está em uso por QUALQUER usuário (atleta ou treinador)
+async function numeroEmUso(admin: ReturnType<typeof createAdminClient>, num: string): Promise<boolean> {
+  const { data } = await admin
+    .from('profiles')
+    .select('id')
+    .or(`athlete_id.eq.MC-${num},athlete_id.eq.TR-${num}`)
+    .limit(1)
+    .maybeSingle()
+  return !!data
+}
+
 export async function POST() {
   const admin = createAdminClient()
 
-  for (let tentativa = 0; tentativa < 10; tentativa++) {
+  for (let tentativa = 0; tentativa < 15; tentativa++) {
     const num = Math.floor(Math.random() * 100000).toString().padStart(5, '0')
-    const id = `MC-${num}`
-    const { data } = await admin.from('profiles').select('id').eq('athlete_id', id).maybeSingle()
-    if (!data) return NextResponse.json({ athleteId: id })
-  }
-
-  // fallback: tenta mais 5 vezes com número aleatório maior para evitar colisão
-  for (let tentativa = 0; tentativa < 5; tentativa++) {
-    const num = Math.floor(Math.random() * 900000 + 100000).toString().slice(0, 5)
-    const id = `MC-${num}`
-    const { data } = await admin.from('profiles').select('id').eq('athlete_id', id).maybeSingle()
-    if (!data) return NextResponse.json({ athleteId: id })
+    if (!(await numeroEmUso(admin, num))) {
+      return NextResponse.json({ athleteId: `MC-${num}` })
+    }
   }
 
   return NextResponse.json({ error: 'Não foi possível gerar ID único. Tente novamente.' }, { status: 503 })

@@ -2,12 +2,21 @@ import { createHash } from 'crypto'
 import { createAdminClient } from '@/lib/supabase'
 import { NextResponse } from 'next/server'
 
+// Verifica se o número já está em uso por QUALQUER usuário (atleta ou treinador)
+async function numeroEmUso(admin: ReturnType<typeof createAdminClient>, num: string): Promise<boolean> {
+  const { data } = await admin
+    .from('profiles')
+    .select('id')
+    .or(`athlete_id.eq.MC-${num},athlete_id.eq.TR-${num}`)
+    .limit(1)
+    .maybeSingle()
+  return !!data
+}
+
 async function gerarTreinadorId(admin: ReturnType<typeof createAdminClient>): Promise<string> {
-  for (let t = 0; t < 10; t++) {
+  for (let t = 0; t < 15; t++) {
     const num = Math.floor(Math.random() * 100000).toString().padStart(5, '0')
-    const id = `TR-${num}`
-    const { data } = await admin.from('profiles').select('id').eq('athlete_id', id).maybeSingle()
-    if (!data) return id
+    if (!(await numeroEmUso(admin, num))) return `TR-${num}`
   }
   return `TR-${Date.now().toString().slice(-5)}`
 }
