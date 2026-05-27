@@ -7,27 +7,25 @@ export async function GET(req: Request) {
 
   if (!q) return NextResponse.json({ error: 'ID não informado.' }, { status: 400 })
 
-  // Normaliza: aceita "12345", "MC-12345", "TR-12345", "MC12345", "TR12345"
-  const mcMatch = q.match(/(?:MC-?)?(\d{5})$/)
-  const trMatch = q.match(/(?:TR-?)?(\d{5})$/)
-
+  // Normaliza entrada — aceita: "12345", "MC-12345", "TR-12345", "MC12345", "TR12345"
   const admin = createAdminClient()
-
-  // Tenta atleta primeiro se parece MC, senão tenta treinador se parece TR
-  // Se sem prefixo, tenta ambos
-  const looksLikeTR = q.startsWith('TR')
-  const looksLikeMC = q.startsWith('MC') || (!looksLikeTR && mcMatch)
-
   const searchIds: string[] = []
 
-  if (looksLikeTR && trMatch) {
-    searchIds.push(`TR-${trMatch[1]}`)
-  } else if (looksLikeMC && mcMatch) {
-    searchIds.push(`MC-${mcMatch[1]}`)
+  if (q.startsWith('TR')) {
+    // Explicitamente treinador
+    const m = q.match(/TR-?(\d{5})$/)
+    if (m) searchIds.push(`TR-${m[1]}`)
+  } else if (q.startsWith('MC')) {
+    // Explicitamente atleta
+    const m = q.match(/MC-?(\d{5})$/)
+    if (m) searchIds.push(`MC-${m[1]}`)
   } else {
-    // Sem prefixo: tenta ambos
-    if (mcMatch) searchIds.push(`MC-${mcMatch[1]}`)
-    if (trMatch) searchIds.push(`TR-${trMatch[1]}`)
+    // Só números: tenta ambos (atleta E treinador)
+    const m = q.match(/(\d{5})$/)
+    if (m) {
+      searchIds.push(`MC-${m[1]}`)
+      searchIds.push(`TR-${m[1]}`)
+    }
   }
 
   if (searchIds.length === 0) {
