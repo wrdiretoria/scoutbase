@@ -29,10 +29,15 @@ export async function POST(req: Request) {
 
     const admin = createAdminClient()
 
+    // ── Busca nome do auth (necessário para NOT NULL ao inserir) ──────────────
+    const { data: { user: authUser } } = await admin.auth.admin.getUserById(userId)
+    const nomeAuth = (authUser?.user_metadata?.nome as string | null) ?? null
+
     // ── Salva no profiles (só colunas que existem no schema) ──────────────────
     const payload: Record<string, unknown> = { id: userId }
-    if (bio       !== undefined) payload.bio        = bio       || null
-    if (avatarUrl !== undefined) payload.avatar_url = avatarUrl || null
+    if (nomeAuth)                 payload.nome       = nomeAuth
+    if (bio       !== undefined)  payload.bio        = bio       || null
+    if (avatarUrl !== undefined)  payload.avatar_url = avatarUrl || null
 
     const { error: profileErr } = await admin
       .from('profiles')
