@@ -4,14 +4,15 @@ import { createAdminClient } from '@/lib/supabase'
 export const revalidate = 0
 
 export type HeroAtleta = {
-  id:       string
-  nome:     string
-  posicao:  string
-  cidade:   string
-  ovr:      number | null
-  tipo:     'avaliado' | 'novo'
-  ts:       string
-  fotos:    string[]
+  id:         string
+  nome:       string
+  posicao:    string
+  cidade:     string
+  ovr:        number | null
+  tipo:       'avaliado' | 'novo'
+  ts:         string
+  fotos:      string[]
+  athleteId:  string | null
 }
 
 export async function GET() {
@@ -29,7 +30,7 @@ export async function GET() {
     // Últimos 15 cadastros de atletas
     const { data: profiles } = await admin
       .from('profiles')
-      .select('id, nome, cidade, athlete_id, created_at, fotos')
+      .select('id, nome, athlete_id, created_at, fotos')
       .not('athlete_id', 'is', null)
       .not('nome', 'is', null)
       .order('created_at', { ascending: false })
@@ -43,12 +44,15 @@ export async function GET() {
       }
     }
 
-    // Posição via user_metadata
+    // Posição e cidade via user_metadata
     const { data: authData } = await admin.auth.admin.listUsers({ perPage: 1000 })
-    const posMap = new Map<string, string>()
+    const posMap    = new Map<string, string>()
+    const cidadeMap = new Map<string, string>()
     for (const u of authData?.users ?? []) {
-      const pos = u.user_metadata?.posicao as string | undefined
-      if (pos) posMap.set(u.id, pos)
+      const pos    = u.user_metadata?.posicao as string | undefined
+      const cidade = u.user_metadata?.cidade  as string | undefined
+      if (pos)    posMap.set(u.id, pos)
+      if (cidade) cidadeMap.set(u.id, cidade)
     }
 
     const items: HeroAtleta[] = []
@@ -65,12 +69,13 @@ export async function GET() {
       items.push({
         id,
         nome,
-        posicao: posMap.get(id) ?? '',
-        cidade:  (p?.cidade as string | null) ?? '',
-        ovr:     ovrMap.get(id) ?? null,
-        tipo:    'avaliado',
-        ts:      (avs ?? []).find(a => a.aluno_id === id)?.created_at as string ?? '',
-        fotos:   (fotosArr ?? []).filter((f): f is string => !!f),
+        posicao:   posMap.get(id) ?? '',
+        cidade:    cidadeMap.get(id) ?? '',
+        ovr:       ovrMap.get(id) ?? null,
+        tipo:      'avaliado',
+        ts:        (avs ?? []).find(a => a.aluno_id === id)?.created_at as string ?? '',
+        fotos:     (fotosArr ?? []).filter((f): f is string => !!f),
+        athleteId: (p?.athlete_id as string | null) ?? null,
       })
     }
 
@@ -83,13 +88,14 @@ export async function GET() {
       const fotosNArr = p.fotos as (string | null)[] | null
       items.push({
         id,
-        nome:    p.nome as string,
-        posicao: posMap.get(id) ?? '',
-        cidade:  (p.cidade as string | null) ?? '',
-        ovr:     null,
-        tipo:    'novo',
-        ts:      p.created_at as string,
-        fotos:   (fotosNArr ?? []).filter((f): f is string => !!f),
+        nome:      p.nome as string,
+        posicao:   posMap.get(id) ?? '',
+        cidade:    cidadeMap.get(id) ?? '',
+        ovr:       null,
+        tipo:      'novo',
+        ts:        p.created_at as string,
+        fotos:     (fotosNArr ?? []).filter((f): f is string => !!f),
+        athleteId: aid,
       })
     }
 

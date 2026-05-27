@@ -4,12 +4,13 @@ import { createAdminClient } from '@/lib/supabase'
 export const revalidate = 0
 
 type FotoItem = {
-  userId:   string
-  nome:     string
-  posicao:  string
-  cidade:   string
-  ovr:      number | null
-  fotos:    string[]   // só as não-nulas
+  userId:    string
+  nome:      string
+  posicao:   string
+  cidade:    string
+  ovr:       number | null
+  fotos:     string[]   // só as não-nulas
+  athleteId: string | null
 }
 
 export async function GET() {
@@ -19,7 +20,7 @@ export async function GET() {
     // Atletas com pelo menos 1 foto na galeria
     const { data: profiles } = await admin
       .from('profiles')
-      .select('id, nome, cidade, fotos, athlete_id')
+      .select('id, nome, fotos, athlete_id')
       .not('fotos', 'is', null)
       .order('created_at', { ascending: false })
       .limit(40)
@@ -55,23 +56,27 @@ export async function GET() {
       }
     }
 
-    // Busca posição de cada atleta via user_metadata (auth.users)
+    // Busca posição e cidade de cada atleta via user_metadata (auth.users)
     const { data: authData } = await admin.auth.admin.listUsers({ perPage: 1000 })
-    const posMap = new Map<string, string>()
+    const posMap    = new Map<string, string>()
+    const cidadeMap = new Map<string, string>()
     for (const u of authData?.users ?? []) {
-      const pos = u.user_metadata?.posicao as string | undefined
-      if (pos) posMap.set(u.id, pos)
+      const pos    = u.user_metadata?.posicao as string | undefined
+      const cidade = u.user_metadata?.cidade  as string | undefined
+      if (pos)    posMap.set(u.id, pos)
+      if (cidade) cidadeMap.set(u.id, cidade)
     }
 
     const items: FotoItem[] = comFotos.map(p => {
       const fotosArr = p.fotos as (string | null)[]
       return {
-        userId:  p.id as string,
-        nome:    p.nome as string ?? 'Atleta',
-        posicao: posMap.get(p.id as string) ?? '',
-        cidade:  p.cidade as string ?? '',
-        ovr:     ovrMap.get(p.id as string) ?? null,
-        fotos:   fotosArr.filter((f): f is string => !!f),
+        userId:    p.id as string,
+        nome:      p.nome as string ?? 'Atleta',
+        posicao:   posMap.get(p.id as string) ?? '',
+        cidade:    cidadeMap.get(p.id as string) ?? '',
+        ovr:       ovrMap.get(p.id as string) ?? null,
+        fotos:     fotosArr.filter((f): f is string => !!f),
+        athleteId: (p.athlete_id as string | null) ?? null,
       }
     })
 
