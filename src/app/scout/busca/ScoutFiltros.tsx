@@ -1,5 +1,7 @@
 'use client'
 
+import { useState } from 'react'
+
 const POSICOES = [
   'Goleiro', 'Lateral Direito', 'Lateral Esquerdo', 'Zagueiro',
   'Volante', 'Meia', 'Meia-Atacante',
@@ -33,6 +35,31 @@ function filtroUrl(
 export default function ScoutFiltros({ posicaoFiltro, categoriaFiltro, cidadeFiltro }: Props) {
   const temFiltro = posicaoFiltro || categoriaFiltro || cidadeFiltro
 
+  const [idInput,    setIdInput]    = useState('')
+  const [idLoading,  setIdLoading]  = useState(false)
+  const [idError,    setIdError]    = useState<string | null>(null)
+
+  async function handleBuscarId(e: React.FormEvent) {
+    e.preventDefault()
+    const q = idInput.trim()
+    if (!q) return
+    setIdLoading(true)
+    setIdError(null)
+    try {
+      const res  = await fetch(`/api/scout/buscar-id?q=${encodeURIComponent(q)}`)
+      const json = await res.json() as { ok?: boolean; href?: string; tipo?: string; error?: string }
+      if (!res.ok || !json.href) {
+        setIdError(json.error ?? 'ID não encontrado.')
+        return
+      }
+      window.location.href = json.href
+    } catch {
+      setIdError('Erro de conexão. Tente novamente.')
+    } finally {
+      setIdLoading(false)
+    }
+  }
+
   const selectStyle: React.CSSProperties = {
     width: '100%', padding: '9px 12px', borderRadius: '10px',
     background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)',
@@ -40,6 +67,58 @@ export default function ScoutFiltros({ posicaoFiltro, categoriaFiltro, cidadeFil
   }
 
   return (
+    <>
+    {/* ── Busca direta por ID ── */}
+    <form onSubmit={handleBuscarId} style={{ marginBottom: '16px' }}>
+      <div style={{
+        background: 'linear-gradient(135deg, rgba(34,197,94,0.06), rgba(34,197,94,0.02))',
+        border: '1px solid rgba(34,197,94,0.2)',
+        borderRadius: '16px', padding: '16px 18px',
+      }}>
+        <p style={{ margin: '0 0 10px', fontSize: '11px', fontWeight: 800, letterSpacing: '0.1em', color: 'rgba(34,197,94,0.8)', textTransform: 'uppercase' }}>
+          🎯 Buscar por ID
+        </p>
+        <p style={{ margin: '0 0 10px', fontSize: '12px', color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>
+          Digite o ID do atleta <strong style={{ color: 'rgba(255,255,255,0.5)' }}>(MC-12345)</strong> ou do treinador <strong style={{ color: 'rgba(255,255,255,0.5)' }}>(TR-12345)</strong> para ir direto ao perfil.
+        </p>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <input
+            type="text"
+            value={idInput}
+            onChange={e => { setIdInput(e.target.value); setIdError(null) }}
+            placeholder="Ex: MC-12345 ou TR-54321"
+            autoCapitalize="characters"
+            style={{
+              flex: 1, padding: '11px 14px', borderRadius: '10px', fontSize: '15px',
+              background: 'rgba(255,255,255,0.06)', border: `1px solid ${idError ? 'rgba(239,68,68,0.4)' : 'rgba(255,255,255,0.1)'}`,
+              color: 'white', outline: 'none', fontFamily: 'system-ui, sans-serif',
+              fontWeight: 700, letterSpacing: '0.04em',
+            }}
+          />
+          <button
+            type="submit"
+            disabled={idLoading || !idInput.trim()}
+            style={{
+              padding: '11px 20px', borderRadius: '10px', border: 'none',
+              background: idLoading ? 'rgba(34,197,94,0.4)' : '#22c55e',
+              color: 'black', fontWeight: 800, fontSize: '14px', cursor: idLoading ? 'wait' : 'pointer',
+              whiteSpace: 'nowrap', fontFamily: 'system-ui, sans-serif',
+              opacity: (!idInput.trim() && !idLoading) ? 0.5 : 1,
+              transition: 'opacity .15s',
+            }}
+          >
+            {idLoading ? '…' : 'Ir →'}
+          </button>
+        </div>
+        {idError && (
+          <p style={{ margin: '8px 0 0', fontSize: '12px', color: '#f87171', fontWeight: 600 }}>
+            ⚠ {idError}
+          </p>
+        )}
+      </div>
+    </form>
+
+    {/* ── Filtros por posição/categoria/cidade ── */}
     <div style={{
       background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
       borderRadius: '16px', padding: '18px', marginBottom: '24px',
@@ -127,5 +206,6 @@ export default function ScoutFiltros({ posicaoFiltro, categoriaFiltro, cidadeFil
         </a>
       )}
     </div>
+    </>
   )
 }
