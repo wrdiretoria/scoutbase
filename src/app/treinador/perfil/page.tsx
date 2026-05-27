@@ -36,7 +36,18 @@ type Perfil = {
   bio?: string
   avatar_url?: string
   cidade?: string
+  pais?: string
   especialidade?: string
+  anosExp?: string
+  clubeAtual?: string
+  clubesTrabalhados?: string
+  certificacoes?: string
+  conquistas?: string
+  telefone?: string
+  instagram?: string
+  tiktok?: string
+  youtube?: string
+  outras?: string
   created_at?: string
 }
 
@@ -87,17 +98,28 @@ export default function TreinadorPerfilPage() {
         .eq('id', user.id)
         .single()
 
+      const meta = (user.user_metadata ?? {}) as Record<string, unknown>
       setPerfil({
-        id:           user.id,
-        nome:         profile?.nome ?? user.user_metadata?.nome ?? 'Treinador',
-        email:        user.email ?? '',
-        tipo:         profile?.tipo ?? 'treinador',
-        bio:          profile?.bio,
-        avatar_url:   profile?.avatar_url,
-        cidade:       (profile as Record<string, unknown>)?.cidade as string | undefined,
-        especialidade:(profile as Record<string, unknown>)?.especialidade as string | undefined
-                      ?? user.user_metadata?.especialidade,
-        created_at:   user.created_at,
+        id:                user.id,
+        nome:              profile?.nome ?? meta.nome as string ?? 'Treinador',
+        email:             user.email ?? '',
+        tipo:              (profile as Record<string, unknown>)?.tipo as string ?? 'treinador',
+        bio:               profile?.bio as string | undefined,
+        avatar_url:        profile?.avatar_url as string | undefined,
+        cidade:            meta.cidade            as string | undefined,
+        pais:              meta.pais              as string | undefined,
+        especialidade:     meta.especialidade     as string | undefined,
+        anosExp:           meta.anos_exp          as string | undefined,
+        clubeAtual:        meta.clube_atual        as string | undefined,
+        clubesTrabalhados: meta.clubes_trabalhados as string | undefined,
+        certificacoes:     meta.certificacoes      as string | undefined,
+        conquistas:        meta.conquistas         as string | undefined,
+        telefone:          meta.telefone           as string | undefined,
+        instagram:         meta.instagram          as string | undefined,
+        tiktok:            meta.tiktok             as string | undefined,
+        youtube:           meta.youtube            as string | undefined,
+        outras:            meta.outras             as string | undefined,
+        created_at:        user.created_at,
       })
 
       setNomeEscola(user.user_metadata?.nome_escola ?? '')
@@ -132,7 +154,7 @@ export default function TreinadorPerfilPage() {
 
   async function handleShare() {
     if (!perfil) return
-    const url  = `https://meucraque.com.br/treinador/${perfil.id}`
+    const url  = `${window.location.origin}/treinador/${perfil.id}`
     const text = `${perfil.nome} — Avaliador Oficial no MeuCraque\n${especialidade}${nomeEscola ? ` · ${nomeEscola}` : ''}\n\n${url}`
     try {
       if (navigator.share) await navigator.share({ title: `${perfil.nome} · MeuCraque`, text, url })
@@ -288,7 +310,7 @@ export default function TreinadorPerfilPage() {
           <Link href="/" style={{ fontSize:'14px', fontWeight:800, color:'white', textDecoration:'none', opacity:0.55 }}>
             ⚽ MEU <span style={{ color:'#22c55e' }}>CRAQUE</span>
           </Link>
-          <Link href="/treinador/configurar" style={{
+          <Link href="/treinador/curriculo" style={{
             background:'none', border:'none', cursor:'pointer',
             fontSize:'12px', color:'rgba(255,255,255,0.28)', fontWeight:600,
             fontFamily:'system-ui', padding:0, textDecoration:'none',
@@ -406,20 +428,20 @@ export default function TreinadorPerfilPage() {
             </span>
           </div>
 
-          {/* Escola + Cidade */}
-          {(nomeEscola || perfil.cidade) && (
+          {/* Escola + Cidade + País */}
+          {(nomeEscola || perfil.cidade || perfil.pais) && (
             <div style={{ display:'flex', alignItems:'center', gap:'8px', flexWrap:'wrap', justifyContent:'center' }}>
               {nomeEscola && (
                 <span style={{ fontSize:'13px', fontWeight:700, color:'rgba(255,255,255,0.55)' }}>
                   {nomeEscola}
                 </span>
               )}
-              {nomeEscola && perfil.cidade && (
+              {nomeEscola && (perfil.cidade || perfil.pais) && (
                 <span style={{ color:'rgba(255,255,255,0.18)', fontSize:'12px' }}>·</span>
               )}
-              {perfil.cidade && (
+              {(perfil.cidade || perfil.pais) && (
                 <span style={{ fontSize:'13px', color:'rgba(255,255,255,0.32)' }}>
-                  {perfil.cidade}
+                  {[perfil.cidade, perfil.pais].filter(Boolean).join(', ')}
                 </span>
               )}
             </div>
@@ -586,10 +608,145 @@ export default function TreinadorPerfilPage() {
             {copied ? '✓ Link copiado!' : '📋 Compartilhar currículo'}
           </button>
 
-          <Link href="/treinador/configurar" className="btn-ghost" style={{ textDecoration:'none', display:'block', textAlign:'center' }}>
-            ✏ Editar perfil
+          <Link href="/treinador/curriculo" className="btn-ghost" style={{ textDecoration:'none', display:'block', textAlign:'center' }}>
+            ✏ Editar currículo
           </Link>
         </div>
+
+        {/* ════════════════════════════════════
+            CURRÍCULO — seções visíveis
+        ════════════════════════════════════ */}
+
+        {/* Onde trabalha atualmente */}
+        {perfil.clubeAtual && (
+          <div className="a6" style={{
+            background:'rgba(255,255,255,0.02)',
+            border:'1px solid rgba(255,255,255,0.07)',
+            borderRadius:'18px', padding:'18px 20px', marginTop:'12px',
+          }}>
+            <p style={{ margin:'0 0 6px', fontSize:'10px', fontWeight:700, letterSpacing:'0.12em', color:'rgba(255,255,255,0.28)', textTransform:'uppercase' }}>
+              📍 Onde trabalha atualmente
+            </p>
+            <p style={{ margin:0, fontSize:'14px', color:'rgba(255,255,255,0.65)', lineHeight:1.6, fontWeight:600 }}>
+              {perfil.clubeAtual}
+            </p>
+          </div>
+        )}
+
+        {/* Histórico */}
+        {(perfil.clubesTrabalhados || perfil.certificacoes || perfil.conquistas || perfil.anosExp) && (
+          <div className="a6" style={{
+            background:'rgba(255,255,255,0.02)',
+            border:'1px solid rgba(255,255,255,0.07)',
+            borderRadius:'18px', padding:'20px', marginTop:'12px',
+            display:'flex', flexDirection:'column', gap:'16px',
+          }}>
+            <p style={{ margin:0, fontSize:'10px', fontWeight:700, letterSpacing:'0.12em', color:'rgba(255,255,255,0.28)', textTransform:'uppercase' }}>
+              📋 Currículo
+            </p>
+            {perfil.anosExp && (
+              <div>
+                <p style={{ margin:'0 0 3px', fontSize:'10px', fontWeight:700, color:'rgba(255,255,255,0.3)', letterSpacing:'0.08em', textTransform:'uppercase' }}>Anos de experiência</p>
+                <p style={{ margin:0, fontSize:'14px', color:'rgba(255,255,255,0.6)', fontWeight:600 }}>{perfil.anosExp} anos</p>
+              </div>
+            )}
+            {perfil.clubesTrabalhados && (
+              <div>
+                <p style={{ margin:'0 0 3px', fontSize:'10px', fontWeight:700, color:'rgba(255,255,255,0.3)', letterSpacing:'0.08em', textTransform:'uppercase' }}>Experiências anteriores</p>
+                <p style={{ margin:0, fontSize:'13px', color:'rgba(255,255,255,0.55)', lineHeight:1.75, whiteSpace:'pre-line' }}>{perfil.clubesTrabalhados}</p>
+              </div>
+            )}
+            {perfil.certificacoes && (
+              <div>
+                <p style={{ margin:'0 0 3px', fontSize:'10px', fontWeight:700, color:'rgba(255,255,255,0.3)', letterSpacing:'0.08em', textTransform:'uppercase' }}>Certificações e licenças</p>
+                <p style={{ margin:0, fontSize:'13px', color:'rgba(255,255,255,0.55)', lineHeight:1.75, whiteSpace:'pre-line' }}>{perfil.certificacoes}</p>
+              </div>
+            )}
+            {perfil.conquistas && (
+              <div>
+                <p style={{ margin:'0 0 3px', fontSize:'10px', fontWeight:700, color:'rgba(255,255,255,0.3)', letterSpacing:'0.08em', textTransform:'uppercase' }}>Conquistas e títulos</p>
+                <p style={{ margin:0, fontSize:'13px', color:'rgba(255,255,255,0.55)', lineHeight:1.75, whiteSpace:'pre-line' }}>{perfil.conquistas}</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Contato + Redes */}
+        {(perfil.telefone || perfil.instagram || perfil.tiktok || perfil.youtube || perfil.outras) && (
+          <div className="a6" style={{
+            background:'rgba(255,255,255,0.02)',
+            border:'1px solid rgba(255,255,255,0.07)',
+            borderRadius:'18px', padding:'18px 20px', marginTop:'12px',
+          }}>
+            <p style={{ margin:'0 0 14px', fontSize:'10px', fontWeight:700, letterSpacing:'0.12em', color:'rgba(255,255,255,0.28)', textTransform:'uppercase' }}>
+              📲 Contato
+            </p>
+            <div style={{ display:'flex', flexWrap:'wrap', gap:'8px' }}>
+              {perfil.telefone && (
+                <a href={`https://wa.me/${perfil.telefone.replace(/\D/g,'')}`} target="_blank" rel="noopener noreferrer" style={{
+                  display:'flex', alignItems:'center', gap:'6px', padding:'7px 14px', borderRadius:'100px',
+                  background:'rgba(34,197,94,0.08)', border:'1px solid rgba(34,197,94,0.2)',
+                  color:'#4ade80', fontSize:'13px', fontWeight:700, textDecoration:'none',
+                }}>
+                  📞 {perfil.telefone}
+                </a>
+              )}
+              {perfil.instagram && (
+                <a href={`https://instagram.com/${perfil.instagram}`} target="_blank" rel="noopener noreferrer" style={{
+                  display:'flex', alignItems:'center', gap:'6px', padding:'7px 14px', borderRadius:'100px',
+                  background:'rgba(225,48,108,0.08)', border:'1px solid rgba(225,48,108,0.2)',
+                  color:'#f9a8d4', fontSize:'13px', fontWeight:700, textDecoration:'none',
+                }}>
+                  @{perfil.instagram}
+                </a>
+              )}
+              {perfil.tiktok && (
+                <a href={`https://tiktok.com/@${perfil.tiktok}`} target="_blank" rel="noopener noreferrer" style={{
+                  display:'flex', alignItems:'center', gap:'6px', padding:'7px 14px', borderRadius:'100px',
+                  background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.12)',
+                  color:'rgba(255,255,255,0.7)', fontSize:'13px', fontWeight:700, textDecoration:'none',
+                }}>
+                  TT @{perfil.tiktok}
+                </a>
+              )}
+              {perfil.youtube && (
+                <a href={`https://youtube.com/@${perfil.youtube}`} target="_blank" rel="noopener noreferrer" style={{
+                  display:'flex', alignItems:'center', gap:'6px', padding:'7px 14px', borderRadius:'100px',
+                  background:'rgba(255,0,0,0.08)', border:'1px solid rgba(255,0,0,0.2)',
+                  color:'#fca5a5', fontSize:'13px', fontWeight:700, textDecoration:'none',
+                }}>
+                  YT @{perfil.youtube}
+                </a>
+              )}
+              {perfil.outras && (
+                <a href={perfil.outras.startsWith('http') ? perfil.outras : `https://${perfil.outras}`} target="_blank" rel="noopener noreferrer" style={{
+                  display:'flex', alignItems:'center', gap:'6px', padding:'7px 14px', borderRadius:'100px',
+                  background:'rgba(96,165,250,0.08)', border:'1px solid rgba(96,165,250,0.2)',
+                  color:'#93c5fd', fontSize:'13px', fontWeight:700, textDecoration:'none',
+                }}>
+                  🔗 {perfil.outras.replace(/^https?:\/\//,'')}
+                </a>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Prompt se currículo vazio */}
+        {!perfil.clubeAtual && !perfil.clubesTrabalhados && !perfil.certificacoes && !perfil.conquistas && (
+          <div className="a6" style={{
+            marginTop:'12px', padding:'18px 20px', borderRadius:'18px',
+            background:'rgba(0,255,136,0.025)', border:'1px dashed rgba(0,255,136,0.12)',
+            display:'flex', alignItems:'center', justifyContent:'space-between', gap:'12px',
+          }}>
+            <div>
+              <p style={{ margin:'0 0 3px', fontSize:'12px', fontWeight:700, color:'rgba(255,255,255,0.4)' }}>Seu currículo está vazio</p>
+              <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.22)', lineHeight:1.5 }}>
+                Adicione onde trabalha, certificações e conquistas para ganhar credibilidade
+              </p>
+            </div>
+            <span style={{ fontSize:'20px', opacity:0.4 }}>📋</span>
+          </div>
+        )}
 
         {/* ── Separador ── */}
         <Link href="/treinador/avaliar" className="a7" style={{
