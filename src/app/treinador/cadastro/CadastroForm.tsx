@@ -158,7 +158,7 @@ export default function CadastroForm({ isEscola }: { isEscola: boolean }) {
         throw new Error(salvar.status === 409 ? 'Este CPF já está cadastrado.' : (salvarData.error ?? 'Erro ao salvar perfil.'))
       }
 
-      router.push('/treinador/configurar')
+      router.push('/treinador/bem-vindo')
 
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Erro inesperado. Tente novamente.'
