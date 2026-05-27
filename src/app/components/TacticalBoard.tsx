@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import type { TacticalData, TacticalPlayer } from '@/app/api/landing/tactical/route'
 
@@ -176,6 +177,7 @@ function FormationRow({
 // ── TacticalBoard (main) ──────────────────────────────────────────────────────
 
 export default function TacticalBoard() {
+  const router = useRouter()
   const [data,         setData]         = useState<TacticalData | null>(null)
   const [loading,      setLoading]      = useState(true)
   const [photoIndices, setPhotoIndices] = useState<Record<string, number>>({})
@@ -395,12 +397,22 @@ export default function TacticalBoard() {
 
         {/* ── Treinador do Mês ── */}
         {treinador && (
+          <a
+            href={`/entrar/${treinador.id}`}
+            style={{
+              display: 'block',
+              marginTop: '14px',
+              textDecoration: 'none',
+              color: 'inherit',
+              WebkitTapHighlightColor: 'rgba(22,163,74,0.15)',
+            }}
+          >
           <div style={{
-            marginTop: '14px',
             background: 'rgba(255,255,255,0.025)',
             border: '1px solid rgba(255,255,255,0.07)',
             borderRadius: '16px',
             padding: '16px',
+            cursor: 'pointer',
           }}>
             {/* Header treinador */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
@@ -425,6 +437,11 @@ export default function TacticalBoard() {
                 <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.36)', marginTop: '1px' }}>
                   {treinador.cidade || 'Brasil'} · Treinador
                 </div>
+                {treinador.mcId && (
+                  <div style={{ fontSize: '8px', fontWeight: 700, color: 'rgba(255,255,255,0.22)', letterSpacing: '0.06em', marginTop: '2px' }}>
+                    ID: {treinador.mcId.replace('MC-', '')}
+                  </div>
+                )}
               </div>
 
               <div style={{ textAlign: 'right', flexShrink: 0 }}>
@@ -510,6 +527,7 @@ export default function TacticalBoard() {
               </span>
             </div>
           </div>
+          </a>
         )}
 
         {/* ── Footer CTA ── */}

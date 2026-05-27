@@ -23,6 +23,7 @@ export type TacticalCoach = {
   avaliacoesMes:   number
   reputacao:       number   // 4.5 – 5.0
   ultimaAvaliacao: { atletaNome: string; ovr: number; ts: string } | null
+  mcId:            string | null
 }
 
 export type TacticalData = {
@@ -209,6 +210,13 @@ export async function GET() {
         .not('scout_score', 'is', null)
         .order('created_at', { ascending: false })
 
+      // Profile do treinador (para mcId)
+      const { data: coachProfile } = await admin
+        .from('profiles')
+        .select('athlete_id')
+        .eq('id', topId)
+        .single()
+
       const scores = (coachAvs ?? []).map(a => a.scout_score as number)
       const avg    = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 75
 
@@ -238,6 +246,7 @@ export async function GET() {
         avaliacoesMes:   topCount,
         reputacao:       rep,
         ultimaAvaliacao: ultima,
+        mcId:            (coachProfile?.athlete_id as string | null) ?? null,
       }
     }
 

@@ -93,34 +93,34 @@ async function generateCard(canvas: HTMLCanvasElement, opts: CardShareProps): Pr
     const dw = img.width  * scale
     const dh = img.height * scale
     const dx = (W - dw) / 2
-    // bias 15% para o topo para exibir o rosto
-    const dy = Math.min(0, (H - dh) * 0.15)
+    const dy = Math.min(0, (H - dh) * 0.12)
     ctx.drawImage(img, dx, dy, dw, dh)
 
-    // Overlay topo: escurece levemente para logo/badge/OVR
-    const topOv = ctx.createLinearGradient(0, 0, 0, 180)
-    topOv.addColorStop(0,   'rgba(4,10,6,0.82)')
-    topOv.addColorStop(0.5, 'rgba(4,10,6,0.28)')
-    topOv.addColorStop(1,   'rgba(4,10,6,0)')
+    // Overlay topo: strip curto apenas para logo/badge — foto exposta no centro
+    const topOv = ctx.createLinearGradient(0, 0, 0, 120)
+    topOv.addColorStop(0,    'rgba(4,10,6,0.70)')
+    topOv.addColorStop(0.60, 'rgba(4,10,6,0.08)')
+    topOv.addColorStop(1,    'rgba(4,10,6,0)')
     ctx.fillStyle = topOv
-    ctx.fillRect(0, 0, W, 180)
+    ctx.fillRect(0, 0, W, 120)
 
-    // Overlay esquerdo: sombra lateral para legibilidade do OVR
-    const leftOv = ctx.createLinearGradient(0, 60, 200, 60)
-    leftOv.addColorStop(0,   'rgba(4,10,6,0.55)')
-    leftOv.addColorStop(0.55,'rgba(4,10,6,0)')
-    ctx.fillStyle = leftOv
-    ctx.fillRect(0, 60, 200, 140)
+    // Escurecimento suave atrás do OVR (apenas onde o texto está)
+    const ovrOv = ctx.createLinearGradient(0, 0, 155, 0)
+    ovrOv.addColorStop(0,   'rgba(4,10,6,0.36)')
+    ovrOv.addColorStop(1,   'rgba(4,10,6,0)')
+    ctx.fillStyle = ovrOv
+    ctx.fillRect(0, 55, 155, 140)
 
-    // Overlay base: parte inferior escurece progressivamente
-    const botOv = ctx.createLinearGradient(0, H - 295, 0, H)
+    // Overlay base: foto totalmente exposta até ~55%, depois escurece abruptamente
+    const botOv = ctx.createLinearGradient(0, H - 320, 0, H)
     botOv.addColorStop(0,    'rgba(4,10,6,0)')
-    botOv.addColorStop(0.22, 'rgba(4,10,6,0.38)')
-    botOv.addColorStop(0.52, 'rgba(4,10,6,0.82)')
-    botOv.addColorStop(0.75, 'rgba(4,10,6,0.94)')
-    botOv.addColorStop(1,    'rgba(4,10,6,0.98)')
+    botOv.addColorStop(0.11, 'rgba(4,10,6,0.08)')
+    botOv.addColorStop(0.33, 'rgba(4,10,6,0.78)')
+    botOv.addColorStop(0.52, 'rgba(4,10,6,0.92)')
+    botOv.addColorStop(0.68, 'rgba(4,10,6,0.97)')
+    botOv.addColorStop(1,    'rgba(4,10,6,0.99)')
     ctx.fillStyle = botOv
-    ctx.fillRect(0, H - 295, W, 295)
+    ctx.fillRect(0, H - 320, W, 320)
   } else {
     // Sem foto: gradiente radial central + iniciais
     const bg = ctx.createRadialGradient(W/2, H*0.36, 0, W/2, H*0.36, 220)
