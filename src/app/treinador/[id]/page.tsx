@@ -97,12 +97,23 @@ export default async function TreinadorPerfilPublico({ params }: Props) {
   }
 
   const meta = user.user_metadata as {
-    nome?:         string
-    cidade?:       string
-    especialidade?: string
-    avatar_url?:   string
-    tipo?:         string
-    treinadorId?:  string
+    nome?:              string
+    cidade?:            string
+    pais?:              string
+    especialidade?:     string
+    avatar_url?:        string
+    tipo?:              string
+    treinadorId?:       string
+    anos_exp?:          string
+    clube_atual?:       string
+    clubes_trabalhados?: string
+    certificacoes?:     string
+    conquistas?:        string
+    telefone?:          string
+    instagram?:         string
+    tiktok?:            string
+    youtube?:           string
+    outras?:            string
   }
 
   // Confirma que é treinador
@@ -116,12 +127,23 @@ export default async function TreinadorPerfilPublico({ params }: Props) {
     .maybeSingle()
   const p = profileData as Record<string, unknown> | null
 
-  const nome          = meta.nome ?? 'Treinador'
-  const cidade        = meta.cidade        ?? null
-  const especialidade = meta.especialidade ?? null
-  const avatarUrl     = (p?.avatar_url as string | null) ?? meta.avatar_url ?? null
-  const treinadorId   = (p?.athlete_id as string | null) ?? meta.treinadorId ?? null
-  const bio           = (p?.bio        as string | null) ?? null
+  const nome              = meta.nome ?? 'Treinador'
+  const cidade            = meta.cidade            ?? null
+  const pais              = meta.pais              ?? null
+  const especialidade     = meta.especialidade     ?? null
+  const anosExp           = meta.anos_exp          ?? null
+  const clubeAtual        = meta.clube_atual        ?? null
+  const clubesTrabalhados = meta.clubes_trabalhados ?? null
+  const certificacoes     = meta.certificacoes     ?? null
+  const conquistas        = meta.conquistas        ?? null
+  const telefone          = meta.telefone          ?? null
+  const instagram         = meta.instagram         ?? null
+  const tiktok            = meta.tiktok            ?? null
+  const youtube           = meta.youtube           ?? null
+  const outras            = meta.outras            ?? null
+  const avatarUrl         = (p?.avatar_url as string | null) ?? meta.avatar_url ?? null
+  const treinadorId       = (p?.athlete_id as string | null) ?? meta.treinadorId ?? null
+  const bio               = (p?.bio        as string | null) ?? null
 
   // 2. Busca avaliações feitas por este treinador no Meu Craque (professor_id = auth UUID)
   type AvaliacaoRaw = { id: string; aluno_id: string; scout_score: number; created_at: string }
@@ -273,14 +295,19 @@ export default async function TreinadorPerfilPublico({ params }: Props) {
                 {nome}
               </h1>
               <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                {cidade && (
+                {(cidade || pais) && (
                   <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>
-                    📍 {cidade}
+                    📍 {[cidade, pais].filter(Boolean).join(', ')}
                   </span>
                 )}
                 {especialidade && (
                   <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>
                     ⚡ {especialidade}
+                  </span>
+                )}
+                {anosExp && (
+                  <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>
+                    🕐 {anosExp} anos de exp.
                   </span>
                 )}
               </div>
@@ -299,6 +326,108 @@ export default async function TreinadorPerfilPublico({ params }: Props) {
           }}>
             <p style={{ margin: '0 0 6px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Sobre</p>
             <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.6)', lineHeight: 1.7 }}>{bio}</p>
+          </div>
+        )}
+
+        {/* ── Currículo profissional ── */}
+        {(clubeAtual || clubesTrabalhados || certificacoes || conquistas) && (
+          <div style={{
+            padding: '16px 20px', borderRadius: '16px', marginBottom: '20px',
+            background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)',
+          }}>
+            <p style={{ margin: '0 0 14px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+              📋 Currículo
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              {clubeAtual && (
+                <div>
+                  <p style={{ margin: '0 0 3px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Onde trabalha atualmente</p>
+                  <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.6 }}>{clubeAtual}</p>
+                </div>
+              )}
+              {clubesTrabalhados && (
+                <div>
+                  <p style={{ margin: '0 0 3px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Experiências anteriores</p>
+                  <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.55)', lineHeight: 1.7, whiteSpace: 'pre-line' }}>{clubesTrabalhados}</p>
+                </div>
+              )}
+              {certificacoes && (
+                <div>
+                  <p style={{ margin: '0 0 3px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Certificações e licenças</p>
+                  <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.55)', lineHeight: 1.7, whiteSpace: 'pre-line' }}>{certificacoes}</p>
+                </div>
+              )}
+              {conquistas && (
+                <div>
+                  <p style={{ margin: '0 0 3px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Conquistas e títulos</p>
+                  <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.55)', lineHeight: 1.7, whiteSpace: 'pre-line' }}>{conquistas}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ── Contato e redes ── */}
+        {(telefone || instagram || tiktok || youtube || outras) && (
+          <div style={{
+            padding: '16px 20px', borderRadius: '16px', marginBottom: '20px',
+            background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)',
+          }}>
+            <p style={{ margin: '0 0 14px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+              📲 Contato
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {telefone && (
+                <a href={`https://wa.me/${telefone.replace(/\D/g,'')}`} target="_blank" rel="noopener noreferrer" style={{
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  padding: '7px 14px', borderRadius: '100px',
+                  background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)',
+                  color: '#4ade80', fontSize: '13px', fontWeight: 700, textDecoration: 'none',
+                }}>
+                  📞 {telefone}
+                </a>
+              )}
+              {instagram && (
+                <a href={`https://instagram.com/${instagram}`} target="_blank" rel="noopener noreferrer" style={{
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  padding: '7px 14px', borderRadius: '100px',
+                  background: 'rgba(225,48,108,0.08)', border: '1px solid rgba(225,48,108,0.2)',
+                  color: '#f9a8d4', fontSize: '13px', fontWeight: 700, textDecoration: 'none',
+                }}>
+                  @{instagram}
+                </a>
+              )}
+              {tiktok && (
+                <a href={`https://tiktok.com/@${tiktok}`} target="_blank" rel="noopener noreferrer" style={{
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  padding: '7px 14px', borderRadius: '100px',
+                  background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)',
+                  color: 'rgba(255,255,255,0.7)', fontSize: '13px', fontWeight: 700, textDecoration: 'none',
+                }}>
+                  TT @{tiktok}
+                </a>
+              )}
+              {youtube && (
+                <a href={`https://youtube.com/@${youtube}`} target="_blank" rel="noopener noreferrer" style={{
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  padding: '7px 14px', borderRadius: '100px',
+                  background: 'rgba(255,0,0,0.08)', border: '1px solid rgba(255,0,0,0.2)',
+                  color: '#fca5a5', fontSize: '13px', fontWeight: 700, textDecoration: 'none',
+                }}>
+                  YT @{youtube}
+                </a>
+              )}
+              {outras && (
+                <a href={outras.startsWith('http') ? outras : `https://${outras}`} target="_blank" rel="noopener noreferrer" style={{
+                  display: 'flex', alignItems: 'center', gap: '6px',
+                  padding: '7px 14px', borderRadius: '100px',
+                  background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.2)',
+                  color: '#93c5fd', fontSize: '13px', fontWeight: 700, textDecoration: 'none',
+                }}>
+                  🔗 {outras.replace(/^https?:\/\//, '')}
+                </a>
+              )}
+            </div>
           </div>
         )}
 

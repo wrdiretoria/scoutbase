@@ -6,7 +6,8 @@ export async function POST(req: Request) {
     const {
       userId, bio, especialidade, avatarUrl,
       cidade, pais, anosExp,
-      clubesTrabalhados, certificacoes, conquistas,
+      clubeAtual, clubesTrabalhados, certificacoes, conquistas,
+      telefone,
       instagram, tiktok, youtube, outras,
     } = await req.json() as {
       userId?:             string
@@ -16,9 +17,11 @@ export async function POST(req: Request) {
       cidade?:             string | null
       pais?:               string | null
       anosExp?:            string | null
+      clubeAtual?:         string | null
       clubesTrabalhados?:  string | null
       certificacoes?:      string | null
       conquistas?:         string | null
+      telefone?:           string | null
       instagram?:          string | null
       tiktok?:             string | null
       youtube?:            string | null
@@ -52,9 +55,11 @@ export async function POST(req: Request) {
     if (cidade             !== undefined) metaUpdate.cidade             = cidade             || null
     if (pais               !== undefined) metaUpdate.pais               = pais               || null
     if (anosExp            !== undefined) metaUpdate.anos_exp           = anosExp            || null
+    if (clubeAtual         !== undefined) metaUpdate.clube_atual        = clubeAtual         || null
     if (clubesTrabalhados  !== undefined) metaUpdate.clubes_trabalhados = clubesTrabalhados  || null
     if (certificacoes      !== undefined) metaUpdate.certificacoes      = certificacoes      || null
     if (conquistas         !== undefined) metaUpdate.conquistas         = conquistas         || null
+    if (telefone           !== undefined) metaUpdate.telefone           = telefone           || null
     if (instagram          !== undefined) metaUpdate.instagram          = instagram          || null
     if (tiktok             !== undefined) metaUpdate.tiktok             = tiktok             || null
     if (youtube            !== undefined) metaUpdate.youtube            = youtube            || null
