@@ -77,7 +77,9 @@ export default function TreinadorConfigurarPage() {
   const [anosExp,        setAnosExp]        = useState('')
   const [bio,            setBio]            = useState('')
   const [instagram,      setInstagram]      = useState('')
+  const [tiktok,         setTiktok]         = useState('')
   const [youtube,        setYoutube]        = useState('')
+  const [outras,         setOutras]         = useState('')
   const [savedAvatarUrl, setSavedAvatarUrl] = useState<string | null>(null)
   const [treinadorId,    setTreinadorId]    = useState<string | null>(null)
 
@@ -95,18 +97,25 @@ export default function TreinadorConfigurarPage() {
       // Busca dados existentes do banco para pré-popular o formulário
       const { data: profile } = await supabase
         .from('profiles')
-        .select('athlete_id, bio, especialidade, cidade, avatar_url')
+        .select('athlete_id, bio, especialidade, avatar_url')
         .eq('id', user.id)
         .maybeSingle()
 
       if (profile) {
         const p = profile as Record<string, unknown>
-        if (p.athlete_id)   setTreinadorId(p.athlete_id as string)
-        if (p.bio)          setBio(p.bio as string)
+        if (p.athlete_id)    setTreinadorId(p.athlete_id as string)
+        if (p.bio)           setBio(p.bio as string)
         if (p.especialidade) setEspec(p.especialidade as string)
-        if (p.cidade)       setCidade(p.cidade as string)
-        if (p.avatar_url)   setSavedAvatarUrl(p.avatar_url as string)
+        if (p.avatar_url)    setSavedAvatarUrl(p.avatar_url as string)
       }
+
+      // Cidade e redes sociais ficam no user_metadata
+      const meta = user.user_metadata as Record<string, unknown> | null
+      if (meta?.cidade)    setCidade(meta.cidade as string)
+      if (meta?.instagram) setInstagram(meta.instagram as string)
+      if (meta?.tiktok)    setTiktok(meta.tiktok as string)
+      if (meta?.youtube)   setYoutube(meta.youtube as string)
+      if (meta?.outras)    setOutras(meta.outras as string)
 
       setAuthReady(true)
     }
@@ -157,6 +166,10 @@ export default function TreinadorConfigurarPage() {
           especialidade: especialidade || null,
           cidade:        cidade        || null,
           bio:           bio           || null,
+          instagram:     instagram.replace(/^@/, '').trim() || null,
+          tiktok:        tiktok.replace(/^@/, '').trim()    || null,
+          youtube:       youtube.replace(/^@/, '').trim()   || null,
+          outras:        outras.trim()                       || null,
         }),
       })
 
@@ -386,7 +399,7 @@ export default function TreinadorConfigurarPage() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '28px' }}>
-              <button className="btn-primary" onClick={() => setStep('bio')} disabled={!especialidade}>
+              <button className="btn-primary" onClick={() => setStep('bio')}>
                 Continuar →
               </button>
               <button className="btn-ghost" onClick={() => setStep('foto')}>← Voltar</button>
@@ -439,15 +452,37 @@ export default function TreinadorConfigurarPage() {
         {step === 'redes' && (
           <div className="step-in">
             <h1 style={{ margin: '0 0 6px', fontSize: '24px', fontWeight: 900, color: 'white', letterSpacing: '-.03em' }}>
-              Suas <span style={{ color: '#fbbf24' }}>redes</span>
+              Seja <span style={{ color: '#fbbf24' }}>encontrado</span>
             </h1>
-            <p style={{ margin: '0 0 28px', fontSize: '14px', color: 'rgba(255,255,255,.3)', lineHeight: 1.6 }}>
-              Atletas e clubes vão te pesquisar. Facilite.
+            <p style={{ margin: '0 0 16px', fontSize: '14px', color: 'rgba(255,255,255,.45)', lineHeight: 1.6 }}>
+              Atletas, pais e clubes vão te buscar nessas redes.<br />
+              <span style={{ color: 'rgba(251,191,36,.7)', fontWeight: 700 }}>É por aqui que o trabalho chega até você.</span>
             </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {/* Destaque */}
+            <div style={{
+              marginBottom: '24px', padding: '12px 16px', borderRadius: '12px',
+              background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.2)',
+              display: 'flex', gap: '10px', alignItems: 'flex-start',
+            }}>
+              <span style={{ fontSize: '18px', flexShrink: 0 }}>📣</span>
+              <p style={{ margin: 0, fontSize: '12px', lineHeight: 1.55, color: 'rgba(255,255,255,0.5)', fontWeight: 500 }}>
+                Seu Instagram, TikTok e YouTube aparecem no seu perfil público — são o <strong style={{ color: 'rgba(251,191,36,0.75)' }}>primeiro lugar</strong> onde atletas e contratantes te encontram.
+              </p>
+            </div>
+
+            <p style={{ margin: '0 0 20px', fontSize: '11px', color: 'rgba(255,255,255,.2)', lineHeight: 1.5 }}>
+              Coloque só o @usuário — não precisa de link completo. Todos os campos são opcionais.
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+
+              {/* Instagram */}
               <div>
-                <label style={lbl}>Instagram</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <label style={lbl}>Instagram</label>
+                  <span style={{ fontSize: '10px', color: 'rgba(255,255,255,.2)', fontWeight: 600 }}>opcional</span>
+                </div>
                 <div style={{ position: 'relative' }}>
                   <span style={{
                     position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)',
@@ -455,22 +490,70 @@ export default function TreinadorConfigurarPage() {
                   }}>@</span>
                   <input
                     type="text" value={instagram}
-                    onChange={e => setInstagram(e.target.value)}
+                    onChange={e => setInstagram(e.target.value.replace(/^@/, ''))}
                     placeholder="seu.usuario"
+                    autoCapitalize="none"
                     style={{ ...inp, paddingLeft: '36px' }}
                   />
                 </div>
               </div>
 
+              {/* TikTok */}
               <div>
-                <label style={lbl}>YouTube</label>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <label style={lbl}>TikTok</label>
+                  <span style={{ fontSize: '10px', color: 'rgba(255,255,255,.2)', fontWeight: 600 }}>opcional</span>
+                </div>
+                <div style={{ position: 'relative' }}>
+                  <span style={{
+                    position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)',
+                    color: 'rgba(255,255,255,.35)', fontSize: '15px', fontWeight: 700,
+                  }}>@</span>
+                  <input
+                    type="text" value={tiktok}
+                    onChange={e => setTiktok(e.target.value.replace(/^@/, ''))}
+                    placeholder="seu.usuario"
+                    autoCapitalize="none"
+                    style={{ ...inp, paddingLeft: '36px' }}
+                  />
+                </div>
+              </div>
+
+              {/* YouTube */}
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <label style={lbl}>YouTube</label>
+                  <span style={{ fontSize: '10px', color: 'rgba(255,255,255,.2)', fontWeight: 600 }}>opcional</span>
+                </div>
+                <div style={{ position: 'relative' }}>
+                  <span style={{
+                    position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)',
+                    color: 'rgba(255,255,255,.35)', fontSize: '15px', fontWeight: 700,
+                  }}>@</span>
+                  <input
+                    type="text" value={youtube}
+                    onChange={e => setYoutube(e.target.value.replace(/^@/, ''))}
+                    placeholder="seucanal"
+                    autoCapitalize="none"
+                    style={{ ...inp, paddingLeft: '36px' }}
+                  />
+                </div>
+              </div>
+
+              {/* Outras */}
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <label style={lbl}>Outras</label>
+                  <span style={{ fontSize: '10px', color: 'rgba(255,255,255,.2)', fontWeight: 600 }}>opcional</span>
+                </div>
                 <input
-                  type="url" value={youtube}
-                  onChange={e => setYoutube(e.target.value)}
-                  placeholder="youtube.com/c/seucanal"
+                  type="text" value={outras}
+                  onChange={e => setOutras(e.target.value)}
+                  placeholder="Site, LinkedIn, outro link..."
                   style={inp}
                 />
               </div>
+
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '28px' }}>
