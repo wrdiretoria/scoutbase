@@ -6,7 +6,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { createAdminClient } from '@/lib/supabase'
+import { createAdminClient, createServerClient } from '@/lib/supabase'
 import { fetchOvrSingle } from '@/lib/ovr'
 import {
   VARIANTES, BLOCO_PERFIL as Q_BPERF,
@@ -249,6 +249,14 @@ export default async function JogadorPublicoPage({ params }: Props) {
   } catch {
     notFound()
   }
+
+  // Verifica se o visitante é o dono do perfil
+  let isOwner = false
+  try {
+    const supabase = await createServerClient()
+    const { data: { user: visitor } } = await supabase.auth.getUser()
+    isOwner = visitor?.id === id
+  } catch { /* visitante anônimo — isOwner fica false */ }
 
   const meta = user.user_metadata as {
     nome?: string; posicao?: string; cidade?: string; tipo?: string
@@ -876,28 +884,30 @@ export default async function JogadorPublicoPage({ params }: Props) {
           </div>
         )}
 
-        {/* ── Card compartilhável ── */}
-        <div style={{ marginTop: '20px' }}>
-          <CardShare
-            nome={nome}
-            pos={pos}
-            posicao={posicao}
-            ovr={ovr}
-            categoria={categoria}
-            fotoUrl={fotosArray[0] ?? null}
-            initials={initials}
-            athleteId={athleteId}
-            cidade={cidade || null}
-            idade={dataNasc ? (() => {
-              const h = new Date(), n = new Date(dataNasc)
-              let a = h.getFullYear() - n.getFullYear()
-              const m = h.getMonth() - n.getMonth()
-              if (m < 0 || (m === 0 && h.getDate() < n.getDate())) a--
-              return a
-            })() : null}
-            profileUrl={`${SERVER_BASE_URL}/jogador/${id}`}
-          />
-        </div>
+        {/* ── Card compartilhável — só visível para o dono ── */}
+        {isOwner && (
+          <div style={{ marginTop: '20px' }}>
+            <CardShare
+              nome={nome}
+              pos={pos}
+              posicao={posicao}
+              ovr={ovr}
+              categoria={categoria}
+              fotoUrl={fotosArray[0] ?? null}
+              initials={initials}
+              athleteId={athleteId}
+              cidade={cidade || null}
+              idade={dataNasc ? (() => {
+                const h = new Date(), n = new Date(dataNasc)
+                let a = h.getFullYear() - n.getFullYear()
+                const m = h.getMonth() - n.getMonth()
+                if (m < 0 || (m === 0 && h.getDate() < n.getDate())) a--
+                return a
+              })() : null}
+              profileUrl={`${SERVER_BASE_URL}/jogador/${id}`}
+            />
+          </div>
+        )}
 
         {/* ── Compartilhar ── */}
         <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
