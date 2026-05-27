@@ -6,7 +6,7 @@ import ActivityTicker from './components/ActivityTicker'
 import TeamOfWeekSection from './components/TeamOfWeekSection'
 import ProspectsSection from './components/ProspectsSection'
 import RankingSection from './components/RankingSection'
-import CardCraqueSection from './components/CardCraqueSection'
+import HeroCard from './components/HeroCard'
 import PhotoBillboard from './components/PhotoBillboard'
 import HeroFeed from './components/HeroFeed'
 import LiveFeed from './components/LiveFeed'
@@ -602,59 +602,9 @@ export default async function LandingPage() {
             </div>
           </div>
 
-          {/* RIGHT — AO VIVO card */}
-          <div className="hero-phones" style={{ display:'flex', alignItems:'flex-start', justifyContent:'flex-end', paddingTop:'clamp(48px,7vh,80px)', minWidth:0 }}>
-            <div style={{
-              width:'296px', flexShrink:0,
-              background:'rgba(4,9,5,0.88)',
-              backdropFilter:'blur(28px)', WebkitBackdropFilter:'blur(28px)',
-              border:'1px solid rgba(255,255,255,0.07)',
-              borderRadius:'18px', padding:'18px',
-              boxShadow:'0 32px 80px rgba(0,0,0,0.70)',
-            }}>
-              {/* Header */}
-              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'16px' }}>
-                <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
-                  <span className="live-dot" />
-                  <span style={{ fontSize:'11px', fontWeight:800, color:'white', letterSpacing:'0.12em', textTransform:'uppercase' }}>AO VIVO AGORA</span>
-                </div>
-                <span style={{ fontSize:'10px', color:'rgba(255,255,255,0.35)', fontWeight:500 }}>12 scouts online</span>
-              </div>
-
-              {/* Activity items */}
-              {[
-                { init:'JS', bg:'#1a5c3a', text:'João Silva recebeu nota', bold:'82', icon:'↑', iconColor:'#00FF88', time:'há 2 min' },
-                { init:'PF', bg:'#1e3a5f', text:'Pedro foi avaliado por treinador', bold:'', icon:'👁', iconColor:'rgba(255,255,255,0.4)', time:'há 3 min' },
-                { init:'LO', bg:'#5f1e3a', text:'Lucas subiu', bold:'+3', suffix:' no OVR', icon:'↑', iconColor:'#00FF88', time:'há 5 min' },
-                { init:'NA', bg:'#2a4a1a', text:'Novo atleta de Recife entrou', bold:'', icon:'+', iconColor:'rgba(255,255,255,0.4)', time:'há 7 min' },
-              ].map(({ init, bg, text, bold, suffix, icon, iconColor, time }, i) => (
-                <div key={i} style={{
-                  display:'flex', alignItems:'center', gap:'10px',
-                  padding:'10px 0',
-                  borderBottom: i < 3 ? '1px solid rgba(255,255,255,0.04)' : 'none',
-                }}>
-                  <div style={{
-                    width:'30px', height:'30px', borderRadius:'50%', flexShrink:0,
-                    background:bg, display:'flex', alignItems:'center', justifyContent:'center',
-                    fontSize:'9px', fontWeight:800, color:'white',
-                  }}>{init}</div>
-                  <div style={{ flex:1, minWidth:0 }}>
-                    <p style={{ margin:0, fontSize:'12px', fontWeight:500, color:'rgba(255,255,255,0.80)', lineHeight:1.3, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
-                      {text}{bold ? <span style={{ color:'#00FF88', fontWeight:800 }}> {bold}</span> : ''}{suffix ?? ''}
-                    </p>
-                    <p style={{ margin:0, fontSize:'9.5px', color:'rgba(255,255,255,0.28)', marginTop:'2px' }}>{time}</p>
-                  </div>
-                  <span style={{ fontSize:'14px', color:iconColor, flexShrink:0, fontWeight:700 }}>{icon}</span>
-                </div>
-              ))}
-
-              {/* Footer */}
-              <div style={{ marginTop:'14px', paddingTop:'12px', borderTop:'1px solid rgba(255,255,255,0.05)' }}>
-                <span style={{ fontSize:'12px', color:'rgba(255,255,255,0.32)', fontWeight:500, letterSpacing:'0.01em' }}>
-                  Ver todas as atividades →
-                </span>
-              </div>
-            </div>
+          {/* RIGHT — Card do atleta em destaque */}
+          <div className="hero-phones" style={{ display:'flex', alignItems:'center', justifyContent:'flex-end', paddingTop:'clamp(48px,7vh,80px)', minWidth:0 }}>
+            <HeroCard />
           </div>
         </div>
 
@@ -782,9 +732,6 @@ export default async function LandingPage() {
 
       {/* ══════════════════════════════════════ TOP 3 ══ */}
       <TeamOfWeekSection />
-
-      {/* ══════════════════════════════════════ CARD CRAQUE ══ */}
-      <CardCraqueSection />
 
       {/* ══════════════════════════════════════ BILLBOARD ══ */}
       <PhotoBillboard />
