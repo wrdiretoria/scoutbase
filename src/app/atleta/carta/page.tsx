@@ -320,7 +320,7 @@ export default function CartaPage() {
                   <span style={{ fontSize: 12, fontWeight: 900, color: '#00FF88', letterSpacing: '0.1em' }}>{pos}</span>
                 </div>
                 <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(0,255,136,0.5)', letterSpacing: '0.08em' }}>
-                  {athleteId}
+                  {athleteId.replace(/^[A-Z]+-/, '')}
                 </span>
               </div>
 
@@ -411,7 +411,7 @@ export default function CartaPage() {
             </p>
             {[
               '1. Vá ao seu perfil',
-              '2. Digite o ID do treinador (MC-XXXXX)',
+              '2. Digite o ID do treinador',
               '3. Envie a solicitação de avaliação',
               '4. O treinador avalia e seu OVR aparece aqui',
             ].map(step => (

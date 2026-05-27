@@ -29,7 +29,7 @@ export async function GET(req: Request) {
   }
 
   if (searchIds.length === 0) {
-    return NextResponse.json({ error: 'ID inválido. Use MC-12345 para atletas ou TR-12345 para treinadores.' }, { status: 400 })
+    return NextResponse.json({ error: 'ID inválido. Digite apenas os números, ex: 12345.' }, { status: 400 })
   }
 
   const { data: rows } = await admin

@@ -400,7 +400,7 @@ export default function TreinadorCurriculoPage() {
                 padding: '3px 10px', fontSize: '10px', fontWeight: 700,
                 color: 'rgba(255,255,255,0.7)',
               }}>
-                {treinadorId}
+                ID: {treinadorId.replace(/^[A-Z]+-/, '')}
               </div>
             )}
 

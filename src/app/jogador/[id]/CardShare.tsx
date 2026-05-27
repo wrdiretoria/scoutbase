@@ -253,7 +253,7 @@ async function generateCard(canvas: HTMLCanvasElement, opts: CardShareProps): Pr
   ctx.fillText('ID ÚNICO', 26, CY + 11)
   ctx.fillStyle = GREEN
   ctx.font      = 'bold 19px system-ui, -apple-system, sans-serif'
-  ctx.fillText(opts.athleteId ?? '—', 26, CY + 28)
+  ctx.fillText((opts.athleteId ?? '—').replace(/^[A-Z]+-/, ''), 26, CY + 28)
   ctx.restore()
 
   // QR code (tenta API, fallback para pattern)

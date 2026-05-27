@@ -79,14 +79,14 @@ export default function ScoutFiltros({ posicaoFiltro, categoriaFiltro, cidadeFil
           🎯 Buscar por ID
         </p>
         <p style={{ margin: '0 0 10px', fontSize: '12px', color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>
-          Digite o ID do atleta <strong style={{ color: 'rgba(255,255,255,0.5)' }}>(MC-12345)</strong> ou do treinador <strong style={{ color: 'rgba(255,255,255,0.5)' }}>(TR-12345)</strong> para ir direto ao perfil.
+          Digite o ID do atleta ou treinador para ir direto ao perfil.
         </p>
         <div style={{ display: 'flex', gap: '8px' }}>
           <input
             type="text"
             value={idInput}
             onChange={e => { setIdInput(e.target.value); setIdError(null) }}
-            placeholder="Ex: MC-12345 ou TR-54321"
+            placeholder="Ex: 12345"
             autoCapitalize="characters"
             style={{
               flex: 1, padding: '11px 14px', borderRadius: '10px', fontSize: '15px',
