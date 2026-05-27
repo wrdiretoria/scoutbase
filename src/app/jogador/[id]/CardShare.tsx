@@ -67,106 +67,112 @@ function drawQRPattern(ctx: CanvasRenderingContext2D, x: number, y: number, size
 
 async function generateCard(canvas: HTMLCanvasElement, opts: CardShareProps): Promise<void> {
   const ctx = canvas.getContext('2d')!
-  const W = 400, H = 500
+  const W = 400, H = 560
   canvas.width  = W
   canvas.height = H
 
   const GREEN = '#00FF88'
-  const DARK  = '#080f0a'
+  const DARK  = '#060d08'
 
   // ── Clip round card ───────────────────────────────────────────────────────
   ctx.save()
   rrPath(ctx, 0, 0, W, H, 22)
   ctx.clip()
 
-  // ── Background ────────────────────────────────────────────────────────────
+  // ── Fundo base ───────────────────────────────────────────────────────────
   ctx.fillStyle = DARK
   ctx.fillRect(0, 0, W, H)
 
-  // Grid sutil
-  ctx.save()
-  ctx.globalAlpha = 0.025
-  ctx.strokeStyle = GREEN
-  ctx.lineWidth   = 0.5
-  for (let xi = 0; xi <= W; xi += 32) { ctx.beginPath(); ctx.moveTo(xi,0); ctx.lineTo(xi,H); ctx.stroke() }
-  for (let yi = 0; yi <= H; yi += 32) { ctx.beginPath(); ctx.moveTo(0,yi); ctx.lineTo(W,yi); ctx.stroke() }
-  ctx.restore()
-
-  // ── Foto ─────────────────────────────────────────────────────────────────
-  const PHOTO_H = 285
+  // ── FOTO preenche o card inteiro (prioridade de fundo) ────────────────────
   let img: HTMLImageElement | null = null
   if (opts.fotoUrl) img = await loadImage(opts.fotoUrl)
 
   if (img) {
-    const scale = Math.max(W / img.width, PHOTO_H / img.height)
+    // cover-fit: foto ocupa todo W×H com bias para o topo (rosto)
+    const scale = Math.max(W / img.width, H / img.height)
     const dw = img.width  * scale
     const dh = img.height * scale
     const dx = (W - dw) / 2
-    const dy = Math.min(0, (PHOTO_H - dh) * 0.1)
+    // bias 15% para o topo para exibir o rosto
+    const dy = Math.min(0, (H - dh) * 0.15)
     ctx.drawImage(img, dx, dy, dw, dh)
 
-    // Overlay: topo → transparente, base → escuro
-    const ov = ctx.createLinearGradient(0, 0, 0, PHOTO_H)
-    ov.addColorStop(0,    'rgba(8,15,10,0.68)')
-    ov.addColorStop(0.30, 'rgba(8,15,10,0.08)')
-    ov.addColorStop(0.60, 'rgba(8,15,10,0.18)')
-    ov.addColorStop(1,    'rgba(8,15,10,0.94)')
-    ctx.fillStyle = ov
-    ctx.fillRect(0, 0, W, PHOTO_H)
+    // Overlay topo: escurece levemente para logo/badge/OVR
+    const topOv = ctx.createLinearGradient(0, 0, 0, 180)
+    topOv.addColorStop(0,   'rgba(4,10,6,0.82)')
+    topOv.addColorStop(0.5, 'rgba(4,10,6,0.28)')
+    topOv.addColorStop(1,   'rgba(4,10,6,0)')
+    ctx.fillStyle = topOv
+    ctx.fillRect(0, 0, W, 180)
+
+    // Overlay esquerdo: sombra lateral para legibilidade do OVR
+    const leftOv = ctx.createLinearGradient(0, 60, 200, 60)
+    leftOv.addColorStop(0,   'rgba(4,10,6,0.55)')
+    leftOv.addColorStop(0.55,'rgba(4,10,6,0)')
+    ctx.fillStyle = leftOv
+    ctx.fillRect(0, 60, 200, 140)
+
+    // Overlay base: parte inferior escurece progressivamente
+    const botOv = ctx.createLinearGradient(0, H - 295, 0, H)
+    botOv.addColorStop(0,    'rgba(4,10,6,0)')
+    botOv.addColorStop(0.22, 'rgba(4,10,6,0.38)')
+    botOv.addColorStop(0.52, 'rgba(4,10,6,0.82)')
+    botOv.addColorStop(0.75, 'rgba(4,10,6,0.94)')
+    botOv.addColorStop(1,    'rgba(4,10,6,0.98)')
+    ctx.fillStyle = botOv
+    ctx.fillRect(0, H - 295, W, 295)
   } else {
-    // Sem foto — fundo radial + iniciais
-    const bg = ctx.createRadialGradient(W/2, PHOTO_H*0.44, 0, W/2, PHOTO_H*0.44, 180)
+    // Sem foto: gradiente radial central + iniciais
+    const bg = ctx.createRadialGradient(W/2, H*0.36, 0, W/2, H*0.36, 220)
     bg.addColorStop(0, '#0e2016'); bg.addColorStop(1, DARK)
     ctx.fillStyle = bg
-    ctx.fillRect(0, 0, W, PHOTO_H)
+    ctx.fillRect(0, 0, W, H)
 
-    ctx.shadowColor = GREEN; ctx.shadowBlur = 22
-    ctx.fillStyle   = GREEN + '1e'
-    ctx.beginPath(); ctx.arc(W/2, PHOTO_H*0.44, 72, 0, Math.PI*2); ctx.fill()
-    ctx.strokeStyle = GREEN + '55'; ctx.lineWidth = 2.5
-    ctx.beginPath(); ctx.arc(W/2, PHOTO_H*0.44, 72, 0, Math.PI*2); ctx.stroke()
+    // Grid sutil
+    ctx.save()
+    ctx.globalAlpha = 0.03
+    ctx.strokeStyle = GREEN; ctx.lineWidth = 0.5
+    for (let xi = 0; xi <= W; xi += 32) { ctx.beginPath(); ctx.moveTo(xi,0); ctx.lineTo(xi,H); ctx.stroke() }
+    for (let yi = 0; yi <= H; yi += 32) { ctx.beginPath(); ctx.moveTo(0,yi); ctx.lineTo(W,yi); ctx.stroke() }
+    ctx.restore()
+
+    ctx.shadowColor = GREEN; ctx.shadowBlur = 28
+    ctx.fillStyle   = GREEN + '18'
+    ctx.beginPath(); ctx.arc(W/2, H*0.36, 80, 0, Math.PI*2); ctx.fill()
+    ctx.strokeStyle = GREEN + '44'; ctx.lineWidth = 2.5
+    ctx.beginPath(); ctx.arc(W/2, H*0.36, 80, 0, Math.PI*2); ctx.stroke()
     ctx.shadowBlur = 0
-
     ctx.fillStyle    = GREEN
-    ctx.font         = 'bold 52px system-ui, -apple-system, sans-serif'
-    ctx.textAlign    = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.fillText(opts.initials, W/2, PHOTO_H*0.44)
-  }
+    ctx.font         = 'bold 58px system-ui, -apple-system, sans-serif'
+    ctx.textAlign    = 'center'; ctx.textBaseline = 'middle'
+    ctx.fillText(opts.initials, W/2, H*0.36)
 
-  // ── Panel inferior ─────────────────────────────────────────────────────────
-  const PANEL_Y = PHOTO_H - 10
-  const fade = ctx.createLinearGradient(0, PANEL_Y - 36, 0, PANEL_Y + 8)
-  fade.addColorStop(0, 'rgba(8,15,10,0)'); fade.addColorStop(1, DARK)
-  ctx.fillStyle = fade
-  ctx.fillRect(0, PANEL_Y - 36, W, 44)
-  ctx.fillStyle = DARK
-  ctx.fillRect(0, PANEL_Y, W, H - PANEL_Y)
+    // overlay base mesmo sem foto
+    const botOv2 = ctx.createLinearGradient(0, H - 240, 0, H)
+    botOv2.addColorStop(0, 'rgba(4,10,6,0)'); botOv2.addColorStop(1, 'rgba(4,10,6,0.92)')
+    ctx.fillStyle = botOv2; ctx.fillRect(0, H - 240, W, 240)
+  }
 
   // ── Borda neon verde ───────────────────────────────────────────────────────
   ctx.save()
-  ctx.shadowColor = GREEN; ctx.shadowBlur = 28
+  ctx.shadowColor = GREEN; ctx.shadowBlur = 32
   rrPath(ctx, 1.5, 1.5, W - 3, H - 3, 21)
-  ctx.strokeStyle = GREEN + '72'; ctx.lineWidth = 2.5; ctx.stroke()
+  ctx.strokeStyle = GREEN + '78'; ctx.lineWidth = 2.5; ctx.stroke()
   ctx.shadowBlur = 0
   ctx.restore()
 
   // ── Logo "MEU CRAQUE" (topo esquerdo) ─────────────────────────────────────
   ctx.save()
-  ctx.shadowColor = GREEN; ctx.shadowBlur = 8
-  ctx.fillStyle   = GREEN + '22'
-  ctx.strokeStyle = GREEN + '66'; ctx.lineWidth = 1.5
+  ctx.fillStyle   = GREEN + '20'
+  ctx.strokeStyle = GREEN + '60'; ctx.lineWidth = 1.5
   ctx.beginPath(); ctx.arc(26, 26, 12, 0, Math.PI * 2)
   ctx.fill(); ctx.stroke()
-  ctx.shadowBlur = 0
   ctx.fillStyle    = GREEN
   ctx.font         = 'bold 11px system-ui, sans-serif'
-  ctx.textAlign    = 'center'
-  ctx.textBaseline = 'middle'
+  ctx.textAlign    = 'center'; ctx.textBaseline = 'middle'
   ctx.fillText('M', 26, 26)
-  ctx.textAlign    = 'left'
-  ctx.textBaseline = 'alphabetic'
-  ctx.fillStyle    = 'rgba(255,255,255,0.90)'
+  ctx.textAlign    = 'left'; ctx.textBaseline = 'alphabetic'
+  ctx.fillStyle    = 'rgba(255,255,255,0.92)'
   ctx.font         = 'bold 9px system-ui, sans-serif'
   ctx.fillText('MEU', 42, 23)
   ctx.fillStyle = GREEN
@@ -175,18 +181,17 @@ async function generateCard(canvas: HTMLCanvasElement, opts: CardShareProps): Pr
 
   // ── Badge "VALIDADO" (topo direito) ───────────────────────────────────────
   if (opts.ovr) {
-    const bw = 98, bh = 54, bx = W - bw - 14, by = 8
+    const bw = 96, bh = 54, bx = W - bw - 14, by = 8
     ctx.save()
-    ctx.fillStyle   = 'rgba(0,0,0,0.55)'
+    ctx.fillStyle   = 'rgba(2,8,4,0.65)'
     rrPath(ctx, bx, by, bw, bh, 8); ctx.fill()
     ctx.strokeStyle = GREEN + '44'; ctx.lineWidth = 1
     rrPath(ctx, bx, by, bw, bh, 8); ctx.stroke()
-    ctx.textAlign    = 'center'
-    ctx.textBaseline = 'top'
+    ctx.textAlign    = 'center'; ctx.textBaseline = 'top'
     ctx.fillStyle    = GREEN
     ctx.font         = 'bold 13px system-ui, sans-serif'
     ctx.fillText('✓', bx + bw / 2, by + 6)
-    ctx.fillStyle = 'rgba(255,255,255,0.68)'
+    ctx.fillStyle = 'rgba(255,255,255,0.65)'
     ctx.font      = 'bold 7px system-ui, sans-serif'
     ctx.fillText('VALIDADO POR',      bx + bw / 2, by + 22)
     ctx.fillText('TREINADOR OFICIAL', bx + bw / 2, by + 32)
@@ -195,94 +200,84 @@ async function generateCard(canvas: HTMLCanvasElement, opts: CardShareProps): Pr
     ctx.restore()
   }
 
-  // ── OVR (esquerda, sobreposto à foto) ─────────────────────────────────────
+  // ── OVR (esquerda, zona clara da foto) ────────────────────────────────────
   ctx.save()
-  ctx.textAlign    = 'left'
-  ctx.textBaseline = 'top'
-  ctx.fillStyle    = 'rgba(255,255,255,0.52)'
+  ctx.textAlign    = 'left'; ctx.textBaseline = 'top'
+  ctx.fillStyle    = 'rgba(255,255,255,0.55)'
   ctx.font         = 'bold 12px system-ui, sans-serif'
-  ctx.fillText('OVR', 20, 68)
-  ctx.shadowColor  = GREEN; ctx.shadowBlur = 26
+  ctx.fillText('OVR', 20, 66)
+  ctx.shadowColor  = GREEN; ctx.shadowBlur = 28
   ctx.fillStyle    = GREEN
-  ctx.font         = 'bold 84px system-ui, -apple-system, sans-serif'
-  ctx.fillText(opts.ovr ? String(opts.ovr) : '—', 12, 80)
+  ctx.font         = 'bold 88px system-ui, -apple-system, sans-serif'
+  ctx.fillText(opts.ovr ? String(opts.ovr) : '—', 10, 78)
   ctx.shadowBlur = 0
   ctx.restore()
 
-  // ── Nome (parte inferior da foto) ─────────────────────────────────────────
-  const parts     = opts.nome.trim().split(' ')
+  // ── Nome (sobreposição na parte inferior da foto) ─────────────────────────
+  const parts    = opts.nome.trim().split(' ')
   const lastName  = (parts.length > 1 ? parts[parts.length - 1] : opts.nome).toUpperCase()
   const firstName = (parts.length > 1 ? parts.slice(0, -1).join(' ') : '').toUpperCase()
-  const NAME_Y    = PHOTO_H - 60
+  const NAME_Y   = H - 238
 
   ctx.save()
-  ctx.textAlign    = 'left'
-  ctx.textBaseline = 'alphabetic'
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'
   if (firstName) {
-    ctx.fillStyle = 'rgba(255,255,255,0.88)'
-    ctx.font      = 'bold 22px system-ui, sans-serif'
+    ctx.fillStyle = 'rgba(255,255,255,0.90)'
+    ctx.font      = 'bold 23px system-ui, sans-serif'
     ctx.fillText(firstName, 20, NAME_Y)
   }
-  ctx.shadowColor = GREEN; ctx.shadowBlur = 14
+  ctx.shadowColor = GREEN; ctx.shadowBlur = 16
   ctx.fillStyle   = GREEN
-  ctx.font        = 'bold 44px system-ui, -apple-system, sans-serif'
+  ctx.font        = 'bold 46px system-ui, -apple-system, sans-serif'
   let ln = lastName
   while (ctx.measureText(ln).width > W - 28 && ln.length > 3) ln = ln.slice(0, -1)
   if (ln !== lastName) ln += '…'
-  ctx.fillText(ln, 18, NAME_Y + (firstName ? 45 : 0))
+  ctx.fillText(ln, 18, NAME_Y + (firstName ? 47 : 0))
   ctx.shadowBlur = 0
   ctx.restore()
 
-  // ── Panel content ─────────────────────────────────────────────────────────
-  const CY = PANEL_Y + 12
-
-  // ID box
-  const QR_SIZE   = 56
-  const QR_X      = W - 14 - QR_SIZE
-  const ID_BOX_W  = QR_X - 16 - 10
-  const ID_BOX_H  = QR_SIZE
+  // ── ID + QR ────────────────────────────────────────────────────────────────
+  const CY      = H - 178
+  const QR_SIZE = 56
+  const QR_X    = W - 14 - QR_SIZE
+  const IB_W    = QR_X - 16 - 10
 
   ctx.save()
-  ctx.fillStyle   = 'rgba(255,255,255,0.030)'
-  rrPath(ctx, 16, CY, ID_BOX_W, ID_BOX_H, 8); ctx.fill()
-  ctx.strokeStyle = GREEN + '28'; ctx.lineWidth = 1
-  rrPath(ctx, 16, CY, ID_BOX_W, ID_BOX_H, 8); ctx.stroke()
-  ctx.textAlign    = 'left'
-  ctx.textBaseline = 'top'
-  ctx.fillStyle    = 'rgba(255,255,255,0.36)'
+  ctx.fillStyle   = 'rgba(2,8,4,0.60)'
+  rrPath(ctx, 16, CY, IB_W, QR_SIZE, 8); ctx.fill()
+  ctx.strokeStyle = GREEN + '30'; ctx.lineWidth = 1
+  rrPath(ctx, 16, CY, IB_W, QR_SIZE, 8); ctx.stroke()
+  ctx.textAlign    = 'left'; ctx.textBaseline = 'top'
+  ctx.fillStyle    = 'rgba(255,255,255,0.38)'
   ctx.font         = 'bold 9px system-ui, sans-serif'
-  ctx.fillText('ID ÚNICO', 26, CY + 10)
+  ctx.fillText('ID ÚNICO', 26, CY + 11)
   ctx.fillStyle = GREEN
   ctx.font      = 'bold 19px system-ui, -apple-system, sans-serif'
-  ctx.fillText(opts.athleteId ?? '—', 26, CY + 27)
+  ctx.fillText(opts.athleteId ?? '—', 26, CY + 28)
   ctx.restore()
 
-  // QR code
+  // QR code (tenta API, fallback para pattern)
   let qrDrawn = false
   if (opts.profileUrl) {
-    const api = `https://api.qrserver.com/v1/create-qr-code/?size=112x112&data=${encodeURIComponent(opts.profileUrl)}&color=00FF88&bgcolor=080f0a&margin=2`
+    const api = `https://api.qrserver.com/v1/create-qr-code/?size=112x112&data=${encodeURIComponent(opts.profileUrl)}&color=00FF88&bgcolor=060d08&margin=2`
     const qrImg = await loadImage(api)
     if (qrImg) {
       ctx.save()
-      rrPath(ctx, QR_X, CY, QR_SIZE, QR_SIZE, 4)
-      ctx.clip()
+      rrPath(ctx, QR_X, CY, QR_SIZE, QR_SIZE, 4); ctx.clip()
       ctx.drawImage(qrImg, QR_X, CY, QR_SIZE, QR_SIZE)
-      ctx.restore()
-      qrDrawn = true
+      ctx.restore(); qrDrawn = true
     }
   }
-  if (!qrDrawn) {
-    drawQRPattern(ctx, QR_X, CY, QR_SIZE, GREEN + 'cc')
-  }
+  if (!qrDrawn) drawQRPattern(ctx, QR_X, CY, QR_SIZE, GREEN + 'cc')
 
   // ── Stats bar ─────────────────────────────────────────────────────────────
-  const SY = CY + ID_BOX_H + 10
+  const SY = CY + QR_SIZE + 9
   const SH = 50
 
   ctx.save()
-  ctx.fillStyle   = 'rgba(255,255,255,0.025)'
+  ctx.fillStyle   = 'rgba(2,8,4,0.58)'
   rrPath(ctx, 16, SY, W - 32, SH, 8); ctx.fill()
-  ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.lineWidth = 1
   rrPath(ctx, 16, SY, W - 32, SH, 8); ctx.stroke()
 
   const cols = [
@@ -294,29 +289,25 @@ async function generateCard(canvas: HTMLCanvasElement, opts: CardShareProps): Pr
   cols.forEach((s, i) => {
     const cx = 16 + i * colW + colW / 2
     if (i > 0) {
-      ctx.strokeStyle = 'rgba(255,255,255,0.07)'
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)'
       ctx.beginPath(); ctx.moveTo(16 + i * colW, SY + 7); ctx.lineTo(16 + i * colW, SY + SH - 7); ctx.stroke()
     }
-    ctx.textAlign    = 'center'
-    ctx.textBaseline = 'top'
-    ctx.fillStyle    = GREEN + '72'
-    ctx.font         = 'bold 7.5px system-ui, sans-serif'
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top'
+    ctx.fillStyle = GREEN + '70'
+    ctx.font      = 'bold 7.5px system-ui, sans-serif'
     ctx.fillText(s.label, cx, SY + 6)
-    ctx.fillStyle = 'rgba(255,255,255,0.88)'
+    ctx.fillStyle = 'rgba(255,255,255,0.90)'
     ctx.font      = 'bold 10.5px system-ui, sans-serif'
     let v = s.val
     while (ctx.measureText(v).width > colW - 10 && v.length > 2) v = v.slice(0, -1)
     if (v !== s.val) v += '.'
-    ctx.fillText(v, cx, SY + 19)
-    if (s.flag) {
-      ctx.font = '13px system-ui, sans-serif'
-      ctx.fillText('🇧🇷', cx, SY + 33)
-    }
+    ctx.fillText(v, cx, SY + 20)
+    if (s.flag) { ctx.font = '13px system-ui, sans-serif'; ctx.fillText('🇧🇷', cx, SY + 34) }
   })
   ctx.restore()
 
   // ── Botão CTA ─────────────────────────────────────────────────────────────
-  const BY = SY + SH + 10
+  const BY = SY + SH + 9
   const BH = 42
 
   ctx.save()
@@ -326,16 +317,14 @@ async function generateCard(canvas: HTMLCanvasElement, opts: CardShareProps): Pr
   rrPath(ctx, 16, BY, W - 32, BH, 11); ctx.fill()
   ctx.fillStyle    = '#020c05'
   ctx.font         = 'bold 13px system-ui, -apple-system, sans-serif'
-  ctx.textAlign    = 'center'
-  ctx.textBaseline = 'middle'
+  ctx.textAlign    = 'center'; ctx.textBaseline = 'middle'
   ctx.fillText('VER PERFIL COMPLETO  →', W / 2, BY + BH / 2)
   ctx.restore()
 
   // ── Watermark ─────────────────────────────────────────────────────────────
   ctx.fillStyle    = 'rgba(255,255,255,0.07)'
   ctx.font         = '8px system-ui, sans-serif'
-  ctx.textAlign    = 'center'
-  ctx.textBaseline = 'alphabetic'
+  ctx.textAlign    = 'center'; ctx.textBaseline = 'alphabetic'
   ctx.fillText('meucraque.com', W / 2, H - 6)
 
   ctx.restore() // restore clip
