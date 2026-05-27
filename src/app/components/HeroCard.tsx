@@ -1,89 +1,16 @@
-// Server Component — card do atleta em destaque para o hero
-import Link from 'next/link'
-import { createAdminClient } from '@/lib/supabase'
+// Componente demonstrativo — card estático, não clicável, sem dados reais
 import { AtletaFoto } from './AtletaFoto'
 
-type CardData = {
-  nome: string; posicao: string; athlete_id: string
-  foto: string | null; ovr: number; treinadorNome: string
-  userId: string; cardStats: [string, string][]
+const DEMO = {
+  nome:         'Rafael Silva',
+  ovr:          91,
+  treinadorNome:'Carlos Mendes',
+  foto:         null as string | null,
+  cardStats:    [['VEL','90'],['FIN','95'],['TEC','88'],['VIS','82'],['FOR','90'],['POS','94']] as [string,string][],
 }
 
-const FALLBACK: CardData = {
-  nome: 'Rafael Silva', posicao: 'MEI', athlete_id: '04729',
-  foto: null, ovr: 87, treinadorNome: 'Carlos Mendes', userId: '',
-  cardStats: [['VEL','90'],['FIN','85'],['TEC','88'],['VIS','82'],['FOR','78'],['POS','87']],
-}
-
-async function fetchCardData(): Promise<CardData> {
-  try {
-    const admin = createAdminClient()
-
-    const { data: av } = await admin
-      .from('avaliacoes')
-      .select('aluno_id, professor_id, scout_score, velocidade, tecnica, visao_jogo, finalizacao, forca, posicionamento')
-      .not('scout_score', 'is', null)
-      .order('scout_score', { ascending: false })
-      .limit(1)
-      .maybeSingle()
-
-    if (!av || !av.aluno_id) return FALLBACK
-
-    const { data: profile } = await admin
-      .from('profiles')
-      .select('nome, athlete_id, fotos, avatar_url')
-      .eq('id', av.aluno_id as string)
-      .maybeSingle()
-
-    const { data: { user: atletaUser } } = await admin.auth.admin.getUserById(av.aluno_id as string)
-    const posicao = (atletaUser?.user_metadata?.posicao as string | null) ?? 'ATL'
-
-    const { data: tProfile } = await admin
-      .from('profiles')
-      .select('nome')
-      .eq('id', av.professor_id as string)
-      .maybeSingle()
-
-    const fotosArr = profile?.fotos as (string | null)[] | null
-    const foto = fotosArr?.[0] ?? (profile?.avatar_url as string | null) ?? null
-
-    const v   = (n: unknown) => Math.round((typeof n === 'number' ? n : 0) * 10)
-    const ovr = Math.round(av.scout_score as number)
-
-    const posAbrev = (pos: string) => {
-      const m: Record<string,string> = {
-        'Goleiro':'GK','Lateral Direito':'LD','Lateral Esquerdo':'LE',
-        'Zagueiro':'ZG','Volante':'VOL','Meia':'MEI','Meia-Atacante':'MAT',
-        'Ponta Direita':'PD','Ponta Esquerda':'PE','Atacante':'ATA','Centro-Avante':'CA',
-      }
-      return m[pos] ?? pos.slice(0,3).toUpperCase()
-    }
-
-    return {
-      nome:          (profile?.nome as string | null) ?? 'Atleta',
-      posicao:       posAbrev(posicao),
-      athlete_id:    (profile?.athlete_id as string | null)?.replace(/^[A-Z]+-/,'') ?? '—',
-      foto,
-      ovr,
-      treinadorNome: (tProfile?.nome as string | null) ?? 'Treinador',
-      userId:        av.aluno_id as string,
-      cardStats: [
-        ['VEL', String(v(av.velocidade))],
-        ['FIN', String(v(av.finalizacao))],
-        ['TEC', String(v(av.tecnica))],
-        ['VIS', String(v(av.visao_jogo))],
-        ['FOR', String(v(av.forca))],
-        ['POS', String(v(av.posicionamento))],
-      ],
-    }
-  } catch {
-    return FALLBACK
-  }
-}
-
-export default async function HeroCard() {
-  const data = await fetchCardData()
-  const { nome, posicao, athlete_id, foto, ovr, treinadorNome, cardStats, userId } = data
+export default function HeroCard() {
+  const { nome, ovr, treinadorNome, foto, cardStats } = DEMO
 
   const tier = ovr >= 85
     ? { label: 'OURO',   card: 'linear-gradient(160deg,#2a1a00 0%,#1e1200 55%,#0e0900 100%)', border: 'rgba(212,168,67,0.55)',  glow: 'rgba(212,168,67,0.30)',  ovr: '#f0c040', accent: '#d4a843', badge: 'linear-gradient(135deg,#b8860b,#f0c040)' }
@@ -103,7 +30,6 @@ export default async function HeroCard() {
           100% { left: 160% }
         }
         .hero-card-anim { animation: heroCardFloat 5s ease-in-out infinite; }
-        .hero-card-anim:hover { animation-play-state: paused; }
         .hero-card-shimmer {
           position: absolute; top: 0; bottom: 0; width: 50%;
           background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
@@ -115,7 +41,7 @@ export default async function HeroCard() {
 
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
 
-        {/* Rótulo destaque */}
+        {/* Rótulo */}
         <span style={{
           fontSize: '9px', fontWeight: 800, color: tier.accent,
           letterSpacing: '0.18em', textTransform: 'uppercase',
@@ -123,7 +49,7 @@ export default async function HeroCard() {
           ⭐ DESTAQUE DA SEMANA
         </span>
 
-        {/* Card flutuante */}
+        {/* Card flutuante — não clicável */}
         <div className="hero-card-anim" style={{
           width: '220px',
           background: tier.card,
@@ -132,17 +58,8 @@ export default async function HeroCard() {
           overflow: 'hidden',
           boxShadow: `0 0 80px ${tier.glow}, 0 0 28px ${tier.glow}, 0 32px 72px rgba(0,0,0,0.85)`,
           position: 'relative',
-          cursor: userId ? 'pointer' : 'default',
         }}>
           <div className="hero-card-shimmer" />
-
-          {userId && (
-            <Link
-              href={`/jogador/${userId}`}
-              style={{ position: 'absolute', inset: 0, zIndex: 20 }}
-              aria-label={`Ver perfil de ${nome}`}
-            />
-          )}
 
           {/* Linha de topo */}
           <div style={{ height: '3px', background: `linear-gradient(90deg, transparent, ${tier.accent}, transparent)` }} />
@@ -155,10 +72,11 @@ export default async function HeroCard() {
                 lineHeight: 1, letterSpacing: '-0.04em',
                 textShadow: `0 0 28px ${tier.glow}`,
               }}>{ovr}</div>
+              {/* OVR label — substitui a posição */}
               <div style={{
                 fontSize: '12px', fontWeight: 800,
                 color: 'rgba(255,255,255,0.65)', letterSpacing: '0.12em', marginTop: '3px',
-              }}>{posicao}</div>
+              }}>OVR</div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '7px' }}>
               <div style={{
@@ -235,14 +153,6 @@ export default async function HeroCard() {
           </div>
         </div>
 
-        {/* ID do atleta */}
-        <span style={{
-          fontSize: '9px', fontWeight: 700,
-          color: 'rgba(255,255,255,0.22)', letterSpacing: '0.14em',
-          textTransform: 'uppercase',
-        }}>
-          ID {athlete_id}
-        </span>
       </div>
     </>
   )
