@@ -398,7 +398,7 @@ export default function TacticalBoard() {
         {/* ── Treinador do Mês ── */}
         {treinador && (
           <a
-            href={`/entrar/${treinador.id}`}
+            href={`/treinador/${treinador.id}`}
             style={{
               display: 'block',
               marginTop: '14px',
