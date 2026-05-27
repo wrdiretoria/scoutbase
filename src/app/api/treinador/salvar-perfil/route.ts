@@ -29,23 +29,21 @@ export async function POST(req: Request) {
 
     const admin = createAdminClient()
 
-    // ── Busca nome do auth (necessário para NOT NULL ao inserir) ──────────────
-    const { data: { user: authUser } } = await admin.auth.admin.getUserById(userId)
-    const nomeAuth = (authUser?.user_metadata?.nome as string | null) ?? null
+    // ── Atualiza profiles (UPDATE — não cria linha nova, evita erros de NOT NULL)
+    const profileUpdate: Record<string, unknown> = {}
+    if (bio       !== undefined) profileUpdate.bio        = bio       || null
+    if (avatarUrl !== undefined) profileUpdate.avatar_url = avatarUrl || null
 
-    // ── Salva no profiles (só colunas que existem no schema) ──────────────────
-    const payload: Record<string, unknown> = { id: userId }
-    if (nomeAuth)                 payload.nome       = nomeAuth
-    if (bio       !== undefined)  payload.bio        = bio       || null
-    if (avatarUrl !== undefined)  payload.avatar_url = avatarUrl || null
+    if (Object.keys(profileUpdate).length > 0) {
+      const { error: profileErr } = await admin
+        .from('profiles')
+        .update(profileUpdate)
+        .eq('id', userId)
 
-    const { error: profileErr } = await admin
-      .from('profiles')
-      .upsert(payload, { onConflict: 'id' })
-
-    if (profileErr) {
-      console.error('[treinador/salvar-perfil] profiles upsert', profileErr)
-      return NextResponse.json({ error: profileErr.message }, { status: 500 })
+      if (profileErr) {
+        console.error('[treinador/salvar-perfil] profiles update', profileErr)
+        return NextResponse.json({ error: profileErr.message }, { status: 500 })
+      }
     }
 
     // ── Salva campos extras no user_metadata (sem schema migration) ───────────
