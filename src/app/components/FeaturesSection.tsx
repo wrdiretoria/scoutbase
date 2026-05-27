@@ -9,7 +9,7 @@ const features = [
     ),
     tag: 'AVALIAÇÕES',
     title: 'Seja avaliado por treinadores',
-    desc: 'Receba avaliações reais de treinadores cadastrados e ganhe visibilidade no ranking nacional.',
+    desc: 'Receba avaliações reais de treinadores cadastrados e ganhe visibilidade no ranking global.',
   },
   {
     icon: (
@@ -18,8 +18,8 @@ const features = [
       </svg>
     ),
     tag: 'RANKING',
-    title: 'Suba no ranking nacional',
-    desc: 'Compita por posição, idade e região. Seja o número 1 do Brasil na sua posição.',
+    title: 'Suba no ranking global',
+    desc: 'Compita por posição, idade e região. Seja o número 1 do mundo na sua posição.',
   },
   {
     icon: (

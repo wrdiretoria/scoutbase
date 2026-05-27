@@ -229,7 +229,7 @@ export default async function CardCraqueSection() {
           }}>
             Mostre quem você é dentro e fora de campo.
             Crie seu card profissional e seja descoberto
-            por scouts e clubes de todo o Brasil.
+            por scouts e clubes de futebol do mundo inteiro.
           </p>
 
           {/* Tier legend */}

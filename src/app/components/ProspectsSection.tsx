@@ -87,7 +87,7 @@ function getStats(posicao: string, av: Record<string, unknown>) {
 function getHighlight(ovr: number, rank: number, cidade: string): string {
   const city = cidade ? cidade.split(',')[0] : ''
   if (rank === 1) return `Top 1 do ranking · OVR ${ovr}`
-  if (ovr >= 88)  return city ? `${city} · OVR ${ovr}` : `Elite nacional · OVR ${ovr}`
+  if (ovr >= 88)  return city ? `${city} · OVR ${ovr}` : `Elite global · OVR ${ovr}`
   if (ovr >= 80)  return city ? `${city} · Top ${rank}` : `Alto nível · OVR ${ovr}`
   return city ? `${city} · Top ${rank}` : `Top ${rank} no ranking`
 }

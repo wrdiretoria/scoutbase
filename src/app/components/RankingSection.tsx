@@ -124,7 +124,7 @@ export default async function RankingSection() {
           Os craques em evidência
         </h2>
         <p style={{ marginTop: '10px', fontSize: '15px', color: 'rgba(255,255,255,0.45)', maxWidth: '420px', margin: '10px auto 0' }}>
-          Atletas avaliados por treinadores e vistos por scouts de todo o Brasil.
+          Atletas avaliados por treinadores e vistos por scouts e clubes de futebol.
         </p>
       </div>
 

@@ -562,7 +562,7 @@ export default async function TreinadorPerfilPublico({ params }: Props) {
             Você é atleta?
           </p>
           <p style={{ margin: '0 0 18px', fontSize: '13px', color: 'rgba(255,255,255,0.45)' }}>
-            Crie seu card gratuito e seja visto por scouts do Brasil.
+            Crie seu card gratuito e seja encontrado por scouts e clubes do futebol.
           </p>
           <Link href="/atleta/cadastro" style={{
             display: 'inline-block', padding: '13px 28px', borderRadius: '14px',

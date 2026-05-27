@@ -1,6 +1,7 @@
 ﻿import type { Metadata } from "next";
 import { Bebas_Neue, DM_Sans } from "next/font/google";
 import "./globals.css";
+import { SERVER_BASE_URL } from "@/lib/base-url";
 
 const bebasNeue = Bebas_Neue({
   weight: "400",
@@ -15,24 +16,24 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: "Meu Craque — Perfil Oficial de Atleta de Futebol",
-  description: "Crie seu perfil gratuito, receba avaliações de treinadores certificados e seja descoberto por scouts e clubes de todo o Brasil.",
+  description: "Crie seu perfil gratuito, receba avaliações de treinadores certificados e seja descoberto por scouts e clubes de futebol do mundo inteiro.",
   keywords: [
     "perfil atleta futebol", "scout futebol brasil", "avaliação atleta",
     "futebol de base", "ser descoberto futebol", "ranking atletas",
     "treinador futebol", "meu craque",
   ],
   authors: [{ name: "Meu Craque" }],
-  metadataBase: new URL("https://meucraque.com.br"),
+  metadataBase: new URL(SERVER_BASE_URL),
   alternates: {
     canonical: "/",
   },
   openGraph: {
     type: "website",
     locale: "pt_BR",
-    url: "https://meucraque.com.br",
+    url: SERVER_BASE_URL,
     siteName: "Meu Craque",
     title: "Meu Craque — Perfil Oficial de Atleta de Futebol",
-    description: "Crie seu perfil gratuito e seja descoberto por scouts e clubes de todo o Brasil.",
+    description: "Crie seu perfil gratuito e seja descoberto por scouts e clubes de futebol do mundo inteiro.",
     images: ["/opengraph-image"],
   },
   twitter: {

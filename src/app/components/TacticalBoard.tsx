@@ -435,7 +435,7 @@ export default function TacticalBoard() {
                   {treinador.nome}
                 </div>
                 <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.36)', marginTop: '1px' }}>
-                  {treinador.cidade || 'Brasil'} · Treinador
+                  {treinador.cidade || '—'} · Treinador
                 </div>
                 {treinador.mcId && (
                   <div style={{ fontSize: '8px', fontWeight: 700, color: 'rgba(255,255,255,0.22)', letterSpacing: '0.06em', marginTop: '2px' }}>

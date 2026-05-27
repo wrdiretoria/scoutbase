@@ -110,7 +110,7 @@ export default function ParaQuemSection() {
           lineHeight: 1.65,
         }}>
           O MeuCraque é o ponto de encontro entre quem tem talento
-          e quem procura talento no futebol de base do Brasil.
+          e quem procura talento no futebol.
         </p>
       </div>
 

@@ -317,7 +317,7 @@ export default function ScoutDashboardPage() {
               display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18,
             }}>🏆</div>
             <div style={{ flex: 1 }}>
-              <p style={{ margin: '0 0 2px', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.8)' }}>Ranking nacional</p>
+              <p style={{ margin: '0 0 2px', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.8)' }}>Ranking global</p>
               <p style={{ margin: 0, fontSize: 11, color: 'rgba(255,255,255,0.28)' }}>Top atletas por OVR · filtros disponíveis</p>
             </div>
             <span style={{ color: 'rgba(255,255,255,0.18)', fontSize: 20 }}>›</span>

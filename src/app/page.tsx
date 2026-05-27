@@ -848,7 +848,7 @@ export default async function LandingPage() {
           </h2>
 
           <p style={{ margin:'0 0 44px', fontSize:'clamp(15px,1.2vw,18px)', color:'rgba(255,255,255,0.38)', lineHeight:1.68, maxWidth:'520px', marginLeft:'auto', marginRight:'auto' }}>
-            Crie seu perfil grátis agora e entre no radar dos scouts mais ativos do Brasil.
+            Crie seu perfil grátis agora e entre no radar dos scouts e clubes de futebol.
             Seu próximo passo começa aqui.
           </p>
 

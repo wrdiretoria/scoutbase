@@ -153,7 +153,7 @@ export default async function RankingPage({ searchParams }: Props) {
             🏆 Ranking Oficial
           </p>
           <h1 style={{ margin: '0 0 4px', fontSize: '28px', fontWeight: 900, letterSpacing: '-0.02em' }}>
-            Os melhores do Brasil
+            Os melhores do futebol
           </h1>
           <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.4)' }}>
             {filtered.length} atleta{filtered.length !== 1 ? 's' : ''}
