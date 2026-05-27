@@ -331,15 +331,15 @@ export default async function TreinadorPerfilPublico({ params }: Props) {
           </div>
         )}
 
-        {/* ── Currículo profissional ── */}
-        {(clubeAtual || clubesTrabalhados || certificacoes || conquistas) && (
-          <div style={{
-            padding: '16px 20px', borderRadius: '16px', marginBottom: '20px',
-            background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)',
-          }}>
-            <p style={{ margin: '0 0 14px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-              📋 Currículo
-            </p>
+        {/* ── Currículo profissional — sempre visível ── */}
+        <div style={{
+          padding: '16px 20px', borderRadius: '16px', marginBottom: '20px',
+          background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)',
+        }}>
+          <p style={{ margin: '0 0 14px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+            📋 Currículo Profissional
+          </p>
+          {(clubeAtual || clubesTrabalhados || certificacoes || conquistas) ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {clubeAtual && (
                 <div>
@@ -366,18 +366,22 @@ export default async function TreinadorPerfilPublico({ params }: Props) {
                 </div>
               )}
             </div>
-          </div>
-        )}
-
-        {/* ── Contato e redes ── */}
-        {(telefone || instagram || tiktok || youtube || outras) && (
-          <div style={{
-            padding: '16px 20px', borderRadius: '16px', marginBottom: '20px',
-            background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)',
-          }}>
-            <p style={{ margin: '0 0 14px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-              📲 Contato
+          ) : (
+            <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.2)', fontStyle: 'italic' }}>
+              Este treinador ainda não preencheu o currículo.
             </p>
+          )}
+        </div>
+
+        {/* ── Contato e redes — sempre visível ── */}
+        <div style={{
+          padding: '16px 20px', borderRadius: '16px', marginBottom: '20px',
+          background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)',
+        }}>
+          <p style={{ margin: '0 0 14px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+            📲 Contato
+          </p>
+          {(telefone || instagram || tiktok || youtube || outras) ? (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {telefone && (
                 <a href={`https://wa.me/${telefone.replace(/\D/g,'')}`} target="_blank" rel="noopener noreferrer" style={{
@@ -430,8 +434,12 @@ export default async function TreinadorPerfilPublico({ params }: Props) {
                 </a>
               )}
             </div>
-          </div>
-        )}
+          ) : (
+            <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.2)', fontStyle: 'italic' }}>
+              Nenhum contato informado.
+            </p>
+          )}
+        </div>
 
         {/* ── Stats ── */}
         <div
