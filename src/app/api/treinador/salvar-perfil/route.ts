@@ -31,9 +31,8 @@ export async function POST(req: Request) {
 
     // ── Salva no profiles (só colunas que existem no schema) ──────────────────
     const payload: Record<string, unknown> = { id: userId }
-    if (bio           !== undefined) payload.bio           = bio           || null
-    if (especialidade !== undefined) payload.especialidade = especialidade || null
-    if (avatarUrl     !== undefined) payload.avatar_url    = avatarUrl     || null
+    if (bio       !== undefined) payload.bio        = bio       || null
+    if (avatarUrl !== undefined) payload.avatar_url = avatarUrl || null
 
     const { error: profileErr } = await admin
       .from('profiles')
@@ -46,6 +45,7 @@ export async function POST(req: Request) {
 
     // ── Salva campos extras no user_metadata (sem schema migration) ───────────
     const metaUpdate: Record<string, unknown> = {}
+    if (especialidade      !== undefined) metaUpdate.especialidade      = especialidade      || null
     if (cidade             !== undefined) metaUpdate.cidade             = cidade             || null
     if (pais               !== undefined) metaUpdate.pais               = pais               || null
     if (anosExp            !== undefined) metaUpdate.anos_exp           = anosExp            || null

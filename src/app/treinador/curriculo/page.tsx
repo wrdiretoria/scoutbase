@@ -139,18 +139,18 @@ export default function TreinadorCurriculoPage() {
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('bio, especialidade, avatar_url')
+        .select('bio, avatar_url')
         .eq('id', user.id)
         .maybeSingle()
 
       if (profile) {
         const p = profile as Record<string, unknown>
-        if (p.bio)           setBio(p.bio as string)
-        if (p.especialidade) setEspec(p.especialidade as string)
-        if (p.avatar_url)    setAvatarUrl(p.avatar_url as string)
+        if (p.bio)        setBio(p.bio as string)
+        if (p.avatar_url) setAvatarUrl(p.avatar_url as string)
       }
 
       const meta = (user.user_metadata ?? {}) as Record<string, unknown>
+      if (meta.especialidade)      setEspec(meta.especialidade as string)
       if (meta.cidade)             setCidade(meta.cidade as string)
       if (meta.anos_exp)           setAnosExp(meta.anos_exp as string)
       if (meta.clubes_trabalhados) setClubesTrabalhados(meta.clubes_trabalhados as string)

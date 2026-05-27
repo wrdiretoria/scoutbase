@@ -98,26 +98,26 @@ export default function TreinadorConfigurarPage() {
       // Busca dados existentes do banco para pré-popular o formulário
       const { data: profile } = await supabase
         .from('profiles')
-        .select('athlete_id, bio, especialidade, avatar_url')
+        .select('athlete_id, bio, avatar_url')
         .eq('id', user.id)
         .maybeSingle()
 
       if (profile) {
         const p = profile as Record<string, unknown>
-        if (p.athlete_id)    setTreinadorId(p.athlete_id as string)
-        if (p.bio)           setBio(p.bio as string)
-        if (p.especialidade) setEspec(p.especialidade as string)
-        if (p.avatar_url)    setSavedAvatarUrl(p.avatar_url as string)
+        if (p.athlete_id) setTreinadorId(p.athlete_id as string)
+        if (p.bio)        setBio(p.bio as string)
+        if (p.avatar_url) setSavedAvatarUrl(p.avatar_url as string)
       }
 
-      // Cidade e redes sociais ficam no user_metadata
+      // Especialidade, cidade, redes e demais ficam no user_metadata
       const meta = user.user_metadata as Record<string, unknown> | null
-      if (meta?.cidade)    setCidade(meta.cidade as string)
-      if (meta?.instagram) setInstagram(meta.instagram as string)
-      if (meta?.tiktok)    setTiktok(meta.tiktok as string)
-      if (meta?.youtube)   setYoutube(meta.youtube as string)
-      if (meta?.outras)    setOutras(meta.outras as string)
-      if (meta?.pais)      setPais(meta.pais as string)
+      if (meta?.especialidade) setEspec(meta.especialidade as string)
+      if (meta?.cidade)        setCidade(meta.cidade as string)
+      if (meta?.pais)          setPais(meta.pais as string)
+      if (meta?.instagram)     setInstagram(meta.instagram as string)
+      if (meta?.tiktok)        setTiktok(meta.tiktok as string)
+      if (meta?.youtube)       setYoutube(meta.youtube as string)
+      if (meta?.outras)        setOutras(meta.outras as string)
 
       setAuthReady(true)
     }

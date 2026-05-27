@@ -128,14 +128,16 @@ async function fetchTopProspects(): Promise<ProspectData[]> {
     const ids = topAvs.map(av => av.aluno_id as string)
 
     const [profilesRes, authData] = await Promise.all([
-      admin.from('profiles').select('id, nome, avatar_url, fotos, data_nascimento, cidade, athlete_id').in('id', ids),
+      admin.from('profiles').select('id, nome, avatar_url, fotos, data_nascimento, athlete_id').in('id', ids),
       admin.auth.admin.listUsers({ perPage: 1000 }),
     ])
 
     const profileMap = new Map((profilesRes.data ?? []).map(p => [p.id as string, p]))
-    const posMap = new Map<string, string>()
+    const posMap    = new Map<string, string>()
+    const cidadeMap = new Map<string, string>()
     for (const u of authData.data?.users ?? []) {
       if (u.user_metadata?.posicao) posMap.set(u.id, u.user_metadata.posicao as string)
+      if (u.user_metadata?.cidade)  cidadeMap.set(u.id, u.user_metadata.cidade as string)
     }
 
     return topAvs.map((av, i) => {
@@ -143,7 +145,7 @@ async function fetchTopProspects(): Promise<ProspectData[]> {
       const profile = profileMap.get(id)
       const nome    = (profile?.nome as string | null) ?? 'Atleta'
       const posicao = posMap.get(id) ?? 'Atleta'
-      const cidade  = (profile?.cidade as string | null) ?? ''
+      const cidade  = cidadeMap.get(id) ?? ''
       const dataNasc = (profile?.data_nascimento as string | null) ?? null
       const ovr     = Math.round(av.scout_score as number)
 

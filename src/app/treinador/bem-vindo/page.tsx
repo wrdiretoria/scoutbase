@@ -51,16 +51,17 @@ export default function TreinadorBemVindoPage() {
       setAnosExp((meta.anos_exp as string) ?? '')
       setTemQuest(!!(meta.questionario_treinador_completo))
 
+      if (meta.especialidade) setEspec(meta.especialidade as string)
+
       supabase.from('profiles')
-        .select('bio, especialidade, avatar_url, clubes_trabalhados')
+        .select('bio, avatar_url')
         .eq('id', user.id)
         .maybeSingle()
         .then(({ data: p }) => {
           if (p) {
             const pr = p as Record<string, unknown>
-            if (pr.especialidade) setEspec(pr.especialidade as string)
-            if (pr.avatar_url)    setAvatarUrl(pr.avatar_url as string)
-            const temCurr = !!(pr.bio || pr.clubes_trabalhados)
+            if (pr.avatar_url) setAvatarUrl(pr.avatar_url as string)
+            const temCurr = !!(pr.bio || meta.clubes_trabalhados)
             setTemCurriculo(temCurr)
           }
           setLoading(false)

@@ -64,8 +64,7 @@ export async function generateMetadata(
     if (!user) return { title: 'Treinador | Meu Craque' }
     const meta = user.user_metadata as { nome?: string; cidade?: string }
     const nome = meta.nome ?? 'Treinador'
-    const { data: p } = await admin.from('profiles').select('cidade').eq('id', id).maybeSingle()
-    const cidade = (p as Record<string,unknown> | null)?.cidade as string | null ?? meta.cidade
+    const cidade = meta.cidade ?? null
     return {
       title: `${nome} | Meu Craque`,
       description: `Perfil do treinador ${nome}${cidade ? ` de ${cidade}` : ''}. Avaliações e atletas no Meu Craque.`,
@@ -112,17 +111,17 @@ export default async function TreinadorPerfilPublico({ params }: Props) {
   // Busca dados do perfil (profiles tem prioridade sobre user_metadata)
   const { data: profileData } = await admin
     .from('profiles')
-    .select('cidade, especialidade, avatar_url, athlete_id, bio')
+    .select('avatar_url, athlete_id, bio')
     .eq('id', id)
     .maybeSingle()
   const p = profileData as Record<string, unknown> | null
 
   const nome          = meta.nome ?? 'Treinador'
-  const cidade        = (p?.cidade        as string | null) ?? meta.cidade        ?? null
-  const especialidade = (p?.especialidade as string | null) ?? meta.especialidade ?? null
-  const avatarUrl     = (p?.avatar_url    as string | null) ?? meta.avatar_url    ?? null
-  const treinadorId   = (p?.athlete_id    as string | null) ?? meta.treinadorId   ?? null
-  const bio           = (p?.bio           as string | null) ?? null
+  const cidade        = meta.cidade        ?? null
+  const especialidade = meta.especialidade ?? null
+  const avatarUrl     = (p?.avatar_url as string | null) ?? meta.avatar_url ?? null
+  const treinadorId   = (p?.athlete_id as string | null) ?? meta.treinadorId ?? null
+  const bio           = (p?.bio        as string | null) ?? null
 
   // 2. Busca avaliações feitas por este treinador no Meu Craque (professor_id = auth UUID)
   type AvaliacaoRaw = { id: string; aluno_id: string; scout_score: number; created_at: string }
