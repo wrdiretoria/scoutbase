@@ -116,16 +116,18 @@ export default async function TreinadorPerfilPublico({ params }: Props) {
     outras?:            string
   }
 
-  // Confirma que é treinador
-  if (meta.tipo !== 'treinador' && meta.tipo !== 'escola') notFound()
-
-  // Busca dados do perfil (profiles tem prioridade sobre user_metadata)
+  // Busca dados do perfil ANTES da verificação de tipo (profiles é fonte de verdade)
   const { data: profileData } = await admin
     .from('profiles')
     .select('avatar_url, athlete_id, bio')
     .eq('id', id)
     .maybeSingle()
   const p = profileData as Record<string, unknown> | null
+
+  // Confirma que é treinador: verifica tipo no metadata OU pelo prefixo TR- no athlete_id
+  const athleteIdRaw = (p?.athlete_id as string | null) ?? null
+  const isTrainer = meta.tipo === 'treinador' || meta.tipo === 'escola' || athleteIdRaw?.startsWith('TR-')
+  if (!isTrainer) notFound()
 
   const nome              = meta.nome ?? 'Treinador'
   const cidade            = meta.cidade            ?? null
