@@ -296,6 +296,17 @@ export default async function TreinadorPerfilPublico({ params }: Props) {
               <h1 style={{ margin: '0 0 4px', fontSize: '22px', fontWeight: 900, letterSpacing: '-0.02em' }}>
                 {nome}
               </h1>
+              {treinadorId && (
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '4px',
+                  fontSize: '10px', fontWeight: 800, color: 'rgba(34,197,94,0.85)',
+                  background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)',
+                  borderRadius: '6px', padding: '2px 8px', marginBottom: '6px',
+                  letterSpacing: '0.1em',
+                }}>
+                  🪪 ID {treinadorId.replace(/^[A-Z]+-/, '')}
+                </span>
+              )}
               <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                 {(cidade || pais) && (
                   <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>

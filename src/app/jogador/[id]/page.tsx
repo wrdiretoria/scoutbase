@@ -577,6 +577,18 @@ export default async function JogadorPublicoPage({ params }: Props) {
                 </p>
               </>
             )}
+            {/* ID — sempre visível, para todo atleta */}
+            {athleteId && (
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
+                <span style={{
+                  fontSize: '10px', fontWeight: 800, color: 'rgba(34,197,94,0.85)',
+                  background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.22)',
+                  borderRadius: '6px', padding: '3px 10px', letterSpacing: '0.1em',
+                }}>
+                  🪪 ID {athleteId.replace(/^[A-Z]+-/, '')}
+                </span>
+              </div>
+            )}
             {clubeAtual && (
               <p style={{ margin: avatarUrl ? '0 0 14px' : '0 0 14px', fontSize: '12px', color: '#22c55e', fontWeight: 600 }}>
                 ⚽ {clubeAtual}
