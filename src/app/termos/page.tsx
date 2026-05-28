@@ -51,7 +51,7 @@ export default function TermosPage() {
 
           <Section title="1. Sobre a plataforma">
             O Meu Craque é uma plataforma digital que permite a atletas de futebol criarem
-            perfis públicos, receberem avaliações de treinadores certificados e serem
+            perfis públicos, receberem avaliações de treinadores e serem
             descobertos por scouts, clubes e entusiastas do futebol. O acesso básico é
             gratuito para atletas.
           </Section>

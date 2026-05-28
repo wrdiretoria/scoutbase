@@ -177,7 +177,7 @@ export default async function TeamOfWeekSection() {
           Top 3 da Plataforma
         </h2>
         <p style={{ margin: '10px 0 0', fontSize: '15px', color: 'rgba(255,255,255,0.38)' }}>
-          Os atletas com maior OVR avaliado por treinadores certificados
+          Os atletas com maior OVR avaliado por treinadores
         </p>
       </div>
 

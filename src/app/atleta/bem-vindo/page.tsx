@@ -739,7 +739,7 @@ function BemVindoContent() {
               Atributos técnicos
             </p>
             <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.35)', lineHeight:1.6, maxWidth:'220px' }}>
-              Disponíveis após avaliação oficial de um treinador certificado
+              Disponíveis após avaliação oficial de um treinador
             </p>
           </div>
 

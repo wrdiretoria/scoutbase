@@ -487,7 +487,7 @@ export default function CartaPage() {
             O que inclui
           </p>
           {[
-            { icon: '📋', text: '1 avaliação oficial por um treinador certificado' },
+            { icon: '📋', text: '1 avaliação oficial por um treinador' },
             { icon: '⚡', text: 'Seus 6 atributos técnicos avaliados' },
             { icon: '🏆', text: 'Card premium com seu OVR oficial' },
             { icon: '📲', text: 'Compartilhe no WhatsApp, Instagram e TikTok' },

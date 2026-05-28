@@ -65,7 +65,7 @@ const PERGUNTAS = [
     opcoes: [
       { valor: 'cbf_c',      label: 'Licença C CBF',            desc: 'Tenho a licença de base da CBF' },
       { valor: 'cbf_b',      label: 'Licença B CBF ou superior', desc: 'Tenho licença avançada da CBF' },
-      { valor: 'curso',      label: 'Cursos reconhecidos',       desc: 'Fiz cursos de futebol certificados' },
+      { valor: 'curso',      label: 'Cursos reconhecidos',       desc: 'Fiz cursos de futebol reconhecidos' },
       { valor: 'andamento',  label: 'Em andamento',              desc: 'Estou me certificando agora' },
       { valor: 'nao',        label: 'Ainda não',                 desc: 'Aprendi na prática, ainda sem certificação formal' },
     ],

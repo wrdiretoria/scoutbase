@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const posicao = meta.posicao ? ` · ${meta.posicao}` : ''
   const cidade  = meta.cidade  ? ` · ${meta.cidade}` : ''
   const title   = `${nome}${posicao}${cidade} — Meu Craque`
-  const description = `Confira o perfil completo de ${nome} no Meu Craque: OVR, avaliações de treinadores certificados, físico e currículo completo.`
+  const description = `Confira o perfil completo de ${nome} no Meu Craque: OVR, avaliações de treinadores, físico e currículo completo.`
 
   return {
     title,
@@ -658,7 +658,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
                   Avaliação oficial
                 </p>
                 <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.3)' }}>
-                  {treinadorNome ?? 'Treinador certificado'} · {new Date(ultimaAv.created_at).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  {treinadorNome ?? 'Treinador'} · {new Date(ultimaAv.created_at).toLocaleDateString('pt-BR', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </p>
               </div>
               <div style={{ textAlign: 'right' }}>

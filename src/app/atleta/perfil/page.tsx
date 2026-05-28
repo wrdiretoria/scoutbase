@@ -824,7 +824,7 @@ function AtletaPerfilContent() {
   const temFisico = !!(curriculo.altura && curriculo.peso && curriculo.peDominante)
   const temClube  = curriculo.clubeAtual.trim().length > 0
 
-  if (!avaliacao)              passos.push({ icon: '📋', titulo: 'Receba uma avaliação oficial',  sub: 'Compartilhe seu ID com um treinador certificado', href: '#solicitar' })
+  if (!avaliacao)              passos.push({ icon: '📋', titulo: 'Receba uma avaliação oficial',  sub: 'Compartilhe seu ID com um treinador', href: '#solicitar' })
   if (highlights.length === 0) passos.push({ icon: '🎬', titulo: 'Adicione um highlight',         sub: 'Cole o link de um vídeo seu no YouTube, TikTok ou Instagram', href: '#highlights' })
   if (!temFoto)                passos.push({ icon: '📸', titulo: 'Adicione uma foto ao perfil',   sub: 'Perfis com foto têm muito mais visibilidade', href: '#foto' })
   if (!temQuestionario)        passos.push({ icon: '⚡', titulo: 'Responda o questionário',        sub: 'Ganhe +12 pontos no seu OVR', href: '/atleta/questionario' })
@@ -1516,7 +1516,7 @@ function AtletaPerfilContent() {
                 Última avaliação oficial
               </p>
               <p style={{ margin:0, fontSize:'12px', color:'rgba(255,255,255,0.42)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
-                {treinadorNome || 'Treinador certificado'} · {new Date(avaliacao.created_at).toLocaleDateString('pt-BR', { day:'numeric', month:'short', year:'numeric' })}
+                {treinadorNome || 'Treinador'} · {new Date(avaliacao.created_at).toLocaleDateString('pt-BR', { day:'numeric', month:'short', year:'numeric' })}
               </p>
             </div>
             <div style={{ flexShrink:0, textAlign:'center' }}>
@@ -1775,7 +1775,7 @@ function AtletaPerfilContent() {
                   Avaliado por
                 </p>
                 <p style={{ margin:0, fontSize:'14px', fontWeight:800, color:'rgba(255,255,255,0.7)' }}>
-                  {treinadorNome || 'Treinador certificado'}
+                  {treinadorNome || 'Treinador'}
                 </p>
               </div>
               <div style={{
@@ -1822,7 +1822,7 @@ function AtletaPerfilContent() {
                 Atributos técnicos
               </p>
               <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.35)', lineHeight:1.6, maxWidth:'220px' }}>
-                Disponíveis após avaliação oficial de um treinador certificado
+                Disponíveis após avaliação oficial de um treinador
               </p>
             </div>
             {/* Conteúdo fantasma */}

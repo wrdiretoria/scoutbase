@@ -198,7 +198,7 @@ export default function AtletaHistoricoPage() {
           const trMap = new Map((treinadores ?? []).map(t => [t.id, t.nome as string]))
           setAvaliacoes(avs.map(av => ({
             ...(av as AvaliacaoCompleta),
-            treinador_nome: trMap.get(av.treinador_id) ?? 'Treinador certificado',
+            treinador_nome: trMap.get(av.treinador_id) ?? 'Treinador',
           })))
         }
       } catch { /* tabela ainda não criada */ }
@@ -932,7 +932,7 @@ export default function AtletaHistoricoPage() {
               Aguardando primeira avaliação
             </p>
             <p style={{ margin:'0 0 20px', fontSize:'12px', color:'rgba(255,255,255,0.28)', lineHeight:1.7, maxWidth:'260px', marginLeft:'auto', marginRight:'auto' }}>
-              Compartilhe seu ID com um treinador certificado para desbloquear atributos e registrar sua evolução.
+              Compartilhe seu ID com um treinador para desbloquear atributos e registrar sua evolução.
             </p>
             {dados.athleteId && (
               <div style={{

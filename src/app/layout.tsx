@@ -16,7 +16,7 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: "Meu Craque — Perfil Oficial de Atleta de Futebol",
-  description: "Crie seu perfil gratuito, receba avaliações de treinadores certificados e seja descoberto por scouts e clubes de futebol do mundo inteiro.",
+  description: "Crie seu perfil gratuito, receba avaliações de treinadores e seja descoberto por scouts e clubes de futebol do mundo inteiro.",
   keywords: [
     "perfil atleta futebol", "scout futebol brasil", "avaliação atleta",
     "futebol de base", "ser descoberto futebol", "ranking atletas",
