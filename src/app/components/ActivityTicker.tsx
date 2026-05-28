@@ -8,19 +8,6 @@ type JoinItem      = { type: 'join';      name: string; role: 'Atleta' | 'Treina
 type AvaliacaoItem = { type: 'avaliacao'; atletaNome: string; treinadorNome: string; ovr: number; ts: string }
 type ActivityItem  = JoinItem | AvaliacaoItem
 
-// ── Fallback estático (exibido antes dos dados chegarem) ───────────────────────
-
-const STATIC: ActivityItem[] = [
-  { type: 'join',      name: 'João Silva',     role: 'Atleta',    ts: '' },
-  { type: 'avaliacao', atletaNome: 'Pedro Lima',   treinadorNome: 'Prof. Carlos',  ovr: 78, ts: '' },
-  { type: 'join',      name: 'Prof. Marcos',   role: 'Treinador', ts: '' },
-  { type: 'avaliacao', atletaNome: 'Rafael Torres', treinadorNome: 'Prof. André',   ovr: 83, ts: '' },
-  { type: 'join',      name: 'Lucas Mendes',   role: 'Atleta',    ts: '' },
-  { type: 'avaliacao', atletaNome: 'Matheus Costa', treinadorNome: 'Prof. Ricardo', ovr: 71, ts: '' },
-  { type: 'join',      name: 'Gabriel Rocha',  role: 'Atleta',    ts: '' },
-  { type: 'avaliacao', atletaNome: 'Felipe Souza',  treinadorNome: 'Prof. Bruno',   ovr: 69, ts: '' },
-]
-
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 function initials(name: string) {
@@ -120,7 +107,7 @@ function renderItem(a: ActivityItem, i: number) {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function ActivityTicker() {
-  const [items, setItems] = useState<ActivityItem[]>(STATIC)
+  const [items, setItems] = useState<ActivityItem[]>([])
 
   useEffect(() => {
     async function fetchActivity() {
@@ -131,7 +118,7 @@ export default function ActivityTicker() {
         if (json.items.length > 0) {
           setItems(json.items)
         }
-      } catch { /* mantém estático */ }
+      } catch { /* fica vazio */ }
     }
 
     fetchActivity()
@@ -139,7 +126,10 @@ export default function ActivityTicker() {
     return () => clearInterval(interval)
   }, [])
 
-  const display = items.length > 0 ? items : STATIC
+  // Sem dados reais → não renderiza o ticker
+  if (items.length === 0) return null
+
+  const display = items
 
   return (
     <div style={{

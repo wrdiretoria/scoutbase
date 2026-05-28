@@ -16,21 +16,6 @@ type HeroAtleta = {
   athleteId?: string | null
 }
 
-// ── Static fallback ───────────────────────────────────────────────────────────
-
-const STATIC: HeroAtleta[] = [
-  { id:'1', nome:'João Mendes',    posicao:'Atacante',      cidade:'São Paulo, SP',      ovr:85, tipo:'avaliado', ts:'' },
-  { id:'2', nome:'Pedro Lima',     posicao:'Goleiro',       cidade:'Rio de Janeiro, RJ', ovr:74, tipo:'avaliado', ts:'' },
-  { id:'3', nome:'Lucas Silva',    posicao:'Meia',          cidade:'Belo Horizonte, MG', ovr:89, tipo:'avaliado', ts:'' },
-  { id:'4', nome:'Rafael Torres',  posicao:'Zagueiro',      cidade:'Curitiba, PR',       ovr:67, tipo:'novo',     ts:'' },
-  { id:'5', nome:'Gabriel Rocha',  posicao:'Ponta Direita', cidade:'Salvador, BA',       ovr:79, tipo:'avaliado', ts:'' },
-  { id:'6', nome:'Matheus Costa',  posicao:'Volante',       cidade:'Fortaleza, CE',      ovr:82, tipo:'avaliado', ts:'' },
-  { id:'7', nome:'Nicolas Alves',  posicao:'Lateral',       cidade:'Manaus, AM',         ovr:null, tipo:'novo',   ts:'' },
-  { id:'8', nome:'Kauã Ferreira',  posicao:'Atacante',      cidade:'Recife, PE',         ovr:91, tipo:'avaliado', ts:'' },
-  { id:'9', nome:'Bruno Santos',   posicao:'Meia-Atacante', cidade:'Porto Alegre, RS',   ovr:77, tipo:'avaliado', ts:'' },
-  { id:'10',nome:'Thiago Mendes',  posicao:'Centro-Avante', cidade:'Campinas, SP',       ovr:83, tipo:'avaliado', ts:'' },
-]
-
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function initials(name: string) {
@@ -176,7 +161,7 @@ function AtletaCard({ atleta }: { atleta: HeroAtleta }) {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export default function HeroFeed() {
-  const [items, setItems] = useState<HeroAtleta[]>(STATIC)
+  const [items, setItems] = useState<HeroAtleta[]>([])
 
   useEffect(() => {
     async function fetch_() {
@@ -184,15 +169,15 @@ export default function HeroFeed() {
         const res  = await fetch('/api/landing/atletas', { cache: 'no-store' })
         if (!res.ok) return
         const json = await res.json() as { items: HeroAtleta[] }
-        if (json.items.length > 0) setItems([...json.items, ...STATIC])
-      } catch { /* keep static */ }
+        if (json.items.length > 0) setItems(json.items)
+      } catch { /* fica vazio */ }
     }
     fetch_()
     const iv = setInterval(fetch_, 30_000)
     return () => clearInterval(iv)
   }, [])
 
-  const display = items.length > 0 ? items : STATIC
+  if (items.length === 0) return null
 
   return (
     <div style={{
@@ -257,14 +242,14 @@ export default function HeroFeed() {
           </span>
         </div>
         <span style={{ fontSize:'10px', color:'rgba(255,255,255,0.25)' }}>
-          {display.length > STATIC.length ? `${display.length - STATIC.length} reais` : `${STATIC.length} atletas`}
+          {items.length} atleta{items.length !== 1 ? 's' : ''}
         </span>
       </div>
 
       {/* Scrolling track — cards duplicados para loop infinito */}
       <div className="hero-feed-track" style={{ paddingTop:'48px' }}>
-        {display.map((a, i) => <AtletaCard key={`a-${i}`} atleta={a} />)}
-        {display.map((a, i) => <AtletaCard key={`b-${i}`} atleta={a} />)}
+        {items.map((a, i) => <AtletaCard key={`a-${i}`} atleta={a} />)}
+        {items.map((a, i) => <AtletaCard key={`b-${i}`} atleta={a} />)}
       </div>
     </div>
   )

@@ -11,6 +11,8 @@ import DestaquesGrid from './components/DestaquesGrid'
 import PhotoBillboard from './components/PhotoBillboard'
 import HeroFeed from './components/HeroFeed'
 import SpinningGlobe from './components/SpinningGlobe'
+import LiveFeed from './components/LiveFeed'
+import TacticalBoard from './components/TacticalBoard'
 
 const cards = [
   {
@@ -616,6 +618,9 @@ export default async function LandingPage() {
       {/* ══════════════════════════════════════ DESTAQUES GRID ══ */}
       <DestaquesGrid />
 
+      {/* ══════════════════════════════════════ TACTICAL BOARD ══ */}
+      <TacticalBoard />
+
       {/* ══════════════════════════════════════ RANKING | MAPA ══ */}
       <section style={{ background:'#050906', padding:'56px 24px 40px' }}>
         <div className="three-cols" style={{ maxWidth:'1200px', margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'32px' }}>
@@ -694,41 +699,8 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════ MOBILE: AO VIVO ══ */}
-      <div className="lnc-mob" style={{ padding:'20px 20px 0', background:'#06100a' }}>
-        <div className="lnc">
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'12px', paddingBottom:'10px', borderBottom:'1px solid rgba(0,255,136,0.10)' }}>
-            <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
-              <div style={{ position:'relative', width:'22px', height:'22px', flexShrink:0 }}>
-                <div style={{ position:'relative', zIndex:1, width:'100%', height:'100%', borderRadius:'50%', background:'rgba(0,255,136,0.12)', border:'1px solid rgba(0,255,136,0.38)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'11px' }}>🔥</div>
-                <div className="lnc-ring" />
-              </div>
-              <span style={{ fontSize:'10px', fontWeight:800, color:'rgba(0,255,136,0.9)', letterSpacing:'0.16em', textTransform:'uppercase' }}>AO VIVO AGORA</span>
-            </div>
-            <span style={{ fontSize:'9px', fontWeight:700, color:'rgba(0,255,136,0.55)', background:'rgba(0,255,136,0.08)', border:'1px solid rgba(0,255,136,0.18)', borderRadius:'100px', padding:'2px 8px', letterSpacing:'0.08em' }}>LIVE</span>
-          </div>
-          {[
-            { init:'JS', bg:'#1a5c3a', icon:'⭐', text:'João Silva recebeu nota 82', time:'2 min' },
-            { init:'PS', bg:'#1e3a5f', icon:'🎯', text:'Pedro Santos avaliado por treinador', time:'5 min' },
-            { init:'LO', bg:'#5f1e3a', icon:'📈', text:'Lucas Oliveira subiu +3 no OVR', time:'8 min' },
-            { init:'RK', bg:'#3a1e5f', icon:'🏆', text:'Ranking Sub-17 atualizado', time:'11 min' },
-            { init:'👁', bg:'#0d3320', icon:'🟢', text:'12 scouts estão online agora', time:'agora' },
-          ].map(({ init, bg, icon, text, time }, i) => (
-            <div key={text} className={`lnc-it li${i + 1}`}>
-              <div style={{ width:'28px', height:'28px', borderRadius:'50%', background:bg, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'9px', fontWeight:800, color:'white', flexShrink:0, border:'1px solid rgba(255,255,255,0.10)' }}>
-                {init}
-              </div>
-              <div style={{ flex:1, minWidth:0 }}>
-                <p style={{ margin:0, fontSize:'11px', fontWeight:600, color:'rgba(255,255,255,0.82)', lineHeight:1.3, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
-                  {icon} {text}
-                </p>
-                <p style={{ margin:0, fontSize:'9px', color:'rgba(0,255,136,0.55)', fontWeight:600, marginTop:'2px' }}>{time === 'agora' ? 'agora' : `${time} atrás`}</p>
-              </div>
-              <div style={{ width:'5px', height:'5px', borderRadius:'50%', background:'#00FF88', flexShrink:0, boxShadow:'0 0 5px rgba(0,255,136,0.9)' }} />
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* ══════════════════════════════════════ LIVE FEED ══ */}
+      <LiveFeed />
 
       {/* ══════════════════════════════════════ TOP 3 ══ */}
       <TeamOfWeekSection />

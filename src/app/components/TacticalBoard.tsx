@@ -1,550 +1,255 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+/**
+ * TacticalBoard — Formação 4-3-3 com os melhores atletas reais
+ * Dados: /api/landing/tactical
+ * Retorna null se não houver atletas avaliados.
+ */
+
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import type { TacticalData, TacticalPlayer } from '@/app/api/landing/tactical/route'
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
+// ── Helpers ────────────────────────────────────────────────────────────────────
 
-function ini(nome: string) {
-  return nome.split(' ').filter(Boolean).slice(0, 2).map(w => w[0] ?? '').join('').toUpperCase()
+function initials(nome: string) {
+  return nome.split(' ').slice(0, 2).map(w => w[0] ?? '').join('').toUpperCase()
 }
 
-/** Retorna as cores de borda/fundo por posição */
-function posTheme(pos: string): { ring: string; bg: string; text: string } {
-  if (pos === 'GOL') return { ring: '#7c3aed', bg: '#2e1065', text: '#c4b5fd' }
-  if (pos === 'LAT' || pos === 'ZAG') return { ring: '#d97706', bg: '#431407', text: '#fde68a' }
-  if (pos === 'VOL' || pos === 'MEI') return { ring: '#2563eb', bg: '#1e3a8a', text: '#93c5fd' }
-  return { ring: '#16a34a', bg: '#14532d', text: '#86efac' }
+function ovrColor(ovr: number) {
+  if (ovr >= 80) return '#00FF88'
+  if (ovr >= 65) return '#fbbf24'
+  return '#f97316'
 }
 
-/** Rótulo curto da posição */
-function posLabel(pos: string): string {
-  const m: Record<string, string> = {
-    GOL: 'GK', LAT: 'LAT', ZAG: 'ZAG', VOL: 'VOL', MEI: 'MEI', ATA: 'ATA',
-  }
-  return m[pos] ?? pos.slice(0, 3)
-}
-
-function timeAgo(ts: string): string {
-  const d = Math.floor((Date.now() - new Date(ts).getTime()) / 86400000)
-  if (d === 0) return 'hoje'
-  if (d === 1) return 'ontem'
-  return `${d}d atrás`
+function avatarBg(nome: string) {
+  const COLORS = ['#14532d','#1e3a5f','#5f1e3a','#3a5f1e','#3a1e5f','#6b3a1a','#1a5f5f','#4c1d95']
+  const i = (nome.charCodeAt(0) + (nome.charCodeAt(1) ?? 0)) % COLORS.length
+  return COLORS[i]
 }
 
 // ── PlayerDot ─────────────────────────────────────────────────────────────────
 
-function PlayerDot({
-  p,
-  photoIdx,
-  size = 50,
-}: {
-  p:        TacticalPlayer | null
-  photoIdx: number
-  size?:    number
-}) {
-  // Slot vazio
-  if (!p) {
+function PlayerDot({ player, label }: { player: TacticalPlayer | null; label: string }) {
+  if (!player) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
         <div style={{
-          width: size, height: size, borderRadius: '50%',
-          background: 'rgba(255,255,255,0.03)',
-          border: '1.5px dashed rgba(255,255,255,0.08)',
-        }} />
-        <div style={{ height: '11px' }} />
+          width: '44px', height: '44px', borderRadius: '50%',
+          background: 'rgba(255,255,255,0.04)',
+          border: '1.5px dashed rgba(255,255,255,0.12)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}>
+          <span style={{ fontSize: '18px', opacity: 0.3 }}>⚽</span>
+        </div>
+        <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.2)', fontWeight: 600, letterSpacing: '0.06em' }}>
+          {label}
+        </span>
       </div>
     )
   }
 
-  const c     = posTheme(p.posicao)
-  const foto  = p.fotos.length > 0 ? p.fotos[photoIdx % p.fotos.length] : null
-  const label = posLabel(p.posicao)
+  const cor = ovrColor(player.ovr)
+  const href = player.mcId ? `/atleta/${player.mcId.replace('MC-', '')}` : '#'
+  const foto = player.fotos[0] ?? null
 
   return (
-    <Link href={`/jogador/${p.id}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', textDecoration: 'none' }}>
-      {/* Círculo principal */}
+    <Link href={href} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+      {/* Avatar */}
       <div style={{
-        width:          size,
-        height:         size,
-        borderRadius:   '50%',
-        background:     foto ? '#080f09' : c.bg,
-        border:         `2.5px solid ${c.ring}`,
-        overflow:       'hidden',
-        position:       'relative',
-        flexShrink:     0,
-        boxShadow:      `0 0 0 3px ${c.ring}20, 0 4px 18px rgba(0,0,0,0.55)`,
+        position: 'relative',
+        width: '44px', height: '44px', borderRadius: '50%',
+        background: `linear-gradient(135deg, ${avatarBg(player.nome)}, ${avatarBg(player.nome)}cc)`,
+        border: `2px solid ${cor}55`,
+        boxShadow: `0 0 14px ${cor}30`,
+        overflow: 'hidden',
+        flexShrink: 0,
       }}>
-        {foto ? (
+        {/* Iniciais — base */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: '13px', fontWeight: 900, color: 'white',
+        }}>
+          {initials(player.nome)}
+        </div>
+        {/* Foto — se disponível */}
+        {foto && (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={foto}
-            alt={p.nome}
-            style={{
-              width: '100%', height: '100%',
-              objectFit: 'cover', objectPosition: 'center top',
-              transition: 'opacity .6s ease',
-            }}
+            alt={player.nome}
+            loading="lazy"
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }}
           />
-        ) : (
-          <div style={{
-            width: '100%', height: '100%',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: Math.round(size * 0.27),
-            fontWeight: 900, color: c.text,
-          }}>
-            {ini(p.nome)}
-          </div>
         )}
-
-        {/* OVR mini badge (canto inferior direito) */}
+        {/* OVR badge */}
         <div style={{
-          position: 'absolute', bottom: '1px', right: '1px',
-          background: c.ring,
-          color: 'white',
-          fontSize: '7px', fontWeight: 900, lineHeight: '12px',
-          borderRadius: '4px', padding: '0 3px',
-          letterSpacing: '-0.01em',
+          position: 'absolute', bottom: 0, left: 0, right: 0,
+          background: `${cor}dd`,
+          textAlign: 'center',
+          fontSize: '8px', fontWeight: 900, color: '#000',
+          lineHeight: '13px',
         }}>
-          {p.ovr}
+          {player.ovr}
         </div>
       </div>
 
-      {/* Posição + nome */}
-      <div style={{
-        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1px',
+      {/* Nome */}
+      <span style={{
+        fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.72)',
+        letterSpacing: '0.03em', maxWidth: '56px',
+        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+        textAlign: 'center',
       }}>
-        <span style={{
-          fontSize: '7.5px', fontWeight: 800, color: c.ring,
-          letterSpacing: '0.06em', textTransform: 'uppercase', lineHeight: 1,
-        }}>
-          {label}
-        </span>
-        <span style={{
-          fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.52)',
-          maxWidth: size + 12, textAlign: 'center',
-          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-          lineHeight: 1.2,
-        }}>
-          {p.nome.split(' ')[0]}
-        </span>
-        {p.mcId && (
-          <span style={{
-            fontSize: '7px', fontWeight: 700, color: 'rgba(255,255,255,0.22)',
-            letterSpacing: '0.06em', lineHeight: 1,
-          }}>
-            ID: {p.mcId.replace('MC-', '')}
-          </span>
-        )}
-      </div>
+        {player.nome.split(' ')[0]}
+      </span>
+      <span style={{
+        fontSize: '8px', fontWeight: 800, color: cor,
+        background: `${cor}15`, border: `1px solid ${cor}30`,
+        borderRadius: '4px', padding: '1px 5px', letterSpacing: '0.06em',
+      }}>
+        {label}
+      </span>
     </Link>
   )
 }
 
-// ── FormationRow ──────────────────────────────────────────────────────────────
+// ── Row (linha da formação) ────────────────────────────────────────────────────
 
-function FormationRow({
-  players,
-  photoIndices,
-  size,
-}: {
-  players:      (TacticalPlayer | null)[]
-  photoIndices: Record<string, number>
-  size:         number
-}) {
+function Row({ players, labels }: { players: (TacticalPlayer | null)[]; labels: string[] }) {
   return (
     <div style={{
-      display:        'flex',
-      justifyContent: 'space-evenly',
-      alignItems:     'flex-start',
-      padding:        '0 8px',
-      position:       'relative',
-      zIndex:         2,
+      display: 'flex', justifyContent: 'center',
+      gap: 'clamp(12px,4vw,36px)',
+      padding: '10px 0',
     }}>
       {players.map((p, i) => (
-        <PlayerDot
-          key={p?.id ?? `empty-${i}`}
-          p={p}
-          photoIdx={p ? (photoIndices[p.id] ?? 0) : 0}
-          size={size}
-        />
+        <PlayerDot key={i} player={p} label={labels[i] ?? ''} />
       ))}
     </div>
   )
 }
 
-// ── TacticalBoard (main) ──────────────────────────────────────────────────────
+// ── TacticalBoard ─────────────────────────────────────────────────────────────
 
 export default function TacticalBoard() {
-  const router = useRouter()
-  const [data,         setData]         = useState<TacticalData | null>(null)
-  const [loading,      setLoading]      = useState(true)
-  const [photoIndices, setPhotoIndices] = useState<Record<string, number>>({})
+  const [data, setData] = useState<TacticalData | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  // Fetch data
   useEffect(() => {
     fetch('/api/landing/tactical', { cache: 'no-store' })
       .then(r => r.ok ? r.json() : null)
-      .then((d: TacticalData | null) => {
-        if (d) setData(d)
-        setLoading(false)
-      })
+      .then((json: TacticalData | null) => { setData(json); setLoading(false) })
       .catch(() => setLoading(false))
   }, [])
 
-  // Photo cycling a cada 2s
-  useEffect(() => {
-    if (!data) return
-    const all = [data.gol, ...data.def, ...data.mid, ...data.atk]
-      .filter((p): p is TacticalPlayer => p !== null && p.fotos.length > 1)
-    if (all.length === 0) return
-
-    const iv = setInterval(() => {
-      setPhotoIndices(prev => {
-        const next = { ...prev }
-        for (const p of all) next[p.id] = ((prev[p.id] ?? 0) + 1) % p.fotos.length
-        return next
-      })
-    }, 2000)
-    return () => clearInterval(iv)
-  }, [data])
-
-  // ── Skeleton de carregamento ──────────────────────────────────────────────
+  // Skeleton
   if (loading) {
     return (
-      <section className="tactical-section" style={{ background: '#060c09', padding: '64px 24px 56px' }}>
-        <style>{`
-          @media(max-width:768px){.tactical-section{padding-top:28px!important}}
-          @keyframes tacticalPulse {
-            0%,100% { opacity: 0.35 }
-            50%      { opacity: 0.70 }
-          }
-          .t-sk { animation: tacticalPulse 1.6s ease-in-out infinite; background: rgba(255,255,255,0.07); border-radius: 6px; }
-          .t-sk-circle { animation: tacticalPulse 1.6s ease-in-out infinite; background: rgba(255,255,255,0.06); border-radius: 50%; border: 2px solid rgba(255,255,255,0.08); }
-        `}</style>
-        <div style={{ maxWidth: '420px', margin: '0 auto' }}>
-
-          {/* Header skeleton */}
-          <div style={{ textAlign: 'center', marginBottom: '36px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-            <div className="t-sk" style={{ width: '110px', height: '10px', animationDelay: '0s' }} />
-            <div className="t-sk" style={{ width: '220px', height: '28px', animationDelay: '0.1s' }} />
-            <div className="t-sk" style={{ width: '160px', height: '12px', animationDelay: '0.2s' }} />
-          </div>
-
-          {/* Campo skeleton */}
-          <div style={{
-            borderRadius: '20px', overflow: 'hidden',
-            background: 'linear-gradient(180deg,#0c1f13 0%,#071309 55%,#0c1f13 100%)',
-            border: '1.5px solid rgba(255,255,255,0.06)',
-            padding: '22px 0',
-          }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px,2.5vw,18px)' }}>
-              {/* Ataque — 3 */}
-              {[3, 3, 4, 1].map((count, row) => (
-                <div key={row} style={{ display: 'flex', justifyContent: 'space-evenly', padding: '0 8px' }}>
-                  {Array.from({ length: count }).map((_, i) => (
-                    <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
-                      <div className="t-sk-circle" style={{ width: row === 0 ? 52 : row === 1 ? 48 : 44, height: row === 0 ? 52 : row === 1 ? 48 : 44, animationDelay: `${(row * 4 + i) * 0.07}s` }} />
-                      <div className="t-sk" style={{ width: 34, height: 7, animationDelay: `${(row * 4 + i) * 0.07 + 0.05}s` }} />
-                      <div className="t-sk" style={{ width: 44, height: 8, animationDelay: `${(row * 4 + i) * 0.07 + 0.1}s` }} />
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-
-            {/* Legenda skeleton */}
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginTop: '20px', padding: '0 12px' }}>
-              {[0, 1, 2, 3].map(i => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  <div className="t-sk-circle" style={{ width: 7, height: 7, animationDelay: `${i * 0.1}s` }} />
-                  <div className="t-sk" style={{ width: 30, height: 8, animationDelay: `${i * 0.1 + 0.05}s` }} />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Card treinador skeleton */}
-          <div style={{
-            marginTop: '14px',
-            background: 'rgba(255,255,255,0.02)',
-            border: '1px solid rgba(255,255,255,0.06)',
-            borderRadius: '16px', padding: '16px',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-              <div className="t-sk-circle" style={{ width: 44, height: 44, flexShrink: 0 }} />
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <div className="t-sk" style={{ width: '65%', height: '13px' }} />
-                <div className="t-sk" style={{ width: '45%', height: '10px', animationDelay: '0.1s' }} />
-              </div>
-              <div className="t-sk" style={{ width: 36, height: 36, borderRadius: '8px', animationDelay: '0.15s' }} />
-            </div>
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
-              <div className="t-sk" style={{ flex: 1, height: '52px', borderRadius: '10px', animationDelay: '0.2s' }} />
-              <div className="t-sk" style={{ flex: 1, height: '52px', borderRadius: '10px', animationDelay: '0.27s' }} />
-            </div>
-            <div className="t-sk" style={{ width: '100%', height: '52px', borderRadius: '10px', animationDelay: '0.34s' }} />
-          </div>
-
+      <section style={{ background: '#050906', padding: '64px 20px', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+        <div style={{ maxWidth: '520px', margin: '0 auto', textAlign: 'center' }}>
+          <div style={{ height: '16px', width: '140px', borderRadius: '8px', background: 'rgba(255,255,255,0.06)', margin: '0 auto 32px', animation: 'tbPulse 1.4s ease-in-out infinite' }} />
+          <div style={{ height: '280px', borderRadius: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }} />
         </div>
+        <style>{`@keyframes tbPulse { 0%,100%{opacity:0.5} 50%{opacity:1} }`}</style>
       </section>
     )
   }
 
-  // Se a API falhou (data null) ou não há atletas → oculta a seção
+  // Sem dados — nada renderiza
   if (!data) return null
-  const hasAny = data.gol !== null
-    || data.def.some(Boolean)
-    || data.mid.some(Boolean)
-    || data.atk.some(Boolean)
+  const hasAny = data.gol || data.def.some(Boolean) || data.mid.some(Boolean) || data.atk.some(Boolean)
   if (!hasAny) return null
 
-  // Normaliza arrays (garante tamanho correto mesmo com dados parciais)
-  const padRow = (arr: (TacticalPlayer | null)[], n: number): (TacticalPlayer | null)[] =>
-    [...(arr ?? []), ...Array(n).fill(null)].slice(0, n)
-
-  const gol = data.gol
-  const def = padRow(data.def, 4)
-  const mid = padRow(data.mid, 3)
-  const atk = padRow(data.atk, 3)
-  const treinador = data.treinador ?? null
-
   return (
-    <section className="tactical-section" style={{ background: '#060c09', padding: '64px 24px 56px' }}>
-      <style>{`@media(max-width:768px){.tactical-section{padding-top:28px!important}}`}</style>
-      <div style={{ maxWidth: '420px', margin: '0 auto' }}>
-
-        {/* ── Header ── */}
-        <div style={{ textAlign: 'center', marginBottom: '36px' }}>
-          <p style={{
-            fontSize: '10px', fontWeight: 700, letterSpacing: '0.18em',
-            color: 'rgba(0,255,136,0.55)', textTransform: 'uppercase',
-            margin: '0 0 10px',
-          }}>
-            ⚡ Campo Tático
-          </p>
-          <h2 style={{
-            margin: 0, fontSize: 'clamp(22px,5vw,30px)', fontWeight: 900,
-            color: 'white', letterSpacing: '-0.03em', lineHeight: 1.1,
-          }}>
-            Os melhores por posição
-          </h2>
-          <p style={{
-            margin: '9px 0 0', fontSize: '13px',
-            color: 'rgba(255,255,255,0.32)', lineHeight: 1.5,
-          }}>
-            Formação 4-3-3 · maior OVR de cada linha
-          </p>
-        </div>
-
-        {/* ── Campo ── */}
-        <div style={{
-          position: 'relative',
-          borderRadius: '20px',
-          overflow: 'hidden',
-          background: 'linear-gradient(180deg,#0c1f13 0%,#071309 55%,#0c1f13 100%)',
-          border: '1.5px solid rgba(255,255,255,0.07)',
-          padding: '22px 0',
+    <section style={{
+      background: '#050906',
+      padding: '64px 20px 72px',
+      borderTop: '1px solid rgba(255,255,255,0.04)',
+      overflow: 'hidden',
+    }}>
+      {/* Cabeçalho */}
+      <div style={{ textAlign: 'center', marginBottom: '36px' }}>
+        <p style={{
+          margin: '0 0 8px', fontSize: '10px', fontWeight: 800,
+          color: '#22c55e', letterSpacing: '0.18em', textTransform: 'uppercase',
         }}>
-
-          {/* ── Linhas do campo (decorativas) ── */}
-          <div style={{ position: 'absolute', inset: '14px', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '4px', pointerEvents: 'none', zIndex: 1 }} />
-          <div style={{ position: 'absolute', top: '50%', left: '8%', right: '8%', height: '1px', background: 'rgba(255,255,255,0.07)', transform: 'translateY(-0.5px)', pointerEvents: 'none', zIndex: 1 }} />
-          <div style={{ position: 'absolute', top: '50%', left: '50%', width: '64px', height: '64px', marginLeft: '-32px', marginTop: '-32px', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '50%', pointerEvents: 'none', zIndex: 1 }} />
-          <div style={{ position: 'absolute', top: '14px', left: '28%', right: '28%', height: '23%', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '0 0 36px 36px', borderTop: 'none', pointerEvents: 'none', zIndex: 1 }} />
-          <div style={{ position: 'absolute', bottom: '14px', left: '28%', right: '28%', height: '23%', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '36px 36px 0 0', borderBottom: 'none', pointerEvents: 'none', zIndex: 1 }} />
-
-          {/* ── Formação ── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px,2.5vw,18px)', position: 'relative', zIndex: 2 }}>
-            {/* Ataque */}
-            <FormationRow players={atk} photoIndices={photoIndices} size={52} />
-
-            {/* Meio-campo */}
-            <FormationRow players={mid} photoIndices={photoIndices} size={48} />
-
-            {/* Linha do meio (separador visual) */}
-            <div style={{ height: '1px', margin: '0 10%', background: 'rgba(255,255,255,0.06)', position: 'relative', zIndex: 2 }} />
-
-            {/* Defesa */}
-            <FormationRow players={def} photoIndices={photoIndices} size={44} />
-
-            {/* Goleiro */}
-            <FormationRow players={[gol]} photoIndices={photoIndices} size={44} />
-          </div>
-
-          {/* ── Legenda ── */}
-          <div style={{
-            display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap',
-            marginTop: '20px', padding: '0 12px',
-            position: 'relative', zIndex: 2,
-          }}>
-            {[
-              { label: 'Ataque',  color: '#16a34a' },
-              { label: 'Meio',    color: '#2563eb' },
-              { label: 'Defesa',  color: '#d97706' },
-              { label: 'Goleiro', color: '#7c3aed' },
-            ].map(({ label, color }) => (
-              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: color, flexShrink: 0 }} />
-                <span style={{ fontSize: '9px', color: 'rgba(255,255,255,0.32)', fontWeight: 600 }}>
-                  {label}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Treinador do Mês ── */}
-        {treinador && (
-          <a
-            href={`/treinador/${treinador.id}`}
-            style={{
-              display: 'block',
-              marginTop: '14px',
-              textDecoration: 'none',
-              color: 'inherit',
-              WebkitTapHighlightColor: 'rgba(22,163,74,0.15)',
-            }}
-          >
-          <div style={{
-            background: 'rgba(255,255,255,0.025)',
-            border: '1px solid rgba(255,255,255,0.07)',
-            borderRadius: '16px',
-            padding: '16px',
-            cursor: 'pointer',
-          }}>
-            {/* Header treinador */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-              {/* Avatar iniciais */}
-              <div style={{
-                width: '44px', height: '44px', borderRadius: '50%', flexShrink: 0,
-                background: 'linear-gradient(135deg,#14532d,#15803d)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '14px', fontWeight: 900, color: 'white',
-                border: '2px solid rgba(22,163,74,0.3)',
-              }}>
-                {ini(treinador.nome)}
-              </div>
-
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{
-                  fontSize: '13px', fontWeight: 800, color: 'white',
-                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                }}>
-                  {treinador.nome}
-                </div>
-                <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.36)', marginTop: '1px' }}>
-                  {treinador.cidade || '—'} · Treinador
-                </div>
-                {treinador.mcId && (
-                  <div style={{ fontSize: '8px', fontWeight: 700, color: 'rgba(255,255,255,0.22)', letterSpacing: '0.06em', marginTop: '2px' }}>
-                    ID: {treinador.mcId.replace('MC-', '')}
-                  </div>
-                )}
-              </div>
-
-              <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                <div style={{ fontSize: '18px', fontWeight: 900, color: '#22c55e', lineHeight: 1 }}>
-                  {treinador.reputacao.toFixed(1)}
-                </div>
-                <div style={{ fontSize: '9px', color: 'rgba(34,197,94,0.45)', marginTop: '1px', letterSpacing: '0.04em' }}>
-                  ★ reputação
-                </div>
-              </div>
-            </div>
-
-            {/* Stats: total / mês */}
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
-              <div style={{
-                flex: 1,
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.07)',
-                borderRadius: '10px', padding: '9px 10px', textAlign: 'center',
-              }}>
-                <div style={{ fontSize: '20px', fontWeight: 900, color: 'white', lineHeight: 1 }}>
-                  {treinador.totalAvaliacoes}
-                </div>
-                <div style={{ fontSize: '8.5px', color: 'rgba(255,255,255,0.28)', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: '3px' }}>
-                  avaliações
-                </div>
-              </div>
-              <div style={{
-                flex: 1,
-                background: 'rgba(22,163,74,0.07)',
-                border: '1px solid rgba(22,163,74,0.16)',
-                borderRadius: '10px', padding: '9px 10px', textAlign: 'center',
-              }}>
-                <div style={{ fontSize: '20px', fontWeight: 900, color: '#22c55e', lineHeight: 1 }}>
-                  {treinador.avaliacoesMes}
-                </div>
-                <div style={{ fontSize: '8.5px', color: 'rgba(34,197,94,0.45)', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: '3px' }}>
-                  este mês
-                </div>
-              </div>
-            </div>
-
-            {/* Última avaliação */}
-            {treinador.ultimaAvaliacao && (
-              <div style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                background: 'rgba(255,255,255,0.03)',
-                borderRadius: '10px', padding: '10px 12px',
-              }}>
-                <div>
-                  <div style={{
-                    fontSize: '9px', color: 'rgba(255,255,255,0.28)',
-                    textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '3px',
-                  }}>
-                    Última avaliação · {timeAgo(treinador.ultimaAvaliacao.ts)}
-                  </div>
-                  <div style={{ fontSize: '13px', fontWeight: 700, color: 'rgba(255,255,255,0.78)' }}>
-                    {treinador.ultimaAvaliacao.atletaNome}
-                  </div>
-                </div>
-                <div style={{
-                  display: 'flex', flexDirection: 'column', alignItems: 'center',
-                  background: 'rgba(34,197,94,0.08)',
-                  border: '1px solid rgba(34,197,94,0.2)',
-                  borderRadius: '9px', padding: '5px 11px',
-                }}>
-                  <span style={{ fontSize: '7px', fontWeight: 800, color: '#22c55e', letterSpacing: '0.10em' }}>OVR</span>
-                  <span style={{ fontSize: '16px', fontWeight: 900, color: '#22c55e', lineHeight: 1 }}>
-                    {treinador.ultimaAvaliacao.ovr}
-                  </span>
-                </div>
-              </div>
-            )}
-
-            {/* Badge treinador do mês */}
-            <div style={{ marginTop: '12px', textAlign: 'center' }}>
-              <span style={{
-                fontSize: '9px', fontWeight: 700,
-                color: 'rgba(251,191,36,0.55)',
-                letterSpacing: '0.12em', textTransform: 'uppercase',
-              }}>
-                🏅 Treinador do mês
-              </span>
-            </div>
-          </div>
-          </a>
-        )}
-
-        {/* ── Footer CTA ── */}
-        <div style={{ textAlign: 'center', marginTop: '22px' }}>
-          <Link
-            href="/atleta/cadastro"
-            style={{
-              fontSize: '13px', fontWeight: 700,
-              color: 'rgba(255,255,255,0.38)',
-              textDecoration: 'none', letterSpacing: '0.03em',
-            }}
-          >
-            Seu nome pode estar aqui · <span style={{ color: '#22c55e' }}>criar meu card →</span>
-          </Link>
-        </div>
-
+          ⚽ Formação do Momento
+        </p>
+        <h2 style={{
+          margin: 0, fontSize: 'clamp(20px,3vw,28px)',
+          fontWeight: 900, color: 'white', letterSpacing: '-0.02em',
+        }}>
+          Os melhores em campo
+        </h2>
+        <p style={{ margin: '8px auto 0', fontSize: '13px', color: 'rgba(255,255,255,0.35)', maxWidth: '340px' }}>
+          4-3-3 montado com os atletas mais bem avaliados da plataforma.
+        </p>
       </div>
+
+      {/* Campo tático */}
+      <div style={{
+        maxWidth: '480px', margin: '0 auto',
+        background: 'linear-gradient(180deg, #0a2010 0%, #061208 100%)',
+        borderRadius: '20px',
+        border: '1px solid rgba(34,197,94,0.12)',
+        boxShadow: '0 0 60px rgba(34,197,94,0.06)',
+        padding: '24px 16px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        {/* Linhas do campo decorativas */}
+        <div style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: `
+            radial-gradient(ellipse 60% 30% at 50% 50%, rgba(34,197,94,0.04) 0%, transparent 70%)
+          `,
+        }} />
+
+        {/* Formação: ATA → MEI → DEF → GOL */}
+        <Row players={data.atk} labels={['PE', 'CA', 'PD']} />
+        <Row players={data.mid} labels={['MEI', 'VOL', 'MEI']} />
+        <Row players={data.def} labels={['LE', 'ZAG', 'ZAG', 'LD']} />
+        <Row players={[data.gol]} labels={['GOL']} />
+      </div>
+
+      {/* Treinador do mês */}
+      {data.treinador && (
+        <div style={{
+          maxWidth: '480px', margin: '20px auto 0',
+          background: 'rgba(255,255,255,0.02)',
+          border: '1px solid rgba(255,255,255,0.06)',
+          borderRadius: '14px', padding: '14px 18px',
+          display: 'flex', alignItems: 'center', gap: '14px',
+        }}>
+          <div style={{
+            width: '40px', height: '40px', borderRadius: '50%', flexShrink: 0,
+            background: 'linear-gradient(135deg,#1e3a5f,#3a5f1e)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '12px', fontWeight: 900, color: 'white',
+            border: '1.5px solid rgba(251,191,36,0.3)',
+          }}>
+            {initials(data.treinador.nome)}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: '12px', fontWeight: 800, color: 'white', marginBottom: '2px' }}>
+              {data.treinador.nome}
+            </div>
+            <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.38)' }}>
+              Treinador do mês · {data.treinador.avaliacoesMes} avaliação{data.treinador.avaliacoesMes !== 1 ? 'ões' : ''}
+              {data.treinador.cidade ? ` · ${data.treinador.cidade.split(',')[0]}` : ''}
+            </div>
+          </div>
+          <div style={{
+            fontSize: '10px', fontWeight: 800, color: '#fbbf24',
+            background: 'rgba(251,191,36,0.10)', border: '1px solid rgba(251,191,36,0.25)',
+            borderRadius: '8px', padding: '4px 8px', flexShrink: 0, textAlign: 'center',
+          }}>
+            ⭐ {data.treinador.reputacao.toFixed(1)}
+          </div>
+        </div>
+      )}
     </section>
   )
 }

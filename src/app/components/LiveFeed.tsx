@@ -74,9 +74,9 @@ function EventCard({
       cursor:        'pointer',
     }}>
       {/* Link invisível sobre o card → perfil do atleta */}
-      {event.atletaId && (
+      {(event.mcId || event.atletaId) && (
         <Link
-          href={`/jogador/${event.atletaId}`}
+          href={event.mcId ? `/atleta/${event.mcId.replace('MC-', '')}` : '#'}
           style={{ position:'absolute', inset:0, zIndex:20 }}
           aria-label={`Ver perfil de ${event.nome}`}
         />
