@@ -145,7 +145,7 @@ export default async function RankingSection() {
           return (
             <Link
               key={a.id}
-              href={`/jogador/${a.id}`}
+              href={a.athleteId ? `/atleta/${a.athleteId.replace('MC-', '')}` : `/atleta/${a.id}`}
               className="rank-card-link"
               style={{
                 flexShrink: 0,
@@ -181,16 +181,30 @@ export default async function RankingSection() {
                   <div style={{
                     width: '64px', height: '64px', borderRadius: '50%',
                     background: 'linear-gradient(135deg,#15803d,#4ade80)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '20px', fontWeight: 900, color: 'white',
+                    position: 'relative',
                     margin: '8px auto 12px',
                     boxShadow: `0 6px 20px ${oc}40`,
                     overflow: 'hidden',
                     border: `2px solid ${oc}50`,
                   }}>
-                    {photo
-                      ? <img src={photo} alt={a.nome} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} />
-                      : a.initials}
+                    {/* Iniciais: camada base */}
+                    <div style={{
+                      position: 'absolute', inset: 0,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '20px', fontWeight: 900, color: 'white',
+                    }}>
+                      {a.initials}
+                    </div>
+                    {/* Foto: camada superior */}
+                    {photo && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={photo}
+                        alt={a.nome}
+                        loading="lazy"
+                        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }}
+                      />
+                    )}
                   </div>
                 )
               })()}

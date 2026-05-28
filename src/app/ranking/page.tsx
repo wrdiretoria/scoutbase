@@ -47,6 +47,13 @@ const RANK_COLORS: Record<number, { bg: string; text: string; border: string }> 
   3: { bg: 'rgba(180,100,50,0.15)', text: '#cd7c3e', border: 'rgba(180,100,50,0.4)' },
 }
 
+// Gradiente do avatar por tier (ouro=amarelo, prata=cinza, bronze=laranja; resto=verde)
+const AVATAR_TIER: Record<number, { bg: string; color: string }> = {
+  1: { bg: 'linear-gradient(135deg,#3d2e05,#1a1400)', color: '#f59e0b' },
+  2: { bg: 'linear-gradient(135deg,#1e2028,#0e0f18)', color: '#94a3b8' },
+  3: { bg: 'linear-gradient(135deg,#2e1400,#140800)', color: '#cd7c3e' },
+}
+
 // ── Page ────────────────────────────────────────────────────────────────────
 
 type Props = { searchParams: Promise<{ categoria?: string; posicao?: string; cidade?: string; estado?: string }> }
@@ -234,6 +241,9 @@ export default async function RankingPage({ searchParams }: Props) {
             // Posição no ranking filtrado (começa em #1 dentro do filtro)
             const rankNum = i + 1
             const rc = RANK_COLORS[rankNum]
+            const at = AVATAR_TIER[rankNum]
+            const avatarBg    = at?.bg    ?? 'linear-gradient(135deg,#15803d,#4ade80)'
+            const avatarColor = at?.color ?? 'rgba(255,255,255,0.85)'
             return (
               <Link
                 key={atleta.id}
@@ -260,15 +270,30 @@ export default async function RankingPage({ searchParams }: Props) {
                 {/* Avatar */}
                 <div style={{
                   width: '46px', height: '46px', borderRadius: '50%', flexShrink: 0,
-                  background: 'linear-gradient(135deg,#15803d,#4ade80)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: '14px', fontWeight: 900,
+                  background: avatarBg,
+                  position: 'relative',
                   boxShadow: '0 4px 14px rgba(34,197,94,0.3)',
                   overflow: 'hidden',
                 }}>
-                  {atleta.avatarUrl
-                    ? <img src={atleta.avatarUrl} alt={atleta.nome} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
-                    : atleta.initials}
+                  {/* Iniciais: camada base */}
+                  <div style={{
+                    position: 'absolute', inset: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '14px', fontWeight: 900, color: avatarColor,
+                    userSelect: 'none',
+                  }}>
+                    {atleta.initials}
+                  </div>
+                  {/* Foto: camada superior */}
+                  {atleta.avatarUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={atleta.avatarUrl}
+                      alt={atleta.nome}
+                      loading="lazy"
+                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  )}
                 </div>
 
                 {/* Info */}

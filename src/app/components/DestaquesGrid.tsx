@@ -96,9 +96,9 @@ async function fetchDestaques(): Promise<AtletaCard[]> {
 }
 
 const TIER_STYLE = {
-  OURO:   { badge: '#f0c040', badgeBg: 'rgba(212,168,67,0.18)', border: 'rgba(212,168,67,0.35)', glow: 'rgba(212,168,67,0.20)' },
-  PRATA:  { badge: '#c0c0d8', badgeBg: 'rgba(192,192,210,0.14)', border: 'rgba(192,192,210,0.28)', glow: 'rgba(192,192,210,0.12)' },
-  BRONZE: { badge: '#d4804a', badgeBg: 'rgba(180,100,40,0.16)', border: 'rgba(180,100,40,0.30)', glow: 'rgba(180,100,40,0.14)' },
+  OURO:   { badge: '#f0c040', badgeBg: 'rgba(212,168,67,0.18)', border: 'rgba(212,168,67,0.35)', glow: 'rgba(212,168,67,0.20)', photoBg: 'linear-gradient(160deg,#3d2e05,#1a1400)' },
+  PRATA:  { badge: '#c0c0d8', badgeBg: 'rgba(192,192,210,0.14)', border: 'rgba(192,192,210,0.28)', glow: 'rgba(192,192,210,0.12)', photoBg: 'linear-gradient(160deg,#1e2028,#0e0f18)' },
+  BRONZE: { badge: '#d4804a', badgeBg: 'rgba(180,100,40,0.16)', border: 'rgba(180,100,40,0.30)', glow: 'rgba(180,100,40,0.14)', photoBg: 'linear-gradient(160deg,#2e1400,#140800)' },
 }
 
 export default async function DestaquesGrid() {
@@ -144,9 +144,9 @@ export default async function DestaquesGrid() {
           position: relative;
           height: 190px;
           overflow: hidden;
-          background: linear-gradient(160deg,#0d2416,#071209);
         }
         .dg-photo img {
+          position: absolute; inset: 0;
           width: 100%; height: 100%; object-fit: cover; object-position: top center;
           display: block;
         }
@@ -155,9 +155,10 @@ export default async function DestaquesGrid() {
           background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, transparent 100%);
         }
         .dg-initials {
-          width: 100%; height: 100%;
+          position: absolute; inset: 0;
           display: flex; align-items: center; justify-content: center;
-          font-size: 28px; font-weight: 900; color: rgba(255,255,255,0.35);
+          font-size: 36px; font-weight: 900;
+          user-select: none; pointer-events: none;
         }
         .dg-ovr {
           position: absolute; top: 10px; right: 10px;
@@ -229,16 +230,21 @@ export default async function DestaquesGrid() {
         {atletas.map(a => {
           const t = TIER_STYLE[a.tier]
           return (
-            <Link key={a.id} href={`/jogador/${a.id}`} className="dg-card" style={{
+            <Link key={a.id} href={a.athleteId ? `/atleta/${a.athleteId.replace(/^[A-Z]+-/, '')}` : `/atleta/${a.id}`} className="dg-card" style={{
               boxShadow: `0 0 20px ${t.glow}`,
               borderColor: t.border,
             }}>
               {/* Foto */}
-              <div className="dg-photo">
-                {a.foto
-                  ? <img src={a.foto} alt={a.nome} />
-                  : <div className="dg-initials">{a.initials}</div>
-                }
+              <div className="dg-photo" style={{ background: t.photoBg }}>
+                {/* Iniciais: camada base — visível se sem foto ou foto quebrada */}
+                <div className="dg-initials" style={{ color: t.badge, opacity: 0.55 }}>
+                  {a.initials}
+                </div>
+                {/* Foto: camada superior — cobre as iniciais quando carrega */}
+                {a.foto && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={a.foto} alt={a.nome} loading="lazy" />
+                )}
                 <div className="dg-photo-fade" />
 
                 {/* OVR */}

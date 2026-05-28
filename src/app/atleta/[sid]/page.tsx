@@ -9,6 +9,7 @@ import type { Metadata } from 'next'
 import { createAdminClient } from '@/lib/supabase'
 import { fetchOvrSingle } from '@/lib/ovr'
 import { SERVER_BASE_URL } from '@/lib/base-url'
+import PhotoCycler from '@/app/components/PhotoCycler'
 
 type Props = { params: Promise<{ sid: string }> }
 
@@ -104,7 +105,7 @@ export default async function AtletaPage({ params }: Props) {
 
   const { data: profile } = await admin
     .from('profiles')
-    .select('id, athlete_id, avatar_url, data_nascimento, bio, altura, peso, pe_dominante, clube_atual')
+    .select('id, athlete_id, avatar_url, fotos, data_nascimento, bio, altura, peso, pe_dominante, clube_atual')
     .eq('athlete_id', athleteId)
     .maybeSingle()
 
@@ -166,6 +167,13 @@ export default async function AtletaPage({ params }: Props) {
   const initials  = getInitials(nome)
   const cor       = ovr ? ovrColor(ovr) : 'rgba(255,255,255,0.2)'
 
+  // Fotos para ciclagem: galeria (fotos[]) + avatar como fallback
+  const fotosArr: (string | null)[] = (profile.fotos as (string | null)[] | null) ?? []
+  const galeriaFotos = fotosArr.filter((f): f is string => !!f)
+  const displayFotos: string[] = galeriaFotos.length > 0
+    ? galeriaFotos
+    : (avatarUrl ? [avatarUrl] : [])
+
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <main style={{ background: '#06100a', minHeight: '100vh', fontFamily: 'system-ui, sans-serif', color: 'white' }}>
@@ -188,23 +196,14 @@ export default async function AtletaPage({ params }: Props) {
           background: 'rgba(255,255,255,0.025)',
           marginBottom: '14px',
         }}>
-          {/* Foto / Avatar */}
+          {/* Foto / Avatar — cicla automaticamente se houver mais de 1 foto */}
           <div style={{ position: 'relative', height: '220px', background: 'linear-gradient(135deg,#0d1f14,#1a4a2a)', overflow: 'hidden' }}>
-            {avatarUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={avatarUrl} alt={nome}
-                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }}
-              />
-            ) : (
-              <div style={{
-                width: '100%', height: '100%', display: 'flex', alignItems: 'center',
-                justifyContent: 'center', fontSize: '60px', fontWeight: 900,
-                color: '#22c55e', opacity: 0.35,
-              }}>
-                {initials}
-              </div>
-            )}
+            <PhotoCycler
+              fotos={displayFotos}
+              nome={nome}
+              initials={initials}
+              ovrColor={cor}
+            />
 
             {/* OVR badge */}
             <div style={{
