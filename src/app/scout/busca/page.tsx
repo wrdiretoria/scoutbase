@@ -110,6 +110,8 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
 
   // Aplica filtros
   const filtered = atletas.filter(a => {
+    if (!a.ovr) return false
+    if (!a.avatarUrl) return false
     if (posicaoFiltro && a.posicao !== posicaoFiltro) return false
     if (categoriaFiltro && a.categoria !== categoriaFiltro) return false
     if (cidadeFiltro && !a.cidade.toLowerCase().includes(cidadeFiltro.toLowerCase())) return false
