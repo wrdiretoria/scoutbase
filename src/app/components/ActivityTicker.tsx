@@ -129,8 +129,7 @@ export default function ActivityTicker() {
         if (!res.ok) return
         const json = await res.json() as { items: ActivityItem[] }
         if (json.items.length > 0) {
-          // Mistura dados reais com fallback estático para encher o ticker
-          setItems([...json.items, ...STATIC])
+          setItems(json.items)
         }
       } catch { /* mantém estático */ }
     }

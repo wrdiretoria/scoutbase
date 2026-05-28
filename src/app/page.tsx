@@ -57,6 +57,7 @@ const cards = [
 
 export default async function LandingPage() {
   // Top 5 atletas por OVR para o ranking inline
+  let atletasNoRadar = 0
   let top5: { id: string; nome: string; pos: string; ovr: number; athleteId: string | null }[] = []
   try {
     const admin = createAdminClient()
@@ -64,22 +65,24 @@ export default async function LandingPage() {
     const atletas = users.filter(u => u.user_metadata?.tipo === 'atleta')
     const ids = atletas.map(u => u.id)
     const [profilesRes, ovrMap] = await Promise.all([
-      admin.from('profiles').select('id, athlete_id').in('id', ids),
+      admin.from('profiles').select('id, athlete_id, avatar_url').in('id', ids),
       fetchOvrMap(admin),
     ])
-    const profileMap = new Map((profilesRes.data ?? []).map((p: { id: string; athlete_id: string | null }) => [p.id, p]))
-    top5 = atletas
+    const profileMap = new Map((profilesRes.data ?? []).map((p: { id: string; athlete_id: string | null; avatar_url: string | null }) => [p.id, p]))
+    const elegíveis = atletas
       .map(u => {
         const meta = u.user_metadata as { nome?: string; posicao?: string }
         const profile = profileMap.get(u.id)
         const athleteId = (profile?.athlete_id as string | null) ?? null
+        const avatarUrl = (profile?.avatar_url as string | null) ?? null
         const ovr = athleteId ? (ovrMap.get(athleteId) ?? null) : null
-        if (!ovr) return null
+        if (!ovr || !avatarUrl) return null
         return { id: u.id, nome: meta.nome ?? 'Atleta', pos: meta.posicao ?? '', ovr, athleteId }
       })
       .filter((a): a is { id: string; nome: string; pos: string; ovr: number; athleteId: string | null } => a !== null)
       .sort((a, b) => b.ovr - a.ovr)
-      .slice(0, 5)
+    atletasNoRadar = elegíveis.length
+    top5 = elegíveis.slice(0, 5)
   } catch { /* fallback: lista vazia */ }
   return (
     <div style={{ background: '#06100a', color: 'white', minHeight: '100vh', fontFamily: 'system-ui, sans-serif' }}>
@@ -596,7 +599,7 @@ export default async function LandingPage() {
                 ))}
               </div>
               <p className="hero-social-txt">
-                <strong>+25.000</strong> atletas já estão no radar
+                <strong>{atletasNoRadar}</strong> atleta{atletasNoRadar !== 1 ? 's' : ''} no radar
               </p>
             </div>
           </div>
