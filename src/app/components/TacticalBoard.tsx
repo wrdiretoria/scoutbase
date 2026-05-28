@@ -78,8 +78,9 @@ function PlayerDot({ player, label }: { player: TacticalPlayer | null; label: st
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={foto}
-            alt={player.nome}
+            alt=""
             loading="lazy"
+            onError={(e) => { e.currentTarget.style.display = 'none' }}
             style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }}
           />
         )}

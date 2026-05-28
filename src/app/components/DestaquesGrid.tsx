@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase'
 import { fetchOvrMap } from '@/lib/ovr'
+import CardPhoto from './CardPhoto'
 
 type AtletaCard = {
   id:        string
@@ -241,10 +242,7 @@ export default async function DestaquesGrid() {
                   {a.initials}
                 </div>
                 {/* Foto: camada superior — cobre as iniciais quando carrega */}
-                {a.foto && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={a.foto} alt={a.nome} loading="lazy" />
-                )}
+                {a.foto && <CardPhoto src={a.foto} />}
                 <div className="dg-photo-fade" />
 
                 {/* OVR */}
