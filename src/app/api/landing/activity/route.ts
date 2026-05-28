@@ -11,14 +11,12 @@ export async function GET() {
   try {
     const admin = createAdminClient()
 
-    // Últimos 12 cadastros (atletas + treinadores)
-    const { data: profiles } = await admin
-      .from('profiles')
-      .select('nome, athlete_id, created_at')
-      .not('athlete_id', 'is', null)
-      .not('nome', 'is', null)
-      .order('created_at', { ascending: false })
-      .limit(12)
+    // Últimos 12 cadastros (atletas + treinadores) via auth.users
+    const { data: { users: allUsers } } = await admin.auth.admin.listUsers({ perPage: 1000 })
+    const recentUsers = allUsers
+      .filter(u => u.user_metadata?.nome && ['atleta', 'treinador'].includes(u.user_metadata?.tipo))
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, 12)
 
     // Últimas 8 avaliações
     const { data: avs } = await admin
@@ -31,11 +29,10 @@ export async function GET() {
     const items: ActivityItem[] = []
 
     // Cadastros
-    for (const p of profiles ?? []) {
-      const id   = p.athlete_id as string
-      const role = id.startsWith('MC-') ? 'Atleta' : id.startsWith('TR-') ? 'Treinador' : null
-      if (!role) continue
-      items.push({ type: 'join', name: p.nome as string, role, ts: p.created_at as string })
+    for (const u of recentUsers) {
+      const tipo = u.user_metadata?.tipo as string
+      const role: 'Atleta' | 'Treinador' = tipo === 'treinador' ? 'Treinador' : 'Atleta'
+      items.push({ type: 'join', name: u.user_metadata.nome as string, role, ts: u.created_at })
     }
 
     // Avaliações — busca nomes dos envolvidos
