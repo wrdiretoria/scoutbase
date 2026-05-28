@@ -66,6 +66,8 @@ function calcularIdade(dataNasc: string) {
   return idade
 }
 
+const CATEGORIAS = ['Sub-11', 'Sub-13', 'Sub-15', 'Sub-17', 'Sub-20', 'Adulto']
+
 export default function CadastroForm({ isEscola }: { isEscola: boolean }) {
   const router = useRouter()
   const [nome, setNome] = useState('')
@@ -74,6 +76,13 @@ export default function CadastroForm({ isEscola }: { isEscola: boolean }) {
   const [password, setPassword] = useState('')
   const [cpf, setCpf] = useState('')
   const [dataNasc, setDataNasc] = useState('')
+  // Campos extras — só para treinador
+  const [paisNascimento, setPaisNascimento] = useState('')
+  const [cidade, setCidade] = useState('')
+  const [clubeAtual, setClubeAtual] = useState('')
+  const [categoria, setCategoria] = useState('')
+  const [certificacao, setCertificacao] = useState('')
+  const [experienciaAnos, setExperienciaAnos] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -118,6 +127,15 @@ export default function CadastroForm({ isEscola }: { isEscola: boolean }) {
             nome,
             tipo: isEscola ? 'escola' : 'treinador',
             ...(isEscola && nomeEscola ? { nome_escola: nomeEscola } : {}),
+            // Campos extras do treinador (armazenados em user_metadata)
+            ...(!isEscola && {
+              pais_nascimento:  paisNascimento.trim()  || null,
+              cidade:           cidade.trim()           || null,
+              clube_atual:      clubeAtual.trim()       || null,
+              categoria_trabalho: categoria             || null,
+              certificacao:     certificacao.trim()     || null,
+              experiencia_anos: experienciaAnos ? Number(experienciaAnos) : null,
+            }),
           },
         },
       })
@@ -251,6 +269,82 @@ export default function CadastroForm({ isEscola }: { isEscola: boolean }) {
             />
             <p style={{ margin: '4px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.25)' }}>Necessário ter 18 anos ou mais.</p>
           </div>
+
+          {/* ── Campos adicionais — só para treinador ── */}
+          {!isEscola && (
+            <>
+              <div style={{ margin: '4px 0 0', padding: '12px 0 0', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+                <p style={{ margin: '0 0 14px', fontSize: '11px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                  📋 Perfil profissional
+                </p>
+              </div>
+
+              <div>
+                <label style={labelStyle}>País de nascimento</label>
+                <input
+                  type="text" value={paisNascimento}
+                  onChange={e => setPaisNascimento(e.target.value)}
+                  placeholder="Ex: Brasil"
+                  style={fieldStyle}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>Cidade e Estado</label>
+                <input
+                  type="text" value={cidade}
+                  onChange={e => setCidade(e.target.value)}
+                  placeholder="Ex: São Paulo – SP"
+                  style={fieldStyle}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>Clube ou organização atual</label>
+                <input
+                  type="text" value={clubeAtual}
+                  onChange={e => setClubeAtual(e.target.value)}
+                  placeholder="Ex: Escolinha Craque FC"
+                  style={fieldStyle}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>Categoria que trabalha</label>
+                <select
+                  value={categoria}
+                  onChange={e => setCategoria(e.target.value)}
+                  style={{ ...fieldStyle, appearance: 'none', cursor: 'pointer' }}
+                >
+                  <option value="" style={{ background: '#1a1a1a', color: 'rgba(255,255,255,0.4)' }}>Selecione...</option>
+                  {CATEGORIAS.map(c => (
+                    <option key={c} value={c} style={{ background: '#1a1a1a', color: 'white' }}>{c}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={labelStyle}>Certificação / licença</label>
+                <input
+                  type="text" value={certificacao}
+                  onChange={e => setCertificacao(e.target.value)}
+                  placeholder='Ex: "CBF A", "UEFA B", "Sem certificação"'
+                  style={fieldStyle}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>Tempo de experiência (anos)</label>
+                <input
+                  type="number" value={experienciaAnos}
+                  onChange={e => setExperienciaAnos(e.target.value)}
+                  min="0" max="60"
+                  placeholder="Ex: 5"
+                  style={fieldStyle}
+                />
+              </div>
+            </>
+          )}
 
           {error && (
             <p style={{ margin: 0, padding: '10px 14px', borderRadius: '10px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '13px', color: '#f87171' }}>

@@ -97,23 +97,27 @@ export default async function TreinadorPerfilPublico({ params }: Props) {
   }
 
   const meta = user.user_metadata as {
-    nome?:              string
-    cidade?:            string
-    pais?:              string
-    especialidade?:     string
-    avatar_url?:        string
-    tipo?:              string
-    treinadorId?:       string
-    anos_exp?:          string
-    clube_atual?:       string
+    nome?:               string
+    cidade?:             string
+    pais?:               string
+    pais_nascimento?:    string
+    especialidade?:      string
+    categoria_trabalho?: string
+    certificacao?:       string
+    avatar_url?:         string
+    tipo?:               string
+    treinadorId?:        string
+    anos_exp?:           string
+    experiencia_anos?:   number
+    clube_atual?:        string
     clubes_trabalhados?: string
-    certificacoes?:     string
-    conquistas?:        string
-    telefone?:          string
-    instagram?:         string
-    tiktok?:            string
-    youtube?:           string
-    outras?:            string
+    certificacoes?:      string
+    conquistas?:         string
+    telefone?:           string
+    instagram?:          string
+    tiktok?:             string
+    youtube?:            string
+    outras?:             string
   }
 
   // Busca dados do perfil ANTES da verificação de tipo (profiles é fonte de verdade)
@@ -131,12 +135,16 @@ export default async function TreinadorPerfilPublico({ params }: Props) {
 
   const nome              = meta.nome ?? 'Treinador'
   const cidade            = meta.cidade            ?? null
-  const pais              = meta.pais              ?? null
-  const especialidade     = meta.especialidade     ?? null
-  const anosExp           = meta.anos_exp          ?? null
+  // pais_nascimento vem do cadastro; pais vem do configurar — usa o que existir
+  const pais              = meta.pais_nascimento   ?? meta.pais              ?? null
+  // categoria_trabalho vem do cadastro; especialidade vem do configurar
+  const especialidade     = meta.categoria_trabalho ?? meta.especialidade    ?? null
+  // anos_exp pode ser string (configurar) ou number (cadastro)
+  const anosExp           = meta.anos_exp          ?? (meta.experiencia_anos != null ? String(meta.experiencia_anos) : null)
   const clubeAtual        = meta.clube_atual        ?? null
   const clubesTrabalhados = meta.clubes_trabalhados ?? null
-  const certificacoes     = meta.certificacoes     ?? null
+  // certificacao (cadastro, texto simples) e certificacoes (configurar, texto longo)
+  const certificacoes     = meta.certificacoes     ?? meta.certificacao     ?? null
   const conquistas        = meta.conquistas        ?? null
   const telefone          = meta.telefone          ?? null
   const instagram         = meta.instagram         ?? null
