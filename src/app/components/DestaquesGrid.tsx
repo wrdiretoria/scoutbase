@@ -1,6 +1,7 @@
 // Server Component — grade de atletas em destaque
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase'
+import { fetchOvrMap } from '@/lib/ovr'
 
 type AtletaCard = {
   id:        string
@@ -52,9 +53,10 @@ async function fetchDestaques(): Promise<AtletaCard[]> {
 
     const ids = top.map(av => av.aluno_id as string)
 
-    const [profilesRes, authRes] = await Promise.all([
+    const [profilesRes, authRes, ovrMap] = await Promise.all([
       admin.from('profiles').select('id, nome, avatar_url, fotos, athlete_id').in('id', ids),
       admin.auth.admin.listUsers({ perPage: 1000 }),
+      fetchOvrMap(admin),
     ])
 
     const profileMap = new Map((profilesRes.data ?? []).map(p => [p.id as string, p]))
@@ -71,7 +73,8 @@ async function fetchDestaques(): Promise<AtletaCard[]> {
       const nome    = (profile?.nome    as string | null) ?? 'Atleta'
       const posicao = posMap.get(id) ?? ''
       const cidade  = cidadeMap.get(id) ?? ''
-      const ovr     = Math.round(av.scout_score as number)
+      const mcId    = (profile?.athlete_id as string | null) ?? null
+      const ovr     = (mcId ? ovrMap.get(mcId) : null) ?? Math.round(av.scout_score as number)
       const fotosArr = profile?.fotos as (string | null)[] | null
       const foto    = fotosArr?.[0] ?? (profile?.avatar_url as string | null) ?? null
 

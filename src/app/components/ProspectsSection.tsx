@@ -1,6 +1,7 @@
 // Server Component — dados reais do Supabase
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase'
+import { fetchOvrMap } from '@/lib/ovr'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -127,9 +128,10 @@ async function fetchTopProspects(): Promise<ProspectData[]> {
 
     const ids = topAvs.map(av => av.aluno_id as string)
 
-    const [profilesRes, authData] = await Promise.all([
+    const [profilesRes, authData, ovrMap] = await Promise.all([
       admin.from('profiles').select('id, nome, avatar_url, fotos, data_nascimento, athlete_id').in('id', ids),
       admin.auth.admin.listUsers({ perPage: 1000 }),
+      fetchOvrMap(admin),
     ])
 
     const profileMap = new Map((profilesRes.data ?? []).map(p => [p.id as string, p]))
@@ -147,7 +149,8 @@ async function fetchTopProspects(): Promise<ProspectData[]> {
       const posicao = posMap.get(id) ?? 'Atleta'
       const cidade  = cidadeMap.get(id) ?? ''
       const dataNasc = (profile?.data_nascimento as string | null) ?? null
-      const ovr     = Math.round(av.scout_score as number)
+      const mcId    = (profile?.athlete_id as string | null) ?? null
+      const ovr     = (mcId ? ovrMap.get(mcId) : null) ?? Math.round(av.scout_score as number)
 
       const fotosArr = profile?.fotos as (string | null)[] | null
       const foto = fotosArr?.[0] ?? (profile?.avatar_url as string | null) ?? null
