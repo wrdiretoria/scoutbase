@@ -846,7 +846,7 @@ export default async function LandingPage() {
           </p>
           <div style={{ display:'flex', gap:'20px', flexShrink:0 }}>
             <Link href="/ranking" style={{ fontSize:'12px', color:'rgba(255,255,255,0.30)', textDecoration:'none', letterSpacing:'0.03em' }}>Ranking</Link>
-            <Link href="/scout/busca" style={{ fontSize:'12px', color:'rgba(255,255,255,0.30)', textDecoration:'none', letterSpacing:'0.03em' }}>Scouts</Link>
+            <Link href="/scouts" style={{ fontSize:'12px', color:'rgba(255,255,255,0.30)', textDecoration:'none', letterSpacing:'0.03em' }}>Scouts</Link>
             <Link href="/treinador/cadastro" style={{ fontSize:'12px', color:'rgba(255,255,255,0.30)', textDecoration:'none', letterSpacing:'0.03em' }}>Treinadores</Link>
           </div>
         </div>
