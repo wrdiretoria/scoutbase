@@ -1,36 +1,33 @@
 /**
- * /atleta/[sid] — Perfil público do atleta
- * Acessível sem login. Admin client para bypass de RLS.
+ * /atleta/[sid] — Perfil público de atleta Meu Craque
+ * Acessa pelo ID numérico (ex: MC-82751 → /atleta/82751)
+ * Sem login necessário.
  */
 
-import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { createAdminClient } from '@/lib/supabase'
+import { fetchOvrSingle } from '@/lib/ovr'
+import { SERVER_BASE_URL } from '@/lib/base-url'
 
 type Props = { params: Promise<{ sid: string }> }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function getInitials(nome: string) {
-  return nome.split(' ').slice(0, 2).map((n) => n[0] ?? '').join('').toUpperCase()
+  return nome.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase()
 }
 
-function calcularIdade(dataNasc: string | null): number | null {
-  if (!dataNasc) return null
-  const hoje = new Date()
-  const nasc = new Date(dataNasc + 'T12:00:00')
+function calcularIdade(dataNasc: string): number {
+  const hoje = new Date(), nasc = new Date(dataNasc)
   let idade = hoje.getFullYear() - nasc.getFullYear()
-  if (
-    hoje.getMonth() < nasc.getMonth() ||
-    (hoje.getMonth() === nasc.getMonth() && hoje.getDate() < nasc.getDate())
-  ) idade--
-  return idade >= 0 ? idade : null
+  const m = hoje.getMonth() - nasc.getMonth()
+  if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--
+  return idade
 }
 
-function categoriaParaIdade(idade: number): string {
-  if (idade <= 5)  return 'Sub-5'
-  if (idade <= 7)  return 'Sub-7'
-  if (idade <= 9)  return 'Sub-9'
+function calcularCategoria(dataNasc: string): string {
+  const idade = calcularIdade(dataNasc)
   if (idade <= 11) return 'Sub-11'
   if (idade <= 13) return 'Sub-13'
   if (idade <= 15) return 'Sub-15'
@@ -39,328 +36,290 @@ function categoriaParaIdade(idade: number): string {
   return 'Adulto'
 }
 
-function scoreLabel(s: number) {
-  if (s >= 80) return 'Elite'
-  if (s >= 65) return 'Alto'
-  if (s >= 50) return 'Médio'
-  return 'Em desenvolvimento'
+function posAbrev(pos: string): string {
+  const map: Record<string, string> = {
+    'Goleiro': 'GK', 'Lateral Direito': 'LD', 'Lateral Esquerdo': 'LE',
+    'Zagueiro': 'ZG', 'Volante': 'VOL', 'Meia': 'MEI',
+    'Meia-Atacante': 'MAT', 'Ponta Direita': 'PD', 'Ponta Esquerda': 'PE',
+    'Atacante': 'ATA', 'Centro-Avante': 'CA',
+  }
+  return map[pos] ?? pos.slice(0, 3).toUpperCase()
 }
 
-// ── Sub-components ───────────────────────────────────────────────────────────
+function ovrColor(ovr: number) {
+  if (ovr >= 80) return '#00FF88'
+  if (ovr >= 65) return '#fbbf24'
+  return '#f97316'
+}
 
-function PilarBar({ label, val, color }: { label: string; val: number; color: string }) {
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+function AttrBar({ label, val }: { label: string; val: number }) {
+  const pct   = Math.round((val / 10) * 100)
+  const color = val >= 8 ? '#00FF88' : val >= 6 ? '#fbbf24' : '#f97316'
   return (
-    <div className="flex items-center gap-3">
-      <span className="text-xs text-gray-500 w-28 flex-shrink-0">{label}</span>
-      <div className="flex-1 rounded-full h-1.5 overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
-        <div className={`h-1.5 rounded-full ${color}`} style={{ width: `${(val / 10) * 100}%` }} />
+    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', width: '130px', flexShrink: 0 }}>
+        {label}
+      </span>
+      <div style={{ flex: 1, height: '4px', borderRadius: '4px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+        <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: '4px' }} />
       </div>
-      <span className="text-xs font-bold text-white w-8 text-right">{val.toFixed(1)}</span>
+      <span style={{ fontSize: '12px', fontWeight: 800, color, width: '28px', textAlign: 'right' }}>
+        {val.toFixed(1)}
+      </span>
     </div>
   )
 }
 
+// ── Metadata ──────────────────────────────────────────────────────────────────
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { sid } = await params
+  const athleteId = `MC-${sid.toUpperCase()}`
+  try {
+    const admin = createAdminClient()
+    const { data: profile } = await admin
+      .from('profiles')
+      .select('id')
+      .eq('athlete_id', athleteId)
+      .maybeSingle()
+    if (!profile) return { title: 'Atleta — Meu Craque' }
+    const { data: { user } } = await admin.auth.admin.getUserById(profile.id)
+    const nome = (user?.user_metadata?.nome as string | undefined) ?? 'Atleta'
+    return {
+      title: `${nome} — Meu Craque`,
+      description: `Veja o perfil de ${nome} no Meu Craque: OVR, atributos e currículo.`,
+      openGraph: { title: `${nome} — Meu Craque`, url: `${SERVER_BASE_URL}/atleta/${sid}` },
+    }
+  } catch { return { title: 'Atleta — Meu Craque' } }
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
-export default async function AtletaPublicoPage({ params }: Props) {
+export default async function AtletaPage({ params }: Props) {
   const { sid } = await params
+  const athleteId = `MC-${sid.toUpperCase()}`
   const admin = createAdminClient()
 
-  const { data: aluno } = await admin
-    .from('alunos')
-    .select('id, nome, posicao, scout_id, ativo, data_nascimento, turmas(nome)')
-    .eq('scout_id', sid.toUpperCase())
-    .single()
+  const { data: profile } = await admin
+    .from('profiles')
+    .select('id, athlete_id, avatar_url, data_nascimento, bio, altura, peso, pe_dominante, clube_atual')
+    .eq('athlete_id', athleteId)
+    .maybeSingle()
 
-  if (!aluno) notFound()
-
-  const [{ data: avaliacoes }, { data: presencas }] = await Promise.all([
-    admin
-      .from('avaliacoes')
-      .select('tecnico, fisico, tatico, comportamento, scout_score, created_at')
-      .eq('aluno_id', aluno.id)
-      .order('created_at', { ascending: false }),
-    admin
-      .from('presencas')
-      .select('presente, data')
-      .eq('aluno_id', aluno.id)
-      .order('data', { ascending: false }),
-  ])
-
-  // ── Métricas ─────────────────────────────────────────────────────────────
-
-  const lista = avaliacoes ?? []
-  const scores = lista.map((a) => a.scout_score).filter(Boolean) as number[]
-  const scoutScore = scores.length > 0
-    ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-    : null
-
-  const mediasPilares = lista.length > 0
-    ? {
-        tecnico:       Math.round((lista.reduce((a, b) => a + b.tecnico, 0)       / lista.length) * 10) / 10,
-        fisico:        Math.round((lista.reduce((a, b) => a + b.fisico, 0)        / lista.length) * 10) / 10,
-        tatico:        Math.round((lista.reduce((a, b) => a + b.tatico, 0)        / lista.length) * 10) / 10,
-        comportamento: Math.round((lista.reduce((a, b) => a + b.comportamento, 0) / lista.length) * 10) / 10,
-      }
-    : null
-
-  const totalPresencas = presencas?.length ?? 0
-  const presentes      = presencas?.filter((p) => p.presente).length ?? 0
-  const frequencia     = totalPresencas > 0 ? Math.round((presentes / totalPresencas) * 100) : null
-  const ultimoTreino   = presencas?.find((p) => p.data)?.data ?? null
-
-  const idade    = calcularIdade((aluno as { data_nascimento?: string | null }).data_nascimento ?? null)
-  const categoria = idade !== null ? categoriaParaIdade(idade) : null
-
-  const turmaNome =
-    aluno.turmas && !Array.isArray(aluno.turmas)
-      ? (aluno.turmas as { nome: string }).nome
-      : null
-
-  // Evolução: últimos 30 dias vs anteriores
-  const agora   = new Date()
-  const ha30    = new Date(agora.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString()
-  const recentes = lista.filter((a) => a.created_at >= ha30 && a.scout_score != null).map((a) => a.scout_score as number)
-  const antigos  = lista.filter((a) => a.created_at <  ha30 && a.scout_score != null).map((a) => a.scout_score as number)
-  const mRecente = recentes.length > 0 ? recentes.reduce((a, b) => a + b, 0) / recentes.length : null
-  const mAntiga  = antigos.length  > 0 ? antigos.reduce((a, b) => a + b, 0)  / antigos.length  : null
-  const evolucao = mRecente !== null && mAntiga !== null && mAntiga > 0
-    ? ((mRecente - mAntiga) / mAntiga * 100).toFixed(1) : null
-
-  const historico = lista.slice(0, 8)
-  const geradoEm  = new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
-
-  return (
-    <main className="min-h-screen" style={{ background: '#09110d' }}>
-      <div className="max-w-lg mx-auto px-4 py-10 space-y-4">
-
-        {/* ── Branding ── */}
-        <div className="text-center mb-2">
-          <Link href="https://scoutbase-eta.vercel.app" className="text-green-500 text-xl font-black tracking-wide">
-            ScoutBase
-          </Link>
-          <p className="text-xs mt-0.5" style={{ color: '#2d4a32' }}>Plataforma de gestão de atletas</p>
-        </div>
-
-        {/* ── Header card ── */}
-        <div className="rounded-2xl overflow-hidden border border-white/5" style={{ background: '#111a13' }}>
-          <div className="h-1 bg-gradient-to-r from-green-800 to-green-500" />
-          <div className="p-6">
-            <div className="flex items-start gap-4">
-              {/* Avatar */}
-              <div
-                className="w-16 h-16 rounded-2xl flex items-center justify-center text-white text-xl font-bold flex-shrink-0"
-                style={{ background: '#16a34a' }}
-              >
-                {getInitials(aluno.nome)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <h1 className="text-xl font-bold text-white">{aluno.nome}</h1>
-                <p className="text-sm text-gray-500 mt-0.5">
-                  {[aluno.posicao, turmaNome].filter(Boolean).join(' · ') || 'Sem posição informada'}
-                </p>
-                <div className="flex flex-wrap items-center gap-2 mt-2">
-                  {categoria && (
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: '#1a3a1e', color: '#4ade80' }}>
-                      {categoria}
-                    </span>
-                  )}
-                  <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                    (aluno as { ativo?: boolean }).ativo
-                      ? 'text-green-400'
-                      : 'text-gray-600'
-                  }`} style={{ background: 'rgba(255,255,255,0.05)' }}>
-                    {(aluno as { ativo?: boolean }).ativo ? '● Ativo' : '○ Inativo'}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Scout ID */}
-            <div className="mt-5 pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-              <p className="text-xs tracking-[0.2em] uppercase mb-1" style={{ color: '#2d4a32' }}>Scout ID</p>
-              <p className="text-3xl font-black tracking-widest font-mono leading-none" style={{ color: '#4ade80' }}>
-                {aluno.scout_id}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Cards de métricas ── */}
-        <div className="grid grid-cols-2 gap-3">
-          {/* Scout Score */}
-          <div className="rounded-2xl p-5 border border-white/5" style={{ background: '#111a13' }}>
-            <p className="text-xs uppercase tracking-wide" style={{ color: '#2d4a32' }}>Scout Score</p>
-            <p className={`text-4xl font-bold mt-1 leading-none ${
-              scoutScore === null ? 'text-gray-700'
-              : scoutScore >= 75 ? 'text-green-400'
-              : scoutScore >= 50 ? 'text-yellow-400'
-              : 'text-red-400'
-            }`}>
-              {scoutScore ?? '—'}
-            </p>
-            {scoutScore !== null && (
-              <>
-                <p className="text-xs mt-1" style={{ color: '#2d4a32' }}>de 100</p>
-                <p className="text-xs text-green-600 mt-1 font-medium">{scoreLabel(scoutScore)}</p>
-              </>
-            )}
-          </div>
-
-          {/* Frequência */}
-          <div className="rounded-2xl p-5 border border-white/5" style={{ background: '#111a13' }}>
-            <p className="text-xs uppercase tracking-wide" style={{ color: '#2d4a32' }}>Frequência</p>
-            <p className={`text-4xl font-bold mt-1 leading-none ${
-              frequencia === null ? 'text-gray-700'
-              : frequencia >= 75 ? 'text-green-400'
-              : 'text-red-400'
-            }`}>
-              {frequencia !== null ? `${frequencia}%` : '—'}
-            </p>
-            {totalPresencas > 0 && (
-              <p className="text-xs mt-1" style={{ color: '#2d4a32' }}>{presentes}/{totalPresencas} aulas</p>
-            )}
-          </div>
-
-          {/* Total avaliações */}
-          <div className="rounded-2xl p-5 border border-white/5" style={{ background: '#111a13' }}>
-            <p className="text-xs uppercase tracking-wide" style={{ color: '#2d4a32' }}>Avaliações</p>
-            <p className="text-4xl font-bold mt-1 leading-none text-white">{lista.length}</p>
-            <p className="text-xs mt-1" style={{ color: '#2d4a32' }}>registradas</p>
-          </div>
-
-          {/* Último treino */}
-          <div className="rounded-2xl p-5 border border-white/5" style={{ background: '#111a13' }}>
-            <p className="text-xs uppercase tracking-wide" style={{ color: '#2d4a32' }}>Último treino</p>
-            <p className="text-xl font-bold mt-1 leading-tight text-white">
-              {ultimoTreino
-                ? new Date(ultimoTreino + 'T12:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
-                : '—'}
-            </p>
-            {ultimoTreino && (
-              <p className="text-xs mt-1" style={{ color: '#2d4a32' }}>
-                {new Date(ultimoTreino + 'T12:00:00').getFullYear()}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* ── Pilares ── */}
-        {mediasPilares && (
-          <div className="rounded-2xl p-6 border border-white/5 space-y-4" style={{ background: '#111a13' }}>
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-white">Scout Score por categoria</h2>
-              <span className="text-xs" style={{ color: '#2d4a32' }}>média geral</span>
-            </div>
-            <PilarBar label="Técnico"       val={mediasPilares.tecnico}       color="bg-blue-500" />
-            <PilarBar label="Físico"         val={mediasPilares.fisico}        color="bg-green-500" />
-            <PilarBar label="Tático"         val={mediasPilares.tatico}        color="bg-purple-500" />
-            <PilarBar label="Comportamento"  val={mediasPilares.comportamento} color="bg-orange-500" />
-          </div>
-        )}
-
-        {/* ── Badge de evolução ── */}
-        {evolucao !== null && (
-          <div
-            className="rounded-2xl px-5 py-4 flex items-center gap-3"
+  // ── Atleta não encontrado — UI personalizada ───────────────────────────────
+  if (!profile) {
+    return (
+      <main style={{
+        background: '#06100a', minHeight: '100vh', fontFamily: 'system-ui, sans-serif',
+        color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <div style={{ textAlign: 'center', padding: '40px 24px' }}>
+          <div style={{ fontSize: '52px', marginBottom: '16px' }}>⚽</div>
+          <h1 style={{ margin: '0 0 8px', fontSize: '22px', fontWeight: 900 }}>
+            Atleta não encontrado
+          </h1>
+          <p style={{ margin: '0 0 32px', color: 'rgba(255,255,255,0.4)', fontSize: '14px' }}>
+            Nenhum atleta com ID{' '}
+            <strong style={{ color: '#22c55e' }}>{athleteId}</strong>{' '}
+            está cadastrado na plataforma.
+          </p>
+          <Link
+            href="/ranking"
             style={{
-              background: parseFloat(evolucao) >= 0 ? 'rgba(22,163,74,0.08)' : 'rgba(220,38,38,0.08)',
-              border: `1px solid ${parseFloat(evolucao) >= 0 ? 'rgba(22,163,74,0.2)' : 'rgba(220,38,38,0.2)'}`,
+              display: 'inline-block', padding: '12px 28px',
+              borderRadius: '12px', background: '#22c55e',
+              color: '#000', fontWeight: 800, fontSize: '14px', textDecoration: 'none',
             }}
           >
-            <span className={`text-2xl ${parseFloat(evolucao) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-              {parseFloat(evolucao) >= 0 ? '↑' : '↓'}
-            </span>
-            <div>
-              <p className={`text-sm font-semibold ${parseFloat(evolucao) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                {parseFloat(evolucao) >= 0 ? '+' : ''}{evolucao}% nos últimos 30 dias
+            ← Voltar ao ranking
+          </Link>
+        </div>
+      </main>
+    )
+  }
+
+  // ── Dados do atleta ───────────────────────────────────────────────────────
+  const { data: { user } } = await admin.auth.admin.getUserById(profile.id as string)
+  const meta     = user?.user_metadata as { nome?: string; posicao?: string; cidade?: string } | undefined
+  const nome     = meta?.nome    ?? 'Atleta'
+  const posicao  = meta?.posicao ?? ''
+  const cidade   = meta?.cidade  ?? ''
+  const dataNasc = (profile.data_nascimento as string | null) ?? null
+  const avatarUrl = (profile.avatar_url as string | null) ?? null
+
+  const [ovr, avRes] = await Promise.all([
+    fetchOvrSingle(admin, athleteId),
+    admin
+      .from('avaliacoes')
+      .select('velocidade, visao_jogo, forca, finalizacao, posicionamento, tecnica, scout_score, created_at')
+      .eq('aluno_id', profile.id)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+  ])
+
+  const ultimaAv  = avRes.data
+  const categoria = dataNasc ? calcularCategoria(dataNasc) : null
+  const idade     = dataNasc ? calcularIdade(dataNasc) : null
+  const initials  = getInitials(nome)
+  const cor       = ovr ? ovrColor(ovr) : 'rgba(255,255,255,0.2)'
+
+  // ── Render ────────────────────────────────────────────────────────────────
+  return (
+    <main style={{ background: '#06100a', minHeight: '100vh', fontFamily: 'system-ui, sans-serif', color: 'white' }}>
+      <div style={{ maxWidth: '480px', margin: '0 auto', padding: '24px 16px 56px' }}>
+
+        {/* Nav */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+          <Link href="/ranking" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>
+            ← Ranking
+          </Link>
+          <span style={{ fontSize: '11px', fontWeight: 800, color: '#22c55e', letterSpacing: '0.12em' }}>
+            ⚽ MEU CRAQUE
+          </span>
+        </div>
+
+        {/* ── Card principal ── */}
+        <div style={{
+          borderRadius: '20px', overflow: 'hidden',
+          border: '1px solid rgba(255,255,255,0.08)',
+          background: 'rgba(255,255,255,0.025)',
+          marginBottom: '14px',
+        }}>
+          {/* Foto / Avatar */}
+          <div style={{ position: 'relative', height: '220px', background: 'linear-gradient(135deg,#0d1f14,#1a4a2a)', overflow: 'hidden' }}>
+            {avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={avatarUrl} alt={nome}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top center' }}
+              />
+            ) : (
+              <div style={{
+                width: '100%', height: '100%', display: 'flex', alignItems: 'center',
+                justifyContent: 'center', fontSize: '60px', fontWeight: 900,
+                color: '#22c55e', opacity: 0.35,
+              }}>
+                {initials}
+              </div>
+            )}
+
+            {/* OVR badge */}
+            <div style={{
+              position: 'absolute', top: '12px', right: '12px',
+              background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(10px)',
+              borderRadius: '12px', padding: '8px 14px', textAlign: 'center',
+              border: `1px solid ${cor}44`,
+            }}>
+              <div style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.12em' }}>
+                OVR
+              </div>
+              <div style={{ fontSize: '30px', fontWeight: 900, color: cor, lineHeight: 1 }}>
+                {ovr ?? '—'}
+              </div>
+            </div>
+
+            {/* Categoria badge */}
+            {categoria && (
+              <div style={{
+                position: 'absolute', top: '12px', left: '12px',
+                fontSize: '10px', fontWeight: 700, color: '#4ade80',
+                background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.3)',
+                borderRadius: '8px', padding: '4px 10px',
+                backdropFilter: 'blur(8px)',
+              }}>
+                {categoria}
+              </div>
+            )}
+          </div>
+
+          <div style={{ padding: '20px' }}>
+            <h1 style={{ margin: '0 0 4px', fontSize: '22px', fontWeight: 900, letterSpacing: '-0.02em' }}>
+              {nome}
+            </h1>
+            <p style={{ margin: '0 0 12px', fontSize: '13px', color: 'rgba(255,255,255,0.42)' }}>
+              {[posAbrev(posicao), posicao !== posAbrev(posicao) ? posicao : null, cidade, idade ? `${idade} anos` : null]
+                .filter(Boolean).join(' · ')}
+            </p>
+
+            {/* Dados físicos */}
+            {(profile.altura || profile.peso || profile.pe_dominante) && (
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
+                {profile.altura      && <Tag>{profile.altura as number}cm</Tag>}
+                {profile.peso        && <Tag>{profile.peso as number}kg</Tag>}
+                {profile.pe_dominante && <Tag>Pé {String(profile.pe_dominante).toLowerCase()}</Tag>}
+              </div>
+            )}
+
+            {profile.clube_atual && (
+              <p style={{ margin: '0 0 14px', fontSize: '13px', color: '#22c55e', fontWeight: 600 }}>
+                ⚽ {String(profile.clube_atual)}
               </p>
-              <p className="text-xs mt-0.5" style={{ color: '#2d4a32' }}>Variação do Scout Score</p>
+            )}
+
+            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.18)', fontWeight: 700, letterSpacing: '0.1em' }}>
+              {athleteId}
+            </div>
+          </div>
+        </div>
+
+        {/* ── Atributos técnicos ── */}
+        {ultimaAv && (
+          <div style={{
+            borderRadius: '16px', padding: '20px',
+            border: '1px solid rgba(255,255,255,0.07)',
+            background: 'rgba(255,255,255,0.02)',
+            marginBottom: '14px',
+          }}>
+            <p style={{ margin: '0 0 16px', fontSize: '11px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+              Atributos técnicos
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <AttrBar label="Velocidade"     val={ultimaAv.velocidade} />
+              <AttrBar label="Visão de jogo"  val={ultimaAv.visao_jogo} />
+              <AttrBar label="Força"           val={ultimaAv.forca} />
+              <AttrBar label="Finalização"     val={ultimaAv.finalizacao} />
+              <AttrBar label="Posicionamento"  val={ultimaAv.posicionamento} />
+              <AttrBar label="Técnica"         val={ultimaAv.tecnica} />
             </div>
           </div>
         )}
 
-        {/* ── Histórico ── */}
-        {historico.length > 0 && (
-          <div className="rounded-2xl p-6 border border-white/5" style={{ background: '#111a13' }}>
-            <h2 className="text-sm font-semibold text-white mb-4">Histórico de evolução</h2>
-            <ul style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-              {historico.map((av, i) => {
-                const anterior = historico[i + 1]?.scout_score ?? null
-                const delta = av.scout_score != null && anterior != null
-                  ? av.scout_score - anterior : null
-                return (
-                  <li
-                    key={i}
-                    className="flex items-center justify-between py-3"
-                    style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
-                  >
-                    <div>
-                      <p className="text-sm font-medium text-white">
-                        {new Date(av.created_at).toLocaleDateString('pt-BR', {
-                          day: '2-digit', month: 'short', year: 'numeric',
-                        })}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      {delta !== null && (
-                        <span className={`text-xs font-semibold ${delta > 0 ? 'text-green-500' : delta < 0 ? 'text-red-400' : 'text-gray-600'}`}>
-                          {delta > 0 ? `+${delta}` : delta}
-                        </span>
-                      )}
-                      {av.scout_score != null && (
-                        <span className={`text-base font-bold ${
-                          av.scout_score >= 75 ? 'text-green-400'
-                          : av.scout_score >= 50 ? 'text-yellow-400'
-                          : 'text-red-400'
-                        }`}>
-                          {av.scout_score}
-                        </span>
-                      )}
-                    </div>
-                  </li>
-                )
-              })}
-            </ul>
-          </div>
-        )}
-
-        {lista.length === 0 && (
-          <div
-            className="rounded-2xl p-10 border border-white/5 text-center"
-            style={{ background: '#111a13' }}
-          >
-            <p className="text-sm" style={{ color: '#2d4a32' }}>Nenhuma avaliação registrada ainda.</p>
-          </div>
-        )}
-
-        {/* ── Verificação ── */}
-        <div
-          className="rounded-2xl px-5 py-4 flex items-start gap-3"
-          style={{ background: 'rgba(22,163,74,0.05)', border: '1px solid rgba(22,163,74,0.15)' }}
-        >
-          <span className="text-lg flex-shrink-0 mt-0.5" style={{ color: '#16a34a' }}>🔐</span>
-          <div>
-            <p className="text-sm font-semibold" style={{ color: '#4ade80' }}>Dados verificados e autenticados</p>
-            <p className="text-xs mt-0.5 leading-relaxed" style={{ color: '#2d6a35' }}>
-              Gerado via ScoutBase em {geradoEm}. Os registros são imutáveis e não podem ser alterados retroativamente.
+        {/* ── Bio ── */}
+        {profile.bio && (
+          <div style={{
+            borderRadius: '16px', padding: '18px 20px',
+            border: '1px solid rgba(255,255,255,0.07)',
+            background: 'rgba(255,255,255,0.02)',
+            marginBottom: '14px',
+          }}>
+            <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.65, fontStyle: 'italic' }}>
+              &ldquo;{String(profile.bio)}&rdquo;
             </p>
           </div>
-        </div>
+        )}
 
-        {/* ── Rodapé ── */}
-        <div className="text-center pt-2 pb-6 space-y-1">
-          <p className="text-xs" style={{ color: '#1e3a22' }}>Perfil gerado pelo ScoutBase</p>
-          <Link
-            href="https://scoutbase-eta.vercel.app"
-            className="text-xs transition-colors hover:text-green-500"
-            style={{ color: '#2d4a32' }}
-          >
-            scoutbase-eta.vercel.app
+        {/* Rodapé */}
+        <div style={{ textAlign: 'center', paddingTop: '8px' }}>
+          <Link href="/ranking" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.2)', textDecoration: 'none' }}>
+            ← Voltar ao ranking
           </Link>
         </div>
 
       </div>
     </main>
+  )
+}
+
+function Tag({ children }: { children: React.ReactNode }) {
+  return (
+    <span style={{
+      fontSize: '12px', color: 'rgba(255,255,255,0.35)',
+      background: 'rgba(255,255,255,0.06)', borderRadius: '6px', padding: '3px 9px',
+    }}>
+      {children}
+    </span>
   )
 }

@@ -81,7 +81,7 @@ export default async function RankingPage({ searchParams }: Props) {
   type RankingItem = {
     id: string; nome: string; posicao: string; cidade: string; estado: string
     dataNasc: string | null; ovr: number; categoria: string | null
-    initials: string; pos: string; avatarUrl: string | null
+    initials: string; pos: string; avatarUrl: string | null; athleteId: string | null
   }
 
   const ranking: RankingItem[] = atletas
@@ -103,6 +103,7 @@ export default async function RankingPage({ searchParams }: Props) {
         initials:  getInitials(nome),
         pos:       posAbrev(meta.posicao ?? ''),
         avatarUrl: (profile?.avatar_url as string | null) ?? null,
+        athleteId,
       }
     })
     .filter((a): a is RankingItem => a !== null)
@@ -236,7 +237,7 @@ export default async function RankingPage({ searchParams }: Props) {
             return (
               <Link
                 key={atleta.id}
-                href={`/jogador/${atleta.id}`}
+                href={`/atleta/${atleta.athleteId?.replace('MC-', '') ?? atleta.id}`}
                 className="rank-card"
                 style={{
                   display: 'flex', alignItems: 'center', gap: '14px',
