@@ -138,34 +138,6 @@ export default function PlanosPage() {
 
         </div>
 
-        {/* Para treinadores */}
-        <div style={{
-          padding: '32px', borderRadius: '20px',
-          background: 'rgba(96,165,250,0.04)', border: '1px solid rgba(96,165,250,0.15)',
-          marginBottom: '24px',
-        }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '20px', flexWrap: 'wrap' }}>
-            <div style={{ flex: 1, minWidth: '200px' }}>
-              <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, color: '#60a5fa', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Para treinadores e escolas</p>
-              <p style={{ margin: '0 0 8px', fontSize: '22px', fontWeight: 900 }}>Cadastro gratuito</p>
-              <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>
-                Avalie seus atletas, acompanhe a evolução deles e gerencie sua escola na plataforma.
-              </p>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <Link href="/treinador/cadastro" style={{
-                padding: '14px 24px', borderRadius: '12px',
-                background: 'rgba(96,165,250,0.15)', color: '#60a5fa',
-                border: '1px solid rgba(96,165,250,0.25)',
-                fontWeight: 800, fontSize: '14px', textDecoration: 'none',
-                whiteSpace: 'nowrap',
-              }}>
-                Cadastrar escola →
-              </Link>
-            </div>
-          </div>
-        </div>
-
         {/* FAQ */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <p style={{ margin: '0 0 8px', fontSize: '18px', fontWeight: 800 }}>Dúvidas rápidas</p>
