@@ -46,7 +46,7 @@ export default function NavBar() {
           <Link href="/" style={{ textDecoration: 'none', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '22px' }}>⚽</span>
             <span style={{ fontSize: '17px', fontWeight: 800, letterSpacing: '-0.01em' }}>
-              <span style={{ color: 'white' }}>MEUCRAQUE</span><span style={{ color: '#00ff87' }}>.com</span>
+              <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
             </span>
           </Link>
 
