@@ -813,8 +813,9 @@ export default async function LandingPage() {
         <div className="footer-inner" style={{ maxWidth:'1280px', margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
           <Link href="/" style={{ textDecoration:'none', display:'flex', alignItems:'center', gap:'6px', flexShrink:0 }}>
             <span style={{ fontSize:'18px' }}>⚽</span>
-            <span style={{ fontSize:'16px', fontWeight:800, letterSpacing:'-0.01em', color:'white' }}>MEUCRAQUE</span>
-            <span style={{ fontSize:'16px', fontWeight:800, letterSpacing:'-0.01em', color:'#00ff87' }}>.com</span>
+            <span style={{ fontSize:'16px', fontWeight:800, letterSpacing:'-0.01em' }}>
+              <span style={{ color:'white' }}>MEUCRAQUE</span><span style={{ color:'#00ff87' }}>.com</span>
+            </span>
           </Link>
           <p style={{ margin:0, fontSize:'13px', color:'rgba(255,255,255,0.24)', textAlign:'center' }}>
             © {new Date().getFullYear()} meucraque.com. Todos os direitos reservados.
