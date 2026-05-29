@@ -86,8 +86,8 @@ export default function Sidebar() {
         </button>
 
         {/* Logo — centered absolutely */}
-        <Link href="/" className="absolute left-1/2 -translate-x-1/2 text-lg font-bold text-green-600 select-none no-underline">
-          meucraque.com
+        <Link href="/" className="absolute left-1/2 -translate-x-1/2 text-lg font-bold select-none" style={{ textDecoration: 'none' }}>
+          <span style={{ color: '#16a34a' }}>MEUCRAQUE</span><span style={{ color: '#00ff87' }}>.com</span>
         </Link>
 
         {/* Spacer — right (keeps logo visually centered) */}
@@ -114,7 +114,7 @@ export default function Sidebar() {
           }`}
         >
           <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-            <Link href="/" className="text-lg font-bold text-green-600 no-underline">meucraque.com</Link>
+            <Link href="/" className="text-lg font-bold" style={{ textDecoration: 'none' }}><span style={{ color: '#16a34a' }}>MEUCRAQUE</span><span style={{ color: '#00ff87' }}>.com</span></Link>
             <button
               onClick={() => setOpen(false)}
               className="flex items-center justify-center w-8 h-8 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
@@ -132,7 +132,7 @@ export default function Sidebar() {
       {/* ── Desktop sidebar ── */}
       <aside className="hidden md:flex w-56 shrink-0 bg-white border-r border-gray-100 min-h-screen flex-col">
         <div className="px-6 py-5 border-b border-gray-100">
-          <Link href="/" className="text-lg font-bold text-green-600 no-underline">meucraque.com</Link>
+          <Link href="/" className="text-lg font-bold" style={{ textDecoration: 'none' }}><span style={{ color: '#16a34a' }}>MEUCRAQUE</span><span style={{ color: '#00ff87' }}>.com</span></Link>
         </div>
         {navContent}
       </aside>

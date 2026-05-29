@@ -326,7 +326,7 @@ export default function ScoutDashboardPage() {
 
         <div style={{ marginTop: 32, textAlign: 'center' }}>
           <p style={{ margin: 0, fontSize: 9, color: 'rgba(255,255,255,0.06)', letterSpacing: '0.1em' }}>
-            ⚽ meucraque.com · O futebol começa aqui
+            ⚽ MEUCRAQUE.com · O futebol começa aqui
           </p>
         </div>
 

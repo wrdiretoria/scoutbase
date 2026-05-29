@@ -25,11 +25,8 @@ export default function OfflinePage() {
           📶
         </div>
 
-        <p style={{
-          margin: '0 0 6px', fontSize: '10px', fontWeight: 800,
-          color: 'rgba(34,197,94,0.6)', letterSpacing: '0.1em',
-        }}>
-          ⚽ meucraque.com
+        <p style={{ margin: '0 0 6px', fontSize: '10px', fontWeight: 800, letterSpacing: '0.1em' }}>
+          ⚽ <span style={{ color: 'white' }}>MEUCRAQUE</span><span style={{ color: '#00ff87' }}>.com</span>
         </p>
 
         <h1 style={{ margin: '0 0 12px', fontSize: '24px', fontWeight: 900, letterSpacing: '-0.02em' }}>

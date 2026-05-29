@@ -340,8 +340,8 @@ export default async function AtletaPage({ params }: Props) {
           <Link href="/ranking" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>
             ← Ranking
           </Link>
-          <Link href="/" style={{ textDecoration: 'none', fontSize: '11px', fontWeight: 800, color: '#22c55e', letterSpacing: '0.06em' }}>
-            ⚽ meucraque.com
+          <Link href="/" style={{ textDecoration: 'none', fontSize: '11px', fontWeight: 800, letterSpacing: '0.06em' }}>
+            ⚽ <span style={{ color: 'white' }}>MEUCRAQUE</span><span style={{ color: '#00ff87' }}>.com</span>
           </Link>
         </div>
 
