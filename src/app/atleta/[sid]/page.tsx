@@ -10,6 +10,7 @@ import { createAdminClient } from '@/lib/supabase'
 import { fetchOvrSingle } from '@/lib/ovr'
 import { SERVER_BASE_URL } from '@/lib/base-url'
 import PhotoCycler from '@/app/components/PhotoCycler'
+import ShareButton from '@/app/components/ShareButton'
 
 type Props = { params: Promise<{ sid: string }> }
 
@@ -264,17 +265,94 @@ export default async function AtletaPage({ params }: Props) {
           </div>
         </div>
 
-        {/* ── Atributos técnicos ── */}
-        {ultimaAv && (
+        {/* ── Compartilhar ── */}
+        <div style={{ marginBottom: '14px' }}>
+          <ShareButton />
+        </div>
+
+        {/* ── Galeria de fotos (só se houver mais de 1) ── */}
+        {galeriaFotos.length > 1 && (
           <div style={{
-            borderRadius: '16px', padding: '20px',
+            borderRadius: '16px', padding: '18px 20px',
             border: '1px solid rgba(255,255,255,0.07)',
             background: 'rgba(255,255,255,0.02)',
             marginBottom: '14px',
           }}>
-            <p style={{ margin: '0 0 16px', fontSize: '11px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-              Atributos técnicos
+            <p style={{ margin: '0 0 12px', fontSize: '11px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+              Galeria de fotos
             </p>
+            <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '2px' }}>
+              {galeriaFotos.map((f, i) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={i}
+                  src={f}
+                  alt=""
+                  style={{
+                    width: '80px', height: '80px', objectFit: 'cover',
+                    objectPosition: 'top center', borderRadius: '10px', flexShrink: 0,
+                    border: '1px solid rgba(255,255,255,0.08)',
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Ficha do atleta ── */}
+        <div style={{
+          borderRadius: '16px', padding: '18px 20px',
+          border: '1px solid rgba(255,255,255,0.07)',
+          background: 'rgba(255,255,255,0.02)',
+          marginBottom: '14px',
+        }}>
+          <p style={{ margin: '0 0 14px', fontSize: '11px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+            Ficha do atleta
+          </p>
+          {(dataNasc || profile.altura || profile.peso || profile.pe_dominante || profile.clube_atual) ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {dataNasc && (() => {
+                const [ano, mes, dia] = dataNasc.split('-')
+                return (
+                  <FichaRow icon="🎂" label="Nascimento">
+                    {`${dia}/${mes}/${ano}`}
+                    {idade != null && (
+                      <span style={{ color: 'rgba(255,255,255,0.32)', fontSize: '11px' }}> · {idade} anos</span>
+                    )}
+                  </FichaRow>
+                )
+              })()}
+              {profile.altura && (
+                <FichaRow icon="📏" label="Altura">{profile.altura as number} cm</FichaRow>
+              )}
+              {profile.peso && (
+                <FichaRow icon="⚖️" label="Peso">{profile.peso as number} kg</FichaRow>
+              )}
+              {profile.pe_dominante && (
+                <FichaRow icon="👟" label="Pé dominante">{String(profile.pe_dominante)}</FichaRow>
+              )}
+              {profile.clube_atual && (
+                <FichaRow icon="⚽" label="Clube">{String(profile.clube_atual)}</FichaRow>
+              )}
+            </div>
+          ) : (
+            <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.2)', fontStyle: 'italic' }}>
+              Dados físicos ainda não preenchidos neste perfil.
+            </p>
+          )}
+        </div>
+
+        {/* ── Atributos técnicos ── */}
+        <div style={{
+          borderRadius: '16px', padding: '20px',
+          border: '1px solid rgba(255,255,255,0.07)',
+          background: 'rgba(255,255,255,0.02)',
+          marginBottom: '14px',
+        }}>
+          <p style={{ margin: '0 0 16px', fontSize: '11px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+            Atributos técnicos
+          </p>
+          {ultimaAv ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <AttrBar label="Velocidade"     val={ultimaAv.velocidade} />
               <AttrBar label="Visão de jogo"  val={ultimaAv.visao_jogo} />
@@ -283,22 +361,33 @@ export default async function AtletaPage({ params }: Props) {
               <AttrBar label="Posicionamento"  val={ultimaAv.posicionamento} />
               <AttrBar label="Técnica"         val={ultimaAv.tecnica} />
             </div>
-          </div>
-        )}
+          ) : (
+            <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.2)', fontStyle: 'italic' }}>
+              Ainda sem avaliação registrada por um treinador.
+            </p>
+          )}
+        </div>
 
-        {/* ── Bio ── */}
-        {profile.bio && (
-          <div style={{
-            borderRadius: '16px', padding: '18px 20px',
-            border: '1px solid rgba(255,255,255,0.07)',
-            background: 'rgba(255,255,255,0.02)',
-            marginBottom: '14px',
-          }}>
+        {/* ── Sobre o atleta ── */}
+        <div style={{
+          borderRadius: '16px', padding: '18px 20px',
+          border: '1px solid rgba(255,255,255,0.07)',
+          background: 'rgba(255,255,255,0.02)',
+          marginBottom: '14px',
+        }}>
+          <p style={{ margin: '0 0 12px', fontSize: '11px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+            Sobre o atleta
+          </p>
+          {profile.bio ? (
             <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.65, fontStyle: 'italic' }}>
               &ldquo;{String(profile.bio)}&rdquo;
             </p>
-          </div>
-        )}
+          ) : (
+            <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.2)', fontStyle: 'italic' }}>
+              Bio não preenchida ainda.
+            </p>
+          )}
+        </div>
 
         {/* Rodapé */}
         <div style={{ textAlign: 'center', paddingTop: '8px' }}>
@@ -320,5 +409,15 @@ function Tag({ children }: { children: React.ReactNode }) {
     }}>
       {children}
     </span>
+  )
+}
+
+function FichaRow({ icon, label, children }: { icon: string; label: string; children: React.ReactNode }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <span style={{ fontSize: '15px', width: '22px', textAlign: 'center', flexShrink: 0 }}>{icon}</span>
+      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', width: '96px', flexShrink: 0, fontWeight: 600 }}>{label}</span>
+      <span style={{ fontSize: '13px', fontWeight: 700, color: 'rgba(255,255,255,0.72)' }}>{children}</span>
+    </div>
   )
 }
