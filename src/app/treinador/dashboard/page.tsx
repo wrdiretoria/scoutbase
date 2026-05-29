@@ -749,7 +749,7 @@ export default function TreinadorDashboardPage() {
 
         <div style={{ textAlign: 'center', paddingTop: '4px' }}>
           <p style={{ margin: 0, fontSize: '9px', color: 'rgba(255,255,255,0.06)', letterSpacing: '0.1em' }}>
-            ⚽ Meu Craque · CONSTRUINDO O FUTEBOL BRASILEIRO
+            ⚽ meucraque.com · CONSTRUINDO O FUTEBOL BRASILEIRO
           </p>
         </div>
 

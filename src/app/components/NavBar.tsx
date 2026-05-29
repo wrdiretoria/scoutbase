@@ -45,8 +45,8 @@ export default function NavBar() {
           {/* Logo */}
           <Link href="/" style={{ textDecoration: 'none', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '22px' }}>⚽</span>
-            <span style={{ fontSize: '19px', fontWeight: 800, letterSpacing: '0.04em', color: 'white' }}>MEU </span>
-            <span style={{ fontSize: '19px', fontWeight: 800, letterSpacing: '0.04em', color: '#22c55e' }}>CRAQUE</span>
+            <span style={{ fontSize: '17px', fontWeight: 800, letterSpacing: '-0.01em', color: 'white' }}>meucraque</span>
+            <span style={{ fontSize: '17px', fontWeight: 800, letterSpacing: '-0.01em', color: '#22c55e' }}>.com</span>
           </Link>
 
           {/* Desktop links */}

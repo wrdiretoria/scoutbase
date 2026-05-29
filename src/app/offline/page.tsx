@@ -27,9 +27,9 @@ export default function OfflinePage() {
 
         <p style={{
           margin: '0 0 6px', fontSize: '10px', fontWeight: 800,
-          color: 'rgba(34,197,94,0.6)', letterSpacing: '0.18em', textTransform: 'uppercase',
+          color: 'rgba(34,197,94,0.6)', letterSpacing: '0.1em',
         }}>
-          ⚽ MEU CRAQUE
+          ⚽ meucraque.com
         </p>
 
         <h1 style={{ margin: '0 0 12px', fontSize: '24px', fontWeight: 900, letterSpacing: '-0.02em' }}>

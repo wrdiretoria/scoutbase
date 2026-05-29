@@ -86,9 +86,9 @@ export default function Sidebar() {
         </button>
 
         {/* Logo — centered absolutely */}
-        <span className="absolute left-1/2 -translate-x-1/2 text-lg font-bold text-green-600 pointer-events-none select-none">
-          Meu Craque
-        </span>
+        <Link href="/" className="absolute left-1/2 -translate-x-1/2 text-lg font-bold text-green-600 select-none no-underline">
+          meucraque.com
+        </Link>
 
         {/* Spacer — right (keeps logo visually centered) */}
         <div className="ml-auto w-10" />
@@ -114,7 +114,7 @@ export default function Sidebar() {
           }`}
         >
           <div className="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-            <span className="text-lg font-bold text-green-600">Meu Craque</span>
+            <Link href="/" className="text-lg font-bold text-green-600 no-underline">meucraque.com</Link>
             <button
               onClick={() => setOpen(false)}
               className="flex items-center justify-center w-8 h-8 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
@@ -132,7 +132,7 @@ export default function Sidebar() {
       {/* ── Desktop sidebar ── */}
       <aside className="hidden md:flex w-56 shrink-0 bg-white border-r border-gray-100 min-h-screen flex-col">
         <div className="px-6 py-5 border-b border-gray-100">
-          <span className="text-lg font-bold text-green-600">Meu Craque</span>
+          <Link href="/" className="text-lg font-bold text-green-600 no-underline">meucraque.com</Link>
         </div>
         {navContent}
       </aside>

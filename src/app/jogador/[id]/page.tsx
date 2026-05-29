@@ -437,8 +437,8 @@ export default async function JogadorPublicoPage({ params }: Props) {
           >
             ← Ranking
           </Link>
-          <Link href="/" style={{ fontSize: '16px', fontWeight: 800, color: 'white', textDecoration: 'none', letterSpacing: '0.04em' }}>
-            ⚽ MEU <span style={{ color: '#22c55e' }}>CRAQUE</span>
+          <Link href="/" style={{ fontSize: '14px', fontWeight: 800, color: 'white', textDecoration: 'none', letterSpacing: '-0.01em' }}>
+            ⚽ meucraque<span style={{ color: '#22c55e' }}>.com</span>
           </Link>
           {/* Direita: views + scouts + favorito */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>

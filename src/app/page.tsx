@@ -811,13 +811,13 @@ export default async function LandingPage() {
       {/* ══════════════════════════════════════ FOOTER ══ */}
       <footer style={{ background:'#06100a', borderTop:'1px solid rgba(255,255,255,0.04)', padding:'32px 40px' }}>
         <div className="footer-inner" style={{ maxWidth:'1280px', margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-          <span style={{ fontSize:'18px', fontWeight:800, letterSpacing:'0.04em', display:'flex', alignItems:'center', gap:'6px', flexShrink:0 }}>
-            <span>⚽</span>
-            <span style={{ color:'white' }}>MEU </span>
-            <span style={{ color:'#22c55e' }}>CRAQUE</span>
-          </span>
+          <Link href="/" style={{ textDecoration:'none', display:'flex', alignItems:'center', gap:'6px', flexShrink:0 }}>
+            <span style={{ fontSize:'18px' }}>⚽</span>
+            <span style={{ fontSize:'16px', fontWeight:800, letterSpacing:'-0.01em', color:'white' }}>meucraque</span>
+            <span style={{ fontSize:'16px', fontWeight:800, letterSpacing:'-0.01em', color:'#22c55e' }}>.com</span>
+          </Link>
           <p style={{ margin:0, fontSize:'13px', color:'rgba(255,255,255,0.24)', textAlign:'center' }}>
-            © {new Date().getFullYear()} Meu Craque. Todos os direitos reservados.
+            © {new Date().getFullYear()} meucraque.com. Todos os direitos reservados.
           </p>
           <div style={{ display:'flex', gap:'20px', flexShrink:0 }}>
             <Link href="/ranking" style={{ fontSize:'12px', color:'rgba(255,255,255,0.30)', textDecoration:'none', letterSpacing:'0.03em' }}>Ranking</Link>
