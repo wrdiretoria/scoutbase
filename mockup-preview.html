@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Meu Craque — Hero Feed Mockup</title>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body { background:#06100a; font-family:system-ui,-apple-system,sans-serif; color:white; }
+
+@keyframes pulseDot  { 0%,100%{opacity:1;transform:scale(1);box-shadow:0 0 6px rgba(0,255,136,.9)} 50%{opacity:.5;transform:scale(.75);box-shadow:0 0 3px rgba(0,255,136,.5)} }
+@keyframes glowPulse { 0%,100%{text-shadow:0 0 30px rgba(0,255,136,.55),0 0 70px rgba(0,255,136,.22)} 50%{text-shadow:0 0 50px rgba(0,255,136,.75),0 0 110px rgba(0,255,136,.32)} }
+@keyframes heroScroll { from{transform:translateY(0)} to{transform:translateY(-50%)} }
+@keyframes shimmer   { 0%{left:-70%} 100%{left:140%} }
+@keyframes fadeUp    { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── HERO ── */
+.hero {
+  position:relative; width:100%; height:100svh; min-height:600px; overflow:hidden;
+  background:#020704;
+}
+.hero-bg {
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse at 8% 78%, rgba(0,255,136,.18) 0%, transparent 50%),
+    radial-gradient(ellipse at 60% 50%, rgba(0,0,0,.5) 30%, rgba(0,0,0,.85) 100%),
+    linear-gradient(108deg, rgba(2,7,4,.97) 0%, rgba(2,7,4,.7) 38%, rgba(2,7,4,.1) 70%, transparent 100%),
+    linear-gradient(to top, rgba(1,5,2,.8) 0%, rgba(1,5,2,.2) 28%, transparent 55%);
+}
+/* subtle grid */
+.hero-bg::after {
+  content:''; position:absolute; inset:0;
+  background-image:linear-gradient(rgba(0,255,136,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,.018) 1px,transparent 1px);
+  background-size:72px 72px;
+}
+
+.hero-grid {
+  position:relative; z-index:2; height:100%; width:100%;
+  display:grid; grid-template-columns:1fr 1fr;
+  align-items:center; padding:0 80px; gap:48px;
+}
+
+/* ── LEFT ── */
+.hero-left { display:flex; flex-direction:column; gap:22px; }
+
+.badge {
+  display:inline-flex; align-items:center; gap:10px; width:fit-content;
+  padding:6px 18px 6px 12px; border-radius:100px;
+  border:1px solid rgba(0,255,136,.38); background:rgba(0,255,136,.07);
+  font-size:9.5px; font-weight:700; color:rgba(0,255,136,.88); letter-spacing:.20em;
+  animation:fadeUp .8s ease forwards .1s; opacity:0;
+}
+.live-dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:#00FF88; animation:pulseDot 2s ease-in-out infinite; }
+
+h1 { margin:0; line-height:.90; letter-spacing:-.05em; animation:fadeUp .8s ease forwards .3s; opacity:0; }
+h1 .white { display:block; font-size:clamp(44px,5.5vw,72px); font-weight:900; color:white; }
+h1 .green  { display:block; font-size:clamp(44px,5.5vw,72px); font-weight:900; color:#00FF88; animation:glowPulse 3.5s ease-in-out infinite; }
+
+.sub { font-size:clamp(13px,1vw,15px); color:rgba(255,255,255,.7); line-height:1.7; max-width:380px; animation:fadeUp .8s ease forwards .5s; opacity:0; }
+.sub span { color:#00FF88; }
+
+.ctas { display:flex; flex-direction:column; gap:12px; animation:fadeUp .8s ease forwards .65s; opacity:0; }
+.btn-primary {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:248px; padding:13px 0; border-radius:100px;
+  background:linear-gradient(160deg,#00FF99 0%,#00E07A 52%,#00CC66 100%);
+  color:#020c05; font-weight:800; font-size:14px; letter-spacing:.08em;
+  text-decoration:none; position:relative; overflow:hidden;
+  box-shadow:0 0 28px rgba(0,255,136,.35),0 4px 18px rgba(0,0,0,.45);
+  transition:filter .2s,transform .15s;
+}
+.btn-primary::after { content:''; position:absolute; top:0; bottom:0; width:45%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent); transform:skewX(-18deg); animation:shimmer 4s ease-in-out infinite 2s; }
+.btn-primary:hover { filter:brightness(1.1); transform:translateY(-1px); }
+.btn-secondary {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:248px; padding:12px 0; border-radius:100px;
+  background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.16);
+  color:rgba(255,255,255,.72); font-size:13.5px; font-weight:600; text-decoration:none;
+  letter-spacing:.06em; transition:border-color .2s,color .2s;
+}
+.btn-secondary:hover { border-color:rgba(0,255,136,.36); color:rgba(255,255,255,.94); }
+
+/* ── RIGHT: FEED ── */
+.hero-right {
+  position:relative; height:560px; overflow:hidden;
+}
+
+.feed-fade-top, .feed-fade-bot {
+  position:absolute; left:0; right:0; height:90px; z-index:2; pointer-events:none;
+}
+.feed-fade-top { top:0;    background:linear-gradient(to bottom, rgba(2,7,4,.98) 0%, transparent 100%); }
+.feed-fade-bot { bottom:0; background:linear-gradient(to top,   rgba(2,7,4,.98) 0%, transparent 100%); }
+
+.feed-header {
+  position:absolute; top:12px; left:0; right:0; z-index:3;
+  display:flex; align-items:center; gap:8px; padding:0 4px;
+}
+.live-chip {
+  display:flex; align-items:center; gap:6px;
+  background:rgba(6,13,8,.90); padding:5px 12px; border-radius:8px;
+  border:1px solid rgba(0,255,136,.20);
+  font-size:9px; font-weight:800; color:rgba(0,255,136,.85); letter-spacing:.16em; text-transform:uppercase;
+}
+.feed-count { font-size:10px; color:rgba(255,255,255,.25); }
+
+.feed-track {
+  display:flex; flex-direction:column;
+  padding-top:48px;
+  animation:heroScroll 28s linear infinite;
+  will-change:transform;
+}
+.feed-track:hover { animation-play-state:paused; }
+
+/* ── CARD ── */
+.card {
+  display:flex; align-items:center; gap:12px;
+  padding:12px 16px; margin-bottom:8px; flex-shrink:0;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:14px;
+  transition:border-color .2s;
+}
+.card:hover { border-color:rgba(0,255,136,.18); }
+
+.avatar {
+  width:40px; height:40px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:900; color:white;
+  border:1.5px solid rgba(255,255,255,.10);
+  box-shadow:0 0 10px rgba(0,0,0,.4);
+}
+.card-info { flex:1; min-width:0; }
+.card-name { display:flex; align-items:center; gap:6px; margin-bottom:2px; }
+.card-name span { font-size:13px; font-weight:800; color:white; letter-spacing:-.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.pos-tag {
+  font-size:9px; font-weight:800; color:rgba(0,255,136,.8);
+  background:rgba(0,255,136,.10); border:1px solid rgba(0,255,136,.20);
+  border-radius:4px; padding:1px 5px; letter-spacing:.06em; flex-shrink:0;
+}
+.card-meta { font-size:10.5px; color:rgba(255,255,255,.30); }
+
+.ovr-box {
+  display:flex; flex-direction:column; align-items:center; flex-shrink:0;
+  border-radius:10px; padding:5px 10px; min-width:44px;
+}
+.ovr-label { font-size:8px; font-weight:800; letter-spacing:.08em; }
+.ovr-val   { font-size:16px; font-weight:900; line-height:1; }
+.new-icon  { width:44px; height:44px; flex-shrink:0; background:rgba(0,255,136,.06); border:1px solid rgba(0,255,136,.12); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+
+  <div class="hero-grid">
+
+    <!-- LEFT -->
+    <div class="hero-left">
+      <span class="badge">
+        <span class="live-dot"></span>
+        AO VIVO — PLATAFORMA ATIVA
+      </span>
+
+      <h1>
+        <span class="white">É SEU TALENTO</span>
+        <span class="green">GANHANDO O MUNDO.</span>
+      </h1>
+
+      <p class="sub">
+        Crie seu perfil, receba avaliações de treinadores certificados e conecte-se com
+        <span>scouts e clubes do Brasil inteiro.</span>
+      </p>
+
+      <div class="ctas">
+        <a href="#" class="btn-primary">⚽ CRIAR MEU CARD — GRÁTIS</a>
+        <a href="#" class="btn-secondary">Já tenho conta →</a>
+      </div>
+    </div>
+
+    <!-- RIGHT: live feed -->
+    <div class="hero-right" id="heroRight">
+      <div class="feed-fade-top"></div>
+      <div class="feed-fade-bot"></div>
+
+      <div class="feed-header">
+        <div class="live-chip">
+          <span class="live-dot"></span>
+          Atletas ao vivo
+        </div>
+        <span class="feed-count">10 atletas</span>
+      </div>
+
+      <div class="feed-track" id="feedTrack"></div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+const athletes = [
+  { nome:'João Mendes',   pos:'ATA', cidade:'São Paulo, SP',      ovr:85,  tipo:'avaliado', bg:'#1a6b3c' },
+  { nome:'Pedro Lima',    pos:'GK',  cidade:'Rio de Janeiro, RJ', ovr:74,  tipo:'avaliado', bg:'#1e3a5f' },
+  { nome:'Lucas Silva',   pos:'MEI', cidade:'Belo Horizonte, MG', ovr:89,  tipo:'avaliado', bg:'#5f1e3a' },
+  { nome:'Rafael Torres', pos:'ZG',  cidade:'Curitiba, PR',       ovr:null, tipo:'novo',    bg:'#3a5f1e' },
+  { nome:'Gabriel Rocha', pos:'PD',  cidade:'Salvador, BA',       ovr:79,  tipo:'avaliado', bg:'#3a1e5f' },
+  { nome:'Matheus Costa', pos:'VOL', cidade:'Fortaleza, CE',      ovr:82,  tipo:'avaliado', bg:'#6b3a1a' },
+  { nome:'Nicolas Alves', pos:'LAT', cidade:'Manaus, AM',         ovr:null, tipo:'novo',    bg:'#1a5f5f' },
+  { nome:'Kauã Ferreira', pos:'ATA', cidade:'Recife, PE',         ovr:91,  tipo:'avaliado', bg:'#5f1a1a' },
+  { nome:'Bruno Santos',  pos:'MAT', cidade:'Porto Alegre, RS',   ovr:77,  tipo:'avaliado', bg:'#1a3a6b' },
+  { nome:'Thiago Mendes', pos:'CA',  cidade:'Campinas, SP',       ovr:83,  tipo:'avaliado', bg:'#3a6b1a' },
+]
+
+function initials(n) { return n.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase() }
+function ovrColor(v) { return v>=80?'#00FF88':v>=65?'#fbbf24':'#f97316' }
+function ovrRgb(v)   { return v>=80?'0,255,136':v>=65?'251,191,36':'249,115,22' }
+
+function buildCard(a) {
+  const d = document.createElement('div')
+  d.className = 'card'
+  const init = initials(a.nome)
+  const ovrHtml = a.ovr != null ? `
+    <div class="ovr-box" style="background:rgba(${ovrRgb(a.ovr)},.08);border:1px solid ${ovrColor(a.ovr)}30">
+      <span class="ovr-label" style="color:${ovrColor(a.ovr)}">OVR</span>
+      <span class="ovr-val"   style="color:${ovrColor(a.ovr)};text-shadow:0 0 12px ${ovrColor(a.ovr)}60">${a.ovr}</span>
+    </div>` : `<div class="new-icon">⚽</div>`
+
+  d.innerHTML = `
+    <div class="avatar" style="background:linear-gradient(135deg,${a.bg},${a.bg}cc)">${init}</div>
+    <div class="card-info">
+      <div class="card-name">
+        <span>${a.nome}</span>
+        <span class="pos-tag">${a.pos}</span>
+      </div>
+      <div class="card-meta">${a.cidade} · ${a.tipo === 'avaliado' ? 'avaliado' : 'entrou'} agora</div>
+    </div>
+    ${ovrHtml}
+  `
+  return d
+}
+
+// Build track (duplicated for infinite scroll)
+const track = document.getElementById('feedTrack')
+;[...athletes, ...athletes].forEach(a => track.appendChild(buildCard(a)))
+</script>
+</body>
+</html>

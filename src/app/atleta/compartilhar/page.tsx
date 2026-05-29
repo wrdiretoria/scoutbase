@@ -416,7 +416,7 @@ function CompartilharContent() {
             ← Voltar
           </button>
           <Link href="/" style={{ fontSize: '14px', fontWeight: 800, color: 'white', textDecoration: 'none', opacity: .55 }}>
-            ⚽ MEU <span style={{ color: '#22c55e' }}>CRAQUE</span>
+            ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
           </Link>
           <div style={{ width: '60px' }} />
         </div>
@@ -534,7 +534,7 @@ function CompartilharContent() {
                     flexDirection: 'column', gap: '0px',
                   }}>
                     <span style={{ fontSize: '18px', fontWeight: 900, color: 'white', lineHeight: 1, fontFamily: 'Arial Black, system-ui', letterSpacing: '-0.02em' }}>M</span>
-                    <span style={{ fontSize: '4.5px', fontWeight: 700, color: 'rgba(255,255,255,0.75)', letterSpacing: '0.06em', lineHeight: 1, marginTop: '1px', textTransform: 'uppercase' }}>MEU CRAQUE</span>
+                    <span style={{ fontSize: '4.5px', fontWeight: 700, color: 'rgba(255,255,255,0.75)', letterSpacing: '0.06em', lineHeight: 1, marginTop: '1px', textTransform: 'uppercase' }}>MEUCRAQUE</span>
                   </div>
                 </div>
 
@@ -655,7 +655,7 @@ function CompartilharContent() {
         </Link>
 
         <p style={{ marginTop: '28px', fontSize: '10px', color: 'rgba(255,255,255,.07)', textAlign: 'center' }}>
-          ⚽ MEU <span style={{ color: 'rgba(0,255,136,.25)' }}>CRAQUE</span> · Você é o próximo.
+          ⚽ MEUCRAQUE.com · Você é o próximo.
         </p>
       </div>
     </main>

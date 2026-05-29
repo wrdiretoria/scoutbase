@@ -958,7 +958,7 @@ export default function AtletaHistoricoPage() {
 
         {/* Footer */}
         <p style={{ marginTop:'28px', fontSize:'10px', color:'rgba(255,255,255,0.1)', textAlign:'center' }}>
-          ⚽ MEU <span style={{ color:'rgba(0,255,136,0.3)' }}>CRAQUE</span> · Sua carreira, registrada.
+          ⚽ MEUCRAQUE.com · Sua carreira, registrada.
         </p>
 
       </div>

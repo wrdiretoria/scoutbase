@@ -137,7 +137,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <Link href="/" style={{ fontSize: '18px', fontWeight: 800, color: 'white', textDecoration: 'none' }}>
-            ⚽ MEU <span style={{ color: '#22c55e' }}>CRAQUE</span>
+            ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
           </Link>
         </div>
 

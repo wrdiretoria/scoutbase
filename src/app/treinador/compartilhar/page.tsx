@@ -136,7 +136,7 @@ export default function TreinadorCompartilharPage() {
   }
 
   async function handleCopy() {
-    try { await navigator.clipboard.writeText('https://meucraque.com.br'); setCopied(true); setTimeout(() => setCopied(false), 3000) } catch { /* sem permissão */ }
+    try { await navigator.clipboard.writeText(window.location.origin); setCopied(true); setTimeout(() => setCopied(false), 3000) } catch { /* sem permissão */ }
   }
 
   // ── Skeleton ──────────────────────────────────────────────────────────────
@@ -235,7 +235,7 @@ export default function TreinadorCompartilharPage() {
             ← Voltar
           </button>
           <Link href="/treinador/dashboard" style={{ fontSize: '14px', fontWeight: 800, color: 'white', textDecoration: 'none', opacity: .55 }}>
-            ⚽ MEU <span style={{ color: '#fbbf24' }}>CRAQUE</span>
+            ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
           </Link>
           <div style={{ width: '60px' }} />
         </div>
@@ -496,7 +496,7 @@ export default function TreinadorCompartilharPage() {
         </Link>
 
         <p style={{ marginTop: '28px', fontSize: '10px', color: 'rgba(255,255,255,.07)', textAlign: 'center' }}>
-          ⚽ MEU <span style={{ color: 'rgba(251,191,36,.25)' }}>CRAQUE</span> · Construindo o futebol brasileiro.
+          ⚽ MEUCRAQUE.com · Construindo o futebol brasileiro.
         </p>
       </div>
     </main>

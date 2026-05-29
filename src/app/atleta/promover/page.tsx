@@ -92,7 +92,7 @@ export default function AtletaPromoverPage() {
           ← Meu perfil
         </Link>
         <span style={{ fontSize:15, fontWeight:800 }}>
-          ⚽ MEU <span style={{ color:'#22c55e' }}>CRAQUE</span>
+          ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </span>
         <div style={{ width:60 }} />
       </nav>

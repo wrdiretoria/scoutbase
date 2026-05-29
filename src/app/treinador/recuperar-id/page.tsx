@@ -49,7 +49,7 @@ export default function TreinadorRecuperarIdPage() {
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <Link href="/" style={{ fontSize: '18px', fontWeight: 800, color: 'white', textDecoration: 'none' }}>
-            ⚽ MEU <span style={{ color: '#fbbf24' }}>CRAQUE</span>
+            ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
           </Link>
         </div>
 

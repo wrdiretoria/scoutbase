@@ -3,6 +3,8 @@
  * Se RESEND_API_KEY não estiver configurada, falha silenciosamente.
  */
 
+import { SERVER_BASE_URL } from './base-url'
+
 const RESEND_API_KEY = process.env.RESEND_API_KEY
 const FROM_EMAIL     = process.env.EMAIL_FROM ?? 'Meu Craque <noreply@meucraque.com.br>'
 
@@ -55,8 +57,8 @@ interface ResumSemanalParams {
 }
 
 export function emailResumSemanal(p: ResumSemanalParams): string {
-  const perfilUrl = `https://meucraque.com.br/jogador/${p.atletaId}`
-  const meuPerfilUrl = `https://meucraque.com.br/atleta/perfil`
+  const perfilUrl = `${SERVER_BASE_URL}/jogador/${p.atletaId}`
+  const meuPerfilUrl = `${SERVER_BASE_URL}/atleta/perfil`
   const ovrColor = p.ovr
     ? (p.ovr >= 80 ? '#22c55e' : p.ovr >= 60 ? '#f59e0b' : '#94a3b8')
     : '#94a3b8'
@@ -125,7 +127,7 @@ export function emailResumSemanal(p: ResumSemanalParams): string {
     <div style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:16px 32px;text-align:center;">
       <p style="margin:0;font-size:11px;color:#9ca3af;line-height:1.6;">
         Meu Craque · O futebol começa aqui<br>
-        <a href="https://meucraque.com.br" style="color:#22c55e;text-decoration:none;">meucraque.com.br</a>
+        <a href="${SERVER_BASE_URL}" style="color:#22c55e;text-decoration:none;">meucraque.com.br</a>
         &nbsp;·&nbsp;
         <a href="${meuPerfilUrl}" style="color:#9ca3af;text-decoration:none;">Desativar emails</a>
       </p>
@@ -146,7 +148,7 @@ interface FavoritoEmailParams {
 }
 
 export function emailScoutFavoritou(p: FavoritoEmailParams): string {
-  const perfilUrl = `https://meucraque.com.br/jogador/${p.atletaId}`
+  const perfilUrl = `${SERVER_BASE_URL}/jogador/${p.atletaId}`
   return `
 <!DOCTYPE html>
 <html>
@@ -179,14 +181,14 @@ export function emailScoutFavoritou(p: FavoritoEmailParams): string {
       <a href="${perfilUrl}" style="display:block;background:#22c55e;color:white;text-align:center;padding:16px;border-radius:14px;font-weight:900;font-size:16px;text-decoration:none;margin-bottom:12px;">
         Ver meu perfil →
       </a>
-      <a href="https://meucraque.com.br/atleta/promover" style="display:block;background:#f0fdf4;color:#15803d;text-align:center;padding:13px;border-radius:14px;font-weight:700;font-size:14px;text-decoration:none;border:1px solid #bbf7d0;">
+      <a href="${SERVER_BASE_URL}/atleta/promover" style="display:block;background:#f0fdf4;color:#15803d;text-align:center;padding:13px;border-radius:14px;font-weight:700;font-size:14px;text-decoration:none;border:1px solid #bbf7d0;">
         🚀 Aparecer em destaque para mais scouts
       </a>
     </div>
 
     <div style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:16px 32px;text-align:center;">
       <p style="margin:0;font-size:11px;color:#9ca3af;">
-        Meu Craque · <a href="https://meucraque.com.br" style="color:#22c55e;text-decoration:none;">meucraque.com.br</a>
+        Meu Craque · <a href="${SERVER_BASE_URL}" style="color:#22c55e;text-decoration:none;">meucraque.com.br</a>
       </p>
     </div>
   </div>
@@ -212,7 +214,7 @@ interface AvaliacaoEmailParams {
 
 export function emailAvaliacaoRecebida(p: AvaliacaoEmailParams): string {
   const notaColor = p.notaGeral >= 80 ? '#22c55e' : p.notaGeral >= 60 ? '#f59e0b' : '#ef4444'
-  const perfilUrl = `https://meucraque.com.br/jogador/${p.atletaId}`
+  const perfilUrl = `${SERVER_BASE_URL}/jogador/${p.atletaId}`
 
   const atributos = [
     { label: 'Velocidade',     valor: p.velocidade },
@@ -299,7 +301,7 @@ export function emailAvaliacaoRecebida(p: AvaliacaoEmailParams): string {
     <div style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:20px 32px;text-align:center;">
       <p style="margin:0;font-size:12px;color:#9ca3af;">
         Meu Craque · Plataforma de perfis de atletas<br>
-        <a href="https://meucraque.com.br" style="color:#22c55e;text-decoration:none;">meucraque.com.br</a>
+        <a href="${SERVER_BASE_URL}" style="color:#22c55e;text-decoration:none;">meucraque.com.br</a>
       </p>
     </div>
   </div>

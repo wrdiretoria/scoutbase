@@ -136,7 +136,7 @@ export default function ScoutDashboardPage() {
         borderBottom: '1px solid rgba(255,255,255,0.06)',
       }}>
         <Link href="/" style={{ fontSize: '15px', fontWeight: 800, color: 'white', textDecoration: 'none' }}>
-          ⚽ MEU <span style={{ color: '#22c55e' }}>CRAQUE</span>
+          ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
         <button onClick={handleSair} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', fontSize: '13px', cursor: 'pointer' }}>
           Sair

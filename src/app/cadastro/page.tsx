@@ -32,9 +32,9 @@ export default function EscolhaPerfilPage() {
 
       {/* Logo */}
       <div style={{ marginBottom: '48px', textAlign: 'center' }}>
-        <span style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '0.04em', color: 'white' }}>
-          ⚽ MEU <span style={{ color: '#22c55e' }}>CRAQUE</span>
-        </span>
+        <Link href="/" style={{ fontSize: '20px', fontWeight: 800, letterSpacing: '-0.01em', textDecoration: 'none' }}>
+          ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+        </Link>
         <p style={{ marginTop: '8px', fontSize: '14px', color: 'rgba(255,255,255,0.4)' }}>
           Quem é você no jogo?
         </p>

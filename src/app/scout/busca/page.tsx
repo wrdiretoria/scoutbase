@@ -137,7 +137,7 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
         backdropFilter: 'blur(16px)', zIndex: 50,
       }}>
         <Link href="/" style={{ fontSize: '16px', fontWeight: 800, color: 'white', textDecoration: 'none', letterSpacing: '0.03em' }}>
-          ⚽ MEU <span style={{ color: '#22c55e' }}>CRAQUE</span>
+          ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {isScoutLogado ? (

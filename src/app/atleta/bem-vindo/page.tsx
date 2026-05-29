@@ -946,7 +946,7 @@ function BemVindoContent() {
         </div>
 
         <p style={{ fontSize:'11px', color:'rgba(255,255,255,0.1)', textAlign:'center', marginTop:'4px' }}>
-          ⚽ MEU <span style={{ color:'rgba(0,255,136,0.35)' }}>CRAQUE</span> · Você é o próximo.
+          ⚽ MEUCRAQUE.com · Você é o próximo.
         </p>
       </div>
 

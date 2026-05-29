@@ -308,7 +308,7 @@ export default function TreinadorPerfilPage() {
             ← Início
           </Link>
           <Link href="/" style={{ fontSize:'14px', fontWeight:800, color:'white', textDecoration:'none', opacity:0.55 }}>
-            ⚽ MEU <span style={{ color:'#22c55e' }}>CRAQUE</span>
+            ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
           </Link>
           <Link href="/treinador/curriculo" style={{
             background:'none', border:'none', cursor:'pointer',
@@ -778,7 +778,7 @@ export default function TreinadorPerfilPage() {
         </Link>
 
         <p style={{ marginTop:'28px', fontSize:'10px', color:'rgba(255,255,255,0.1)', textAlign:'center' }}>
-          ⚽ MEU <span style={{ color:'rgba(0,255,136,0.3)' }}>CRAQUE</span> · Construindo o futebol brasileiro.
+          ⚽ MEUCRAQUE.com · Construindo o futebol brasileiro.
         </p>
       </div>
       <TreinadorBottomNav />

@@ -489,7 +489,7 @@ export default function TreinadorDashboardPage() {
           paddingTop: 'calc(26px + env(safe-area-inset-top))', paddingBottom: '20px',
         }}>
           <span style={{ fontSize: '15px', fontWeight: 900, color: 'white', letterSpacing: '-0.02em' }}>
-            ⚽ MEU <span style={{ color: '#fbbf24' }}>CRAQUE</span>
+            ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
           </span>
           <Link href="/treinador/perfil" style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',

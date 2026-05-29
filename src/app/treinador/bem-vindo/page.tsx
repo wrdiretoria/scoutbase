@@ -372,7 +372,7 @@ export default function TreinadorBemVindoPage() {
         </div>
 
         <p style={{ fontSize:'11px', color:'rgba(255,255,255,0.1)', textAlign:'center', marginTop:'4px' }}>
-          ⚽ MEU <span style={{ color:'rgba(245,158,11,0.35)' }}>CRAQUE</span> · Formando o futuro do futebol
+          ⚽ MEUCRAQUE.com · Formando o futuro do futebol
         </p>
 
       </div>

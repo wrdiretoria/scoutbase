@@ -2,10 +2,21 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "mockup",
+      "name": "meucraque-dev",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--prefix", "C:\\Users\\was25\\OneDrive\\Desktop\\Saas\\belaja"],
-      "port": 3000
+      "runtimeArgs": ["run", "dev"],
+      "port": 3000,
+      "cwd": "C:/Users/was25/OneDrive/Desktop/Saas/belaja"
+    },
+    {
+      "name": "mockup",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "-e",
+        "const h=require('http'),fs=require('fs'),p=require('path');h.createServer((req,res)=>{const f=p.join('C:/Users/was25/OneDrive/Desktop/Saas/belaja','mockup-preview.html');res.writeHead(200,{'Content-Type':'text/html;charset=utf-8'});fs.createReadStream(f).pipe(res);}).listen(3002,()=>console.log('mockup server on 3002'));",
+        "--"
+      ],
+      "port": 3002
     }
   ]
 }

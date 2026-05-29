@@ -268,7 +268,7 @@ export default function TreinadorConfigurarPage() {
         {/* ── Logo ── */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <span style={{ fontSize: '16px', fontWeight: 900, color: 'white' }}>
-            ⚽ MEU <span style={{ color: '#22c55e' }}>CRAQUE</span>
+            ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
           </span>
         </div>
 

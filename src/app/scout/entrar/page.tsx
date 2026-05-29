@@ -64,7 +64,7 @@ export default function ScoutEntrarPage() {
           ← Busca
         </Link>
         <Link href="/" style={{ fontSize: '15px', fontWeight: 800, color: 'white', textDecoration: 'none' }}>
-          ⚽ MEU <span style={{ color: '#22c55e' }}>CRAQUE</span>
+          ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
         <div style={{ width: 60 }} />
       </nav>

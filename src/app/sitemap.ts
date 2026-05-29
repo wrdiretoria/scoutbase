@@ -1,7 +1,8 @@
 import { MetadataRoute } from 'next'
 import { createAdminClient } from '@/lib/supabase'
+import { SERVER_BASE_URL } from '@/lib/base-url'
 
-const BASE = 'https://meucraque.com.br'
+const BASE = SERVER_BASE_URL
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Páginas estáticas

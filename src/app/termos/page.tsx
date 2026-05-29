@@ -22,7 +22,7 @@ export default function TermosPage() {
         backdropFilter: 'blur(20px)', zIndex: 10,
       }}>
         <Link href="/" style={{ fontSize: '16px', fontWeight: 800, color: 'white', textDecoration: 'none' }}>
-          ⚽ MEU <span style={{ color: '#22c55e' }}>CRAQUE</span>
+          ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
         <Link href="/atleta/cadastro" style={{
           padding: '8px 16px', borderRadius: '10px', background: '#22c55e',

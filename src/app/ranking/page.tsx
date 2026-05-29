@@ -142,8 +142,8 @@ export default async function RankingPage({ searchParams }: Props) {
         justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)',
         position: 'sticky', top: 0, background: '#06100a', zIndex: 10,
       }}>
-        <Link href="/" style={{ fontSize: '16px', fontWeight: 800, color: 'white', textDecoration: 'none', letterSpacing: '0.03em' }}>
-          ⚽ MEU <span style={{ color: '#22c55e' }}>CRAQUE</span>
+        <Link href="/" style={{ fontSize: '16px', fontWeight: 800, textDecoration: 'none', letterSpacing: '-0.01em' }}>
+          ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
         <Link href="/atleta/cadastro" style={{
           padding: '8px 16px', borderRadius: '10px', background: '#22c55e',

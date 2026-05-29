@@ -203,8 +203,8 @@ export default function CartaPage() {
       >
         ← Perfil
       </button>
-      <span style={{ fontSize: '13px', fontWeight: 800, color: 'white' }}>
-        ⚽ MEU <span style={{ color: '#00FF88' }}>CRAQUE</span>
+      <span style={{ fontSize: '13px', fontWeight: 800 }}>
+        ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
       </span>
       <div style={{ width: 60 }} />
     </div>
@@ -344,7 +344,7 @@ export default function CartaPage() {
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
                 <div style={{ flex: 1, height: 1, background: 'linear-gradient(to right,transparent,rgba(255,255,255,0.06))' }} />
                 <span style={{ fontSize: 8, fontWeight: 800, letterSpacing: '0.22em', color: 'rgba(255,255,255,0.15)', textTransform: 'uppercase' }}>
-                  MEU CRAQUE · {anoAtual}
+                  MEUCRAQUE.com · {anoAtual}
                 </span>
                 <div style={{ flex: 1, height: 1, background: 'linear-gradient(to left,transparent,rgba(255,255,255,0.06))' }} />
               </div>

@@ -1021,7 +1021,7 @@ function AtletaPerfilContent() {
       <main style={{ background: '#06100a', minHeight: '100dvh', fontFamily: 'system-ui, sans-serif' }}>
         {/* Nav */}
         <nav style={{ padding: '16px 24px', paddingTop: 'calc(16px + env(safe-area-inset-top))', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-          <span style={{ fontSize: '16px', fontWeight: 800, color: 'white' }}>⚽ MEU <span style={{ color: '#22c55e' }}>CRAQUE</span></span>
+          <span style={{ fontSize: '16px', fontWeight: 800, color: 'white' }}>⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span></span>
           <div className="skel" style={{ width: 32, height: 12, borderRadius: 6 }} />
         </nav>
         <div style={{ maxWidth: '480px', margin: '0 auto', padding: '28px 20px 80px' }}>
@@ -1155,7 +1155,7 @@ function AtletaPerfilContent() {
       {/* ── Nav ── */}
       <nav style={{ padding:'16px 24px', paddingTop:'calc(16px + env(safe-area-inset-top))', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'1px solid rgba(255,255,255,0.06)' }}>
         <Link href="/" style={{ fontSize:'16px', fontWeight:800, color:'white', textDecoration:'none', letterSpacing:'0.03em' }}>
-          ⚽ MEU <span style={{ color:'#22c55e' }}>CRAQUE</span>
+          ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
         <button
           onClick={async () => { const s = createClient(); await s.auth.signOut(); router.push('/') }}
