@@ -632,19 +632,21 @@ export default async function JogadorPublicoPage({ params }: Props) {
               </div>
             )}
 
-            {/* CTA — scout acessa currículo completo */}
-            <Link
-              href={athleteId ? `/atleta/${athleteId.replace(/^[A-Z]+-/, '')}` : '#curriculo'}
-              className="scout-cta-btn"
-            >
-              <svg width="16" height="16" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink:0 }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-              </svg>
-              Acessar currículo completo
-              <svg width="14" height="14" fill="none" stroke="rgba(255,255,255,0.65)" strokeWidth="2.5" viewBox="0 0 24 24" style={{ flexShrink:0 }}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 18l6-6-6-6"/>
-              </svg>
-            </Link>
+            {/* CTA — scout acessa currículo completo (só renderiza quando athleteId existe) */}
+            {athleteId && (
+              <Link
+                href={`/atleta/${athleteId.replace(/^[A-Z]+-/, '')}`}
+                className="scout-cta-btn"
+              >
+                <svg width="16" height="16" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink:0 }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Ver perfil completo
+                <svg width="14" height="14" fill="none" stroke="rgba(255,255,255,0.65)" strokeWidth="2.5" viewBox="0 0 24 24" style={{ flexShrink:0 }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 18l6-6-6-6"/>
+                </svg>
+              </Link>
+            )}
           </div>
         </div>
 
