@@ -2,6 +2,7 @@
 import { Bebas_Neue, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { SERVER_BASE_URL } from "@/lib/base-url";
+import ServiceWorkerRegister from "./components/ServiceWorkerRegister";
 
 const bebasNeue = Bebas_Neue({
   weight: "400",
@@ -47,9 +48,13 @@ export const metadata: Metadata = {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "Meu Craque",
+    startupImage: "/icons/icon-512.png",
   },
   formatDetection: {
     telephone: false,
+  },
+  icons: {
+    apple: "/icons/icon-192.png",
   },
 };
 
@@ -65,6 +70,7 @@ export default function RootLayout({
     >
       <body className="font-[family-name:var(--font-dm-sans)]">
         {children}
+        <ServiceWorkerRegister />
       </body>
     </html>
   );

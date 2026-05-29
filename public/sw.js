@@ -1,8 +1,10 @@
-const CACHE_NAME = 'scoutbase-v1'
+const CACHE_NAME = 'meucraque-v2'
 
-// Recursos estáticos que ficam em cache sempre
+// Recursos essenciais pré-cacheados no install
 const STATIC_CACHE = [
   '/offline',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
   '/icons/icon.svg',
   '/manifest.json',
 ]
@@ -37,14 +39,14 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return
   if (!request.url.startsWith(self.location.origin)) return
 
-  // Recursos de API e auth: sempre rede (nunca cache)
+  // APIs, auth e HMR: sempre rede — nunca cache
   if (
     request.url.includes('/api/') ||
     request.url.includes('supabase.co') ||
     request.url.includes('/_next/webpack-hmr')
   ) return
 
-  // Recursos estáticos (_next/static): cache-first
+  // Recursos estáticos Next.js (_next/static): cache-first
   if (request.url.includes('/_next/static/')) {
     event.respondWith(
       caches.match(request).then((cached) => {
@@ -61,7 +63,27 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // Páginas HTML: network-first, cache como fallback
+  // Ícones e assets públicos: cache-first
+  if (
+    request.url.includes('/icons/') ||
+    request.url.includes('/images/')
+  ) {
+    event.respondWith(
+      caches.match(request).then((cached) => {
+        if (cached) return cached
+        return fetch(request).then((response) => {
+          if (response.ok) {
+            const clone = response.clone()
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone))
+          }
+          return response
+        }).catch(() => new Response('', { status: 404 }))
+      })
+    )
+    return
+  }
+
+  // Páginas HTML: network-first, fallback para cache, fallback para /offline
   event.respondWith(
     fetch(request)
       .then((response) => {

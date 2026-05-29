@@ -1,27 +1,39 @@
 {
-  "name": "Meu Craque — Perfil Oficial de Atleta",
+  "name": "Meu Craque",
   "short_name": "Meu Craque",
-  "description": "Crie seu perfil, receba avaliações de treinadores e seja descoberto por scouts e clubes de todo o Brasil.",
+  "description": "Perfil oficial de atleta de futebol",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#06100a",
-  "theme_color": "#22c55e",
+  "background_color": "#0a1a0f",
+  "theme_color": "#00ff87",
   "orientation": "portrait-primary",
   "lang": "pt-BR",
   "categories": ["sports", "social"],
   "icons": [
     {
-      "src": "/icons/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "/icons/icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "maskable"
+      "purpose": "any"
     }
   ],
   "shortcuts": [
