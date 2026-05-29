@@ -139,10 +139,13 @@ export default function TacticalBoard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/landing/tactical', { cache: 'no-store' })
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), 4000)
+    fetch('/api/landing/tactical', { cache: 'no-store', signal: controller.signal })
       .then(r => r.ok ? r.json() : null)
       .then((json: TacticalData | null) => { setData(json); setLoading(false) })
       .catch(() => setLoading(false))
+      .finally(() => clearTimeout(timer))
   }, [])
 
   // Skeleton

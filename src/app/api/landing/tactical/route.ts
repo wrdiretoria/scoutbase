@@ -196,26 +196,16 @@ export async function GET() {
       const [topId, topCount] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]
       const tm = metaMap.get(topId)
 
-      // Total de avaliações do treinador (all-time)
-      const { count: totalCount } = await admin
-        .from('avaliacoes')
-        .select('*', { count: 'exact', head: true })
-        .eq('professor_id', topId)
-
-      // Scores para calcular reputação
-      const { data: coachAvs } = await admin
-        .from('avaliacoes')
-        .select('scout_score, aluno_id, created_at')
-        .eq('professor_id', topId)
-        .not('scout_score', 'is', null)
-        .order('created_at', { ascending: false })
-
-      // Profile do treinador (para mcId)
-      const { data: coachProfile } = await admin
-        .from('profiles')
-        .select('athlete_id')
-        .eq('id', topId)
-        .single()
+      // Total de avaliações, scores e profile do treinador em paralelo
+      const [
+        { count: totalCount },
+        { data: coachAvs },
+        { data: coachProfile },
+      ] = await Promise.all([
+        admin.from('avaliacoes').select('*', { count: 'exact', head: true }).eq('professor_id', topId),
+        admin.from('avaliacoes').select('scout_score, aluno_id, created_at').eq('professor_id', topId).not('scout_score', 'is', null).order('created_at', { ascending: false }),
+        admin.from('profiles').select('athlete_id').eq('id', topId).maybeSingle(),
+      ])
 
       const scores = (coachAvs ?? []).map(a => a.scout_score as number)
       const avg    = scores.length ? scores.reduce((a, b) => a + b, 0) / scores.length : 75
@@ -252,7 +242,7 @@ export async function GET() {
 
     return NextResponse.json(
       { gol, def, mid, atk, treinador } as TacticalData,
-      { headers: { 'Cache-Control': 'no-store' } }
+      { headers: { 'Cache-Control': 's-maxage=60, stale-while-revalidate=300' } }
     )
   } catch (err) {
     console.error('[tactical]', err)

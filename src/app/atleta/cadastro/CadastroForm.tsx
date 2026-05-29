@@ -513,24 +513,27 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
               </p>
             </div>
 
-            <label style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer' }}>
+            {/* Área inteira clicável — essencial no mobile onde o toque cai no texto */}
+            <div
+              onClick={() => setConsent(c => !c)}
+              style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer', userSelect: 'none' }}
+            >
               <div
-                onClick={() => setConsent(!consent)}
                 style={{
                   width: '20px', height: '20px', borderRadius: '6px', flexShrink: 0, marginTop: '1px',
                   background: consent ? '#22c55e' : 'rgba(255,255,255,0.06)',
                   border: `1.5px solid ${consent ? '#22c55e' : 'rgba(255,255,255,0.15)'}`,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  transition: 'all 0.2s', cursor: 'pointer',
+                  transition: 'all 0.2s',
                 }}
               >
                 {consent && <span style={{ fontSize: '12px', color: 'black', fontWeight: 900 }}>✓</span>}
               </div>
               <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>
                 Confirmo que tenho autorização para criar este perfil e concordo com os{' '}
-                <Link href="/termos" target="_blank" style={{ color: '#22c55e', textDecoration: 'none' }}>termos de uso</Link>.
+                <Link href="/termos" target="_blank" onClick={e => e.stopPropagation()} style={{ color: '#22c55e', textDecoration: 'none' }}>termos de uso</Link>.
               </span>
-            </label>
+            </div>
 
             {error && <p style={{ margin: 0, padding: '10px 14px', borderRadius: '10px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '13px', color: '#f87171' }}>{error}</p>}
 

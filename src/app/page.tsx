@@ -1,6 +1,9 @@
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase'
 import { fetchOvrMap } from '@/lib/ovr'
+
+// Cache o Server Component por 60s — evita listUsers() em cada visita
+export const revalidate = 60
 import NavBar from './components/NavBar'
 import ActivityTicker from './components/ActivityTicker'
 import TeamOfWeekSection from './components/TeamOfWeekSection'

@@ -136,6 +136,6 @@ export async function GET(req: Request) {
   const result  = events.slice(0, limit)
 
   return NextResponse.json({ events: result, hasMore }, {
-    headers: { 'Cache-Control': 'no-store' },
+    headers: { 'Cache-Control': 's-maxage=15, stale-while-revalidate=60' },
   })
 }

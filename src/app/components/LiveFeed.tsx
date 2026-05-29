@@ -318,7 +318,10 @@ export default function LiveFeed() {
       const params = new URLSearchParams({ limit: String(limit) })
       if (cursor) params.set('cursor', cursor)
 
-      const res  = await fetch(`/api/landing/livefeed?${params}`, { cache: 'no-store' })
+      const controller = new AbortController()
+      const timer = setTimeout(() => controller.abort(), 5000)
+      const res  = await fetch(`/api/landing/livefeed?${params}`, { cache: 'no-store', signal: controller.signal })
+      clearTimeout(timer)
       if (!res.ok) return
       const json = await res.json() as { events: FeedEvent[]; hasMore: boolean }
 

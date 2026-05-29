@@ -17,14 +17,19 @@ async function numeroEmUso(admin: ReturnType<typeof createAdminClient>, num: str
 }
 
 export async function POST() {
-  const admin = createAdminClient()
+  try {
+    const admin = createAdminClient()
 
-  for (let tentativa = 0; tentativa < 15; tentativa++) {
-    const num = Math.floor(Math.random() * 100000).toString().padStart(5, '0')
-    if (!(await numeroEmUso(admin, num))) {
-      return NextResponse.json({ athleteId: `MC-${num}` })
+    for (let tentativa = 0; tentativa < 15; tentativa++) {
+      const num = Math.floor(Math.random() * 100000).toString().padStart(5, '0')
+      if (!(await numeroEmUso(admin, num))) {
+        return NextResponse.json({ athleteId: `MC-${num}` })
+      }
     }
-  }
 
-  return NextResponse.json({ error: 'Não foi possível gerar ID único. Tente novamente.' }, { status: 503 })
+    return NextResponse.json({ error: 'Não foi possível gerar ID único. Tente novamente.' }, { status: 503 })
+  } catch (err) {
+    console.error('[gerar-id] unexpected', err)
+    return NextResponse.json({ error: 'Erro interno ao gerar ID.' }, { status: 500 })
+  }
 }
