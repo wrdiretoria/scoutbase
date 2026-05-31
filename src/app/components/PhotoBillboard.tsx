@@ -312,7 +312,7 @@ export default function PhotoBillboard() {
           {total > 0 ? `${total} foto${total > 1 ? 's' : ''} de atletas reais` : 'Crie seu perfil e apareça aqui'}
         </span>
         <a
-          href="/jogador/criar"
+          href="/atleta/cadastro"
           style={{
             display:'inline-flex', alignItems:'center', gap:'6px',
             background:'rgba(0,255,136,0.10)', border:'1px solid rgba(0,255,136,0.30)',

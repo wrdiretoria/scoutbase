@@ -43,6 +43,15 @@ function avatarBg(name: string) {
   return COLORS[i]
 }
 
+function tierBorder(ovr: number | null, tipo: string) {
+  if (tipo === 'join') return 'rgba(0,255,136,0.22)'
+  if (!ovr) return 'rgba(255,255,255,0.08)'
+  if (ovr >= 85) return 'rgba(245,158,11,0.45)'
+  if (ovr >= 70) return 'rgba(148,163,184,0.35)'
+  if (ovr >= 60) return 'rgba(205,124,62,0.35)'
+  return 'rgba(255,255,255,0.08)'
+}
+
 // ── EventCard ──────────────────────────────────────────────────────────────────
 
 function EventCard({
@@ -54,242 +63,218 @@ function EventCard({
   photoIdx: number
   isNew:    boolean
 }) {
-  const isAv       = event.tipo === 'avaliacao'
-  const hasPhotos  = isAv && event.fotos.length > 0
-  const expanded   = hasPhotos && event.ovr !== null && event.ovr >= 70
-  const pos        = posAbrev(event.posicao)
-  const cor        = event.ovr ? ovrColor(event.ovr) : '#00FF88'
-  const currentFoto = hasPhotos ? event.fotos[photoIdx % event.fotos.length] : null
+  const isAv        = event.tipo === 'avaliacao'
+  const pos         = posAbrev(event.posicao)
+  const cor         = event.ovr ? ovrColor(event.ovr) : '#00FF88'
+  const currentFoto = event.fotos.length > 0 ? event.fotos[photoIdx % event.fotos.length] : null
+  const border      = isNew ? 'rgba(0,255,136,0.40)' : tierBorder(event.ovr, event.tipo)
 
   return (
     <div style={{
-      display:       'flex',
-      background:    expanded ? 'rgba(0,0,0,0.28)' : 'rgba(255,255,255,0.025)',
-      border:        `1px solid ${isNew ? 'rgba(0,255,136,0.28)' : 'rgba(255,255,255,0.05)'}`,
-      borderRadius:  '14px',
+      borderRadius:  '16px',
+      border:        `1px solid ${border}`,
+      background:    'rgba(255,255,255,0.03)',
       overflow:      'hidden',
-      transition:    'border-color .4s ease',
-      animation:     isNew ? 'feedSlideIn .45s cubic-bezier(.22,1,.36,1) both' : 'none',
       position:      'relative',
       cursor:        'pointer',
+      animation:     isNew ? 'feedSlideIn .45s cubic-bezier(.22,1,.36,1) both' : 'none',
+      transition:    'border-color .4s ease',
+      display:       'flex',
+      flexDirection: 'column',
     }}>
       {/* Link invisível sobre o card → perfil do atleta */}
       {(event.mcId || event.atletaId) && (
         <Link
           href={event.mcId ? `/atleta/${event.mcId.replace('MC-', '')}` : '#'}
-          style={{ position:'absolute', inset:0, zIndex:20 }}
+          style={{ position: 'absolute', inset: 0, zIndex: 20 }}
           aria-label={`Ver perfil de ${event.nome}`}
         />
       )}
-      {/* ── Foto lateral (cards de avaliação expandidos) ── */}
-      {expanded && currentFoto && (
-        <div style={{
-          flexShrink: 0,
-          width:      '90px',
-          position:   'relative',
-          overflow:   'hidden',
-          background: '#0a120e',
-        }}>
+
+      {/* ── Área de foto (topo do card) ── */}
+      <div style={{
+        height:         '100px',
+        background:     currentFoto
+          ? '#0a120e'
+          : `linear-gradient(135deg, ${avatarBg(event.nome)}, ${avatarBg(event.nome)}aa)`,
+        position:       'relative',
+        overflow:       'hidden',
+        display:        'flex',
+        alignItems:     'center',
+        justifyContent: 'center',
+        flexShrink:     0,
+      }}>
+        {currentFoto ? (
           <img
             src={currentFoto}
             alt={event.nome}
             style={{
-              position:   'absolute', inset: 0,
-              width:      '100%', height: '100%',
-              objectFit:  'cover', objectPosition: 'center top',
+              position: 'absolute', inset: 0,
+              width: '100%', height: '100%',
+              objectFit: 'cover', objectPosition: 'center top',
               transition: 'opacity .4s ease',
             }}
           />
+        ) : (
+          <span style={{
+            fontSize:      '30px',
+            fontWeight:    900,
+            color:         'rgba(255,255,255,0.65)',
+            letterSpacing: '-0.02em',
+            userSelect:    'none',
+          }}>
+            {initials(event.nome)}
+          </span>
+        )}
+
+        {/* Gradiente escuro na base da foto */}
+        {currentFoto && (
           <div style={{
-            position:   'absolute', inset: 0,
-            background: 'linear-gradient(to right, transparent 55%, rgba(3,9,5,0.95) 100%)',
+            position:      'absolute', bottom: 0, left: 0, right: 0,
+            height:        '55%',
+            background:    'linear-gradient(to top, rgba(3,9,5,0.88) 0%, transparent 100%)',
+            pointerEvents: 'none',
           }} />
-        </div>
-      )}
+        )}
 
-      {/* ── Conteúdo principal ── */}
+        {/* OVR badge — canto superior direito */}
+        {isAv && event.ovr !== null && (
+          <div style={{
+            position:       'absolute', top: '8px', right: '8px',
+            display:        'flex',
+            flexDirection:  'column',
+            alignItems:     'center',
+            background:     'rgba(0,0,0,0.55)',
+            backdropFilter: 'blur(6px)',
+            border:         `1px solid ${cor}55`,
+            borderRadius:   '8px',
+            padding:        '3px 7px',
+            minWidth:       '36px',
+          }}>
+            <span style={{ fontSize: '7px', fontWeight: 800, color: cor, letterSpacing: '0.10em' }}>OVR</span>
+            <span style={{ fontSize: '15px', fontWeight: 900, color: cor, lineHeight: 1 }}>{event.ovr}</span>
+          </div>
+        )}
+
+        {/* Badge "novo" — canto superior esquerdo */}
+        {isNew && (
+          <div style={{
+            position:       'absolute', top: '8px', left: '8px',
+            fontSize:       '7.5px',
+            fontWeight:     800,
+            color:          '#00FF88',
+            background:     'rgba(0,0,0,0.55)',
+            backdropFilter: 'blur(6px)',
+            border:         '1px solid rgba(0,255,136,0.35)',
+            borderRadius:   '100px',
+            padding:        '2px 7px',
+            letterSpacing:  '0.12em',
+            textTransform:  'uppercase',
+          }}>
+            novo
+          </div>
+        )}
+      </div>
+
+      {/* ── Conteúdo (base do card) ── */}
       <div style={{
-        flex:    1,
-        display: 'flex',
-        alignItems: 'center',
-        gap:     '12px',
-        padding: expanded ? '14px 14px 14px 12px' : '13px 14px',
-        minWidth: 0,
+        padding:       '10px 11px 11px',
+        display:       'flex',
+        flexDirection: 'column',
+        gap:           '5px',
+        flex:          1,
       }}>
-        {/* Avatar — foto real quando disponível, iniciais como fallback */}
-        <div style={{
-          width:        '40px',
-          height:       '40px',
-          borderRadius: '50%',
-          flexShrink:   0,
-          background:   `linear-gradient(135deg, ${avatarBg(event.nome)}, ${avatarBg(event.nome)}cc)`,
-          border:       '1.5px solid rgba(255,255,255,0.10)',
-          display:      'flex',
-          alignItems:   'center',
-          justifyContent: 'center',
-          fontSize:     '12px',
-          fontWeight:   900,
-          color:        'white',
-          boxShadow:    '0 2px 8px rgba(0,0,0,0.4)',
-          overflow:     'hidden',
-          position:     'relative',
+        {/* Nome */}
+        <span style={{
+          fontSize:      '13px',
+          fontWeight:    800,
+          color:         'white',
+          overflow:      'hidden',
+          textOverflow:  'ellipsis',
+          whiteSpace:    'nowrap',
+          letterSpacing: '-0.01em',
+          lineHeight:    1.2,
         }}>
-          {event.fotos[0] ? (
-            <img
-              src={event.fotos[0]}
-              alt={event.nome}
-              style={{
-                position: 'absolute', inset: 0,
-                width: '100%', height: '100%',
-                objectFit: 'cover', objectPosition: 'center top',
-              }}
-            />
-          ) : null}
-          {!event.fotos[0] && initials(event.nome)}
-        </div>
+          {event.nome}
+        </span>
 
-        {/* Texto */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          {/* Nome + badge tipo */}
-          <div style={{
-            display:    'flex',
-            alignItems: 'center',
-            gap:        '7px',
-            marginBottom: '3px',
-            flexWrap:   'wrap',
-          }}>
+        {/* Posição + cidade */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px', minWidth: 0 }}>
+          {pos && (
             <span style={{
-              fontSize:   '13px',
-              fontWeight: 800,
-              color:      'white',
-              overflow:   'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              maxWidth:   '160px',
+              fontSize:      '9px',
+              fontWeight:    700,
+              color:         'rgba(255,255,255,0.50)',
+              background:    'rgba(255,255,255,0.07)',
+              borderRadius:  '4px',
+              padding:       '1.5px 5px',
+              letterSpacing: '0.05em',
+              flexShrink:    0,
             }}>
-              {event.nome}
+              {pos}
             </span>
-
-            {/* Badge tipo */}
-            {isAv ? (
-              <span style={{
-                fontSize:        '8.5px',
-                fontWeight:      800,
-                color:           cor,
-                background:      `rgba(${event.ovr && event.ovr >= 80 ? '0,255,136' : event.ovr && event.ovr >= 65 ? '251,191,36' : '249,115,22'},0.10)`,
-                border:          `1px solid ${cor}35`,
-                borderRadius:    '5px',
-                padding:         '1.5px 6px',
-                letterSpacing:   '0.06em',
-                flexShrink:      0,
-                textTransform:   'uppercase',
-              }}>
-                AVALIADO
-              </span>
-            ) : (
-              <span style={{
-                fontSize:      '8.5px',
-                fontWeight:    800,
-                color:         '#00FF88',
-                background:    'rgba(0,255,136,0.08)',
-                border:        '1px solid rgba(0,255,136,0.22)',
-                borderRadius:  '5px',
-                padding:       '1.5px 6px',
-                letterSpacing: '0.06em',
-                flexShrink:    0,
-                textTransform: 'uppercase',
-              }}>
-                ENTROU
-              </span>
-            )}
-          </div>
-
-          {/* Descrição */}
-          <div style={{
-            fontSize:  '11.5px',
-            color:     'rgba(255,255,255,0.40)',
-            lineHeight: 1.4,
-            overflow:  'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}>
-            {isAv
-              ? <>avaliado por <span style={{ color: 'rgba(255,255,255,0.62)', fontWeight: 600 }}>{event.treinadorNome ?? 'treinador'}</span>{event.cidade ? ` · ${event.cidade.split(',')[0]}` : ''}</>
-              : <>{pos && <>{pos} · </>}{event.cidade ? event.cidade.split(',')[0] : 'atleta novo'}</>
-            }
-          </div>
-
-          {/* ID do atleta */}
-          {event.mcId && (
-            <div style={{ fontSize: '9px', fontWeight: 700, color: 'rgba(255,255,255,0.20)', letterSpacing: '0.08em', marginTop: '3px' }}>
-              ID: {event.mcId.replace('MC-', '')}
-            </div>
+          )}
+          {event.cidade && (
+            <span style={{
+              fontSize:     '10px',
+              color:        'rgba(255,255,255,0.28)',
+              overflow:     'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace:   'nowrap',
+            }}>
+              {event.cidade.split(',')[0]}
+            </span>
           )}
         </div>
 
-        {/* OVR ou ícone + timestamp */}
+        {/* Tag de evento + tempo */}
         <div style={{
           display:        'flex',
-          flexDirection:  'column',
-          alignItems:     'flex-end',
-          gap:            '5px',
-          flexShrink:     0,
+          alignItems:     'center',
+          justifyContent: 'space-between',
+          marginTop:      '2px',
         }}>
-          {isAv && event.ovr !== null ? (
-            <div style={{
-              display:        'flex',
-              flexDirection:  'column',
-              alignItems:     'center',
-              background:     `rgba(${event.ovr >= 80 ? '0,255,136' : event.ovr >= 65 ? '251,191,36' : '249,115,22'},0.09)`,
-              border:         `1px solid ${cor}35`,
-              borderRadius:   '9px',
-              padding:        '4px 9px',
-              minWidth:       '40px',
+          {isAv ? (
+            <span style={{
+              fontSize:      '8px',
+              fontWeight:    800,
+              color:         cor,
+              background:    `rgba(${event.ovr && event.ovr >= 80 ? '0,255,136' : event.ovr && event.ovr >= 65 ? '251,191,36' : '249,115,22'},0.10)`,
+              border:        `1px solid ${cor}35`,
+              borderRadius:  '4px',
+              padding:       '2px 6px',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              flexShrink:    0,
             }}>
-              <span style={{ fontSize: '7.5px', fontWeight: 800, color: cor, letterSpacing: '0.10em' }}>OVR</span>
-              <span style={{ fontSize: '16px', fontWeight: 900, color: cor, lineHeight: 1 }}>{event.ovr}</span>
-            </div>
+              AVALIADO
+            </span>
           ) : (
-            <div style={{
-              width:          '34px',
-              height:         '34px',
-              borderRadius:   '50%',
-              background:     'rgba(0,255,136,0.06)',
-              border:         '1px solid rgba(0,255,136,0.14)',
-              display:        'flex',
-              alignItems:     'center',
-              justifyContent: 'center',
-              fontSize:       '16px',
+            <span style={{
+              fontSize:      '8px',
+              fontWeight:    800,
+              color:         '#00FF88',
+              background:    'rgba(0,255,136,0.08)',
+              border:        '1px solid rgba(0,255,136,0.22)',
+              borderRadius:  '4px',
+              padding:       '2px 6px',
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              flexShrink:    0,
             }}>
-              ⚽
-            </div>
+              ENTROU
+            </span>
           )}
-          <span style={{ fontSize: '9.5px', color: 'rgba(255,255,255,0.22)', letterSpacing: '0.02em' }}>
+          <span style={{
+            fontSize:      '9.5px',
+            color:         'rgba(255,255,255,0.22)',
+            letterSpacing: '0.02em',
+            flexShrink:    0,
+          }}>
             {timeAgo(event.ts)}
           </span>
         </div>
       </div>
-
-      {/* Pill "ao vivo" para eventos novos via Realtime */}
-      {isNew && (
-        <div style={{
-          position:      'absolute',
-          top:           '8px',
-          right:         '8px',
-          fontSize:      '8px',
-          fontWeight:    800,
-          color:         '#00FF88',
-          background:    'rgba(0,255,136,0.10)',
-          border:        '1px solid rgba(0,255,136,0.25)',
-          borderRadius:  '100px',
-          padding:       '2px 7px',
-          letterSpacing: '0.12em',
-          textTransform: 'uppercase',
-          pointerEvents: 'none',
-        }}>
-          novo
-        </div>
-      )}
     </div>
   )
 }
@@ -459,7 +444,7 @@ export default function LiveFeed() {
               letterSpacing: '-0.028em',
               lineHeight:    1.06,
             }}>
-              O que está acontecendo<br/>
+              O que está acontecendo{' '}<br/>
               <span style={{ color: '#00FF88' }}>agora na plataforma</span>
             </h2>
           </div>
@@ -482,11 +467,10 @@ export default function LiveFeed() {
         {/* ── Cards ── */}
         {loading && events.length === 0 ? (
           /* Skeleton */
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridAutoRows: '185px', alignItems: 'stretch', gap: '12px' }}>
             {[0, 1, 2, 3].map(i => (
               <div key={i} style={{
-                height:       '70px',
-                borderRadius: '14px',
+                borderRadius: '16px',
                 background:   'rgba(255,255,255,0.025)',
                 border:       '1px solid rgba(255,255,255,0.04)',
                 animation:    `feedSlideIn .4s ease both ${i * 0.06}s`,
@@ -495,15 +479,15 @@ export default function LiveFeed() {
           </div>
         ) : events.length === 0 ? (
           <div style={{
-            textAlign:  'center',
-            padding:    '48px 0',
-            color:      'rgba(255,255,255,0.25)',
-            fontSize:   '14px',
+            textAlign: 'center',
+            padding:   '48px 0',
+            color:     'rgba(255,255,255,0.25)',
+            fontSize:  '14px',
           }}>
             Nenhuma atividade recente ainda.
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridAutoRows: 'minmax(185px, auto)', alignItems: 'stretch', gap: '12px' }}>
             {events.map(event => (
               <EventCard
                 key={event.id}

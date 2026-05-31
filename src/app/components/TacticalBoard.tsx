@@ -241,7 +241,7 @@ export default function TacticalBoard() {
               {data.treinador.nome}
             </div>
             <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.38)' }}>
-              Treinador do mês · {data.treinador.avaliacoesMes} avaliação{data.treinador.avaliacoesMes !== 1 ? 'ões' : ''}
+              Treinador do mês · {data.treinador.avaliacoesMes} {data.treinador.avaliacoesMes !== 1 ? 'avaliações' : 'avaliação'}
               {data.treinador.cidade ? ` · ${data.treinador.cidade.split(',')[0]}` : ''}
             </div>
           </div>

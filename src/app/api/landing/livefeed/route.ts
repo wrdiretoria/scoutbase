@@ -47,7 +47,7 @@ export async function GET(req: Request) {
     // ── 2. Cadastros / join events (profiles com athlete_id) ─────────────────
     let profQ = admin
       .from('profiles')
-      .select('id, nome, fotos, athlete_id, criado_em')
+      .select('id, nome, fotos, avatar_url, athlete_id, criado_em')
       .not('athlete_id', 'is', null)
       .not('nome',       'is', null)
       .order('criado_em', { ascending: false })
@@ -69,16 +69,18 @@ export async function GET(req: Request) {
     if (userIds.size > 0) {
       const { data: extra, error: extraErr } = await admin
         .from('profiles')
-        .select('id, nome, fotos, athlete_id')
+        .select('id, nome, fotos, avatar_url, athlete_id')
         .in('id', [...userIds])
       if (extraErr) console.error('[livefeed] extra profiles:', extraErr.message)
 
       for (const p of extra ?? []) {
-        const raw = (p.fotos as (string | null)[] | null) ?? []
+        const raw       = (p.fotos      as (string | null)[] | null) ?? []
+        const fotosArr  = raw.filter((f): f is string => !!f)
+        const avatarUrl = (p.avatar_url as string | null) ?? null
         extraMap.set(p.id as string, {
-          nome:  (p.nome        as string        | null) ?? 'Atleta',
-          fotos: raw.filter((f): f is string => !!f),
-          mcId:  (p.athlete_id  as string        | null) ?? null,
+          nome:  (p.nome       as string | null) ?? 'Atleta',
+          fotos: fotosArr.length > 0 ? fotosArr : (avatarUrl ? [avatarUrl] : []),
+          mcId:  (p.athlete_id as string | null) ?? null,
         })
       }
     }
@@ -88,7 +90,9 @@ export async function GET(req: Request) {
       const aid = p.athlete_id as string | null
       if (!aid?.startsWith('MC-')) continue
 
-      const raw = (p.fotos as (string | null)[] | null) ?? []
+      const raw       = (p.fotos      as (string | null)[] | null) ?? []
+      const fotosArr  = raw.filter((f): f is string => !!f)
+      const avatarUrl = (p.avatar_url as string | null) ?? null
       events.push({
         id:            `join-${p.id as string}`,
         atletaId:      p.id as string,
@@ -99,7 +103,7 @@ export async function GET(req: Request) {
         cidade:        '',
         ovr:           null,
         treinadorNome: null,
-        fotos:         raw.filter((f): f is string => !!f),
+        fotos:         fotosArr.length > 0 ? fotosArr : (avatarUrl ? [avatarUrl] : []),
         // criado_em pode ser null em perfis antigos — usa agora como fallback
         ts: (p.criado_em as string | null) ?? new Date().toISOString(),
       })

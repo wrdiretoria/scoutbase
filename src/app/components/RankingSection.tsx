@@ -131,6 +131,7 @@ export default async function RankingSection() {
       {/* Cards scroll */}
       <div className="ranking-scroll" style={{
         display: 'flex',
+        alignItems: 'stretch',
         gap: '16px',
         padding: '0 40px 16px',
         overflowX: 'auto',
