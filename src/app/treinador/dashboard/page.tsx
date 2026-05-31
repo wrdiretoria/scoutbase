@@ -300,6 +300,9 @@ export default function TreinadorDashboardPage() {
 
   useEffect(() => {
     async function load() {
+      // Timeout de segurança: se demorar mais de 8s, sai do skeleton
+      const safetyTimeout = setTimeout(() => setLoading(false), 8000)
+      try {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
@@ -320,24 +323,26 @@ export default function TreinadorDashboardPage() {
       try {
         const semanaPast = new Date(Date.now() - 7 * 86_400_000).toISOString()
 
+        // Inicia convite em paralelo com as queries de avaliação
+        const convitePromise = fetch('/api/convite/listar').catch(() => null)
+
+        // avRecentes agora entra no mesmo Promise.all — eliminando 1 round-trip serial
         const [
           { count: totAv },
           { data: profileIdRows },
           { count: totDest },
           { count: semana },
+          { data: avRecentes },
         ] = await Promise.all([
           supabase.from('avaliacoes').select('*', { count: 'exact', head: true }).eq('professor_id', user.id),
           supabase.from('avaliacoes').select('aluno_id').eq('professor_id', user.id),
           supabase.from('avaliacoes').select('*', { count: 'exact', head: true }).eq('professor_id', user.id).gte('scout_score', 75),
           supabase.from('avaliacoes').select('*', { count: 'exact', head: true }).eq('professor_id', user.id).gte('created_at', semanaPast),
+          supabase.from('avaliacoes').select('id, scout_score, created_at, aluno_id').eq('professor_id', user.id).order('created_at', { ascending: false }).limit(5),
         ])
 
         const uniqueAtletas = new Set((profileIdRows ?? []).map(r => r.aluno_id)).size
         setMetricas({ totalAvaliacoes: totAv ?? 0, totalAtletas: uniqueAtletas, totalDestaques: totDest ?? 0, semanaCount: semana ?? 0 })
-
-        const { data: avRecentes } = await supabase
-          .from('avaliacoes').select('id, scout_score, created_at, aluno_id')
-          .eq('professor_id', user.id).order('created_at', { ascending: false }).limit(5)
 
         if (avRecentes?.length) {
           // aluno_id = auth UUID (Meu Craque) — busca via API admin
@@ -364,18 +369,19 @@ export default function TreinadorDashboardPage() {
             }
           }))
         }
+
+        // ── Solicitações pendentes (já estava rodando em paralelo) ──
+        try {
+          const solRes = await convitePromise
+          if (solRes?.ok) {
+            const solJson = await solRes.json() as { solicitacoes: { atletaId: string; atletaNome: string; atletaMcId: string; ts: string }[] }
+            setSolicitacoes(solJson.solicitacoes ?? [])
+          }
+        } catch { /* ignorar */ }
       } catch { /* avaliacoes table may not exist yet */ }
 
-      // ── Solicitações pendentes ──
-      try {
-        const solRes = await fetch('/api/convite/listar')
-        if (solRes.ok) {
-          const solJson = await solRes.json() as { solicitacoes: { atletaId: string; atletaNome: string; atletaMcId: string; ts: string }[] }
-          setSolicitacoes(solJson.solicitacoes ?? [])
-        }
-      } catch { /* ignorar */ }
-
       setLoading(false)
+      } catch { setLoading(false) } finally { clearTimeout(safetyTimeout) }
     }
     load()
   }, [router])

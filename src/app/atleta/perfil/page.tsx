@@ -702,6 +702,9 @@ function AtletaPerfilContent() {
 
   useEffect(() => {
     async function load() {
+      // Timeout de segurança: se demorar mais de 8s, sai do skeleton
+      const safetyTimeout = setTimeout(() => setLoading(false), 8000)
+      try {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
@@ -718,13 +721,35 @@ function AtletaPerfilContent() {
         tipo:    'atleta',
       })
 
-      // ── Perfil ──
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('data_nascimento, bio, altura, peso, pe_dominante, clube_atual, athlete_id, avatar_url, fotos')
-        .eq('id', user.id)
-        .single()
+      // ── Todas as queries em paralelo (profiles, avaliação, highlights, visitas) ──
+      const um = user.user_metadata as Record<string, unknown>
+      setVisitCount(        (um?.visit_count       as number | null) ?? 0)
+      setFavoritoCount(     (um?.favorito_count    as number | null) ?? 0)
+      setCardsDisponiveis(  (um?.cards_disponiveis as number | null) ?? 0)
 
+      const [
+        { data: profile },
+        avRes,
+        hlRes,
+        visitasRes,
+      ] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('data_nascimento, bio, altura, peso, pe_dominante, clube_atual, athlete_id, avatar_url, fotos')
+          .eq('id', user.id)
+          .single(),
+        supabase
+          .from('avaliacoes')
+          .select('*')
+          .eq('aluno_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        fetch('/api/atleta/highlights').catch(() => null),
+        fetch('/api/atleta/visitas').catch(() => null),
+      ])
+
+      // ── Processa perfil ──
       if (profile?.data_nascimento) setDataNasc(profile.data_nascimento as string)
       if (profile?.athlete_id)      setAthleteId(profile.athlete_id as string)
       if (profile?.avatar_url)      setAvatarUrl(profile.avatar_url as string)
@@ -732,13 +757,6 @@ function AtletaPerfilContent() {
         const f = (profile as { fotos: (string|null)[] }).fotos
         setGaleriaFotos([f[0] ?? null, f[1] ?? null, f[2] ?? null, f[3] ?? null, f[4] ?? null])
       }
-      // visit_count, favorito_count e cards_disponiveis vêm do user_metadata
-      setVisitCount(        (user.user_metadata?.visit_count      as number | null) ?? 0)
-      setFavoritoCount(     (user.user_metadata?.favorito_count   as number | null) ?? 0)
-      setCardsDisponiveis(  (user.user_metadata?.cards_disponiveis as number | null) ?? 0)
-
-      // Campos DB + campos do user_metadata (sem precisar de schema change)
-      const um = user.user_metadata as Record<string, unknown>
       setCurriculo({
         bio:              (profile?.bio          as string) ?? '',
         altura:           profile?.altura        != null ? String(profile.altura) : '',
@@ -753,47 +771,38 @@ function AtletaPerfilContent() {
       })
       setQuestionarioConcluido(!!(um.questionario_completo))
 
-      // ── Avaliação mais recente ──
-      try {
-        const { data: av } = await supabase
-          .from('avaliacoes')
-          .select('*')
-          .eq('aluno_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle()
-
-        if (av) {
-          setAvaliacao(av as Avaliacao)
-          // Nome do treinador
+      // ── Processa avaliação (+ nome do treinador em paralelo separado) ──
+      const av = (avRes as { data: unknown }).data
+      if (av) {
+        setAvaliacao(av as Avaliacao)
+        try {
           const { data: treinador } = await supabase
             .from('profiles')
             .select('nome')
             .eq('id', (av as Avaliacao).professor_id)
             .single()
           setTreinadorNome(treinador?.nome as string ?? '')
-        }
-      } catch { /* tabela avaliacoes não criada ainda — ignorar */ }
+        } catch { /* ignorar */ }
+      }
 
-      // ── Highlights ──
-      try {
-        const res = await fetch('/api/atleta/highlights')
-        if (res.ok) {
-          const json = await res.json() as { highlights: Highlight[] }
+      // ── Processa highlights ──
+      if (hlRes instanceof Response && hlRes.ok) {
+        try {
+          const json = await hlRes.json() as { highlights: Highlight[] }
           setHighlights(json.highlights ?? [])
-        }
-      } catch { /* tabela highlights não criada ainda — ignorar */ }
+        } catch { /* ignorar */ }
+      }
 
-      // ── Estatísticas de visitas ──
-      try {
-        const res = await fetch('/api/atleta/visitas')
-        if (res.ok) {
-          const json = await res.json() as { semana: number; mes: number; total: number; mediaSemana: number }
+      // ── Processa estatísticas de visitas ──
+      if (visitasRes instanceof Response && visitasRes.ok) {
+        try {
+          const json = await visitasRes.json() as { semana: number; mes: number; total: number; mediaSemana: number }
           setVisitasStats(json)
-        }
-      } catch { /* tabela visitas não criada ainda — ignorar */ }
+        } catch { /* ignorar */ }
+      }
 
       setLoading(false)
+      } catch { setLoading(false) } finally { clearTimeout(safetyTimeout) }
     }
     load()
   }, [router])
