@@ -185,6 +185,15 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
         throw new Error(saveJson.error ?? 'Erro ao salvar perfil. Tente novamente.')
       }
 
+      // Log de aceite dos termos — falha silenciosa, não bloqueia o cadastro
+      try {
+        await fetch('/api/aceite-termos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ profile_id: athleteId, tipo: 'atleta' }),
+        })
+      } catch (e) { console.warn('[aceite-termos]', e) }
+
       const params = new URLSearchParams({
         nome, posicao, cidade, dataNasc, uid: userId, athleteId,
         ...(avatarUrl ? { avatarUrl } : {}),
@@ -530,8 +539,8 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
                 {consent && <span style={{ fontSize: '12px', color: 'black', fontWeight: 900 }}>✓</span>}
               </div>
               <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>
-                Confirmo que tenho autorização para criar este perfil e concordo com os{' '}
-                <Link href="/termos" target="_blank" onClick={e => e.stopPropagation()} style={{ color: '#22c55e', textDecoration: 'none' }}>termos de uso</Link>.
+                Confirmo que sou o responsável legal pelo atleta cadastrado e autorizo o uso de seus dados e imagens conforme os{' '}
+                <Link href="/termos" target="_blank" onClick={e => e.stopPropagation()} style={{ color: '#22c55e', textDecoration: 'none' }}>Termos de Uso</Link>.
               </span>
             </div>
 

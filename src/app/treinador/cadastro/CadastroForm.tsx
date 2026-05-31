@@ -83,6 +83,7 @@ export default function CadastroForm({ isEscola }: { isEscola: boolean }) {
   const [categoria, setCategoria] = useState('')
   const [certificacao, setCertificacao] = useState('')
   const [experienciaAnos, setExperienciaAnos] = useState('')
+  const [consent, setConsent] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -94,6 +95,7 @@ export default function CadastroForm({ isEscola }: { isEscola: boolean }) {
     e.preventDefault()
     setError(null)
 
+    if (!consent) { setError('Confirme os termos de uso para continuar.'); return }
     if (!dataNasc) { setError('Informe sua data de nascimento.'); return }
     if (calcularIdade(dataNasc) < 18) {
       setError('É necessário ter 18 anos ou mais.')
@@ -175,6 +177,15 @@ export default function CadastroForm({ isEscola }: { isEscola: boolean }) {
         const salvarData = await salvar.json().catch(() => ({})) as { error?: string }
         throw new Error(salvar.status === 409 ? 'Este CPF já está cadastrado.' : (salvarData.error ?? 'Erro ao salvar perfil.'))
       }
+
+      // Log de aceite dos termos — falha silenciosa, não bloqueia o cadastro
+      try {
+        await fetch('/api/aceite-termos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ profile_id: data.user.id, tipo: 'treinador' }),
+        })
+      } catch (e) { console.warn('[aceite-termos]', e) }
 
       router.push('/treinador/bem-vindo')
 
@@ -345,6 +356,26 @@ export default function CadastroForm({ isEscola }: { isEscola: boolean }) {
               </div>
             </>
           )}
+
+          {/* Consentimento — LGPD */}
+          <div
+            onClick={() => setConsent(c => !c)}
+            style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer', userSelect: 'none' }}
+          >
+            <div style={{
+              width: '20px', height: '20px', borderRadius: '6px', flexShrink: 0, marginTop: '1px',
+              background: consent ? '#22c55e' : 'rgba(255,255,255,0.06)',
+              border: `1.5px solid ${consent ? '#22c55e' : 'rgba(255,255,255,0.15)'}`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.2s',
+            }}>
+              {consent && <span style={{ fontSize: '12px', color: 'black', fontWeight: 900 }}>✓</span>}
+            </div>
+            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>
+              Confirmo que sou o responsável legal pelo atleta cadastrado e autorizo o uso de seus dados e imagens conforme os{' '}
+              <Link href="/termos" target="_blank" onClick={e => e.stopPropagation()} style={{ color: '#22c55e', textDecoration: 'none' }}>Termos de Uso</Link>.
+            </span>
+          </div>
 
           {error && (
             <p style={{ margin: 0, padding: '10px 14px', borderRadius: '10px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '13px', color: '#f87171' }}>
