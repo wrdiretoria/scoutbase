@@ -857,12 +857,24 @@ function AtletaPerfilContent() {
       const fd = new FormData()
       fd.append('file', new File([compressed], 'photo.jpg', { type: 'image/jpeg' }))
       const res = await fetch('/api/atleta/upload-foto', { method: 'POST', body: fd })
-      const json = await res.json() as { ok?: boolean; url?: string; error?: string }
+
+      // Proteção: servidor pode retornar HTML em caso de erro interno (parse seguro)
+      let json: { ok?: boolean; url?: string; error?: string }
+      try {
+        json = await res.json()
+      } catch {
+        alert('Erro de servidor ao enviar foto. Tente novamente.')
+        return
+      }
+
       if (!res.ok || !json.url) {
         alert(json.error ?? 'Erro ao enviar foto. Tente novamente.')
         return
       }
-      setAvatarUrl(json.url)
+
+      // Cache-busting: o path no Storage é sempre {uuid}.jpg — sem timestamp
+      // o browser mostra a versão antiga cacheada e o state não atualiza
+      setAvatarUrl(json.url + '?t=' + Date.now())
     } finally {
       setUploadingFoto(false)
       if (fotoInputRef.current) fotoInputRef.current.value = ''
@@ -1214,6 +1226,7 @@ function AtletaPerfilContent() {
               <div style={{
                 position:'absolute', top:'12px', left:'14px',
                 display:'flex', flexDirection:'column', alignItems:'flex-start',
+                pointerEvents:'none',
               }}>
                 <span style={{
                   fontSize:'30px', fontWeight:900, lineHeight:1, letterSpacing:'-0.04em',
