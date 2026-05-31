@@ -2346,28 +2346,78 @@ function AtletaPerfilContent() {
             </div>
           </div>
 
-          {/* Nudge — aparece enquanto tem menos de 3 fotos */}
-          {galeriaFotos.filter(Boolean).length < 3 && (
-            <div style={{
-              display:'flex', alignItems:'center', gap:'12px',
-              background:'linear-gradient(135deg, rgba(0,255,136,0.09), rgba(0,255,136,0.03))',
-              border:'1px solid rgba(0,255,136,0.25)',
-              borderRadius:'14px', padding:'12px 14px', marginBottom:'12px',
-            }}>
-              <span style={{ fontSize:'26px', flexShrink:0 }}>📸</span>
-              <div style={{ flex:1 }}>
-                <p style={{ margin:'0 0 3px', fontSize:'13px', fontWeight:800, color:'#00FF88' }}>
-                  Suba {3 - galeriaFotos.filter(Boolean).length} foto{3 - galeriaFotos.filter(Boolean).length !== 1 ? 's' : ''} para aparecer em destaque!
+          {/* ── Banner de urgência ── */}
+          {(() => {
+            const count = galeriaFotos.filter(Boolean).length
+            const pct   = Math.round((count / 5) * 100)
+            return (
+              <div style={{
+                borderRadius:'18px', marginBottom:'14px', padding:'18px 16px 16px',
+                background:'linear-gradient(160deg, #071a0e 0%, #030d06 100%)',
+                border:'1px solid rgba(34,197,94,0.28)',
+                boxShadow:'0 0 24px rgba(34,197,94,0.10), inset 0 1px 0 rgba(34,197,94,0.08)',
+                position:'relative', overflow:'hidden',
+              }}>
+                {/* Brilho decorativo de fundo */}
+                <div style={{
+                  position:'absolute', top:'-30px', right:'-20px',
+                  width:'120px', height:'120px', borderRadius:'50%',
+                  background:'radial-gradient(circle, rgba(34,197,94,0.12) 0%, transparent 70%)',
+                  pointerEvents:'none',
+                }} />
+
+                {/* Linha 1: ícone + título */}
+                <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'6px' }}>
+                  <span style={{ fontSize:'26px', lineHeight:1 }}>📸</span>
+                  <p style={{ margin:0, fontSize:'15px', fontWeight:900, color:'#22c55e', letterSpacing:'-0.01em' }}>
+                    Fotos valem pontos!
+                  </p>
+                </div>
+
+                {/* Linha 2: subtexto */}
+                <p style={{ margin:'0 0 14px', fontSize:'12px', color:'rgba(255,255,255,0.6)', lineHeight:1.65, paddingLeft:'36px' }}>
+                  Cada foto sobe seu OVR. Com 3 fotos você aparece no{' '}
+                  <span style={{ color:'rgba(34,197,94,0.85)', fontWeight:700 }}>feed ao vivo</span>{' '}
+                  da home e fica visível para scouts.
                 </p>
-                <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.42)', lineHeight:1.5 }}>
-                  Atletas com 3+ fotos aparecem com ciclagem automática no card da home.
-                  {galeriaFotos.filter(Boolean).length > 0
-                    ? ` Você tem ${galeriaFotos.filter(Boolean).length} de 5 fotos.`
-                    : ' Adicione treinos, jogos ou lances em campo.'}
-                </p>
+
+                {/* Barra de progresso */}
+                <div style={{ paddingLeft:'36px' }}>
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'6px' }}>
+                    <span style={{ fontSize:'10px', fontWeight:700, color:'rgba(255,255,255,0.35)', letterSpacing:'0.08em', textTransform:'uppercase' }}>
+                      Progresso
+                    </span>
+                    <span style={{ fontSize:'12px', fontWeight:800, color: count >= 3 ? '#22c55e' : 'rgba(255,255,255,0.5)' }}>
+                      {count} / 5 fotos
+                    </span>
+                  </div>
+                  <div style={{ height:'5px', borderRadius:'4px', background:'rgba(255,255,255,0.08)', overflow:'hidden' }}>
+                    <div style={{
+                      height:'100%', borderRadius:'4px',
+                      width: `${pct}%`,
+                      background: count >= 3
+                        ? 'linear-gradient(90deg, #16a34a, #22c55e)'
+                        : 'linear-gradient(90deg, #15803d, #4ade80)',
+                      transition:'width 0.5s ease',
+                      boxShadow: count > 0 ? '0 0 8px rgba(34,197,94,0.5)' : 'none',
+                    }} />
+                  </div>
+                  {count < 3 && (
+                    <p style={{ margin:'6px 0 0', fontSize:'10px', color:'rgba(34,197,94,0.6)', fontWeight:600 }}>
+                      {count === 0
+                        ? 'Adicione a primeira foto e suba no ranking!'
+                        : `Falta${3 - count > 1 ? 'm' : ''} ${3 - count} foto${3 - count > 1 ? 's' : ''} para aparecer no feed ao vivo`}
+                    </p>
+                  )}
+                  {count >= 3 && (
+                    <p style={{ margin:'6px 0 0', fontSize:'10px', color:'#22c55e', fontWeight:700 }}>
+                      ✓ Você já aparece no feed ao vivo!
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )
+          })()}
 
           {/* 5 slots — 3 colunas na primeira linha + 2 na segunda */}
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'10px' }}>
@@ -2419,10 +2469,11 @@ function AtletaPerfilContent() {
                       style={{
                         position:'absolute', inset:0,
                         background:'rgba(255,255,255,0.02)',
-                        border:'2px dashed rgba(0,255,136,0.20)',
+                        border:'2px dashed rgba(34,197,94,0.22)',
                         borderRadius:'12px',
                         display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
-                        gap:'6px', cursor: uploading ? 'wait' : 'pointer',
+                        gap:'4px', cursor: uploading ? 'wait' : 'pointer',
+                        transition:'border-color 0.2s, background 0.2s',
                       }}
                     >
                       {uploading ? (
@@ -2432,9 +2483,12 @@ function AtletaPerfilContent() {
                         </>
                       ) : (
                         <>
-                          <span style={{ fontSize:'22px', color:'rgba(0,255,136,0.4)' }}>＋</span>
-                          <span style={{ fontSize:'10px', color:'rgba(255,255,255,0.3)', fontWeight:600 }}>
+                          <span style={{ fontSize:'22px', color:'rgba(34,197,94,0.45)', lineHeight:1 }}>＋</span>
+                          <span style={{ fontSize:'9px', color:'rgba(255,255,255,0.25)', fontWeight:600, letterSpacing:'0.02em' }}>
                             Foto {slot + 1}
+                          </span>
+                          <span style={{ fontSize:'9px', color:'#22c55e', fontWeight:800, letterSpacing:'0.04em' }}>
+                            +5 OVR
                           </span>
                         </>
                       )}
