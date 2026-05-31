@@ -359,15 +359,17 @@ export default function TreinadorPerfilPage() {
                 </div>
               )}
 
-              {/* Overlay câmera — sempre visível */}
-              <div style={{
-                position:'absolute', inset:0, borderRadius:'50%',
-                background: uploadingFoto ? 'rgba(0,0,0,0.65)' : 'rgba(0,0,0,0.38)',
-                display:'flex', alignItems:'center', justifyContent:'center',
-                transition:'background 0.2s',
-              }}>
-                <span style={{ fontSize:'20px' }}>{uploadingFoto ? '⏳' : '📷'}</span>
-              </div>
+              {/* Overlay câmera — só aparece sem foto ou durante upload */}
+              {(!perfil.avatar_url || uploadingFoto) && (
+                <div style={{
+                  position:'absolute', inset:0, borderRadius:'50%',
+                  background: uploadingFoto ? 'rgba(0,0,0,0.65)' : 'rgba(0,0,0,0.38)',
+                  display:'flex', alignItems:'center', justifyContent:'center',
+                  transition:'background 0.2s',
+                }}>
+                  <span style={{ fontSize:'20px' }}>{uploadingFoto ? '⏳' : '📷'}</span>
+                </div>
+              )}
             </label>
 
             {/* Ring de autoridade — pulsa sutilmente */}

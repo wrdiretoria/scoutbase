@@ -1247,17 +1247,17 @@ function AtletaPerfilContent() {
                     {initials}
                   </div>
                 )}
-                {/* overlay câmera — sempre visível para indicar que é clicável */}
-                <div style={{
-                  position:'absolute', inset:0, borderRadius:'50%',
-                  background: uploadingFoto
-                    ? 'rgba(0,0,0,0.65)'
-                    : avatarUrl ? 'rgba(0,0,0,0.38)' : 'rgba(0,0,0,0.32)',
-                  display:'flex', alignItems:'center', justifyContent:'center',
-                  transition:'background 0.2s',
-                }}>
-                  <span style={{ fontSize:'18px' }}>{uploadingFoto ? '⏳' : '📷'}</span>
-                </div>
+                {/* overlay câmera — só aparece sem foto ou durante upload */}
+                {(!avatarUrl || uploadingFoto) && (
+                  <div style={{
+                    position:'absolute', inset:0, borderRadius:'50%',
+                    background: uploadingFoto ? 'rgba(0,0,0,0.65)' : 'rgba(0,0,0,0.32)',
+                    display:'flex', alignItems:'center', justifyContent:'center',
+                    transition:'background 0.2s',
+                  }}>
+                    <span style={{ fontSize:'18px' }}>{uploadingFoto ? '⏳' : '📷'}</span>
+                  </div>
+                )}
               </label>
             </div>
             <div style={{ paddingBottom:'16px' }}>
@@ -1966,7 +1966,7 @@ function AtletaPerfilContent() {
                   <input
                     type="number" value={curriculo.peso}
                     onChange={e => setCurriculo(c => ({ ...c, peso: e.target.value }))}
-                    placeholder="Peso" min={30} max={150}
+                    placeholder="Peso" min={10} max={150}
                     style={{ ...inputStyle, textAlign:'center' }}
                   />
                   <p style={{ margin:'4px 0 0', fontSize:'10px', color:'rgba(255,255,255,0.25)', textAlign:'center' }}>kg</p>
