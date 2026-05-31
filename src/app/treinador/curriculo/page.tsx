@@ -376,6 +376,7 @@ export default function TreinadorCurriculoPage() {
             <div style={{
               position: 'absolute', top: '12px', left: '14px',
               display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+              zIndex: 1,
             }}>
               <span style={{
                 fontSize: '28px', fontWeight: 900, lineHeight: 1,
@@ -431,14 +432,16 @@ export default function TreinadorCurriculoPage() {
                     {inits}
                   </div>
                 )}
-                <div style={{
-                  position: 'absolute', inset: 0, borderRadius: '50%',
-                  background: uploading ? 'rgba(0,0,0,0.65)' : 'rgba(0,0,0,0.38)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  transition: 'background .2s',
-                }}>
-                  <span style={{ fontSize: '16px' }}>{uploading ? '⏳' : '📷'}</span>
-                </div>
+                {(!foto || uploading) && (
+                  <div style={{
+                    position: 'absolute', inset: 0, borderRadius: '50%',
+                    background: uploading ? 'rgba(0,0,0,0.65)' : 'rgba(0,0,0,0.32)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    transition: 'background .2s',
+                  }}>
+                    <span style={{ fontSize: '16px' }}>{uploading ? '⏳' : '📷'}</span>
+                  </div>
+                )}
               </label>
             </div>
 
