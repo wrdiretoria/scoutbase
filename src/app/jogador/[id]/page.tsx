@@ -632,8 +632,8 @@ export default async function JogadorPublicoPage({ params }: Props) {
               </div>
             )}
 
-            {/* CTA — scout acessa currículo completo (só renderiza quando athleteId existe) */}
-            {athleteId && (
+            {/* CTA — só aparece quando há avaliação ou currículo para mostrar */}
+            {athleteId && (ultimaAv || temCurriculo) && (
               <Link
                 href="#curriculo"
                 className="scout-cta-btn"
