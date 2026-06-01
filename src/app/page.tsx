@@ -551,6 +551,53 @@ export default async function LandingPage() {
       {/* ══════════════════════════════════════ RANKING ══ */}
       <RankingSection />
 
+      {/* ══════════════════════════════════════ COMO FUNCIONA ══ */}
+      <section style={{ padding: '88px 20px', background: '#0d1a0d' }}>
+        <div style={{ maxWidth: '860px', margin: '0 auto' }}>
+
+          {/* Título */}
+          <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+            <p style={{ margin: '0 0 12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.18em', color: 'rgba(0,255,136,0.60)', textTransform: 'uppercase' }}>
+              Simples assim
+            </p>
+            <h2 style={{ margin: 0, fontSize: 'clamp(26px,4vw,40px)', fontWeight: 900, color: 'white', letterSpacing: '-0.028em', lineHeight: 1.1 }}>
+              Como funciona
+            </h2>
+          </div>
+
+          {/* Grade dos passos */}
+          <div className="steps-grid">
+            <div className="steps-connector" />
+
+            {[
+              { n: '1', icon: '⚽', title: 'Crie seu perfil',      desc: 'Monte seu card com foto, posição e informações. É grátis.' },
+              { n: '2', icon: '📋', title: 'Receba avaliações',    desc: 'Treinadores registram suas notas e acompanham sua evolução.' },
+              { n: '3', icon: '🔭', title: 'Ganhe visibilidade',   desc: 'Seu histórico fica disponível para scouts e clubes encontrarem você.' },
+            ].map(({ n, icon, title, desc }) => (
+              <div key={n} className="step-card">
+                {/* Ícone */}
+                <div className="step-icon-wrap" style={{ background: 'rgba(0,255,136,0.07)', border: '1px solid rgba(0,255,136,0.16)' }}>
+                  {icon}
+                </div>
+                {/* Número */}
+                <div style={{ fontSize: '11px', fontWeight: 900, color: 'rgba(0,255,136,0.55)', letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: '10px' }}>
+                  PASSO {n}
+                </div>
+                {/* Título */}
+                <h3 style={{ margin: '0 0 10px', fontSize: '18px', fontWeight: 800, color: 'white', letterSpacing: '-0.01em' }}>
+                  {title}
+                </h3>
+                {/* Descrição */}
+                <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.40)', lineHeight: 1.68 }}>
+                  {desc}
+                </p>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </section>
+
       {/* ══════════════════════════════════════ FINAL CTA ══ */}
       <section style={{ padding:'110px 20px', background:'#030905', position:'relative', overflow:'hidden' }}>
         {/* Background orb */}
