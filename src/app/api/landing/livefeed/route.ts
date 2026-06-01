@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
+import { fetchOvrMapByUuid } from '@/lib/ovr'
 
 export const revalidate = 0
 
@@ -32,6 +33,9 @@ export async function GET(req: Request) {
   const events: FeedEvent[] = []
 
   try {
+
+    // ── 0. OVR composto real (perfil + avaliação) keyed por UUID ────────────
+    const ovrByUuid = await fetchOvrMapByUuid(admin)
 
     // ── 1. Avaliações (fonte principal dos eventos) ───────────────────────────
     let avsQ = admin
@@ -102,7 +106,7 @@ export async function GET(req: Request) {
         nome:          (p.nome as string | null) ?? 'Atleta',
         posicao:       '',
         cidade:        '',
-        ovr:           null,
+        ovr:           ovrByUuid.get(p.id as string) ?? null,
         atributos:     null,
         treinadorNome: null,
         fotos:         fotosArr.length > 0 ? fotosArr : (avatarUrl ? [avatarUrl] : []),
@@ -123,7 +127,7 @@ export async function GET(req: Request) {
         nome:          atleta?.nome  ?? 'Atleta',
         posicao:       '',
         cidade:        '',
-        ovr:           av.scout_score as number,
+        ovr:           ovrByUuid.get(av.aluno_id as string) ?? null,
         atributos:     {
           vel:   (av.velocidade     as number | null) ?? null,
           fin:   (av.finalizacao    as number | null) ?? null,

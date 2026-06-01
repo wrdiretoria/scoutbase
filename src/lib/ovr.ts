@@ -115,6 +115,53 @@ export async function fetchOvrMap(admin: SupabaseClient): Promise<Map<string, nu
   return map
 }
 
+// ── fetchOvrMapByUuid ──────────────────────────────────────────────────────────
+
+/**
+ * Igual a fetchOvrMap, mas keyed por UUID (profiles.id / auth UUID).
+ * Usado pelo livefeed para mapear eventos direto pelo ID do atleta.
+ */
+export async function fetchOvrMapByUuid(admin: SupabaseClient): Promise<Map<string, number>> {
+  const map = new Map<string, number>()
+
+  const { data: profiles } = await admin
+    .from('profiles')
+    .select('id, athlete_id, avatar_url')
+    .not('athlete_id', 'is', null)
+
+  if (!profiles || profiles.length === 0) return map
+
+  const { data: { users: authUsers } } = await admin.auth.admin.listUsers({ perPage: 1000 })
+  const metaByUuid = new Map<string, UserMeta>()
+  for (const u of authUsers) {
+    metaByUuid.set(u.id, (u.user_metadata ?? {}) as UserMeta)
+  }
+
+  const { data: avs } = await admin
+    .from('avaliacoes')
+    .select('aluno_id, scout_score')
+    .not('scout_score', 'is', null)
+
+  const scoresByUuid = new Map<string, number[]>()
+  for (const av of (avs ?? []) as { aluno_id: string; scout_score: number }[]) {
+    if (!av.aluno_id) continue
+    if (!scoresByUuid.has(av.aluno_id)) scoresByUuid.set(av.aluno_id, [])
+    scoresByUuid.get(av.aluno_id)!.push(av.scout_score)
+  }
+
+  for (const profile of profiles as ProfileRow[]) {
+    const meta         = metaByUuid.get(profile.id) ?? {}
+    const profileScore = calcProfileScore(profile, meta)
+    const scores       = scoresByUuid.get(profile.id)
+    const trainerAvg   = scores && scores.length > 0
+      ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+      : null
+    map.set(profile.id, calcOvr(profileScore, trainerAvg))  // keyed by UUID
+  }
+
+  return map
+}
+
 // ── fetchOvrSingle ─────────────────────────────────────────────────────────────
 
 /**
