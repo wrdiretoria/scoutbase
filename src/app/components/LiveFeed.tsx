@@ -5,20 +5,7 @@ import { createClient } from '@/lib/supabase'
 import type { FeedEvent } from '@/app/api/landing/livefeed/route'
 import AtletaCard from './AtletaCard'
 
-// ── Helper ─────────────────────────────────────────────────────────────────────
-
-function timeAgo(ts: string) {
-  if (!ts) return 'agora'
-  const diff = Date.now() - new Date(ts).getTime()
-  const m = Math.floor(diff / 60000)
-  if (m < 2)  return 'agora'
-  if (m < 60) return `${m}min`
-  const h = Math.floor(m / 60)
-  if (h < 24) return `${h}h`
-  return `${Math.floor(h / 24)}d`
-}
-
-// ── LiveFeed ───────────────────────────────────────────────────────────────────
+// ── NovosTalentos ──────────────────────────────────────────────────────────────
 
 const POLL_MS = 15_000
 
@@ -143,47 +130,28 @@ export default function LiveFeed() {
       <div style={{ maxWidth: '440px', margin: '0 auto', padding: '0 clamp(16px,4vw,24px)' }}>
 
         {/* ── Header ── */}
-        <div style={{
-          display: 'flex', alignItems: 'flex-end',
-          justifyContent: 'space-between', marginBottom: '28px',
-        }}>
-          <div>
-            {/* Live dot */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '10px' }}>
-              <span style={{
-                display: 'inline-block', width: '5px', height: '5px',
-                borderRadius: '50%', background: '#00FF88',
-                boxShadow: '0 0 7px rgba(0,255,136,0.85)',
-                animation: 'pulseDot 2s ease-in-out infinite', flexShrink: 0,
-              }} />
-              <span style={{
-                fontSize: '9.5px', fontWeight: 700,
-                color: 'rgba(0,255,136,0.55)',
-                letterSpacing: '0.24em', textTransform: 'uppercase',
-              }}>
-                Ao vivo agora
-              </span>
-            </div>
-
-            <h2 style={{
-              margin: 0, fontSize: 'clamp(22px,4vw,34px)',
-              fontWeight: 900, color: 'white',
-              letterSpacing: '-0.028em', lineHeight: 1.06,
-            }}>
-              O que está acontecendo{' '}<br/>
-              <span style={{ color: '#00FF88' }}>agora na plataforma</span>
-            </h2>
-          </div>
-
-          {events.length > 0 && (
-            <span style={{
-              fontSize: '11px', color: 'rgba(255,255,255,0.22)',
-              fontWeight: 500, paddingBottom: '4px',
-              flexShrink: 0, marginLeft: '12px', whiteSpace: 'nowrap',
-            }}>
-              {events.length} eventos
-            </span>
-          )}
+        <div style={{ marginBottom: '28px' }}>
+          <p style={{
+            margin: '0 0 10px',
+            fontSize: '11px', fontWeight: 700,
+            color: 'rgba(0,255,136,0.60)',
+            letterSpacing: '0.18em', textTransform: 'uppercase',
+          }}>
+            ✦ Novos Talentos
+          </p>
+          <h2 style={{
+            margin: '0 0 8px', fontSize: 'clamp(22px,4vw,34px)',
+            fontWeight: 900, color: 'white',
+            letterSpacing: '-0.028em', lineHeight: 1.06,
+          }}>
+            Novos <span style={{ color: '#00FF88' }}>Talentos</span>
+          </h2>
+          <p style={{
+            margin: 0, fontSize: '14px',
+            color: 'rgba(255,255,255,0.38)', lineHeight: 1.5,
+          }}>
+            Atletas que acabaram de entrar na plataforma
+          </p>
         </div>
 
         {/* ── Cards ── */}
@@ -206,7 +174,7 @@ export default function LiveFeed() {
             textAlign: 'center', padding: '48px 0',
             color: 'rgba(255,255,255,0.25)', fontSize: '14px',
           }}>
-            Nenhuma atividade recente ainda.
+            Nenhum atleta cadastrado ainda.
           </div>
 
         ) : (
@@ -218,11 +186,11 @@ export default function LiveFeed() {
                 ovr={event.ovr}
                 foto={event.fotos[photoIndices[event.id] ?? 0] ?? null}
                 posicao={event.posicao || null}
-                categoria={event.cidade?.split(',')[0] || timeAgo(event.ts)}
+                categoria={event.cidade?.split(',')[0] || null}
                 atributos={event.atributos ?? null}
                 avaliadoPor={event.treinadorNome}
                 href={`/jogador/${event.atletaId}`}
-                isNew={newIds.has(event.id)}
+                isNew={false}
                 rank={null}
                 width="100%"
               />
