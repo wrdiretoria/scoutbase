@@ -635,7 +635,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
             {/* CTA — scout acessa currículo completo (só renderiza quando athleteId existe) */}
             {athleteId && (
               <Link
-                href={`/atleta/${athleteId.replace(/^[A-Z]+-/, '')}`}
+                href="#curriculo"
                 className="scout-cta-btn"
               >
                 <svg width="16" height="16" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink:0 }}>
