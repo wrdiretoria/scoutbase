@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
@@ -36,6 +36,27 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [checking, setChecking] = useState(true)
+
+  // ── Se já há sessão ativa, redireciona sem mostrar o formulário ──
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        const tipo = (session.user.user_metadata as { tipo?: string })?.tipo ?? ''
+        if (tipo === 'treinador' || tipo === 'escola') {
+          router.replace('/treinador/dashboard')
+        } else {
+          router.replace('/atleta/perfil')
+        }
+      } else {
+        setChecking(false)
+      }
+    })
+  }, [router])
+
+  // Enquanto verifica a sessão, não renderiza o formulário
+  if (checking) return null
 
   const areaInfo = areas.find(a => a.id === area)
 
