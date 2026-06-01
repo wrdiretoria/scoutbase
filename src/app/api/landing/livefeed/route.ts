@@ -14,6 +14,7 @@ export type FeedEvent = {
   posicao:       string
   cidade:        string
   ovr:           number | null
+  atributos:     { vel: number | null; fin: number | null; tec: number | null; vis: number | null; forca: number | null; pos: number | null } | null
   treinadorNome: string | null
   fotos:         string[]
   ts:            string        // ISO 8601
@@ -35,7 +36,7 @@ export async function GET(req: Request) {
     // ── 1. Avaliações (fonte principal dos eventos) ───────────────────────────
     let avsQ = admin
       .from('avaliacoes')
-      .select('id, aluno_id, professor_id, scout_score, created_at')
+      .select('id, aluno_id, professor_id, scout_score, velocidade, forca, finalizacao, visao_jogo, posicionamento, tecnica, created_at')
       .not('scout_score', 'is', null)
       .order('created_at', { ascending: false })
       .limit(fetchN)
@@ -102,6 +103,7 @@ export async function GET(req: Request) {
         posicao:       '',
         cidade:        '',
         ovr:           null,
+        atributos:     null,
         treinadorNome: null,
         fotos:         fotosArr.length > 0 ? fotosArr : (avatarUrl ? [avatarUrl] : []),
         // criado_em pode ser null em perfis antigos — usa agora como fallback
@@ -122,6 +124,14 @@ export async function GET(req: Request) {
         posicao:       '',
         cidade:        '',
         ovr:           av.scout_score as number,
+        atributos:     {
+          vel:   (av.velocidade     as number | null) ?? null,
+          fin:   (av.finalizacao    as number | null) ?? null,
+          tec:   (av.tecnica        as number | null) ?? null,
+          vis:   (av.visao_jogo     as number | null) ?? null,
+          forca: (av.forca          as number | null) ?? null,
+          pos:   (av.posicionamento as number | null) ?? null,
+        },
         treinadorNome: treinador?.nome ?? null,
         fotos:         atleta?.fotos  ?? [],
         ts:            av.created_at  as string,

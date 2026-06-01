@@ -219,7 +219,7 @@ export default function LiveFeed() {
                 foto={event.fotos[photoIndices[event.id] ?? 0] ?? null}
                 posicao={event.posicao || null}
                 categoria={event.cidade?.split(',')[0] || timeAgo(event.ts)}
-                atributos={null}
+                atributos={event.atributos ?? null}
                 avaliadoPor={event.treinadorNome}
                 href={`/jogador/${event.atletaId}`}
                 isNew={newIds.has(event.id)}

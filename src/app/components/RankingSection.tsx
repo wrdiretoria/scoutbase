@@ -15,6 +15,7 @@ type RankItem = {
   ovr:       number
   avatarUrl: string | null
   fotos:     string[]
+  atributos: { vel: number | null; fin: number | null; tec: number | null; vis: number | null; forca: number | null; pos: number | null } | null
 }
 
 export default async function RankingSection() {
@@ -26,10 +27,22 @@ export default async function RankingSection() {
     const atletaUsers = users.filter(u => u.user_metadata?.tipo === 'atleta')
     const ids = atletaUsers.map(u => u.id)
 
-    const [profilesRes, ovrMap] = await Promise.all([
+    const [profilesRes, ovrMap, avsRes] = await Promise.all([
       admin.from('profiles').select('id, athlete_id, avatar_url, fotos').in('id', ids),
       fetchOvrMap(admin),
+      admin.from('avaliacoes')
+        .select('aluno_id, velocidade, forca, finalizacao, visao_jogo, posicionamento, tecnica')
+        .in('aluno_id', ids)
+        .order('created_at', { ascending: false }),
     ])
+
+    // Pega a avaliação mais recente por atleta (order desc → primeiro = mais recente)
+    const latestAvMap = new Map<string, { velocidade: unknown; forca: unknown; finalizacao: unknown; visao_jogo: unknown; posicionamento: unknown; tecnica: unknown }>()
+    for (const av of (avsRes.data ?? [])) {
+      if (!latestAvMap.has(av.aluno_id as string)) {
+        latestAvMap.set(av.aluno_id as string, av)
+      }
+    }
 
     const profileMap = new Map(
       (profilesRes.data ?? []).map((p: {
@@ -48,6 +61,7 @@ export default async function RankingSection() {
         const ovr        = athleteId ? (ovrMap.get(athleteId) ?? null) : null
         if (!ovr) return null
         const fotosRaw   = (profile?.fotos as (string | null)[] | null) ?? []
+        const av         = latestAvMap.get(u.id)
         return {
           id:        u.id,
           nome:      meta.nome    ?? 'Atleta',
@@ -55,6 +69,14 @@ export default async function RankingSection() {
           ovr,
           avatarUrl: (profile?.avatar_url as string | null) ?? null,
           fotos:     fotosRaw.filter((f): f is string => !!f),
+          atributos: av ? {
+            vel:   (av.velocidade     as number | null) ?? null,
+            fin:   (av.finalizacao    as number | null) ?? null,
+            tec:   (av.tecnica        as number | null) ?? null,
+            vis:   (av.visao_jogo     as number | null) ?? null,
+            forca: (av.forca          as number | null) ?? null,
+            pos:   (av.posicionamento as number | null) ?? null,
+          } : null,
         }
       })
       .filter((a): a is RankItem => a !== null)
@@ -114,7 +136,7 @@ export default async function RankingSection() {
             ovr={a.ovr}
             foto={a.fotos[0] ?? a.avatarUrl}
             posicao={a.posicao}
-            atributos={null}
+            atributos={a.atributos}
             avaliadoPor={null}
             href={`/jogador/${a.id}`}
             rank={i + 1}
