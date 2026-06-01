@@ -16,6 +16,10 @@ import HeroFeed from './components/HeroFeed'
 import SpinningGlobe from './components/SpinningGlobe'
 import LiveFeed from './components/LiveFeed'
 import TacticalBoard from './components/TacticalBoard'
+import ComoFunciona from './components/ComoFunciona'
+import CardShowcase from './components/CardShowcase'
+import AvaliacoesSection from './components/AvaliacoesSection'
+import StatsSection from './components/StatsSection'
 
 const cards = [
   {
@@ -310,8 +314,8 @@ export default async function LandingPage() {
 
           .hero-left h1 { margin-bottom:0 !important; }
           .hero-h1-line {
-            font-size:clamp(52px,11vw,78px) !important;
-            letter-spacing:-0.058em !important; line-height:0.90 !important;
+            font-size:clamp(36px,9.5vw,62px) !important;
+            letter-spacing:-0.052em !important; line-height:0.90 !important;
             text-shadow:
               0 0 1px  rgba(0,0,0,1),
               0 2px 8px  rgba(0,0,0,1),
@@ -428,7 +432,7 @@ export default async function LandingPage() {
         }
         @media (max-width: 480px) {
           .cards-grid   { grid-template-columns:1fr !important; }
-          .hero-h1-line { font-size:clamp(42px,11vw,64px) !important; letter-spacing:-0.046em !important; }
+          .hero-h1-line { font-size:clamp(30px,9vw,52px) !important; letter-spacing:-0.046em !important; }
           .hero-tagline { font-size:clamp(16px,4.5vw,22px) !important; margin-top:6px !important; }
           .hero-mob-sub { font-size:12px !important; max-width:260px !important; }
           .dep-grid     { grid-template-columns:1fr !important; }
@@ -505,30 +509,45 @@ export default async function LandingPage() {
               <h1 style={{ margin:0, padding:0 }}>
                 <span className="h-line-1 hero-h1-line" style={{
                   display:'block',
-                  fontSize:'clamp(54px,6.5vw,100px)',
+                  fontSize:'clamp(48px,5.8vw,90px)',
                   fontWeight:900,
                   color:'white',
                   letterSpacing:'-0.046em',
-                  lineHeight:0.84,
+                  lineHeight:0.88,
                   textTransform:'uppercase',
                   WebkitFontSmoothing:'antialiased',
                   MozOsxFontSmoothing:'grayscale',
                   textShadow:'0 2px 32px rgba(0,0,0,0.75)',
                 }}>
-                  APERTE
+                  TODO TALENTO
                 </span>
                 <span className="h-line-2 hero-h1-line" style={{
                   display:'block',
-                  fontSize:'clamp(52px,6.2vw,96px)',
+                  fontSize:'clamp(46px,5.5vw,86px)',
                   fontWeight:900,
+                  color:'white',
                   letterSpacing:'-0.046em',
-                  lineHeight:0.84,
+                  lineHeight:0.88,
                   textTransform:'uppercase',
                   WebkitFontSmoothing:'antialiased',
                   MozOsxFontSmoothing:'grayscale',
                   textShadow:'0 2px 32px rgba(0,0,0,0.75)',
                 }}>
-                  <span style={{ color:'white' }}>O </span><span style={{ color:'#00FF88' }}>PLAY.</span>
+                  MERECE SER
+                </span>
+                <span className="h-line-3 hero-h1-line" style={{
+                  display:'block',
+                  fontSize:'clamp(46px,5.5vw,86px)',
+                  fontWeight:900,
+                  color:'#00FF88',
+                  letterSpacing:'-0.046em',
+                  lineHeight:0.88,
+                  textTransform:'uppercase',
+                  WebkitFontSmoothing:'antialiased',
+                  MozOsxFontSmoothing:'grayscale',
+                  textShadow:'0 0 40px rgba(0,255,136,0.40), 0 2px 32px rgba(0,0,0,0.75)',
+                }}>
+                  VISTO.
                 </span>
               </h1>
 
@@ -552,20 +571,21 @@ export default async function LandingPage() {
             </div>
 
             {/* Subheadline */}
-            <p className="h-line-3" style={{
+            <p className="h-sub" style={{
               margin:0, padding:0,
-              fontSize:'clamp(14px,1.5vw,20px)',
-              fontWeight:400, fontStyle:'italic',
-              color:'rgba(255,255,255,0.44)',
-              letterSpacing:'0.04em', lineHeight:1,
+              fontSize:'clamp(14px,1.3vw,18px)',
+              fontWeight:400,
+              color:'rgba(255,255,255,0.42)',
+              letterSpacing:'0.01em', lineHeight:1.60,
+              maxWidth:'460px',
             }}>
-              O jogo começa aqui.
+              Crie seu card profissional, receba avaliações de treinadores e construa sua trajetória no futebol.
             </p>
 
 
             {/* Mobile subtitle */}
             <p className="hero-mob-sub">
-              Crie seu perfil, receba avaliações e seja descoberto por scouts reais.
+              Card profissional, avaliações reais e visibilidade para scouts e clubes.
             </p>
 
             {/* CTAs */}
@@ -617,6 +637,18 @@ export default async function LandingPage() {
 
         {/* HUD decorativo — removido (substituído pelo HeroFeed) */}
       </section>
+
+      {/* ══════════════════════════════════════ COMO FUNCIONA ══ */}
+      <ComoFunciona />
+
+      {/* ══════════════════════════════════════ CARD SHOWCASE ══ */}
+      <CardShowcase />
+
+      {/* ══════════════════════════════════════ AVALIAÇÕES ══ */}
+      <AvaliacoesSection />
+
+      {/* ══════════════════════════════════════ PROVA SOCIAL ══ */}
+      <StatsSection />
 
       {/* ══════════════════════════════════════ DESTAQUES GRID ══ */}
       <DestaquesGrid />
@@ -759,13 +791,13 @@ export default async function LandingPage() {
             fontWeight:900, color:'white',
             letterSpacing:'-0.04em', lineHeight:0.95,
           }}>
-            O TALENTO PASSA.
+            Seu talento merece
             <br/>
             <span style={{
               color:'#00FF88',
               textShadow:'0 0 40px rgba(0,255,136,0.45), 0 0 80px rgba(0,255,136,0.15)',
             }}>
-              A OPORTUNIDADE NÃO ESPERA.
+              ser registrado.
             </span>
           </h2>
 
@@ -776,7 +808,7 @@ export default async function LandingPage() {
 
           <div className="fcta-wrap" style={{ display:'flex', gap:'14px', justifyContent:'center', flexWrap:'wrap', marginBottom:'28px' }}>
             <Link href="/atleta/cadastro" className="fcta-primary">
-              ⚽ SOU ATLETA — QUERO MEU CARD
+              CRIAR MEU CARD GRATUITAMENTE
             </Link>
             <Link href="/treinador/cadastro" className="fcta-secondary">
               SOU TREINADOR
