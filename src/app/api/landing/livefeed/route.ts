@@ -49,11 +49,11 @@ export async function GET(req: Request) {
     const { data: avs, error: avsErr } = await avsQ
     if (avsErr) console.error('[livefeed] avaliacoes:', avsErr.message)
 
-    // ── 2. Cadastros recentes (todos os profiles com nome, ordenados por data) ──
+    // ── 2. Cadastros recentes (profiles com athlete_id, ordenados por data) ──
     let profQ = admin
       .from('profiles')
       .select('id, nome, fotos, avatar_url, athlete_id, criado_em')
-      .not('nome', 'is', null)
+      .not('athlete_id', 'is', null)
       .order('criado_em', { ascending: false })
       .limit(fetchN)
     if (cursor) profQ = profQ.lt('criado_em', cursor)

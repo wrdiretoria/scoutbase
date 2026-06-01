@@ -131,14 +131,6 @@ export default function LiveFeed() {
 
         {/* ── Header ── */}
         <div style={{ marginBottom: '28px' }}>
-          <p style={{
-            margin: '0 0 10px',
-            fontSize: '11px', fontWeight: 700,
-            color: 'rgba(0,255,136,0.60)',
-            letterSpacing: '0.18em', textTransform: 'uppercase',
-          }}>
-            ✦ Novos Talentos
-          </p>
           <h2 style={{
             margin: '0 0 8px', fontSize: 'clamp(22px,4vw,34px)',
             fontWeight: 900, color: 'white',
