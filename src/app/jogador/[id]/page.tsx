@@ -266,6 +266,8 @@ export default async function JogadorPublicoPage({ params }: Props) {
     campeonatos?: string
     titulos?: string
     premiacoes?: string
+    questionario_completo?: boolean
+    questionario?: Record<string, string>
   }
 
   if (meta?.tipo !== 'atleta') notFound()
@@ -292,8 +294,15 @@ export default async function JogadorPublicoPage({ params }: Props) {
   const bio         = (profile?.bio          as string | null) ?? null
   const altura      = (profile?.altura       as number | null) ?? null
   const peso        = (profile?.peso         as number | null) ?? null
-  const peDominante = (profile?.pe_dominante as string | null) ?? null
   const clubeAtual  = (profile?.clube_atual  as string | null) ?? null
+
+  // Questionário de cadastro (salvo em user_metadata)
+  const questionario = (meta.questionario as Record<string, string> | undefined) ?? {}
+
+  // peDominante: profiles tem precedência; fallback para resposta do questionário
+  const peDominanteRaw = (profile?.pe_dominante as string | null)
+    ?? (questionario.pe_dominante ? questionario.pe_dominante.charAt(0).toUpperCase() + questionario.pe_dominante.slice(1) : null)
+  const peDominante = peDominanteRaw
   const avatarUrl   = (profile?.avatar_url  as string | null) ?? null
   const fotosArray: string[] = (() => {
     const raw = profile?.fotos
@@ -359,7 +368,9 @@ export default async function JogadorPublicoPage({ params }: Props) {
   const pos       = posAbrev(posicao)
 
   const temFisico    = altura || peso || peDominante
-  const temCurriculo = bio || temFisico || clubeAtual || clubesAnteriores || campeonatosTexto || titulosTexto || premiacoesTexto
+  const temCurriculo = bio || temFisico || clubeAtual || clubesAnteriores
+                    || campeonatosTexto || titulosTexto || premiacoesTexto
+                    || !!meta.questionario_completo
 
   return (
     <main style={{
@@ -632,8 +643,8 @@ export default async function JogadorPublicoPage({ params }: Props) {
               </div>
             )}
 
-            {/* CTA — só aparece quando há avaliação ou currículo para mostrar */}
-            {athleteId && (ultimaAv || temCurriculo) && (
+            {/* CTA — aparece sempre que o atleta tem MC-ID */}
+            {athleteId && (
               <Link
                 href="#curriculo"
                 className="scout-cta-btn"
@@ -767,6 +778,58 @@ export default async function JogadorPublicoPage({ params }: Props) {
                 <p style={{ margin: 0, fontSize: '10px', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Overall</p>
               </div>
             </div>
+
+            {/* ── Perfil do atleta (questionário de cadastro) ── */}
+            {meta.questionario_completo && Object.keys(questionario).length > 0 && (() => {
+              const ESTILO_LABEL: Record<string, string> = {
+                finalizador: '🎯 Finalizador', construtor: '🎨 Construtor',
+                batalhador: '⚡ Batalhador',   equilibrado: '⚖️ Equilibrado',
+              }
+              const CARACT_LABEL: Record<string, string> = {
+                velocidade: '⚡ Velocidade', tecnica: '🎯 Técnica', forca: '💪 Força física',
+                visao: '👁 Visão de jogo',   lideranca: '🦁 Liderança', garra: '🔥 Garra',
+              }
+              const NIVEL_LABEL: Record<string, string> = {
+                escolinha: 'Escolinha', amador: 'Amador', municipal: 'Municipal',
+                estadual: 'Estadual', nacional: 'Nacional', profissional: 'Profissional',
+              }
+              const DISP_LABEL: Record<string, string> = {
+                qualquer: '✈️ Qualquer lugar', estado: '📍 No meu estado', nao: '🏠 Cidade atual',
+              }
+              const OBJ_LABEL: Record<string, string> = {
+                clube_pro: '🏟 Clube profissional', estadual: '🏆 Estadual',
+                profissional: '⭐ Virar profissional', exterior: '🌍 Jogar no exterior',
+              }
+              const tags = [
+                ESTILO_LABEL[questionario.estilo],
+                CARACT_LABEL[questionario.caracteristica],
+              ].filter(Boolean)
+              const nivel    = NIVEL_LABEL[questionario.nivel_competicao]
+              const disp     = DISP_LABEL[questionario.disponibilidade]
+              const objetivo = OBJ_LABEL[questionario.objetivo]
+              if (!tags.length && !nivel && !disp && !objetivo) return null
+              return (
+                <div style={{ background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', padding: '18px' }}>
+                  <p style={{ margin: '0 0 12px', fontSize: '10px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                    ⚽ Perfil do Atleta
+                  </p>
+                  {tags.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: nivel || disp || objetivo ? '10px' : 0 }}>
+                      {tags.map(t => (
+                        <span key={t} style={{ padding: '4px 12px', borderRadius: '100px', fontSize: '12px', fontWeight: 700, background: 'rgba(34,197,94,0.10)', border: '1px solid rgba(34,197,94,0.22)', color: '#22c55e' }}>
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    {nivel    && <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.60)' }}>Nível: <strong style={{ color: 'rgba(255,255,255,0.88)' }}>{nivel}</strong></p>}
+                    {disp     && <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.60)' }}>Disponibilidade: <strong style={{ color: 'rgba(255,255,255,0.88)' }}>{disp}</strong></p>}
+                    {objetivo && <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.60)' }}>Objetivo: <strong style={{ color: 'rgba(255,255,255,0.88)' }}>{objetivo}</strong></p>}
+                  </div>
+                </div>
+              )
+            })()}
 
             {/* Clubes anteriores */}
             {clubesAnteriores && (
