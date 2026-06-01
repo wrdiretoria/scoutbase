@@ -127,7 +127,7 @@ export async function fetchOvrMapByUuid(admin: SupabaseClient): Promise<Map<stri
   const { data: profiles } = await admin
     .from('profiles')
     .select('id, athlete_id, avatar_url')
-    .not('athlete_id', 'is', null)
+  // Sem filtro por athlete_id — calcula OVR para todos, mesmo sem MC-ID
 
   if (!profiles || profiles.length === 0) return map
 
