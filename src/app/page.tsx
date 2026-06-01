@@ -1,98 +1,21 @@
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase'
-import { fetchOvrMap } from '@/lib/ovr'
 
 // Cache o Server Component por 60s — evita listUsers() em cada visita
 export const revalidate = 60
 import NavBar from './components/NavBar'
-import ActivityTicker from './components/ActivityTicker'
-import TeamOfWeekSection from './components/TeamOfWeekSection'
-import ProspectsSection from './components/ProspectsSection'
 import RankingSection from './components/RankingSection'
 import HeroCard from './components/HeroCard'
-import DestaquesGrid from './components/DestaquesGrid'
-import PhotoBillboard from './components/PhotoBillboard'
-import HeroFeed from './components/HeroFeed'
-import SpinningGlobe from './components/SpinningGlobe'
 import LiveFeed from './components/LiveFeed'
-import TacticalBoard from './components/TacticalBoard'
-import ComoFunciona from './components/ComoFunciona'
-import CardShowcase from './components/CardShowcase'
-import AvaliacoesSection from './components/AvaliacoesSection'
-import StatsSection from './components/StatsSection'
 
-const cards = [
-  {
-    icon: (
-      <svg width="28" height="28" fill="none" stroke="#22c55e" strokeWidth="1.8" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-      </svg>
-    ),
-    title: 'Para treinadores',
-    desc: 'Avalie atletas, construa reputação e seja reconhecido no futebol de base.',
-    href: '/treinador/cadastro',
-  },
-  {
-    icon: (
-      <svg width="28" height="28" fill="none" stroke="#22c55e" strokeWidth="1.8" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-      </svg>
-    ),
-    title: 'Para atletas',
-    desc: 'Evolua seu jogo, ganhe destaque e seja visto por quem importa.',
-    href: '/atleta/cadastro',
-  },
-  {
-    icon: (
-      <svg width="28" height="28" fill="none" stroke="#22c55e" strokeWidth="1.8" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-      </svg>
-    ),
-    title: 'Para responsáveis',
-    desc: 'Acompanhe cada passo do seu filho com segurança e clareza.',
-    href: '/pais/entrar',
-  },
-  {
-    icon: (
-      <svg width="28" height="28" fill="none" stroke="#22c55e" strokeWidth="1.8" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-      </svg>
-    ),
-    title: 'Para scouts',
-    desc: 'Encontre novos talentos de forma rápida e eficiente.',
-    href: '/scout/busca',
-  },
-]
 
 export default async function LandingPage() {
-  // Top 5 atletas por OVR para o ranking inline
   let atletasNoRadar = 0
-  let top5: { id: string; nome: string; pos: string; ovr: number; athleteId: string | null }[] = []
   try {
     const admin = createAdminClient()
     const { data: { users } } = await admin.auth.admin.listUsers({ perPage: 1000 })
-    const atletas = users.filter(u => u.user_metadata?.tipo === 'atleta')
-    const ids = atletas.map(u => u.id)
-    const [profilesRes, ovrMap] = await Promise.all([
-      admin.from('profiles').select('id, athlete_id, avatar_url').in('id', ids),
-      fetchOvrMap(admin),
-    ])
-    const profileMap = new Map((profilesRes.data ?? []).map((p: { id: string; athlete_id: string | null; avatar_url: string | null }) => [p.id, p]))
-    const elegíveis = atletas
-      .map(u => {
-        const meta = u.user_metadata as { nome?: string; posicao?: string }
-        const profile = profileMap.get(u.id)
-        const athleteId = (profile?.athlete_id as string | null) ?? null
-        const avatarUrl = (profile?.avatar_url as string | null) ?? null
-        const ovr = athleteId ? (ovrMap.get(athleteId) ?? null) : null
-        if (!ovr || !avatarUrl) return null
-        return { id: u.id, nome: meta.nome ?? 'Atleta', pos: meta.posicao ?? '', ovr, athleteId }
-      })
-      .filter((a): a is { id: string; nome: string; pos: string; ovr: number; athleteId: string | null } => a !== null)
-      .sort((a, b) => b.ovr - a.ovr)
-    atletasNoRadar = elegíveis.length
-    top5 = elegíveis.slice(0, 5)
-  } catch { /* fallback: lista vazia */ }
+    atletasNoRadar = users.filter(u => u.user_metadata?.tipo === 'atleta').length
+  } catch { /* fallback */ }
   return (
     <div style={{ background: '#06100a', color: 'white', minHeight: '100vh', fontFamily: 'system-ui, sans-serif' }}>
 
@@ -314,8 +237,8 @@ export default async function LandingPage() {
 
           .hero-left h1 { margin-bottom:0 !important; }
           .hero-h1-line {
-            font-size:clamp(36px,9.5vw,62px) !important;
-            letter-spacing:-0.052em !important; line-height:0.90 !important;
+            font-size:clamp(52px,11vw,78px) !important;
+            letter-spacing:-0.058em !important; line-height:0.90 !important;
             text-shadow:
               0 0 1px  rgba(0,0,0,1),
               0 2px 8px  rgba(0,0,0,1),
@@ -432,7 +355,7 @@ export default async function LandingPage() {
         }
         @media (max-width: 480px) {
           .cards-grid   { grid-template-columns:1fr !important; }
-          .hero-h1-line { font-size:clamp(30px,9vw,52px) !important; letter-spacing:-0.046em !important; }
+          .hero-h1-line { font-size:clamp(42px,11vw,64px) !important; letter-spacing:-0.046em !important; }
           .hero-tagline { font-size:clamp(16px,4.5vw,22px) !important; margin-top:6px !important; }
           .hero-mob-sub { font-size:12px !important; max-width:260px !important; }
           .dep-grid     { grid-template-columns:1fr !important; }
@@ -509,45 +432,30 @@ export default async function LandingPage() {
               <h1 style={{ margin:0, padding:0 }}>
                 <span className="h-line-1 hero-h1-line" style={{
                   display:'block',
-                  fontSize:'clamp(48px,5.8vw,90px)',
+                  fontSize:'clamp(54px,6.5vw,100px)',
                   fontWeight:900,
                   color:'white',
                   letterSpacing:'-0.046em',
-                  lineHeight:0.88,
+                  lineHeight:0.84,
                   textTransform:'uppercase',
                   WebkitFontSmoothing:'antialiased',
                   MozOsxFontSmoothing:'grayscale',
                   textShadow:'0 2px 32px rgba(0,0,0,0.75)',
                 }}>
-                  TODO TALENTO
+                  APERTE
                 </span>
                 <span className="h-line-2 hero-h1-line" style={{
                   display:'block',
-                  fontSize:'clamp(46px,5.5vw,86px)',
+                  fontSize:'clamp(52px,6.2vw,96px)',
                   fontWeight:900,
-                  color:'white',
                   letterSpacing:'-0.046em',
-                  lineHeight:0.88,
+                  lineHeight:0.84,
                   textTransform:'uppercase',
                   WebkitFontSmoothing:'antialiased',
                   MozOsxFontSmoothing:'grayscale',
                   textShadow:'0 2px 32px rgba(0,0,0,0.75)',
                 }}>
-                  MERECE SER
-                </span>
-                <span className="h-line-3 hero-h1-line" style={{
-                  display:'block',
-                  fontSize:'clamp(46px,5.5vw,86px)',
-                  fontWeight:900,
-                  color:'#00FF88',
-                  letterSpacing:'-0.046em',
-                  lineHeight:0.88,
-                  textTransform:'uppercase',
-                  WebkitFontSmoothing:'antialiased',
-                  MozOsxFontSmoothing:'grayscale',
-                  textShadow:'0 0 40px rgba(0,255,136,0.40), 0 2px 32px rgba(0,0,0,0.75)',
-                }}>
-                  VISTO.
+                  <span style={{ color:'white' }}>O </span><span style={{ color:'#00FF88' }}>PLAY.</span>
                 </span>
               </h1>
 
@@ -571,21 +479,20 @@ export default async function LandingPage() {
             </div>
 
             {/* Subheadline */}
-            <p className="h-sub" style={{
+            <p className="h-line-3" style={{
               margin:0, padding:0,
-              fontSize:'clamp(14px,1.3vw,18px)',
-              fontWeight:400,
-              color:'rgba(255,255,255,0.42)',
-              letterSpacing:'0.01em', lineHeight:1.60,
-              maxWidth:'460px',
+              fontSize:'clamp(14px,1.5vw,20px)',
+              fontWeight:400, fontStyle:'italic',
+              color:'rgba(255,255,255,0.44)',
+              letterSpacing:'0.04em', lineHeight:1,
             }}>
-              Crie seu card profissional, receba avaliações de treinadores e construa sua trajetória no futebol.
+              O jogo começa aqui.
             </p>
 
 
             {/* Mobile subtitle */}
             <p className="hero-mob-sub">
-              Card profissional, avaliações reais e visibilidade para scouts e clubes.
+              Crie seu perfil, receba avaliações e seja descoberto por scouts reais.
             </p>
 
             {/* CTAs */}
@@ -638,118 +545,8 @@ export default async function LandingPage() {
         {/* HUD decorativo — removido (substituído pelo HeroFeed) */}
       </section>
 
-      {/* ══════════════════════════════════════ COMO FUNCIONA ══ */}
-      <ComoFunciona />
-
-      {/* ══════════════════════════════════════ CARD SHOWCASE ══ */}
-      <CardShowcase />
-
-      {/* ══════════════════════════════════════ AVALIAÇÕES ══ */}
-      <AvaliacoesSection />
-
-      {/* ══════════════════════════════════════ PROVA SOCIAL ══ */}
-      <StatsSection />
-
-      {/* ══════════════════════════════════════ DESTAQUES GRID ══ */}
-      <DestaquesGrid />
-
-      {/* ══════════════════════════════════════ TACTICAL BOARD ══ */}
-      <TacticalBoard />
-
-      {/* ══════════════════════════════════════ RANKING | MAPA ══ */}
-      <section style={{ background:'#050906', padding:'56px 24px 40px' }}>
-        <div className="three-cols" style={{ maxWidth:'1200px', margin:'0 auto', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'32px' }}>
-
-          {/* ── COL 1: Ranking ── */}
-          <div>
-            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'22px' }}>
-              <span style={{ fontSize:'9.5px', fontWeight:800, color:'rgba(255,255,255,0.38)', letterSpacing:'0.20em', textTransform:'uppercase' }}>Os mais vistos da semana</span>
-              <Link href="/ranking" style={{ fontSize:'11px', color:'#00FF88', textDecoration:'none', fontWeight:600, letterSpacing:'0.04em' }}>Ver ranking →</Link>
-            </div>
-            {top5.map((a, i) => (
-              <Link key={a.id} href={`/jogador/${a.id}`} style={{ textDecoration:'none', color:'inherit' }}>
-                <div style={{
-                  display:'flex', alignItems:'center', gap:'12px',
-                  padding:'11px 0',
-                  borderBottom:'1px solid rgba(255,255,255,0.04)',
-                  cursor:'pointer',
-                }}>
-                  <span style={{ fontSize:'11px', fontWeight:600, color:'rgba(255,255,255,0.22)', width:'14px', flexShrink:0 }}>{i+1}</span>
-                  <div style={{ width:'32px', height:'32px', borderRadius:'50%', background:['#1a5c3a','#1e3a5f','#5f1e3a','#3a5f1e','#3a1e5f'][i], display:'flex', alignItems:'center', justifyContent:'center', fontSize:'9px', fontWeight:800, color:'white', flexShrink:0 }}>
-                    {a.nome.split(' ').map((w: string) => w[0]).slice(0,2).join('')}
-                  </div>
-                  <span style={{ flex:1, fontSize:'13px', fontWeight:600, color:'rgba(255,255,255,0.88)', minWidth:0, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{a.nome}</span>
-                  <span style={{ fontSize:'8.5px', fontWeight:800, color:'#00FF88', background:'rgba(0,255,136,0.08)', padding:'2px 6px', borderRadius:'4px', letterSpacing:'0.05em', flexShrink:0 }}>{a.pos}</span>
-                  <span style={{ fontSize:'11px', color:'rgba(255,255,255,0.45)', flexShrink:0 }}>OVR <strong style={{ color:'rgba(255,255,255,0.88)', fontWeight:900 }}>{a.ovr}</strong></span>
-                  {a.athleteId && <span style={{ fontSize:'9px', fontWeight:700, color:'rgba(255,255,255,0.22)', letterSpacing:'0.06em', flexShrink:0 }}>ID: {a.athleteId.replace('MC-', '')}</span>}
-                </div>
-              </Link>
-            ))}
-          </div>
-
-          {/* ── COL 2: Mapa ── */}
-          <div>
-            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'22px' }}>
-              <span style={{ fontSize:'9.5px', fontWeight:800, color:'rgba(255,255,255,0.38)', letterSpacing:'0.20em', textTransform:'uppercase' }}>O futebol acontece em todo lugar</span>
-              <span style={{ fontSize:'11px', color:'#00FF88', fontWeight:600, letterSpacing:'0.04em', cursor:'pointer' }}>Ver mapa →</span>
-            </div>
-            {/* Spinning Globe */}
-            <SpinningGlobe />
-            <div style={{ display:'flex', gap:'28px' }}>
-              <div>
-                <div style={{ fontSize:'clamp(24px,3vw,32px)', fontWeight:900, color:'white', lineHeight:1 }}>+30</div>
-                <div style={{ fontSize:'11px', color:'rgba(255,255,255,0.32)', marginTop:'4px' }}>países</div>
-              </div>
-              <div>
-                <div style={{ fontSize:'clamp(24px,3vw,32px)', fontWeight:900, color:'#00FF88', lineHeight:1 }}>global</div>
-                <div style={{ fontSize:'11px', color:'rgba(0,255,136,0.45)', marginTop:'4px' }}>presença</div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════ PAÍSES ══ */}
-      <section style={{ background:'#040806', borderTop:'1px solid rgba(255,255,255,0.04)', padding:'28px 24px 32px' }}>
-        <p style={{ textAlign:'center', fontSize:'9px', fontWeight:700, letterSpacing:'0.22em', color:'rgba(255,255,255,0.22)', textTransform:'uppercase', margin:'0 0 20px' }}>
-          Atletas de todo o mundo
-        </p>
-        <div style={{ display:'flex', justifyContent:'center', alignItems:'center', gap:'clamp(14px,3vw,32px)', flexWrap:'wrap' }}>
-          {[
-            { flag:'🇧🇷', label:'Brasil' },
-            { flag:'🇦🇷', label:'Argentina' },
-            { flag:'🇵🇹', label:'Portugal' },
-            { flag:'🇪🇸', label:'Espanha' },
-            { flag:'🇫🇷', label:'França' },
-            { flag:'🇩🇪', label:'Alemanha' },
-            { flag:'🇮🇹', label:'Itália' },
-            { flag:'🇯🇵', label:'Japão' },
-          ].map(({ flag, label }) => (
-            <div key={label} title={label} style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'5px' }}>
-              <span style={{ fontSize:'clamp(28px,5vw,36px)', lineHeight:1, filter:'drop-shadow(0 2px 8px rgba(0,0,0,0.5))' }}>{flag}</span>
-              <span style={{ fontSize:'8px', fontWeight:600, color:'rgba(255,255,255,0.25)', letterSpacing:'0.06em', textTransform:'uppercase' }}>{label}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* ══════════════════════════════════════ LIVE FEED ══ */}
       <LiveFeed />
-
-      {/* ══════════════════════════════════════ TOP 3 ══ */}
-      <TeamOfWeekSection />
-
-      {/* ══════════════════════════════════════ BILLBOARD ══ */}
-      <PhotoBillboard />
-
-      {/* ══════════════════════════════════════ ACTIVITY TICKER ══ */}
-      <ActivityTicker />
-
-
-      {/* ══════════════════════════════════════ PROSPECTS ══ */}
-      <ProspectsSection />
-
 
       {/* ══════════════════════════════════════ RANKING ══ */}
       <RankingSection />
@@ -820,25 +617,6 @@ export default async function LandingPage() {
           </p>
         </div>
       </section>
-
-      {/* ══════════════════════════════════════ CARDS BAR ══ */}
-      <div style={{ background:'#080e09', borderTop:'1px solid rgba(34,197,94,0.12)' }}>
-        <div className="cards-grid" style={{ maxWidth:'1280px', margin:'0 auto', display:'grid', gridTemplateColumns:'repeat(4,1fr)' }}>
-          {cards.map((c, i) => (
-            <div key={c.title} className="card-item" style={{
-              padding:'28px 24px',
-              borderRight: i < 3 ? '1px solid rgba(34,197,94,0.08)' : 'none',
-            }}>
-              <div style={{ marginBottom:'12px' }}>{c.icon}</div>
-              <p style={{ margin:'0 0 6px', fontSize:'15px', fontWeight:700, color:'#22c55e' }}>{c.title}</p>
-              <p style={{ margin:'0 0 14px', fontSize:'13px', color:'rgba(255,255,255,0.45)', lineHeight:1.58 }}>{c.desc}</p>
-              <a href={c.href} style={{ fontSize:'13px', color:'rgba(0,255,136,0.75)', fontWeight:600, textDecoration:'none', letterSpacing:'0.01em' }}>
-                Saiba mais →
-              </a>
-            </div>
-          ))}
-        </div>
-      </div>
 
       {/* ══════════════════════════════════════ FOOTER ══ */}
       <footer style={{ background:'#06100a', borderTop:'1px solid rgba(255,255,255,0.04)', padding:'32px 40px' }}>
