@@ -372,8 +372,8 @@ export default function CadastroForm({ isEscola }: { isEscola: boolean }) {
               {consent && <span style={{ fontSize: '12px', color: 'black', fontWeight: 900 }}>✓</span>}
             </div>
             <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>
-              Confirmo que sou o responsável legal pelo atleta cadastrado e autorizo o uso de seus dados e imagens conforme os{' '}
-              <Link href="/termos" target="_blank" onClick={e => e.stopPropagation()} style={{ color: '#22c55e', textDecoration: 'none' }}>Termos de Uso</Link>.
+              Confirmo que sou maior de idade, que as informações fornecidas são verdadeiras e concordo com os{' '}
+              <Link href="/termos" target="_blank" onClick={e => e.stopPropagation()} style={{ color: '#22c55e', textDecoration: 'none' }}>Termos de Uso</Link>{' '}da plataforma.
             </span>
           </div>
 

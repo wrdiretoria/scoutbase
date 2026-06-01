@@ -147,11 +147,14 @@ export async function GET(req: Request) {
     console.error('[livefeed] unexpected error:', err)
   }
 
-  // ── Ordena, pagina e retorna ──────────────────────────────────────────────
-  events.sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime())
+  // ── Filtra atletas sem auth user válido (evita 404 ao clicar no card) ────
+  const safeEvents = events.filter(e => ovrByUuid.has(e.atletaId))
 
-  const hasMore = events.length > limit
-  const result  = events.slice(0, limit)
+  // ── Ordena, pagina e retorna ──────────────────────────────────────────────
+  safeEvents.sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime())
+
+  const hasMore = safeEvents.length > limit
+  const result  = safeEvents.slice(0, limit)
 
   return NextResponse.json({ events: result, hasMore }, {
     headers: { 'Cache-Control': 's-maxage=15, stale-while-revalidate=60' },

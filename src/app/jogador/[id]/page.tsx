@@ -643,8 +643,8 @@ export default async function JogadorPublicoPage({ params }: Props) {
               </div>
             )}
 
-            {/* CTA — aparece sempre que o atleta tem MC-ID */}
-            {athleteId && (
+            {/* CTA — aparece quando há conteúdo para mostrar (seção #curriculo existe) */}
+            {athleteId && (ultimaAv || temCurriculo) && (
               <Link
                 href="#curriculo"
                 className="scout-cta-btn"
