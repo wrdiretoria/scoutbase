@@ -49,12 +49,11 @@ export async function GET(req: Request) {
     const { data: avs, error: avsErr } = await avsQ
     if (avsErr) console.error('[livefeed] avaliacoes:', avsErr.message)
 
-    // ── 2. Cadastros / join events (profiles com athlete_id) ─────────────────
+    // ── 2. Cadastros recentes (todos os profiles com nome, ordenados por data) ──
     let profQ = admin
       .from('profiles')
       .select('id, nome, fotos, avatar_url, athlete_id, criado_em')
-      .not('athlete_id', 'is', null)
-      .not('nome',       'is', null)
+      .not('nome', 'is', null)
       .order('criado_em', { ascending: false })
       .limit(fetchN)
     if (cursor) profQ = profQ.lt('criado_em', cursor)
@@ -92,8 +91,7 @@ export async function GET(req: Request) {
 
     // ── 4. Monta eventos de cadastro (join) ───────────────────────────────────
     for (const p of profiles ?? []) {
-      const aid = p.athlete_id as string | null
-      if (!aid?.startsWith('MC-')) continue
+      const aid = (p.athlete_id as string | null) ?? null
 
       const raw       = (p.fotos      as (string | null)[] | null) ?? []
       const fotosArr  = raw.filter((f): f is string => !!f)
@@ -101,7 +99,7 @@ export async function GET(req: Request) {
       events.push({
         id:            `join-${p.id as string}`,
         atletaId:      p.id as string,
-        mcId:          aid,
+        mcId:          aid?.startsWith('MC-') ? aid : null,
         tipo:          'join',
         nome:          (p.nome as string | null) ?? 'Atleta',
         posicao:       '',
@@ -147,14 +145,11 @@ export async function GET(req: Request) {
     console.error('[livefeed] unexpected error:', err)
   }
 
-  // ── Filtra atletas sem auth user válido (evita 404 ao clicar no card) ────
-  const safeEvents = events.filter(e => ovrByUuid.has(e.atletaId))
-
   // ── Ordena, pagina e retorna ──────────────────────────────────────────────
-  safeEvents.sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime())
+  events.sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime())
 
-  const hasMore = safeEvents.length > limit
-  const result  = safeEvents.slice(0, limit)
+  const hasMore = events.length > limit
+  const result  = events.slice(0, limit)
 
   return NextResponse.json({ events: result, hasMore }, {
     headers: { 'Cache-Control': 's-maxage=15, stale-while-revalidate=60' },
