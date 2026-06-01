@@ -24,7 +24,10 @@ export default async function RankingSection() {
   try {
     const admin = createAdminClient()
     const { data: { users } } = await admin.auth.admin.listUsers({ perPage: 1000 })
-    const atletaUsers = users.filter(u => u.user_metadata?.tipo === 'atleta')
+    const atletaUsers = users.filter(u =>
+      u.user_metadata?.tipo === 'atleta' &&
+      u.email_confirmed_at != null          // exclui contas sem email verificado (contas de teste/dev)
+    )
     const ids = atletaUsers.map(u => u.id)
 
     const [profilesRes, ovrMap, avsRes] = await Promise.all([
