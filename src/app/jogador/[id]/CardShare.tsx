@@ -5,17 +5,18 @@ import { useEffect, useRef, useState } from 'react'
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 export type CardShareProps = {
-  nome:       string
-  pos:        string        // abreviado: 'ZAG', 'ATA', etc.
-  posicao:    string        // completo: 'Zagueiro', 'Atacante', etc.
-  ovr:        number | null
-  categoria:  string | null
-  fotoUrl:    string | null
-  initials:   string
-  athleteId:  string | null  // 'MC-XXXXX'
-  cidade:     string | null
-  idade:      number | null
-  profileUrl: string
+  nome:           string
+  pos:            string        // abreviado: 'ZAG', 'ATA', etc.
+  posicao:        string        // completo: 'Zagueiro', 'Atacante', etc.
+  ovr:            number | null
+  hasEvaluation:  boolean       // true só se tiver ≥1 avaliação real na tabela avaliacoes
+  categoria:      string | null
+  fotoUrl:        string | null
+  initials:       string
+  athleteId:      string | null  // 'MC-XXXXX'
+  cidade:         string | null
+  idade:          number | null
+  profileUrl:     string
 }
 
 // ── Canvas helpers ─────────────────────────────────────────────────────────────
@@ -179,8 +180,8 @@ async function generateCard(canvas: HTMLCanvasElement, opts: CardShareProps): Pr
   ctx.fillText('CRAQUE', 42, 34)
   ctx.restore()
 
-  // ── Badge "VALIDADO" (topo direito) ───────────────────────────────────────
-  if (opts.ovr) {
+  // ── Badge "VALIDADO" — só aparece se tiver avaliação real de treinador ────
+  if (opts.hasEvaluation) {
     const bw = 96, bh = 54, bx = W - bw - 14, by = 8
     ctx.save()
     ctx.fillStyle   = 'rgba(2,8,4,0.65)'

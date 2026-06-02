@@ -972,6 +972,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
               pos={pos}
               posicao={posicao}
               ovr={ovr}
+              hasEvaluation={ultimaAv !== null}
               categoria={categoria}
               fotoUrl={fotosArray[0] ?? null}
               initials={initials}
