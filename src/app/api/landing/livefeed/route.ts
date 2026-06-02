@@ -145,16 +145,11 @@ export async function GET(req: Request) {
     console.error('[livefeed] unexpected error:', err)
   }
 
-  // ── Filtra perfis sem auth user válido (evita 404 ao clicar) ─────────────
-  // ovrByUuid agora inclui todos os atletas com tipo='atleta' em auth.users,
-  // com ou sem athlete_id — só dá 404 quem não está nesse mapa.
-  const safeEvents = events.filter(e => ovrByUuid.has(e.atletaId))
-
   // ── Ordena, pagina e retorna ──────────────────────────────────────────────
-  safeEvents.sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime())
+  events.sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime())
 
-  const hasMore = safeEvents.length > limit
-  const result  = safeEvents.slice(0, limit)
+  const hasMore = events.length > limit
+  const result  = events.slice(0, limit)
 
   return NextResponse.json({ events: result, hasMore }, {
     headers: { 'Cache-Control': 's-maxage=15, stale-while-revalidate=60' },
