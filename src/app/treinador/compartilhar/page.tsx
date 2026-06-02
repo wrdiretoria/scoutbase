@@ -5,15 +5,12 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 import html2canvas from 'html2canvas'
+import { getInitials } from '@/lib/cardUtils'
 
-// ── Types / Helpers ───────────────────────────────────────────────────────────
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 type Treinador = { nome: string; avatar_url?: string; especialidade?: string; cidade?: string; treinadorId?: string }
 type Stats     = { av: number; at: number; dest: number }
-
-function getInitials(nome: string) {
-  return nome.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase()
-}
 
 function calcularOVR(av: number, dest: number, temFoto: boolean, temEspecialidade: boolean): number {
   let ovr = 65

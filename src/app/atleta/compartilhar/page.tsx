@@ -5,6 +5,8 @@ import { Suspense, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
+import { getInitials, calcularCategoria } from '@/lib/cardUtils'
+
 // ── Canvas helper ─────────────────────────────────────────────────────────────
 
 function rrect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
@@ -15,45 +17,6 @@ function rrect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h
   ctx.lineTo(x + r, y + h); ctx.arcTo(x,     y + h, x,     y + h - r, r)
   ctx.lineTo(x, y + r); ctx.arcTo(x, y,         x + r, y,             r)
   ctx.closePath()
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function calcularCategoria(dataNasc: string): string {
-  const hoje = new Date()
-  const nasc = new Date(dataNasc)
-  let idade = hoje.getFullYear() - nasc.getFullYear()
-  const m = hoje.getMonth() - nasc.getMonth()
-  if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--
-  if (idade <= 11) return 'Sub-11'
-  if (idade <= 13) return 'Sub-13'
-  if (idade <= 15) return 'Sub-15'
-  if (idade <= 17) return 'Sub-17'
-  if (idade <= 20) return 'Sub-20'
-  return 'Adulto'
-}
-
-function posLabel(pos: string): string {
-  const map: Record<string, string> = {
-    'Goleiro': 'GK', 'Lateral Direito': 'LD', 'Lateral Esquerdo': 'LE',
-    'Zagueiro': 'ZG', 'Volante': 'VOL', 'Meia': 'MEI',
-    'Meia-Atacante': 'MAT', 'Ponta Direita': 'PD', 'Ponta Esquerda': 'PE',
-    'Atacante': 'ATA', 'Centro-Avante': 'CA',
-  }
-  return map[pos] ?? pos.slice(0, 3).toUpperCase()
-}
-
-function getInitials(nome: string) {
-  return nome.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase()
-}
-
-function calcularOVR(temFoto: boolean, temPosicao: boolean, temCidade: boolean, temDataNasc: boolean): number {
-  let ovr = 62
-  if (temFoto)     ovr += 14
-  if (temPosicao)  ovr += 10
-  if (temCidade)   ovr +=  5
-  if (temDataNasc) ovr +=  4
-  return Math.min(ovr, 95)
 }
 
 function useCounter(target: number, delay = 400, duration = 900) {
@@ -103,7 +66,7 @@ function CompartilharContent() {
   const primeiroNome = nome.split(' ')[0]
   const sobrenome    = nome.split(' ').slice(1).join(' ')
 
-  // Hooks de estado — DEVEM vir antes de qualquer uso
+  // OVR real buscado da API — não há fallback local (evita valor falso)
   const [realOvr, setRealOvr]   = useState<number | null>(null)
 
   // Pré-carrega avatar como data URL (sem CORS na hora de desenhar no canvas)
@@ -122,10 +85,9 @@ function CompartilharContent() {
       .catch(() => { /* usa URL original como fallback */ })
   }, [avatarUrl])
 
-  // OVR: real (avaliações) tem prioridade; completude de perfil como fallback
-  const ovrBase      = calcularOVR(!!avatarUrl, !!posicao, !!cidade, !!dataNasc)
-  const ovr          = realOvr ?? ovrBase
-  const ovrAnim      = useCounter(ovr, 600, 1000)
+  // OVR: apenas o valor real calculado por lib/ovr.ts (perfil + avaliações)
+  const ovr          = realOvr
+  const ovrAnim      = useCounter(ovr ?? 0, 600, 1000)
   const [shareStatus, setShareStatus] = useState<'idle' | 'sharing'>('idle')
   const [shareErr,   setShareErr]    = useState<string | null>(null)
 
@@ -194,7 +156,7 @@ function CompartilharContent() {
     ctx.save()
     ctx.font = '900 104px system-ui'; ctx.fillStyle = 'white'
     ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 20
-    ctx.fillText(String(ovr), 32, 116)
+    ctx.fillText(ovr !== null ? String(ovr) : '—', 32, 116)
     ctx.font = '900 20px system-ui'; ctx.fillStyle = '#00FF88'
     ctx.shadowColor = 'rgba(0,255,136,0.7)'; ctx.shadowBlur = 12
     ctx.fillText('OVR', 34, 142)
@@ -514,7 +476,7 @@ function CompartilharContent() {
                     textShadow: '0 2px 20px rgba(0,0,0,.9), 0 0 40px rgba(0,255,136,.25)',
                     fontVariantNumeric: 'tabular-nums',
                   }}>
-                    {ovrAnim}
+                    {ovr !== null ? ovrAnim : '—'}
                   </div>
                   <div style={{
                     fontSize: '11px', fontWeight: 900, color: '#00FF88',

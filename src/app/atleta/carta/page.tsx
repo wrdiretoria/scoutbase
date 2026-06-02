@@ -3,32 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-function posAbrev(pos: string): string {
-  const map: Record<string, string> = {
-    'Goleiro': 'GK', 'Lateral Direito': 'LD', 'Lateral Esquerdo': 'LE',
-    'Zagueiro': 'ZG', 'Volante': 'VOL', 'Meia': 'MEI',
-    'Meia-Atacante': 'MAT', 'Ponta Direita': 'PD', 'Ponta Esquerda': 'PE',
-    'Atacante': 'ATA', 'Centro-Avante': 'CA',
-  }
-  return map[pos] ?? pos.slice(0, 3).toUpperCase()
-}
-
-function calcularCategoria(dataNasc: string): string {
-  const hoje = new Date()
-  const nasc = new Date(dataNasc)
-  let idade = hoje.getFullYear() - nasc.getFullYear()
-  const m = hoje.getMonth() - nasc.getMonth()
-  if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--
-  if (idade <= 11) return 'Sub-11'
-  if (idade <= 13) return 'Sub-13'
-  if (idade <= 15) return 'Sub-15'
-  if (idade <= 17) return 'Sub-17'
-  if (idade <= 20) return 'Sub-20'
-  return 'Adulto'
-}
+import { posAbrev, calcularCategoria } from '@/lib/cardUtils'
 
 type Atributo = { label: string; value: number; icon: string }
 
