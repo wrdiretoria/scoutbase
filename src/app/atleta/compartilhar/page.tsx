@@ -1,23 +1,12 @@
 ﻿'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
-import { getInitials, calcularCategoria } from '@/lib/cardUtils'
-
-// ── Canvas helper ─────────────────────────────────────────────────────────────
-
-function rrect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
-  ctx.beginPath()
-  ctx.moveTo(x + r, y)
-  ctx.lineTo(x + w - r, y); ctx.arcTo(x + w, y,     x + w, y + r,     r)
-  ctx.lineTo(x + w, y + h - r); ctx.arcTo(x + w, y + h, x + w - r, y + h, r)
-  ctx.lineTo(x + r, y + h); ctx.arcTo(x,     y + h, x,     y + h - r, r)
-  ctx.lineTo(x, y + r); ctx.arcTo(x, y,         x + r, y,             r)
-  ctx.closePath()
-}
+import { getInitials, calcularCategoria, posAbrev, calcularIdade } from '@/lib/cardUtils'
+import { generateCard } from '@/lib/canvasCard'
 
 function useCounter(target: number, delay = 400, duration = 900) {
   const [value, setValue] = useState(0)
@@ -67,7 +56,12 @@ function CompartilharContent() {
   const sobrenome    = nome.split(' ').slice(1).join(' ')
 
   // OVR real buscado da API — não há fallback local (evita valor falso)
-  const [realOvr, setRealOvr]   = useState<number | null>(null)
+  const [realOvr, setRealOvr]     = useState<number | null>(null)
+  const [hasEvaluation, setHasEval] = useState(false)
+
+  // Canvas preview (modelo QR code 400×560)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [canvasReady, setCanvasReady] = useState(false)
 
   // Pré-carrega avatar como data URL (sem CORS na hora de desenhar no canvas)
   const [avatarDataUrl, setAvatarDataUrl] = useState<string>('')
@@ -91,14 +85,53 @@ function CompartilharContent() {
   const [shareStatus, setShareStatus] = useState<'idle' | 'sharing'>('idle')
   const [shareErr,   setShareErr]    = useState<string | null>(null)
 
-  // Busca OVR real das avaliações
+  // Busca OVR real + verifica se há avaliação real
   useEffect(() => {
     if (!athleteId) return
     fetch(`/api/atleta/ovr?athleteId=${encodeURIComponent(athleteId)}`)
       .then(r => r.json())
       .then(d => { if (typeof d.ovr === 'number') setRealOvr(d.ovr) })
-      .catch(() => {/* mantém OVR de completude */})
+      .catch(() => {})
   }, [athleteId])
+
+  useEffect(() => {
+    if (!uid) return
+    import('@/lib/supabase').then(({ createClient }) => {
+      createClient()
+        .from('avaliacoes')
+        .select('id', { count: 'exact', head: true })
+        .eq('aluno_id', uid)
+        .then(({ count }) => setHasEval((count ?? 0) > 0))
+        .catch(() => {})
+    })
+  }, [uid])
+
+  // Gera o canvas (modelo com QR) quando todos os dados estiverem prontos
+  const idade = dataNasc ? calcularIdade(dataNasc) : null
+  const profileUrl = uid ? `${typeof window !== 'undefined' ? window.location.origin : 'https://meucraque.com'}/jogador/${uid}` : ''
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas || !uid) return
+    setCanvasReady(false)
+    let cancelled = false
+    generateCard(canvas, {
+      nome,
+      pos:           posAbrev(posicao),
+      posicao,
+      ovr:           realOvr,
+      hasEvaluation,
+      categoria:     dataNasc ? calcularCategoria(dataNasc) : null,
+      fotoUrl:       avatarDataUrl || avatarUrl || null,
+      initials:      getInitials(nome),
+      athleteId:     athleteId || null,
+      cidade:        cidade || null,
+      idade,
+      profileUrl,
+    }).then(() => { if (!cancelled) setCanvasReady(true) })
+    return () => { cancelled = true }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uid, realOvr, hasEvaluation, avatarDataUrl, avatarUrl])
   const [copied, setCopied] = useState(false)
 
   // ── Geração do card via Canvas 2D (sem html2canvas) ────────────────────────
@@ -256,7 +289,8 @@ function CompartilharContent() {
     setShareStatus('sharing')
     setShareErr(null)
     try {
-      const canvas = await generateCard()
+      const canvas = canvasRef.current
+      if (!canvas) return
       const blob: Blob = await new Promise((res, rej) =>
         canvas.toBlob(b => b ? res(b) : rej(new Error('toBlob falhou')), 'image/png')
       )
@@ -264,13 +298,10 @@ function CompartilharContent() {
       const file = new File([blob], fileName, { type: 'image/png' })
 
       if (navigator.canShare?.({ files: [file] })) {
-        // Compartilha como imagem (iOS/Android)
-        await navigator.share({ files: [file], title: `${nome} · Meu Craque`, text: `⚽ OVR ${ovr} · ${posicao}${cidade ? ` · ${cidade}` : ''}` })
+        await navigator.share({ files: [file], title: `${nome} · Meu Craque`, text: `⚽ OVR ${ovr ?? '?'} · ${posicao}${cidade ? ` · ${cidade}` : ''}` })
       } else if (navigator.share) {
-        // Compartilha como link (desktop/fallback)
         await navigator.share({ title: `${nome} · Meu Craque`, url: `${window.location.origin}/jogador/${uid}` })
       } else {
-        // Download direto
         const url = URL.createObjectURL(blob)
         const a = Object.assign(document.createElement('a'), { href: url, download: fileName })
         document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url)
@@ -399,9 +430,9 @@ function CompartilharContent() {
           </h1>
         </div>
 
-        {/* ══════════ O CARD FIFA ══════════ */}
+        {/* ══════════ CARD OFICIAL (canvas 400×560 com QR code) ══════════ */}
         <div className="a3" style={{ width: '100%', display: 'flex', justifyContent: 'center', marginBottom: '28px' }}>
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: 'relative', width: 'min(320px,92vw)' }}>
 
             {/* Glow atrás */}
             <div style={{
@@ -410,160 +441,20 @@ function CompartilharContent() {
               filter: 'blur(24px)',
             }} />
 
-            {/* Corner accents */}
-            <div style={{ position: 'relative', width: 'min(320px,92vw)', zIndex: 1 }}>
-              {[
-                { top: -1, left: -1,     borderTop:    '1.5px solid rgba(0,255,136,.75)', borderLeft:   '1.5px solid rgba(0,255,136,.75)', borderTopLeftRadius:     '24px' },
-                { top: -1, right: -1,    borderTop:    '1.5px solid rgba(0,255,136,.75)', borderRight:  '1.5px solid rgba(0,255,136,.75)', borderTopRightRadius:    '24px' },
-                { bottom: -1, left: -1,  borderBottom: '1.5px solid rgba(0,255,136,.3)',  borderLeft:   '1.5px solid rgba(0,255,136,.3)',  borderBottomLeftRadius:  '24px' },
-                { bottom: -1, right: -1, borderBottom: '1.5px solid rgba(0,255,136,.3)',  borderRight:  '1.5px solid rgba(0,255,136,.3)',  borderBottomRightRadius: '24px' },
-              ].map((s, i) => <div key={i} style={{ position: 'absolute', width: '20px', height: '20px', zIndex: 20, pointerEvents: 'none', ...s }} />)}
-
-              {/* ── CARD BODY ── */}
-              <div className="card-pulse" style={{
-                width: '100%', borderRadius: '24px', overflow: 'hidden',
-                position: 'relative',
-                aspectRatio: '3 / 4',
-              }}>
-
-                {/* FOTO — 100% do card */}
-                {/* avatarDataUrl = data URL pré-carregado; avatarUrl = fallback de exibição */}
-                {(avatarDataUrl || avatarUrl) ? (
-                  <img
-                    src={avatarDataUrl || avatarUrl} alt={nome}
-                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'block' }}
-                  />
-                ) : (
-                  <div style={{
-                    position: 'absolute', inset: 0,
-                    background: 'linear-gradient(160deg, #1a3828 0%, #0e2018 50%, #040c07 100%)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 70% 55% at 50% 45%,rgba(0,255,136,.14) 0%,transparent 70%)' }} />
-                    <div style={{
-                      position: 'relative', zIndex: 1,
-                      width: '42%', aspectRatio: '1',
-                      borderRadius: '50%',
-                      background: 'linear-gradient(145deg,#1a7a42,#22c55e,#4ade80)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 'clamp(28px,10vw,36px)', fontWeight: 900, color: 'white',
-                      boxShadow: '0 0 0 1px rgba(0,255,136,.3),0 0 60px rgba(0,255,136,.45)',
-                    }}>
-                      {initials}
-                    </div>
-                  </div>
-                )}
-
-                {/* Overlay gradientes cinematográficos */}
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,.55) 0%, rgba(0,0,0,.1) 30%, transparent 55%, rgba(0,0,0,.15) 65%, rgba(0,0,0,.92) 100%)' }} />
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right, rgba(0,0,0,.35) 0%, transparent 25%, transparent 75%, rgba(0,0,0,.25) 100%)' }} />
-
-                {/* Sheen sweep único ao entrar */}
-                <div style={{ position: 'absolute', inset: 0, zIndex: 6, pointerEvents: 'none', overflow: 'hidden' }}>
-                  <div style={{
-                    position: 'absolute', top: '-20%', bottom: '-20%', width: '45%',
-                    background: 'linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent)',
-                    transform: 'skewX(-12deg)', left: '-60%',
-                    animation: 'shimmerCard 1s cubic-bezier(.4,0,.2,1) forwards 1.8s',
-                  }} />
+            {/* Canvas preview */}
+            <div style={{ position: 'relative', zIndex: 1, borderRadius: '22px', overflow: 'hidden', boxShadow: '0 0 56px rgba(0,255,136,0.18), 0 24px 64px rgba(0,0,0,0.80)' }}>
+              <canvas ref={canvasRef} style={{ display: 'block', width: '100%', height: 'auto', opacity: canvasReady ? 1 : 0, transition: 'opacity .35s ease' }} />
+              {!canvasReady && (
+                <div style={{ position: 'absolute', inset: 0, background: '#080f0a', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', minHeight: '220px' }}>
+                  <div style={{ width: 30, height: 30, borderRadius: '50%', border: '2.5px solid rgba(0,255,136,0.3)', borderTopColor: '#00FF88', animation: 'cardSpin .7s linear infinite' }} />
+                  <style>{`@keyframes cardSpin { to { transform: rotate(360deg) } }`}</style>
+                  <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255,255,255,0.25)', fontFamily: 'system-ui' }}>Gerando card…</p>
                 </div>
-
-                {/* ── TOP LEFT: OVR + badge Meu Craque ── */}
-                <div style={{ position: 'absolute', top: '16px', left: '18px', zIndex: 10 }}>
-                  <div style={{
-                    fontSize: '52px', fontWeight: 900, color: 'white', lineHeight: 1,
-                    letterSpacing: '-0.04em',
-                    textShadow: '0 2px 20px rgba(0,0,0,.9), 0 0 40px rgba(0,255,136,.25)',
-                    fontVariantNumeric: 'tabular-nums',
-                  }}>
-                    {ovr !== null ? ovrAnim : '—'}
-                  </div>
-                  <div style={{
-                    fontSize: '11px', fontWeight: 900, color: '#00FF88',
-                    letterSpacing: '0.18em', textTransform: 'uppercase',
-                    textShadow: '0 0 12px rgba(0,255,136,.7)',
-                    marginTop: '2px',
-                  }}>
-                    OVR
-                  </div>
-                  {/* Badge Meu Craque — como brasão de clube */}
-                  <div style={{
-                    marginTop: '10px',
-                    width: '34px', height: '34px', borderRadius: '8px',
-                    background: 'linear-gradient(145deg, #16a34a, #15803d)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: '0 0 0 1px rgba(255,255,255,0.18), 0 0 16px rgba(0,255,136,0.35), 0 2px 8px rgba(0,0,0,0.6)',
-                    flexDirection: 'column', gap: '0px',
-                  }}>
-                    <span style={{ fontSize: '18px', fontWeight: 900, color: 'white', lineHeight: 1, fontFamily: 'Arial Black, system-ui', letterSpacing: '-0.02em' }}>M</span>
-                    <span style={{ fontSize: '4.5px', fontWeight: 700, color: 'rgba(255,255,255,0.75)', letterSpacing: '0.06em', lineHeight: 1, marginTop: '1px', textTransform: 'uppercase' }}>MEUCRAQUE</span>
-                  </div>
-                </div>
-
-                {/* ── TOP RIGHT: Categoria ── */}
-                {categoria && (
-                  <div style={{
-                    position: 'absolute', top: '16px', right: '16px', zIndex: 10,
-                    background: 'rgba(0,0,0,.6)', backdropFilter: 'blur(16px)',
-                    border: '1px solid rgba(0,255,136,.4)', borderRadius: '9px',
-                    padding: '4px 11px',
-                    fontSize: '10px', fontWeight: 800, color: '#00FF88', letterSpacing: '0.1em',
-                    textShadow: '0 0 12px rgba(0,255,136,.6)',
-                  }}>
-                    {categoria}
-                  </div>
-                )}
-
-                {/* ── BOTTOM: Nome + info ── */}
-                <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 10, padding: '0 18px 20px' }}>
-                  <p style={{
-                    margin: '0 0 2px',
-                    fontSize: 'clamp(26px,8vw,32px)', fontWeight: 900, color: 'white',
-                    letterSpacing: '-0.04em', lineHeight: 1,
-                    textShadow: '0 2px 24px rgba(0,0,0,.95)',
-                  }}>
-                    {primeiroNome}
-                  </p>
-                  {sobrenome && (
-                    <p style={{
-                      margin: '0 0 10px', fontSize: '11px', fontWeight: 700,
-                      color: 'rgba(255,255,255,.45)', textTransform: 'uppercase', letterSpacing: '0.16em',
-                    }}>
-                      {sobrenome}
-                    </p>
-                  )}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    {posicao && (
-                      <div style={{
-                        background: 'linear-gradient(135deg,rgba(0,255,136,.16),rgba(0,255,136,.07))',
-                        border: '1px solid rgba(0,255,136,.3)', borderRadius: '7px',
-                        padding: '4px 12px',
-                        fontSize: '11px', fontWeight: 900, color: '#00FF88', letterSpacing: '0.09em',
-                      }}>
-                        {posicao}
-                      </div>
-                    )}
-                    {cidade && (
-                      <span style={{ fontSize: '11px', color: 'rgba(255,255,255,.38)', fontWeight: 600 }}>
-                        · {cidade}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Watermark */}
-                  <div style={{ marginTop: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <div style={{ flex: 1, height: '1px', background: 'linear-gradient(to right,transparent,rgba(255,255,255,.08))' }} />
-                    <span style={{ fontSize: '17px', fontWeight: 900, letterSpacing: '0.18em', color: 'rgba(0,255,136,0.7)' }}>
-                      {idNumerico ? `ID: ${idNumerico}` : 'Meu Craque'}
-                    </span>
-                    <div style={{ flex: 1, height: '1px', background: 'linear-gradient(to left,transparent,rgba(255,255,255,.08))' }} />
-                  </div>
-                </div>
-
-              </div>{/* end card body */}
-            </div>{/* end card wrapper */}
+              )}
+            </div>
           </div>
         </div>
+
 
         {/* ID do atleta — abaixo do card */}
         {idNumerico && (

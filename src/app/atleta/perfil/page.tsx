@@ -9,165 +9,8 @@ import {
   VARIANTES, BLOCO_PERFIL as Q_BPERF,
   type VarianteKey, type QuestionDef,
 } from '@/lib/questionnaire'
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
-// ── Canvas helper ─────────────────────────────────────────────────────────────
-
-function rrect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
-  ctx.beginPath()
-  ctx.moveTo(x + r, y)
-  ctx.lineTo(x + w - r, y); ctx.arcTo(x + w, y,     x + w, y + r,     r)
-  ctx.lineTo(x + w, y + h - r); ctx.arcTo(x + w, y + h, x + w - r, y + h, r)
-  ctx.lineTo(x + r, y + h); ctx.arcTo(x,     y + h, x,     y + h - r, r)
-  ctx.lineTo(x, y + r); ctx.arcTo(x, y,         x + r, y,             r)
-  ctx.closePath()
-}
-
-async function gerarCardCanvas(opts: {
-  nome: string; posicao: string; cidade: string; categoria: string
-  ovr: number; athleteId: string; avatarUrl: string
-}): Promise<HTMLCanvasElement> {
-  const { nome, posicao, cidade, categoria, ovr, athleteId, avatarUrl } = opts
-  const W = 600, H = 800
-  const canvas = document.createElement('canvas')
-  canvas.width = W; canvas.height = H
-  const ctx = canvas.getContext('2d')!
-
-  const primeiroNome = nome.split(' ')[0]
-  const sobrenome    = nome.split(' ').slice(1).join(' ')
-  const idNumerico   = athleteId.replace('MC-', '')
-  const initials     = nome.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase()
-
-  // clip arredondado
-  ctx.save()
-  rrect(ctx, 0, 0, W, H, 40); ctx.clip()
-
-  // background
-  if (avatarUrl) {
-    const img = new Image()
-    img.src = avatarUrl
-    await new Promise<void>(res => { img.onload = () => res(); img.onerror = () => res() })
-    if (img.naturalWidth > 0) {
-      const ir = img.naturalWidth / img.naturalHeight, cr = W / H
-      let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight
-      if (ir > cr) { sw = img.naturalHeight * cr; sx = (img.naturalWidth - sw) / 2 }
-      else         { sh = img.naturalWidth  / cr; sy = (img.naturalHeight - sh) / 2 * 0.3 }
-      ctx.drawImage(img, sx, sy, sw, sh, 0, 0, W, H)
-    }
-  } else {
-    const bg = ctx.createLinearGradient(0, 0, W, H)
-    bg.addColorStop(0, '#1a3828'); bg.addColorStop(0.5, '#0e2018'); bg.addColorStop(1, '#040c07')
-    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H)
-    ctx.beginPath(); ctx.arc(W/2, H*0.42, W*0.22, 0, Math.PI*2)
-    const cg = ctx.createLinearGradient(W*0.28, H*0.2, W*0.72, H*0.64)
-    cg.addColorStop(0, '#1a7a42'); cg.addColorStop(0.5, '#22c55e'); cg.addColorStop(1, '#4ade80')
-    ctx.fillStyle = cg; ctx.fill()
-    ctx.font = `900 ${Math.round(W*0.15)}px system-ui`
-    ctx.fillStyle = 'white'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-    ctx.fillText(initials, W/2, H*0.42)
-    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'
-  }
-
-  // overlay
-  const ov = ctx.createLinearGradient(0, 0, 0, H)
-  ov.addColorStop(0, 'rgba(0,0,0,0.55)'); ov.addColorStop(0.3, 'rgba(0,0,0,0.1)')
-  ov.addColorStop(0.55, 'rgba(0,0,0,0)'); ov.addColorStop(0.65, 'rgba(0,0,0,0.15)')
-  ov.addColorStop(1, 'rgba(0,0,0,0.92)')
-  ctx.fillStyle = ov; ctx.fillRect(0, 0, W, H)
-  ctx.restore()
-
-  // OVR
-  ctx.save()
-  ctx.font = '900 104px system-ui'; ctx.fillStyle = 'white'
-  ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 20
-  ctx.fillText(String(ovr), 32, 116)
-  ctx.font = '900 20px system-ui'; ctx.fillStyle = '#00FF88'
-  ctx.shadowColor = 'rgba(0,255,136,0.7)'; ctx.shadowBlur = 12
-  ctx.fillText('OVR', 34, 142); ctx.restore()
-
-  // ── Badge Meu Craque (brasão de clube) ──────────────────────────────────
-  {
-    const bx = 32, by = 162, bw = 64, bh = 64, br = 12
-    ctx.save()
-    rrect(ctx, bx, by, bw, bh, br)
-    const bg = ctx.createLinearGradient(bx, by, bx + bw, by + bh)
-    bg.addColorStop(0, '#16a34a'); bg.addColorStop(1, '#15803d')
-    ctx.fillStyle = bg; ctx.fill()
-    ctx.shadowColor = 'rgba(0,255,136,0.5)'; ctx.shadowBlur = 16
-    ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1.5; ctx.stroke()
-    ctx.shadowBlur = 0
-    ctx.font = '900 34px Arial Black, system-ui'
-    ctx.fillStyle = 'white'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-    ctx.fillText('M', bx + bw / 2, by + bh / 2 - 7)
-    ctx.font = '700 9px system-ui'
-    ctx.fillStyle = 'rgba(255,255,255,0.8)'
-    ctx.fillText('MEU CRAQUE', bx + bw / 2, by + bh - 12)
-    ctx.restore()
-  }
-
-  // categoria badge
-  if (categoria) {
-    ctx.save(); ctx.font = '800 17px system-ui'
-    const tw = ctx.measureText(categoria).width
-    const bw = tw + 24, bh = 30, bx = W - bw - 20, by = 20
-    rrect(ctx, bx, by, bw, bh, 9)
-    ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fill()
-    ctx.strokeStyle = 'rgba(0,255,136,0.4)'; ctx.lineWidth = 1.5; ctx.stroke()
-    ctx.fillStyle = '#00FF88'; ctx.shadowColor = 'rgba(0,255,136,0.6)'; ctx.shadowBlur = 12
-    ctx.textAlign = 'center'; ctx.fillText(categoria, bx + bw/2, by + 21); ctx.restore()
-  }
-
-  // nome
-  ctx.save()
-  ctx.font = `900 ${Math.min(76, Math.round(W*0.12))}px system-ui`
-  ctx.fillStyle = 'white'; ctx.shadowColor = 'rgba(0,0,0,0.95)'; ctx.shadowBlur = 24
-  ctx.fillText(primeiroNome, 32, H - 150)
-  if (sobrenome) {
-    ctx.font = '700 20px system-ui'; ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.shadowBlur = 0
-    ctx.fillText(sobrenome.toUpperCase(), 34, H - 120)
-  }
-  if (posicao) {
-    ctx.shadowBlur = 0; ctx.font = '800 17px system-ui'
-    const ptw = ctx.measureText(posicao).width
-    const pbw = ptw + 24, pbh = 28, pbx = 32, pby = H - 98
-    rrect(ctx, pbx, pby, pbw, pbh, 8)
-    ctx.fillStyle = 'rgba(0,255,136,0.12)'; ctx.fill()
-    ctx.strokeStyle = 'rgba(0,255,136,0.3)'; ctx.lineWidth = 1; ctx.stroke()
-    ctx.fillStyle = '#00FF88'; ctx.fillText(posicao, pbx + 12, pby + 19)
-    if (cidade) {
-      ctx.font = '600 15px system-ui'; ctx.fillStyle = 'rgba(255,255,255,0.38)'
-      ctx.fillText(`· ${cidade}`, pbx + pbw + 10, pby + 19)
-    }
-  }
-  ctx.restore()
-
-  // ID watermark
-  const ly = H - 46; ctx.save()
-  const lg1 = ctx.createLinearGradient(32, 0, W/2 - 52, 0)
-  lg1.addColorStop(0, 'rgba(0,0,0,0)'); lg1.addColorStop(1, 'rgba(255,255,255,0.08)')
-  ctx.strokeStyle = lg1; ctx.lineWidth = 1
-  ctx.beginPath(); ctx.moveTo(32, ly); ctx.lineTo(W/2 - 52, ly); ctx.stroke()
-  const lg2 = ctx.createLinearGradient(W/2 + 52, 0, W - 32, 0)
-  lg2.addColorStop(0, 'rgba(255,255,255,0.08)'); lg2.addColorStop(1, 'rgba(0,0,0,0)')
-  ctx.strokeStyle = lg2
-  ctx.beginPath(); ctx.moveTo(W/2 + 52, ly); ctx.lineTo(W - 32, ly); ctx.stroke()
-  ctx.font = '900 21px system-ui'; ctx.fillStyle = 'rgba(0,255,136,0.7)'
-  ctx.textAlign = 'center'; ctx.fillText(idNumerico ? `ID: ${idNumerico}` : 'Meu Craque', W/2, H - 24)
-  ctx.restore()
-
-  // corner accents
-  ctx.save(); ctx.lineWidth = 2
-  ctx.strokeStyle = 'rgba(0,255,136,0.75)'
-  ctx.beginPath(); ctx.moveTo(2,28); ctx.lineTo(2,12); ctx.arcTo(2,2,12,2,10); ctx.lineTo(28,2); ctx.stroke()
-  ctx.beginPath(); ctx.moveTo(W-2,28); ctx.lineTo(W-2,12); ctx.arcTo(W-2,2,W-12,2,10); ctx.lineTo(W-28,2); ctx.stroke()
-  ctx.strokeStyle = 'rgba(0,255,136,0.3)'
-  ctx.beginPath(); ctx.moveTo(2,H-28); ctx.lineTo(2,H-12); ctx.arcTo(2,H-2,12,H-2,10); ctx.lineTo(28,H-2); ctx.stroke()
-  ctx.beginPath(); ctx.moveTo(W-2,H-28); ctx.lineTo(W-2,H-12); ctx.arcTo(W-2,H-2,W-12,H-2,10); ctx.lineTo(W-28,H-2); ctx.stroke()
-  ctx.restore()
-
-  return canvas
-}
+import { generateCard } from '@/lib/canvasCard'
+import { posAbrev, getInitials, calcularCategoria, calcularIdade } from '@/lib/cardUtils'
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -191,33 +34,7 @@ async function compressImage(file: File, maxPx = 900, quality = 0.82): Promise<B
   })
 }
 
-function calcularCategoria(dataNasc: string): string {
-  const hoje = new Date()
-  const nasc = new Date(dataNasc)
-  let idade = hoje.getFullYear() - nasc.getFullYear()
-  const m = hoje.getMonth() - nasc.getMonth()
-  if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--
-  if (idade <= 11) return 'Sub-11'
-  if (idade <= 13) return 'Sub-13'
-  if (idade <= 15) return 'Sub-15'
-  if (idade <= 17) return 'Sub-17'
-  if (idade <= 20) return 'Sub-20'
-  return 'Adulto'
-}
-
-function getInitials(nome: string) {
-  return nome.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase()
-}
-
-function posAbrev(pos: string): string {
-  const map: Record<string, string> = {
-    'Goleiro': 'GK', 'Lateral Direito': 'LD', 'Lateral Esquerdo': 'LE',
-    'Zagueiro': 'ZG', 'Volante': 'VOL', 'Meia': 'MEI',
-    'Meia-Atacante': 'MAT', 'Ponta Direita': 'PD', 'Ponta Esquerda': 'PE',
-    'Atacante': 'ATA', 'Centro-Avante': 'CA',
-  }
-  return map[pos] ?? pos.slice(0, 3).toUpperCase()
-}
+// calcularCategoria, getInitials, posAbrev, calcularIdade → importados de @/lib/cardUtils
 
 /**
  * OVR do perfil — pesos (soma = 100 → escala 0–50):
@@ -2573,12 +2390,22 @@ function AtletaPerfilContent() {
                       })
                     } catch { imgSrc = avatarUrl }
                   }
-                  const canvas = await gerarCardCanvas({
-                    nome: meta.nome, posicao: meta.posicao, cidade: meta.cidade,
-                    categoria: dataNasc ? calcularCategoria(dataNasc) : '',
-                    ovr: ovrTotal, athleteId, avatarUrl: imgSrc,
+                  const tempCanvas = document.createElement('canvas')
+                  await generateCard(tempCanvas, {
+                    nome:          meta.nome,
+                    pos:           posAbrev(meta.posicao ?? ''),
+                    posicao:       meta.posicao ?? '',
+                    ovr:           ovrTotal,
+                    hasEvaluation: avaliacao !== null,
+                    categoria:     dataNasc ? calcularCategoria(dataNasc) : null,
+                    fotoUrl:       imgSrc || null,
+                    initials:      getInitials(meta.nome ?? ''),
+                    athleteId:     athleteId || null,
+                    cidade:        meta.cidade || null,
+                    idade:         dataNasc ? calcularIdade(dataNasc) : null,
+                    profileUrl:    `${window.location.origin}/jogador/${uid}`,
                   })
-                  setCardModal(canvas.toDataURL('image/png'))
+                  setCardModal(tempCanvas.toDataURL('image/png'))
                 } catch {
                   alert('Erro ao gerar o card. Tente novamente.')
                 } finally {

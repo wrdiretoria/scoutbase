@@ -22,6 +22,16 @@ export function posAbrev(posicao: string): string {
   return POS_MAP[posicao] ?? posicao.slice(0, 3).toUpperCase()
 }
 
+/** Idade em anos completos a partir da data de nascimento (YYYY-MM-DD). */
+export function calcularIdade(dataNasc: string): number {
+  const hoje = new Date()
+  const nasc = new Date(dataNasc)
+  let idade = hoje.getFullYear() - nasc.getFullYear()
+  const m = hoje.getMonth() - nasc.getMonth()
+  if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--
+  return idade
+}
+
 /**
  * Categoria por data de nascimento.
  * Retorna "Sub-11" … "Sub-20" ou "Adulto".
