@@ -687,7 +687,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
             </div>
             {/* Atributos */}
             {ultimaAv.respostas
-              ? <AvaliacaoPublicaDetalhada respostas={{ ...ultimaAv.respostas, variante: ultimaAv.variante ?? undefined }} />
+              ? <AvaliacaoPublicaDetalhada respostas={{ ...(ultimaAv.respostas as Record<string, number>), variante: ultimaAv.variante ?? undefined }} />
               : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {[
