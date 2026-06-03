@@ -27,6 +27,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Dados ausentes.' }, { status: 400 })
     }
 
+    // Validação de idade — atleta deve ter menos de 18 anos
+    const nasc  = new Date(dataNascimento)
+    const hoje  = new Date()
+    const idade = hoje.getFullYear() - nasc.getFullYear()
+      - (hoje < new Date(hoje.getFullYear(), nasc.getMonth(), nasc.getDate()) ? 1 : 0)
+    if (idade >= 18) {
+      return NextResponse.json({ error: 'O Meu Craque é exclusivo para atletas do futebol de base (abaixo de 18 anos).' }, { status: 400 })
+    }
+
     const admin = createAdminClient()
 
     // Usa o ID pré-gerado se vier do cadastro, senão busca ou gera um novo
