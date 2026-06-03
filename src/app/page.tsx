@@ -85,8 +85,8 @@ export default async function LandingPage() {
           color:rgba(255,255,255,0.70) !important;
         }
 
-        /* Tier cards — hidden desktop, shown mobile inside headline row */
-        .hero-stats-panel { display:none; position:relative; overflow:hidden; }
+        /* Tier cards — visible both desktop and mobile, inside headline row */
+        .hero-stats-panel { display:flex; flex-direction:column; gap:7px; padding:8px 10px; max-width:160px; flex-shrink:0; align-self:flex-start; position:relative; overflow:hidden; background:rgba(2,10,5,0.82); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px); border:1px solid rgba(0,255,136,0.15); border-top:1px solid rgba(0,255,136,0.28); border-radius:14px; box-shadow:0 0 16px rgba(0,255,136,0.07),0 10px 28px rgba(0,0,0,0.68); }
         .hero-stats-panel::before {
           content:''; position:absolute; top:0; left:0; right:0; height:52%;
           background:linear-gradient(180deg,rgba(255,255,255,0.07) 0%,transparent 100%);
@@ -548,6 +548,34 @@ export default async function LandingPage() {
         {/* HUD decorativo — removido (substituído pelo HeroFeed) */}
       </section>
 
+      {/* ══════════════════════════════════════ TIERS ══ */}
+      <section style={{ background:'#030905', padding:'56px 20px', borderTop:'1px solid rgba(0,255,136,0.06)' }}>
+        <div style={{ maxWidth:'480px', margin:'0 auto', display:'flex', flexDirection:'column', gap:'12px' }}>
+          <p style={{ margin:'0 0 16px', fontSize:'11px', fontWeight:700, letterSpacing:'0.18em', color:'rgba(0,255,136,0.55)', textTransform:'uppercase', textAlign:'center' }}>
+            Sistema de tiers
+          </p>
+          {([
+            { icon:'🥇', label:'OURO',   title:'Perfil completo + avaliação', desc:'OVR acima de 80',             color:'#d4a017' },
+            { icon:'⭐', label:'PRATA',  title:'Perfil completo + avaliação', desc:'OVR entre 50 e 80',           color:'#888780' },
+            { icon:'🏅', label:'BRONZE', title:'Ficha preenchida',            desc:'Aguardando avaliação — OVR abaixo de 50', color:'#D85A30' },
+          ] as const).map(t => (
+            <div key={t.label} style={{
+              display:'flex', alignItems:'center', gap:'14px',
+              borderLeft:`3px solid ${t.color}`, paddingLeft:'16px',
+              background:'rgba(255,255,255,0.025)', borderRadius:'0 12px 12px 0',
+              padding:'14px 16px',
+            }}>
+              <span style={{ fontSize:'24px', flexShrink:0 }}>{t.icon}</span>
+              <div>
+                <div style={{ fontSize:'10px', fontWeight:800, letterSpacing:'0.16em', color:t.color, textTransform:'uppercase', marginBottom:'3px' }}>{t.label}</div>
+                <div style={{ fontSize:'15px', fontWeight:700, color:'white', lineHeight:1.2, marginBottom:'3px' }}>{t.title}</div>
+                <div style={{ fontSize:'12px', color:'rgba(255,255,255,0.42)' }}>{t.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ══════════════════════════════════════ LIVE FEED ══ */}
       <LiveFeed />
 
@@ -665,6 +693,29 @@ export default async function LandingPage() {
           <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.18)', letterSpacing:'0.08em', textTransform:'uppercase' }}>
             Grátis para atletas · Sem cartão · Perfil pronto em 2 minutos
           </p>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════ CTA FINAL ══ */}
+      <section style={{ background:'#06100a', padding:'72px 20px', textAlign:'center', borderTop:'1px solid rgba(0,255,136,0.06)' }}>
+        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'28px' }}>
+          <HeroCard />
+          <a href="/atleta/cadastro" style={{
+            fontSize:'15px', fontWeight:700, color:'#00FF88',
+            textDecoration:'none', letterSpacing:'0.06em',
+          }}>
+            Crie o seu — é grátis →
+          </a>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════ CTA FINAL ══ */}
+      <section style={{ background:'#06100a', padding:'72px 20px', textAlign:'center', borderTop:'1px solid rgba(0,255,136,0.06)' }}>
+        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'24px' }}>
+          <HeroCard />
+          <a href="/atleta/cadastro" style={{ fontSize:'15px', fontWeight:700, color:'white', textDecoration:'none', letterSpacing:'0.04em' }}>
+            Crie o seu — é grátis
+          </a>
         </div>
       </section>
 
