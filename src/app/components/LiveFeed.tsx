@@ -66,7 +66,7 @@ export default function LiveFeed() {
 
   // ── Initial load + polling ───────────────────────────────────────────────────
   useEffect(() => {
-    loadEvents({ limit: 6 })
+    loadEvents({ limit: 8 })
     const iv = setInterval(() => loadEvents({ limit: 3, prepend: true }), POLL_MS)
     return () => clearInterval(iv)
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -126,8 +126,8 @@ export default function LiveFeed() {
         }
       `}</style>
 
-      {/* Container — 3 colunas desktop, 2 colunas mobile */}
-      <div style={{ maxWidth: '680px', margin: '0 auto', padding: '0 clamp(16px,4vw,24px)' }}>
+      {/* Container estreito — 2 colunas de ~206px cada */}
+      <div style={{ maxWidth: '440px', margin: '0 auto', padding: '0 clamp(16px,4vw,24px)' }}>
 
         {/* ── Header ── */}
         <div style={{ marginBottom: '28px' }}>
@@ -149,8 +149,8 @@ export default function LiveFeed() {
         {/* ── Cards ── */}
         {loading && events.length === 0 ? (
           /* Skeleton — mesma grade, altura do AtletaCard */
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(190px,1fr))', gap: '12px' }}>
-            {[0, 1, 2, 3, 4, 5].map(i => (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            {[0, 1, 2, 3].map(i => (
               <div key={i} style={{
                 height: '360px',
                 borderRadius: '22px',
@@ -170,7 +170,7 @@ export default function LiveFeed() {
           </div>
 
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(190px,1fr))', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             {events.map(event => (
               <AtletaCard
                 key={event.id}
