@@ -463,15 +463,20 @@ export default async function LandingPage() {
               {/* Stats pill — mobile only, aligns to top of headline */}
               <div className="hero-stats-panel">
                 {[
-                  { icon:'⚽', label:'ATLETAS', value:'GRÁTIS'   },
-                  { icon:'★',  label:'RANKING', value:'AO VIVO'  },
-                  { icon:'🛡', label:'DADOS',   value:'SEGUROS'  },
+                  { icon:'🥇', label:'OURO',   desc:'Perfil completo + avaliação', sub:'OVR acima de 80',       color:'#d4a017' },
+                  { icon:'⭐', label:'PRATA',  desc:'Perfil completo + avaliação', sub:'OVR entre 50 e 80',     color:'#888780' },
+                  { icon:'🏅', label:'BRONZE', desc:'Ficha preenchida',            sub:'Aguardando avaliação',  color:'#D85A30' },
                 ].map(s => (
-                  <div key={s.label} style={{ display:'flex', alignItems:'center', gap:'8px' }}>
-                    <span style={{ fontSize:'13px', flexShrink:0 }}>{s.icon}</span>
+                  <div key={s.label} style={{
+                    display: 'flex', alignItems: 'center', gap: '10px',
+                    borderLeft: `2px solid ${s.color}`,
+                    paddingLeft: '10px',
+                  }}>
+                    <span style={{ fontSize: '16px', flexShrink: 0 }}>{s.icon}</span>
                     <div>
-                      <div style={{ fontSize:'6.5px', fontWeight:700, letterSpacing:'0.14em', color:'rgba(0,255,136,0.55)', textTransform:'uppercase', marginBottom:'1px' }}>{s.label}</div>
-                      <div style={{ fontSize:'11px', fontWeight:900, color:'rgba(255,255,255,0.92)', lineHeight:1.15, letterSpacing:'0.01em' }}>{s.value}</div>
+                      <div style={{ fontSize: '6.5px', fontWeight: 800, letterSpacing: '0.14em', color: s.color, textTransform: 'uppercase', marginBottom: '2px' }}>{s.label}</div>
+                      <div style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.90)', lineHeight: 1.2 }}>{s.desc}</div>
+                      <div style={{ fontSize: '9px', fontWeight: 400, color: 'rgba(255,255,255,0.42)', lineHeight: 1.2, marginTop: '1px' }}>{s.sub}</div>
                     </div>
                   </div>
                 ))}
