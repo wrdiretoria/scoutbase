@@ -541,8 +541,8 @@ export default async function LandingPage() {
 
           {/* RIGHT — Tier cards no desktop */}
           <div className="hero-phones" style={{ display:'flex', alignItems:'flex-start', justifyContent:'flex-end', paddingTop:'clamp(48px,7vh,80px)', minWidth:0 }}>
-            <div style={{ display:'flex', flexDirection:'column', gap:'12px', width:'220px',
-              padding:'16px 18px', background:'rgba(2,10,5,0.82)',
+            <div style={{ display:'flex', flexDirection:'column', gap:'16px', width:'300px',
+              padding:'22px 24px', background:'rgba(2,10,5,0.82)',
               backdropFilter:'blur(24px)', WebkitBackdropFilter:'blur(24px)',
               border:'1px solid rgba(0,255,136,0.15)', borderTop:'1px solid rgba(0,255,136,0.28)',
               borderRadius:'14px', boxShadow:'0 0 16px rgba(0,255,136,0.07),0 10px 28px rgba(0,0,0,0.68)',
@@ -552,12 +552,12 @@ export default async function LandingPage() {
                 { icon:'⭐', label:'PRATA',  desc:'Perfil completo + avaliação', sub:'OVR entre 50 e 80',    color:'#888780' },
                 { icon:'🏅', label:'BRONZE', desc:'Ficha preenchida',            sub:'Aguardando avaliação', color:'#D85A30' },
               ].map(s => (
-                <div key={s.label} style={{ display:'flex', alignItems:'center', gap:'10px', borderLeft:`2px solid ${s.color}`, paddingLeft:'10px' }}>
-                  <span style={{ fontSize:'18px', flexShrink:0 }}>{s.icon}</span>
+                <div key={s.label} style={{ display:'flex', alignItems:'center', gap:'14px', borderLeft:`2px solid ${s.color}`, paddingLeft:'14px' }}>
+                  <span style={{ fontSize:'28px', flexShrink:0 }}>{s.icon}</span>
                   <div>
-                    <div style={{ fontSize:'8px', fontWeight:800, letterSpacing:'0.14em', color:s.color, textTransform:'uppercase', marginBottom:'2px' }}>{s.label}</div>
-                    <div style={{ fontSize:'12px', fontWeight:700, color:'rgba(255,255,255,0.90)', lineHeight:1.2 }}>{s.desc}</div>
-                    <div style={{ fontSize:'10px', color:'rgba(255,255,255,0.42)', lineHeight:1.3, marginTop:'1px' }}>{s.sub}</div>
+                    <div style={{ fontSize:'13px', fontWeight:800, letterSpacing:'0.14em', color:s.color, textTransform:'uppercase', marginBottom:'3px' }}>{s.label}</div>
+                    <div style={{ fontSize:'15px', fontWeight:700, color:'rgba(255,255,255,0.90)', lineHeight:1.2 }}>{s.desc}</div>
+                    <div style={{ fontSize:'13px', color:'rgba(255,255,255,0.42)', lineHeight:1.3, marginTop:'2px' }}>{s.sub}</div>
                   </div>
                 </div>
               ))}
