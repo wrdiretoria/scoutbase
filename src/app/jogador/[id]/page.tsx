@@ -140,8 +140,8 @@ function BarSimples({ icon, label, value }: { icon: string; label: string; value
   )
 }
 
-function AvaliacaoPublicaDetalhada({ respostas }: { respostas: Record<string, number> & { variante?: string } }) {
-  const variante = (respostas.variante ?? 'iniciacao') as VarianteKey
+function AvaliacaoPublicaDetalhada({ respostas, variante: varianteProp }: { respostas: Record<string, number>; variante?: string | null }) {
+  const variante = ((varianteProp ?? respostas['variante']) ?? 'iniciacao') as VarianteKey
   const blocoA   = VARIANTES[variante].blocoA
   const blocoC   = VARIANTES[variante].blocoC
   const etiqueta = VARIANTES[variante].label
@@ -687,7 +687,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
             </div>
             {/* Atributos */}
             {ultimaAv.respostas
-              ? <AvaliacaoPublicaDetalhada respostas={{ ...(ultimaAv.respostas as Record<string, number>), variante: ultimaAv.variante ?? undefined }} />
+              ? <AvaliacaoPublicaDetalhada respostas={ultimaAv.respostas as Record<string, number>} variante={ultimaAv.variante} />
               : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {[
