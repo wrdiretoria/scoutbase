@@ -461,6 +461,24 @@ export default async function LandingPage() {
                 </span>
               </h1>
 
+              {/* Tier cards — direita do h1 */}
+              <div className="hero-stats-panel">
+                {[
+                  { icon:'🥇', label:'OURO',   desc:'Perfil completo + avaliação', sub:'OVR acima de 80',      color:'#d4a017' },
+                  { icon:'⭐', label:'PRATA',  desc:'Perfil completo + avaliação', sub:'OVR entre 50 e 80',    color:'#888780' },
+                  { icon:'🏅', label:'BRONZE', desc:'Ficha preenchida',            sub:'Aguardando avaliação', color:'#D85A30' },
+                ].map(s => (
+                  <div key={s.label} style={{ display:'flex', alignItems:'center', gap:'8px', borderLeft:`2px solid ${s.color}`, paddingLeft:'8px' }}>
+                    <span style={{ fontSize:'14px', flexShrink:0 }}>{s.icon}</span>
+                    <div>
+                      <div style={{ fontSize:'6px', fontWeight:800, letterSpacing:'0.14em', color:s.color, textTransform:'uppercase', marginBottom:'1px' }}>{s.label}</div>
+                      <div style={{ fontSize:'9px', fontWeight:700, color:'rgba(255,255,255,0.90)', lineHeight:1.2 }}>{s.desc}</div>
+                      <div style={{ fontSize:'8px', color:'rgba(255,255,255,0.40)', lineHeight:1.2 }}>{s.sub}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
             </div>
 
             {/* Subheadline */}
@@ -500,24 +518,6 @@ export default async function LandingPage() {
               }}>
                 Já tenho conta →
               </Link>
-            </div>
-
-            {/* Tier cards */}
-            <div className="hero-stats-panel" style={{ alignSelf: 'flex-start', maxWidth: '200px' }}>
-              {[
-                { icon:'🥇', label:'OURO',   desc:'Perfil completo + avaliação', sub:'OVR acima de 80',      color:'#d4a017' },
-                { icon:'⭐', label:'PRATA',  desc:'Perfil completo + avaliação', sub:'OVR entre 50 e 80',    color:'#888780' },
-                { icon:'🏅', label:'BRONZE', desc:'Ficha preenchida',            sub:'Aguardando avaliação', color:'#D85A30' },
-              ].map(s => (
-                <div key={s.label} style={{ display:'flex', alignItems:'center', gap:'8px', borderLeft:`2px solid ${s.color}`, paddingLeft:'8px' }}>
-                  <span style={{ fontSize:'14px', flexShrink:0 }}>{s.icon}</span>
-                  <div>
-                    <div style={{ fontSize:'6px', fontWeight:800, letterSpacing:'0.14em', color:s.color, textTransform:'uppercase', marginBottom:'1px' }}>{s.label}</div>
-                    <div style={{ fontSize:'9px', fontWeight:700, color:'rgba(255,255,255,0.90)', lineHeight:1.2 }}>{s.desc}</div>
-                    <div style={{ fontSize:'8px', color:'rgba(255,255,255,0.40)', lineHeight:1.2 }}>{s.sub}</div>
-                  </div>
-                </div>
-              ))}
             </div>
 
             {/* Social proof — mobile */}
