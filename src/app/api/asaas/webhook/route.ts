@@ -54,11 +54,20 @@ export async function POST(req: NextRequest) {
       if (userId) {
         const adminClient = createAdminClient()
         const { data: { user: atletaUser } } = await adminClient.auth.admin.getUserById(userId)
-        const atual = (atletaUser?.user_metadata?.cards_disponiveis as number) ?? 0
-        await adminClient.auth.admin.updateUserById(userId, {
-          user_metadata: { cards_disponiveis: atual + 1 },
-        })
-        console.log(`[webhook] Card de avaliação adicionado para userId=${userId} (total: ${atual + 1})`)
+        // Idempotência: ignora se este payment.id já foi processado
+        const processados = (atletaUser?.user_metadata?.pagamentos_processados as string[] | null) ?? []
+        if (!processados.includes(payment.id)) {
+          const atual = (atletaUser?.user_metadata?.cards_disponiveis as number) ?? 0
+          await adminClient.auth.admin.updateUserById(userId, {
+            user_metadata: {
+              cards_disponiveis: atual + 1,
+              pagamentos_processados: [...processados, payment.id],
+            },
+          })
+          console.log(`[webhook] Card adicionado para userId=${userId} (total: ${atual + 1})`)
+        } else {
+          console.log(`[webhook] Pagamento ${payment.id} já processado — ignorado.`)
+        }
       }
       return NextResponse.json({ ok: true, event, tipo: 'carta' })
     }
@@ -71,12 +80,22 @@ export async function POST(req: NextRequest) {
       const userId = payment.externalReference.replace('promover:', '')
       if (userId) {
         const adminClient = createAdminClient()
-        const promovido_ate = new Date()
-        promovido_ate.setDate(promovido_ate.getDate() + 30)
-        await adminClient.auth.admin.updateUserById(userId, {
-          user_metadata: { promovido_ate: promovido_ate.toISOString() },
-        })
-        console.log(`[webhook] Promoção ativada para userId=${userId} até ${promovido_ate.toISOString()}`)
+        const { data: { user: atletaUser } } = await adminClient.auth.admin.getUserById(userId)
+        // Idempotência: ignora se este payment.id já foi processado
+        const processados = (atletaUser?.user_metadata?.pagamentos_processados as string[] | null) ?? []
+        if (!processados.includes(payment.id)) {
+          const promovido_ate = new Date()
+          promovido_ate.setDate(promovido_ate.getDate() + 30)
+          await adminClient.auth.admin.updateUserById(userId, {
+            user_metadata: {
+              promovido_ate: promovido_ate.toISOString(),
+              pagamentos_processados: [...processados, payment.id],
+            },
+          })
+          console.log(`[webhook] Promoção ativada para userId=${userId} até ${promovido_ate.toISOString()}`)
+        } else {
+          console.log(`[webhook] Pagamento ${payment.id} já processado — ignorado.`)
+        }
       }
       return NextResponse.json({ ok: true, event, tipo: 'promover' })
     }
