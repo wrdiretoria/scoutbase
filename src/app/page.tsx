@@ -314,9 +314,10 @@ export default async function LandingPage() {
           .hero-headline-row h1 { flex:1 !important; min-width:0 !important; }
           .hero-stats-panel {
             display:flex !important; flex-direction:column !important;
-            gap:11px !important;
+            gap:7px !important;
             transform:none !important;
-            padding:11px 12px !important;
+            padding:8px 10px !important;
+            max-width:160px !important;
             background:rgba(2,10,5,0.82) !important;
             backdrop-filter:blur(24px) saturate(180%) !important;
             -webkit-backdrop-filter:blur(24px) saturate(180%) !important;
@@ -460,28 +461,6 @@ export default async function LandingPage() {
                 </span>
               </h1>
 
-              {/* Tier cards — ao lado do h1 no mobile, hidden no desktop */}
-              <div className="hero-stats-panel">
-                {[
-                  { icon:'🥇', label:'OURO',   desc:'Perfil completo + avaliação', sub:'OVR acima de 80',      color:'#d4a017' },
-                  { icon:'⭐', label:'PRATA',  desc:'Perfil completo + avaliação', sub:'OVR entre 50 e 80',    color:'#888780' },
-                  { icon:'🏅', label:'BRONZE', desc:'Ficha preenchida',            sub:'Aguardando avaliação', color:'#D85A30' },
-                ].map(s => (
-                  <div key={s.label} style={{
-                    display: 'flex', alignItems: 'center', gap: '10px',
-                    borderLeft: `2px solid ${s.color}`,
-                    paddingLeft: '10px',
-                  }}>
-                    <span style={{ fontSize: '16px', flexShrink: 0 }}>{s.icon}</span>
-                    <div>
-                      <div style={{ fontSize: '6.5px', fontWeight: 800, letterSpacing: '0.14em', color: s.color, textTransform: 'uppercase', marginBottom: '2px' }}>{s.label}</div>
-                      <div style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.90)', lineHeight: 1.2 }}>{s.desc}</div>
-                      <div style={{ fontSize: '9px', fontWeight: 400, color: 'rgba(255,255,255,0.42)', lineHeight: 1.2, marginTop: '1px' }}>{s.sub}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
             </div>
 
             {/* Subheadline */}
@@ -521,6 +500,24 @@ export default async function LandingPage() {
               }}>
                 Já tenho conta →
               </Link>
+            </div>
+
+            {/* Tier cards */}
+            <div className="hero-stats-panel" style={{ alignSelf: 'flex-start', maxWidth: '200px' }}>
+              {[
+                { icon:'🥇', label:'OURO',   desc:'Perfil completo + avaliação', sub:'OVR acima de 80',      color:'#d4a017' },
+                { icon:'⭐', label:'PRATA',  desc:'Perfil completo + avaliação', sub:'OVR entre 50 e 80',    color:'#888780' },
+                { icon:'🏅', label:'BRONZE', desc:'Ficha preenchida',            sub:'Aguardando avaliação', color:'#D85A30' },
+              ].map(s => (
+                <div key={s.label} style={{ display:'flex', alignItems:'center', gap:'8px', borderLeft:`2px solid ${s.color}`, paddingLeft:'8px' }}>
+                  <span style={{ fontSize:'14px', flexShrink:0 }}>{s.icon}</span>
+                  <div>
+                    <div style={{ fontSize:'6px', fontWeight:800, letterSpacing:'0.14em', color:s.color, textTransform:'uppercase', marginBottom:'1px' }}>{s.label}</div>
+                    <div style={{ fontSize:'9px', fontWeight:700, color:'rgba(255,255,255,0.90)', lineHeight:1.2 }}>{s.desc}</div>
+                    <div style={{ fontSize:'8px', color:'rgba(255,255,255,0.40)', lineHeight:1.2 }}>{s.sub}</div>
+                  </div>
+                </div>
+              ))}
             </div>
 
             {/* Social proof — mobile */}
