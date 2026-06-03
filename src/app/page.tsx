@@ -85,19 +85,8 @@ export default async function LandingPage() {
           color:rgba(255,255,255,0.70) !important;
         }
 
-        /* Tier cards — visível em desktop e mobile, abaixo dos CTAs */
-        .hero-stats-panel {
-          display:flex; flex-direction:column; gap:11px;
-          padding:14px 16px;
-          background:rgba(2,10,5,0.82);
-          backdrop-filter:blur(24px) saturate(180%);
-          -webkit-backdrop-filter:blur(24px) saturate(180%);
-          border:1px solid rgba(0,255,136,0.15);
-          border-top:1px solid rgba(0,255,136,0.28);
-          border-radius:14px;
-          box-shadow:0 0 16px rgba(0,255,136,0.07),0 10px 28px rgba(0,0,0,0.68);
-          position:relative; overflow:hidden;
-        }
+        /* Tier cards — hidden desktop, shown mobile inside headline row */
+        .hero-stats-panel { display:none; position:relative; overflow:hidden; }
         .hero-stats-panel::before {
           content:''; position:absolute; top:0; left:0; right:0; height:52%;
           background:linear-gradient(180deg,rgba(255,255,255,0.07) 0%,transparent 100%);
@@ -471,6 +460,28 @@ export default async function LandingPage() {
                 </span>
               </h1>
 
+              {/* Tier cards — ao lado do h1 no mobile, hidden no desktop */}
+              <div className="hero-stats-panel">
+                {[
+                  { icon:'🥇', label:'OURO',   desc:'Perfil completo + avaliação', sub:'OVR acima de 80',      color:'#d4a017' },
+                  { icon:'⭐', label:'PRATA',  desc:'Perfil completo + avaliação', sub:'OVR entre 50 e 80',    color:'#888780' },
+                  { icon:'🏅', label:'BRONZE', desc:'Ficha preenchida',            sub:'Aguardando avaliação', color:'#D85A30' },
+                ].map(s => (
+                  <div key={s.label} style={{
+                    display: 'flex', alignItems: 'center', gap: '10px',
+                    borderLeft: `2px solid ${s.color}`,
+                    paddingLeft: '10px',
+                  }}>
+                    <span style={{ fontSize: '16px', flexShrink: 0 }}>{s.icon}</span>
+                    <div>
+                      <div style={{ fontSize: '6.5px', fontWeight: 800, letterSpacing: '0.14em', color: s.color, textTransform: 'uppercase', marginBottom: '2px' }}>{s.label}</div>
+                      <div style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.90)', lineHeight: 1.2 }}>{s.desc}</div>
+                      <div style={{ fontSize: '9px', fontWeight: 400, color: 'rgba(255,255,255,0.42)', lineHeight: 1.2, marginTop: '1px' }}>{s.sub}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
             </div>
 
             {/* Subheadline */}
@@ -510,28 +521,6 @@ export default async function LandingPage() {
               }}>
                 Já tenho conta →
               </Link>
-            </div>
-
-            {/* Tier cards — abaixo dos botões */}
-            <div className="hero-stats-panel">
-              {[
-                { icon:'🥇', label:'OURO',   desc:'Perfil completo + avaliação', sub:'OVR acima de 80',      color:'#d4a017' },
-                { icon:'⭐', label:'PRATA',  desc:'Perfil completo + avaliação', sub:'OVR entre 50 e 80',    color:'#888780' },
-                { icon:'🏅', label:'BRONZE', desc:'Ficha preenchida',            sub:'Aguardando avaliação', color:'#D85A30' },
-              ].map(s => (
-                <div key={s.label} style={{
-                  display: 'flex', alignItems: 'center', gap: '10px',
-                  borderLeft: `2px solid ${s.color}`,
-                  paddingLeft: '10px',
-                }}>
-                  <span style={{ fontSize: '16px', flexShrink: 0 }}>{s.icon}</span>
-                  <div>
-                    <div style={{ fontSize: '6.5px', fontWeight: 800, letterSpacing: '0.14em', color: s.color, textTransform: 'uppercase', marginBottom: '2px' }}>{s.label}</div>
-                    <div style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.90)', lineHeight: 1.2 }}>{s.desc}</div>
-                    <div style={{ fontSize: '9px', fontWeight: 400, color: 'rgba(255,255,255,0.42)', lineHeight: 1.2, marginTop: '1px' }}>{s.sub}</div>
-                  </div>
-                </div>
-              ))}
             </div>
 
             {/* Social proof — mobile */}
