@@ -199,6 +199,8 @@ export async function POST(req: NextRequest) {
     posicionamento:  posic_val,
     tecnica:         tec_val,
     observacao:      observacao?.trim() || null,
+    respostas:       respostas ?? null,
+    variante:        variante  ?? null,
   })
 
   if (dbError) {
