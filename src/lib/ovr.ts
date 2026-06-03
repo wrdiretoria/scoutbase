@@ -134,6 +134,11 @@ export async function fetchOvrMapByUuid(admin: SupabaseClient): Promise<Map<stri
 
   const authUsers = await listAllUsers(admin)
 
+  // Apenas atletas reais — mesma condição exigida pela página /jogador/[id]
+  const atletaUuids = new Set(
+    authUsers.filter(u => u.user_metadata?.tipo === 'atleta').map(u => u.id)
+  )
+
   const metaByUuid = new Map<string, UserMeta>()
   for (const u of authUsers) {
     metaByUuid.set(u.id, (u.user_metadata ?? {}) as UserMeta)
@@ -152,6 +157,7 @@ export async function fetchOvrMapByUuid(admin: SupabaseClient): Promise<Map<stri
   }
 
   for (const profile of profiles as ProfileRow[]) {
+    if (!atletaUuids.has(profile.id)) continue
     const meta         = metaByUuid.get(profile.id) ?? {}
     const profileScore = calcProfileScore(profile, meta)
     const scores       = scoresByUuid.get(profile.id)

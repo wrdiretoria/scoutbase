@@ -90,7 +90,8 @@ export async function GET(req: Request) {
     }
 
     // ── 4. Monta eventos de cadastro (join) ───────────────────────────────────
-    for (const p of profiles ?? []) {
+    // Filtra apenas atletas válidos (com tipo='atleta' em auth.users)
+    for (const p of (profiles ?? []).filter(p => ovrByUuid.has(p.id as string))) {
       const aid = (p.athlete_id as string | null) ?? null
 
       const raw       = (p.fotos      as (string | null)[] | null) ?? []
@@ -114,7 +115,8 @@ export async function GET(req: Request) {
     }
 
     // ── 5. Monta eventos de avaliação ─────────────────────────────────────────
-    for (const av of avs ?? []) {
+    // Filtra apenas atletas válidos (com tipo='atleta' em auth.users)
+    for (const av of (avs ?? []).filter(av => ovrByUuid.has(av.aluno_id as string))) {
       const atleta    = extraMap.get(av.aluno_id    as string)
       const treinador = extraMap.get(av.professor_id as string)
       events.push({
