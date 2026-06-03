@@ -709,15 +709,7 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════ CTA FINAL ══ */}
-      <section style={{ background:'#06100a', padding:'72px 20px', textAlign:'center', borderTop:'1px solid rgba(0,255,136,0.06)' }}>
-        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:'24px' }}>
-          <HeroCard />
-          <a href="/atleta/cadastro" style={{ fontSize:'15px', fontWeight:700, color:'white', textDecoration:'none', letterSpacing:'0.04em' }}>
-            Crie o seu — é grátis
-          </a>
-        </div>
-      </section>
+
 
       {/* ══════════════════════════════════════ FOOTER ══ */}
       <footer style={{ background:'#06100a', borderTop:'1px solid rgba(255,255,255,0.04)', padding:'32px 40px' }}>
