@@ -149,9 +149,10 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
           const compressed = await compressImage(photo)
           const fd = new FormData()
           fd.append('file', new File([compressed], 'photo.jpg', { type: 'image/jpeg' }))
+          if (!data.session?.access_token) throw new Error('sem sessão')
           const uploadRes = await fetch('/api/atleta/upload-foto-cadastro', {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${data.session?.access_token ?? ''}` },
+            headers: { 'Authorization': `Bearer ${data.session.access_token}` },
             body: fd,
           })
           if (uploadRes.ok) {
