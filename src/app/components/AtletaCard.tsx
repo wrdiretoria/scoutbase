@@ -46,6 +46,7 @@ export type AtletaCardProps = {
   animate?:    boolean
   isNew?:      boolean
   width?:      string | number
+  athleteId?:  string | null
 }
 
 // ─── Tier ─────────────────────────────────────────────────────────────────────
@@ -115,9 +116,10 @@ export default function AtletaCard({
   avaliadoPor,
   href,
   rank,
-  animate = false,
-  isNew   = false,
-  width   = '200px',
+  animate    = false,
+  isNew      = false,
+  width      = '200px',
+  athleteId,
 }: AtletaCardProps) {
   const tier      = getTier(ovr)
   const pos       = posAbrev(posicao)
@@ -356,6 +358,15 @@ export default function AtletaCard({
               </div>
             )}
           </div>
+
+          {/* ID do atleta */}
+          {athleteId && (
+            <div style={{ textAlign: 'center', marginBottom: '6px' }}>
+              <span style={{ fontSize: '9px', color: '#22c55e', fontWeight: 700, letterSpacing: '0.08em' }}>
+                ID: {athleteId.replace(/^MC-/, '')}
+              </span>
+            </div>
+          )}
 
           {/* Stats footer: VEL FIN TEC VIS FOR POS */}
           <div style={{

@@ -182,6 +182,7 @@ export default function LiveFeed() {
                 atributos={event.atributos ?? null}
                 avaliadoPor={event.treinadorNome}
                 href={`/jogador/${event.atletaId}`}
+                athleteId={event.mcId}
                 isNew={false}
                 rank={null}
                 width="100%"
