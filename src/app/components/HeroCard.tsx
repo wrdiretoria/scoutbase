@@ -46,7 +46,7 @@ export default function HeroCard() {
           fontSize: '9px', fontWeight: 800, color: tier.accent,
           letterSpacing: '0.18em', textTransform: 'uppercase',
         }}>
-          ⭐ DESTAQUE DA SEMANA
+          ⭐ MOSTRE AO MUNDO SEU TALENTO
         </span>
 
         {/* Card flutuante — não clicável */}
