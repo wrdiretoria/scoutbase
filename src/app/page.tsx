@@ -672,7 +672,7 @@ export default async function LandingPage() {
               color:'#00FF88',
               textShadow:'0 0 40px rgba(0,255,136,0.45), 0 0 80px rgba(0,255,136,0.15)',
             }}>
-              ser registrado.
+              ser encontrado.
             </span>
           </h2>
 
