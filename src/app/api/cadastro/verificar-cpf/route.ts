@@ -1,5 +1,6 @@
 import { createHash } from 'crypto'
 import { createAdminClient } from '@/lib/supabase'
+import { isValidCpf } from '@/lib/cpf'
 import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
@@ -10,10 +11,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'CPF ausente.' }, { status: 400 })
     }
 
-    const digits = cpf.replace(/\D/g, '')
-    if (digits.length !== 11 && digits.length !== 14) {
+    if (!isValidCpf(cpf)) {
       return NextResponse.json({ error: 'CPF inválido.' }, { status: 400 })
     }
+
+    const digits = cpf.replace(/\D/g, '')
 
     const hash = createHash('sha256').update(digits).digest('hex')
 

@@ -1,5 +1,6 @@
 import { createHash } from 'crypto'
 import { createAdminClient } from '@/lib/supabase'
+import { isValidCpf } from '@/lib/cpf'
 import { NextResponse } from 'next/server'
 
 // Verifica se o número já está em uso por QUALQUER usuário (atleta ou treinador)
@@ -36,10 +37,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Dados ausentes.' }, { status: 400 })
     }
 
-    const digits = cpf.replace(/\D/g, '')
-    if (digits.length !== 11 && digits.length !== 14) {
+    if (!isValidCpf(cpf)) {
       return NextResponse.json({ error: 'CPF inválido.' }, { status: 400 })
     }
+
+    const digits = cpf.replace(/\D/g, '')
 
     const hash = createHash('sha256').update(digits).digest('hex')
 

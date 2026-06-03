@@ -6,6 +6,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase'
+import { listAllUsers } from '@/lib/auth'
 import { fetchOvrMap } from '@/lib/ovr'
 import RankingFiltros from './RankingFiltros'
 
@@ -64,8 +65,8 @@ export default async function RankingPage({ searchParams }: Props) {
   const admin = createAdminClient()
 
   // 1. Busca todos os usuários auth
-  const { data: { users }, error } = await admin.auth.admin.listUsers({ perPage: 1000 })
-  if (error) notFound()
+  const users = await listAllUsers(admin).catch(() => null)
+  if (!users) notFound()
 
   // 2. Filtra atletas
   const atletas = users.filter(u => u.user_metadata?.tipo === 'atleta')

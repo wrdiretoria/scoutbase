@@ -1,18 +1,26 @@
 /**
  * POST /api/atleta/upload-foto-cadastro
  *
- * Usado durante o cadastro do atleta (antes da sessão estar estabilizada).
- * Recebe userId via header x-athlete-id e a foto (já comprimida em JPEG
- * pelo browser) como FormData. Usa admin client — sem RLS.
+ * Usado durante o cadastro do atleta (logo após signUp, antes dos cookies
+ * de sessão serem definidos). Autentica via Authorization: Bearer <token>
+ * retornado pelo signUp. Usa admin client para o storage — sem RLS.
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
 
 export async function POST(req: NextRequest) {
-  const userId = req.headers.get('x-athlete-id')?.trim()
-  if (!userId) {
-    return NextResponse.json({ error: 'userId ausente.' }, { status: 400 })
+  const authHeader = req.headers.get('authorization') ?? ''
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : ''
+  if (!token) {
+    return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 })
   }
+
+  const admin = createAdminClient()
+  const { data: { user }, error: authErr } = await admin.auth.getUser(token)
+  if (authErr || !user) {
+    return NextResponse.json({ error: 'Token inválido.' }, { status: 401 })
+  }
+  const userId = user.id
 
   let formData: FormData
   try {
@@ -30,7 +38,6 @@ export async function POST(req: NextRequest) {
   const bytes = await file.arrayBuffer()
   const buffer = Buffer.from(bytes)
 
-  const admin = createAdminClient()
   const path = `${userId}.jpg`
 
   const { error: upErr } = await admin.storage

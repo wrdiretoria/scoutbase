@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { createAdminClient } from '@/lib/supabase'
+import { listAllUsers } from '@/lib/auth'
 import { SERVER_BASE_URL } from '@/lib/base-url'
 
 const BASE = SERVER_BASE_URL
@@ -19,7 +20,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Perfis públicos dos atletas
   try {
     const admin = createAdminClient()
-    const { data: { users } } = await admin.auth.admin.listUsers({ perPage: 1000 })
+    const users = await listAllUsers(admin)
     const atletas = users.filter(u => u.user_metadata?.tipo === 'atleta')
 
     const atletaPages: MetadataRoute.Sitemap = atletas.map(u => ({

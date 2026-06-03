@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase'
+import { listAllUsers } from '@/lib/auth'
 
 // Cache o Server Component por 60s — evita listUsers() em cada visita
 export const revalidate = 60
@@ -13,7 +14,7 @@ export default async function LandingPage() {
   let atletasNoRadar = 0
   try {
     const admin = createAdminClient()
-    const { data: { users } } = await admin.auth.admin.listUsers({ perPage: 1000 })
+    const users = await listAllUsers(admin)
     atletasNoRadar = users.filter(u => u.user_metadata?.tipo === 'atleta').length
   } catch { /* fallback */ }
   return (

@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase'
 import { fetchOvrMap } from '@/lib/ovr'
+import { listAllUsers } from '@/lib/auth'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -128,16 +129,16 @@ async function fetchTopProspects(): Promise<ProspectData[]> {
 
     const ids = topAvs.map(av => av.aluno_id as string)
 
-    const [profilesRes, authData, ovrMap] = await Promise.all([
+    const [profilesRes, authUsers, ovrMap] = await Promise.all([
       admin.from('profiles').select('id, nome, avatar_url, fotos, data_nascimento, athlete_id').in('id', ids),
-      admin.auth.admin.listUsers({ perPage: 1000 }),
+      listAllUsers(admin),
       fetchOvrMap(admin),
     ])
 
     const profileMap = new Map((profilesRes.data ?? []).map(p => [p.id as string, p]))
     const posMap    = new Map<string, string>()
     const cidadeMap = new Map<string, string>()
-    for (const u of authData.data?.users ?? []) {
+    for (const u of authUsers) {
       if (u.user_metadata?.posicao) posMap.set(u.id, u.user_metadata.posicao as string)
       if (u.user_metadata?.cidade)  cidadeMap.set(u.id, u.user_metadata.cidade as string)
     }

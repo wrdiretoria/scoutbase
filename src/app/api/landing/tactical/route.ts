@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
+import { listAllUsers } from '@/lib/auth'
 
 export const revalidate = 0
 
@@ -82,9 +83,9 @@ export async function GET() {
     const atletaIds = [...new Set(avs.map(a => a.aluno_id as string))]
 
     // ── 2. Profiles (nome, fotos) + auth users (posicao, cidade) em paralelo ──
-    const [profilesRes, authRes] = await Promise.all([
+    const [profilesRes, authUsers] = await Promise.all([
       admin.from('profiles').select('id, nome, fotos, athlete_id').in('id', atletaIds),
-      admin.auth.admin.listUsers({ perPage: 1000 }),
+      listAllUsers(admin),
     ])
 
     const profileMap = new Map<string, { nome: string; fotos: string[]; mcId: string | null }>()
@@ -98,7 +99,7 @@ export async function GET() {
     }
 
     const metaMap = new Map<string, { nome: string; posicao: string; cidade: string }>()
-    for (const u of authRes.data?.users ?? []) {
+    for (const u of authUsers) {
       metaMap.set(u.id, {
         nome:    (u.user_metadata?.nome    as string) ?? '',
         posicao: (u.user_metadata?.posicao as string) ?? '',

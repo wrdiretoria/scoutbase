@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
+import { listAllUsers } from '@/lib/auth'
 
 export const revalidate = 0
 
@@ -12,7 +13,7 @@ export async function GET() {
     const admin = createAdminClient()
 
     // Últimos 12 cadastros (atletas + treinadores) via auth.users
-    const { data: { users: allUsers } } = await admin.auth.admin.listUsers({ perPage: 1000 })
+    const allUsers = await listAllUsers(admin)
     const recentUsers = allUsers
       .filter(u => u.user_metadata?.nome && ['atleta', 'treinador'].includes(u.user_metadata?.tipo))
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())

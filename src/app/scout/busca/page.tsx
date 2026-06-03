@@ -5,6 +5,7 @@
 
 import Link from 'next/link'
 import { createAdminClient, createServerClient } from '@/lib/supabase'
+import { listAllUsers } from '@/lib/auth'
 import { fetchOvrMap } from '@/lib/ovr'
 import ScoutFiltros from './ScoutFiltros'
 
@@ -58,7 +59,7 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
   const { data: { user: visitor } } = await supabase.auth.getUser()
   const isScoutLogado = visitor?.user_metadata?.tipo === 'scout'
 
-  const { data: { users } } = await admin.auth.admin.listUsers({ perPage: 1000 })
+  const users = await listAllUsers(admin)
   const agora = new Date()
   const atletaUsers = users.filter(u => u.user_metadata?.tipo === 'atleta')
 

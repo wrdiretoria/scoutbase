@@ -6,6 +6,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { createAdminClient } from '@/lib/supabase'
+import { listAllUsers } from '@/lib/auth'
 
 export const metadata: Metadata = {
   title: 'Treinadores — Meu Craque',
@@ -35,7 +36,7 @@ type TreinadorCard = {
 export default async function TreinadoresPage() {
   const admin = createAdminClient()
 
-  const { data: { users } } = await admin.auth.admin.listUsers({ perPage: 1000 })
+  const users = await listAllUsers(admin)
 
   const treinadorUsers = users.filter(
     u => u.user_metadata?.tipo === 'treinador' || u.user_metadata?.tipo === 'escola'

@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createServerClient, createAdminClient } from '@/lib/supabase'
+import { listAllUsers } from '@/lib/auth'
 import AdminClient from './AdminClient'
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? 'wrdiretoria@gmail.com'
@@ -13,8 +14,7 @@ export default async function AdminPage() {
   const admin = createAdminClient()
 
   // ── Usuários cadastrados (auth) ──
-  const { data: usersData } = await admin.auth.admin.listUsers({ perPage: 1000 })
-  const users = (usersData?.users ?? []).map((u) => ({
+  const users = (await listAllUsers(admin)).map((u) => ({
     id: u.id,
     email: u.email ?? '',
     nome: (u.user_metadata?.nome as string | undefined) ?? '',
@@ -42,9 +42,8 @@ export default async function AdminPage() {
     .select('id', { count: 'exact', head: true })
 
   // ── Meu Craque metrics ──
-  const allUsers = usersData?.users ?? []
-  const atletasMC     = allUsers.filter(u => u.user_metadata?.tipo === 'atleta').length
-  const treinadoresMC = allUsers.filter(u => u.user_metadata?.tipo === 'treinador').length
+  const atletasMC     = users.filter(u => u.tipo === 'atleta').length
+  const treinadoresMC = users.filter(u => u.tipo === 'treinador').length
 
   // Atletas MC com pelo menos 1 avaliação (unique aluno_id in profiles)
   const { data: profilesData } = await admin

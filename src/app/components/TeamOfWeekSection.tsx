@@ -6,6 +6,7 @@
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase'
 import { fetchOvrMap } from '@/lib/ovr'
+import { listAllUsers } from '@/lib/auth'
 
 function getInitials(nome: string) {
   return nome.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase()
@@ -69,8 +70,8 @@ export default async function TeamOfWeekSection() {
 
   try {
     const admin = createAdminClient()
-    const [usersRes, ovrMap, profilesRes] = await Promise.all([
-      admin.auth.admin.listUsers({ perPage: 1000 }),
+    const [authUsers, ovrMap, profilesRes] = await Promise.all([
+      listAllUsers(admin),
       fetchOvrMap(admin),
       admin.from('profiles').select('id, athlete_id, avatar_url'),
     ])
@@ -79,7 +80,7 @@ export default async function TeamOfWeekSection() {
       (profilesRes.data ?? []).map((p: { id: string; athlete_id: string | null; avatar_url: string | null }) => [p.id, p])
     )
 
-    topAtletas = (usersRes.data?.users ?? [])
+    topAtletas = authUsers
       .filter(u => u.user_metadata?.tipo === 'atleta')
       .map(u => {
         const meta = u.user_metadata as { nome?: string; posicao?: string; cidade?: string }

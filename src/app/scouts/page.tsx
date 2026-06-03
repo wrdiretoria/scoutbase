@@ -6,6 +6,7 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase'
+import { listAllUsers } from '@/lib/auth'
 
 function getInitials(nome: string) {
   return nome.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase()
@@ -14,7 +15,8 @@ function getInitials(nome: string) {
 export default async function ScoutsPage() {
   const admin = createAdminClient()
 
-  const { data: { users }, error } = await admin.auth.admin.listUsers({ perPage: 1000 })
+  const users = await listAllUsers(admin)
+  const error = null
   if (error) notFound()
 
   const scouts = users

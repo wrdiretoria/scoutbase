@@ -151,7 +151,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
           fd.append('file', new File([compressed], 'photo.jpg', { type: 'image/jpeg' }))
           const uploadRes = await fetch('/api/atleta/upload-foto-cadastro', {
             method: 'POST',
-            headers: { 'x-athlete-id': userId },
+            headers: { 'Authorization': `Bearer ${data.session?.access_token ?? ''}` },
             body: fd,
           })
           if (uploadRes.ok) {

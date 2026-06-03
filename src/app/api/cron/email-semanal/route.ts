@@ -8,6 +8,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
+import { listAllUsers } from '@/lib/auth'
 import { fetchOvrMap } from '@/lib/ovr'
 import { sendEmail, emailResumSemanal } from '@/lib/email'
 
@@ -40,7 +41,7 @@ export async function GET(req: NextRequest) {
     const admin = createAdminClient()
 
     // 1. Busca todos os usuários
-    const { data: { users } } = await admin.auth.admin.listUsers({ perPage: 1000 })
+    const users = await listAllUsers(admin)
     const atletas = users.filter(u =>
       u.user_metadata?.tipo === 'atleta' &&
       u.email &&

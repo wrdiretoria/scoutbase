@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
+import { listAllUsers } from '@/lib/auth'
 
 export const revalidate = 0
 
@@ -57,7 +58,7 @@ export async function GET() {
     }
 
     // Busca posição e cidade de cada atleta via user_metadata (auth.users)
-    const { data: authData } = await admin.auth.admin.listUsers({ perPage: 1000 })
+    const authData = { users: await listAllUsers(admin) }
     const posMap    = new Map<string, string>()
     const cidadeMap = new Map<string, string>()
     for (const u of authData?.users ?? []) {
