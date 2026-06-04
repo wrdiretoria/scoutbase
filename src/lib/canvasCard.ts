@@ -131,59 +131,48 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
   ctx.fillStyle = '#050a06'
   ctx.fillRect(0, 0, W, H)
 
-  // ── 2. Cristais verdes (raios emanando do centro-direita) ─────────────────
-  const SC = { x: W * 0.72, y: H * 0.30 }
+  // ── Helper cristal (reutilizado antes e depois da foto) ───────────────────
+  const SC = { x: W * 0.74, y: H * 0.28 }
 
-  function drawCrystal(angle: number, len: number, wid: number, alpha: number) {
+  function drawCrystal(angle: number, len: number, wid: number, alpha: number, blend = false) {
     ctx.save()
+    if (blend) ctx.globalCompositeOperation = 'lighter'
     ctx.globalAlpha = alpha
     ctx.translate(SC.x, SC.y)
     ctx.rotate(angle)
-    ctx.shadowColor = GREEN
-    ctx.shadowBlur  = 22
+    ctx.shadowColor = GREEN; ctx.shadowBlur = 30
     const g = ctx.createLinearGradient(0, 0, 0, len)
-    g.addColorStop(0,    GREEN)
-    g.addColorStop(0.45, GREEN + 'aa')
+    g.addColorStop(0,    '#00ffaa')
+    g.addColorStop(0.35, GREEN + 'dd')
+    g.addColorStop(0.70, GREEN + '55')
     g.addColorStop(1,    'transparent')
     ctx.fillStyle = g
     ctx.beginPath()
     ctx.moveTo(0, 0)
-    ctx.lineTo(-wid / 2, len * 0.28)
+    ctx.lineTo(-wid / 2, len * 0.25)
     ctx.lineTo(0, len)
-    ctx.lineTo(wid / 2, len * 0.28)
+    ctx.lineTo(wid / 2, len * 0.25)
     ctx.closePath()
     ctx.fill()
+    // Linha central brilhante
+    ctx.shadowBlur = 12
+    ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1.2
+    ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, len * 0.55); ctx.stroke()
     ctx.restore()
   }
 
-  const crystals: [number, number, number, number][] = [
-    [-0.25, 175, 20, 0.72],
-    [ 0.18, 210, 24, 0.80],
-    [ 0.65, 155, 17, 0.62],
-    [-0.75, 130, 14, 0.50],
-    [ 1.15, 120, 12, 0.48],
-    [-1.25, 108, 11, 0.40],
-    [ 1.65,  95, 10, 0.35],
-    [-1.70,  88,  9, 0.30],
-    [ 2.10,  72,  8, 0.25],
-    [-2.20,  68,  7, 0.22],
+  // Cristais de fundo (baixa intensidade, antes da foto)
+  const crystalsBg: [number, number, number, number][] = [
+    [-0.25, 200, 22, 0.35],
+    [ 0.18, 230, 26, 0.40],
+    [ 0.65, 170, 18, 0.30],
+    [-0.75, 145, 15, 0.25],
+    [ 1.15, 130, 13, 0.22],
+    [-1.25, 115, 12, 0.20],
+    [ 1.65, 100, 10, 0.18],
+    [-1.70,  92,  9, 0.16],
   ]
-  for (const [a, l, w, al] of crystals) drawCrystal(a, l, w, al)
-
-  // Brilhos (sparkles)
-  ctx.save()
-  const sparks: [number, number, number][] = [
-    [W * 0.82, H * 0.08, 3], [W * 0.65, H * 0.05, 2],
-    [W * 0.90, H * 0.18, 2], [W * 0.55, H * 0.14, 2],
-    [W * 0.78, H * 0.42, 2], [W * 0.92, H * 0.38, 2],
-    [W * 0.45, H * 0.08, 1.5], [W * 0.95, H * 0.50, 1.5],
-  ]
-  for (const [sx, sy, sr] of sparks) {
-    ctx.shadowColor = GREEN; ctx.shadowBlur = 10
-    ctx.fillStyle = 'rgba(255,255,255,0.90)'
-    ctx.beginPath(); ctx.arc(sx, sy, sr, 0, Math.PI * 2); ctx.fill()
-  }
-  ctx.restore()
+  for (const [a, l, w, al] of crystalsBg) drawCrystal(a, l, w, al)
 
   // ── 3. Foto ────────────────────────────────────────────────────────────────
   let img: HTMLImageElement | null = null
@@ -232,6 +221,42 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
     ctx.fillText(opts.initials, W / 2, H * 0.30)
     ctx.restore()
   }
+
+  // ── 3b. Cristais em alta intensidade SOBRE a foto ─────────────────────────
+  const crystalsFg: [number, number, number, number][] = [
+    [-0.25, 195, 22, 0.90],
+    [ 0.18, 225, 26, 1.00],
+    [ 0.65, 168, 18, 0.80],
+    [-0.75, 140, 15, 0.65],
+    [ 1.15, 128, 13, 0.60],
+    [-1.25, 112, 12, 0.55],
+    [ 1.65,  98, 10, 0.48],
+    [-1.70,  90,  9, 0.42],
+    [ 2.10,  78,  8, 0.35],
+    [-2.20,  72,  7, 0.30],
+  ]
+  for (const [a, l, w, al] of crystalsFg) drawCrystal(a, l, w, al, true)
+
+  // Sparkles brilhantes
+  ctx.save()
+  ctx.globalCompositeOperation = 'lighter'
+  const sparks: [number, number, number][] = [
+    [W * 0.83, H * 0.07, 3.5], [W * 0.65, H * 0.04, 2.5],
+    [W * 0.91, H * 0.17, 2.5], [W * 0.55, H * 0.12, 2],
+    [W * 0.79, H * 0.41, 2.5], [W * 0.93, H * 0.37, 2],
+    [W * 0.46, H * 0.07, 2],   [W * 0.96, H * 0.49, 2],
+    [W * 0.70, H * 0.52, 1.8], [W * 0.88, H * 0.55, 1.5],
+  ]
+  for (const [sx, sy, sr] of sparks) {
+    ctx.shadowColor = '#ffffff'; ctx.shadowBlur = 14
+    ctx.fillStyle   = 'rgba(255,255,255,0.95)'
+    ctx.beginPath(); ctx.arc(sx, sy, sr, 0, Math.PI * 2); ctx.fill()
+    // Cruz de luz
+    ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 0.8
+    ctx.beginPath(); ctx.moveTo(sx - sr * 3, sy); ctx.lineTo(sx + sr * 3, sy); ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(sx, sy - sr * 3); ctx.lineTo(sx, sy + sr * 3); ctx.stroke()
+  }
+  ctx.restore()
 
   // ── 4. Borda octagonal com brilho tier ────────────────────────────────────
   ctx.save()
@@ -436,9 +461,9 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
   rrPath(ctx, 14, FOOT_Y, W - 28, FOOT_H, 8); ctx.stroke()
 
   const footCols = [
-    { label: 'POSIÇÃO', val: (opts.posicao || opts.pos).toUpperCase() },
-    { label: 'IDADE',   val: opts.idade ? `${opts.idade} ANOS` : (opts.categoria ?? '—').toUpperCase() },
-    { label: 'CIDADE',  val: ((opts.cidade ?? '').split(',')[0] || '—').toUpperCase() },
+    { icon: '⚽', label: 'POSIÇÃO', val: (opts.posicao || opts.pos).toUpperCase() },
+    { icon: '📅', label: 'IDADE',   val: opts.idade ? `${opts.idade} ANOS` : (opts.categoria ?? '—').toUpperCase() },
+    { icon: '📍', label: 'CIDADE',  val: ((opts.cidade ?? '').split(',')[0] || '—').toUpperCase() },
   ]
   const fw = (W - 28) / 3
   footCols.forEach((s, i) => {
@@ -448,15 +473,19 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
       ctx.beginPath(); ctx.moveTo(14 + i * fw, FOOT_Y + 8); ctx.lineTo(14 + i * fw, FOOT_Y + FOOT_H - 8); ctx.stroke()
     }
     ctx.textAlign = 'center'; ctx.textBaseline = 'top'
-    ctx.fillStyle = 'rgba(255,255,255,0.40)'
-    ctx.font      = 'bold 7.5px system-ui, sans-serif'
-    ctx.fillText(s.label, cx, FOOT_Y + 8)
+    // Ícone
+    ctx.font = '11px system-ui, sans-serif'
+    ctx.fillStyle = 'rgba(255,255,255,0.55)'
+    ctx.fillText((s as typeof footCols[0]).icon, cx, FOOT_Y + 5)
+    ctx.fillStyle = 'rgba(255,255,255,0.38)'
+    ctx.font      = 'bold 7px system-ui, sans-serif'
+    ctx.fillText(s.label, cx, FOOT_Y + 18)
     ctx.fillStyle = 'rgba(255,255,255,0.88)'
     ctx.font      = 'bold 11px system-ui, sans-serif'
     let v = s.val
     while (ctx.measureText(v).width > fw - 8 && v.length > 2) v = v.slice(0, -1)
     if (v !== s.val) v += '.'
-    ctx.fillText(v, cx, FOOT_Y + 22)
+    ctx.fillText(v, cx, FOOT_Y + 28)
   })
   ctx.restore()
 
