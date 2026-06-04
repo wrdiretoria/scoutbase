@@ -78,8 +78,9 @@ export default function CardShare(props: CanvasCardProps) {
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)',
             display: 'flex', flexDirection: 'column',
-            alignItems: 'center', justifyContent: 'center',
-            padding: '20px', overflowY: 'auto',
+            alignItems: 'center', justifyContent: 'flex-start',
+            padding: '20px 20px 40px', overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch',
           }}
         >
           <div
@@ -112,7 +113,8 @@ export default function CardShare(props: CanvasCardProps) {
             {/* Canvas preview */}
             <div style={{
               position: 'relative', width: '100%',
-              borderRadius: '22px', overflow: 'hidden',
+              maxHeight: '60vh', overflow: 'hidden',
+              borderRadius: '22px',
               boxShadow: '0 0 56px rgba(0,255,136,0.22), 0 24px 64px rgba(0,0,0,0.80)',
             }}>
               <canvas
