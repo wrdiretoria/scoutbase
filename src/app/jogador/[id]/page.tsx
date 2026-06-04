@@ -3,6 +3,9 @@
  * Acessível sem login. Compartilhável no story / WhatsApp / grupos.
  */
 
+// Cache por 60s — perfil público muda pouco, acelera visitas de scouts
+export const revalidate = 60
+
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'

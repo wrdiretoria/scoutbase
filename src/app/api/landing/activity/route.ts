@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
 import { listAllUsers } from '@/lib/auth'
 
-export const revalidate = 0
+export const revalidate = 30
 
 type ActivityItem =
   | { type: 'join';       name: string; role: 'Atleta' | 'Treinador'; ts: string }

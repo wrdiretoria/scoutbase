@@ -17,6 +17,7 @@
  *   Telefone (telefone em user_metadata):                    5 pts
  */
 import type { SupabaseClient } from '@supabase/supabase-js'
+import { unstable_cache } from 'next/cache'
 import { listAllUsers } from '@/lib/auth'
 
 type ProfileRow = {
@@ -119,54 +120,63 @@ export async function fetchOvrMap(admin: SupabaseClient): Promise<Map<string, nu
 // ── fetchOvrMapByUuid ──────────────────────────────────────────────────────────
 
 /**
- * Igual a fetchOvrMap, mas keyed por UUID (profiles.id / auth UUID).
- * Usado pelo livefeed para mapear eventos direto pelo ID do atleta.
+ * Igual a fetchOvrMap, mas keyed por UUID.
+ * Cacheado por 60s via unstable_cache para evitar listAllUsers() em toda requisição.
  */
 export async function fetchOvrMapByUuid(admin: SupabaseClient): Promise<Map<string, number>> {
-  const map = new Map<string, number>()
+  // Função interna cacheável — retorna objeto serializável (Record) em vez de Map
+  const getCached = unstable_cache(
+    async (): Promise<Record<string, number>> => {
+      const result: Record<string, number> = {}
 
-  const { data: profiles } = await admin
-    .from('profiles')
-    .select('id, athlete_id, avatar_url')
-  // Sem filtro por athlete_id — calcula OVR para todos, mesmo sem MC-ID
+      const { data: profiles } = await admin
+        .from('profiles')
+        .select('id, athlete_id, avatar_url')
 
-  if (!profiles || profiles.length === 0) return map
+      if (!profiles || profiles.length === 0) return result
 
-  const authUsers = await listAllUsers(admin)
+      const authUsers = await listAllUsers(admin)
 
-  // Apenas atletas reais — mesma condição exigida pela página /jogador/[id]
-  const atletaUuids = new Set(
-    authUsers.filter(u => u.user_metadata?.tipo === 'atleta').map(u => u.id)
+      const atletaUuids = new Set(
+        authUsers.filter(u => u.user_metadata?.tipo === 'atleta').map(u => u.id)
+      )
+      const metaByUuid = new Map<string, UserMeta>()
+      for (const u of authUsers) {
+        metaByUuid.set(u.id, (u.user_metadata ?? {}) as UserMeta)
+      }
+
+      const { data: avs } = await admin
+        .from('avaliacoes')
+        .select('aluno_id, scout_score')
+        .not('scout_score', 'is', null)
+
+      const scoresByUuid = new Map<string, number[]>()
+      for (const av of (avs ?? []) as { aluno_id: string; scout_score: number }[]) {
+        if (!av.aluno_id) continue
+        if (!scoresByUuid.has(av.aluno_id)) scoresByUuid.set(av.aluno_id, [])
+        scoresByUuid.get(av.aluno_id)!.push(av.scout_score)
+      }
+
+      for (const profile of profiles as ProfileRow[]) {
+        if (!atletaUuids.has(profile.id)) continue
+        const meta         = metaByUuid.get(profile.id) ?? {}
+        const profileScore = calcProfileScore(profile, meta)
+        const scores       = scoresByUuid.get(profile.id)
+        const trainerAvg   = scores && scores.length > 0
+          ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+          : null
+        result[profile.id] = calcOvr(profileScore, trainerAvg)
+      }
+
+      return result
+    },
+    ['ovr-map-by-uuid'],
+    { revalidate: 60, tags: ['ovr'] }
   )
 
-  const metaByUuid = new Map<string, UserMeta>()
-  for (const u of authUsers) {
-    metaByUuid.set(u.id, (u.user_metadata ?? {}) as UserMeta)
-  }
-
-  const { data: avs } = await admin
-    .from('avaliacoes')
-    .select('aluno_id, scout_score')
-    .not('scout_score', 'is', null)
-
-  const scoresByUuid = new Map<string, number[]>()
-  for (const av of (avs ?? []) as { aluno_id: string; scout_score: number }[]) {
-    if (!av.aluno_id) continue
-    if (!scoresByUuid.has(av.aluno_id)) scoresByUuid.set(av.aluno_id, [])
-    scoresByUuid.get(av.aluno_id)!.push(av.scout_score)
-  }
-
-  for (const profile of profiles as ProfileRow[]) {
-    if (!atletaUuids.has(profile.id)) continue
-    const meta         = metaByUuid.get(profile.id) ?? {}
-    const profileScore = calcProfileScore(profile, meta)
-    const scores       = scoresByUuid.get(profile.id)
-    const trainerAvg   = scores && scores.length > 0
-      ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-      : null
-    map.set(profile.id, calcOvr(profileScore, trainerAvg))  // keyed by UUID
-  }
-
+  const record = await getCached()
+  const map = new Map<string, number>()
+  for (const [k, v] of Object.entries(record)) map.set(k, v)
   return map
 }
 

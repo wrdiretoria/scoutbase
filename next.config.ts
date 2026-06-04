@@ -2,21 +2,34 @@ import type { NextConfig } from 'next'
 import { withSentryConfig } from '@sentry/nextjs'
 
 const nextConfig: NextConfig = {
-  typescript: {
-    // Os erros de tipo estão em arquivos auto-gerados do Next.js (.next/dev/types/validator.ts)
-    // e não afetam o funcionamento da aplicação. Ignorar para não bloquear o deploy.
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  typescript: { ignoreBuildErrors: true },
+  eslint:     { ignoreDuringBuilds: true },
+  compress: true,
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '*.supabase.co' },
       { protocol: 'https', hostname: 'img.youtube.com' },
     ],
+    minimumCacheTTL: 604800,        // cache de imagens por 7 dias
+    formats: ['image/avif', 'image/webp'],
   },
-  compress: true,
+  experimental: {
+    optimizePackageImports: ['lucide-react'],  // reduz bundle do lucide
+  },
+  async headers() {
+    return [
+      {
+        // DNS prefetch em todas as páginas
+        source: '/(.*)',
+        headers: [{ key: 'X-DNS-Prefetch-Control', value: 'on' }],
+      },
+      {
+        // Cache CDN para APIs da landing
+        source: '/api/landing/(.*)',
+        headers: [{ key: 'Cache-Control', value: 's-maxage=30, stale-while-revalidate=120' }],
+      },
+    ]
+  },
 }
 
 export default withSentryConfig(nextConfig, {

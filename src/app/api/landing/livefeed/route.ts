@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
 import { fetchOvrMapByUuid } from '@/lib/ovr'
 
-export const revalidate = 0
+export const revalidate = 30
 
 // ── Tipos exportados (usados pelo componente LiveFeed) ─────────────────────────
 
@@ -154,6 +154,6 @@ export async function GET(req: Request) {
   const result  = events.slice(0, limit)
 
   return NextResponse.json({ events: result, hasMore }, {
-    headers: { 'Cache-Control': 's-maxage=15, stale-while-revalidate=60' },
+    headers: { 'Cache-Control': 's-maxage=30, stale-while-revalidate=120' },
   })
 }
