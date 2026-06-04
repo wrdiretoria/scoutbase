@@ -222,39 +222,54 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
     ctx.restore()
   }
 
-  // ── 3b. Cristais em alta intensidade SOBRE a foto ─────────────────────────
-  const crystalsFg: [number, number, number, number][] = [
-    [-0.25, 195, 22, 0.90],
-    [ 0.18, 225, 26, 1.00],
-    [ 0.65, 168, 18, 0.80],
-    [-0.75, 140, 15, 0.65],
-    [ 1.15, 128, 13, 0.60],
-    [-1.25, 112, 12, 0.55],
-    [ 1.65,  98, 10, 0.48],
-    [-1.70,  90,  9, 0.42],
-    [ 2.10,  78,  8, 0.35],
-    [-2.20,  72,  7, 0.30],
-  ]
-  for (const [a, l, w, al] of crystalsFg) drawCrystal(a, l, w, al, true)
-
-  // Sparkles brilhantes
+  // ── 3b. Cristais sobre a foto — apenas nas bordas, sem blend lighter ────────
+  // Reposicionar origem para canto superior direito (fora da área do rosto)
   ctx.save()
-  ctx.globalCompositeOperation = 'lighter'
+  const SC2 = { x: W * 0.92, y: H * 0.18 }
+  const crystalsFg: [number, number, number, number][] = [
+    [-0.30, 160, 18, 0.55],
+    [ 0.20, 190, 20, 0.60],
+    [ 0.70, 140, 14, 0.45],
+    [-0.80, 115, 12, 0.38],
+    [ 1.20, 105, 10, 0.32],
+    [-1.30,  90,  9, 0.28],
+  ]
+  for (const [a, l, w, al] of crystalsFg) {
+    ctx.save()
+    ctx.globalAlpha = al
+    ctx.translate(SC2.x, SC2.y)
+    ctx.rotate(a)
+    ctx.shadowColor = GREEN; ctx.shadowBlur = 16
+    const g = ctx.createLinearGradient(0, 0, 0, l)
+    g.addColorStop(0, GREEN + 'dd')
+    g.addColorStop(0.5, GREEN + '77')
+    g.addColorStop(1, 'transparent')
+    ctx.fillStyle = g
+    ctx.beginPath()
+    ctx.moveTo(0, 0)
+    ctx.lineTo(-w / 2, l * 0.25)
+    ctx.lineTo(0, l)
+    ctx.lineTo(w / 2, l * 0.25)
+    ctx.closePath()
+    ctx.fill()
+    ctx.restore()
+  }
+  ctx.restore()
+
+  // Sparkles pequenos — apenas nas bordas, sem cruzetas
+  ctx.save()
   const sparks: [number, number, number][] = [
-    [W * 0.83, H * 0.07, 3.5], [W * 0.65, H * 0.04, 2.5],
-    [W * 0.91, H * 0.17, 2.5], [W * 0.55, H * 0.12, 2],
-    [W * 0.79, H * 0.41, 2.5], [W * 0.93, H * 0.37, 2],
-    [W * 0.46, H * 0.07, 2],   [W * 0.96, H * 0.49, 2],
-    [W * 0.70, H * 0.52, 1.8], [W * 0.88, H * 0.55, 1.5],
+    [W * 0.88, H * 0.06, 2.5],
+    [W * 0.96, H * 0.14, 2],
+    [W * 0.92, H * 0.28, 1.8],
+    [W * 0.82, H * 0.04, 1.5],
+    [W * 0.98, H * 0.22, 1.5],
   ]
   for (const [sx, sy, sr] of sparks) {
-    ctx.shadowColor = '#ffffff'; ctx.shadowBlur = 14
-    ctx.fillStyle   = 'rgba(255,255,255,0.95)'
+    ctx.shadowColor = GREEN; ctx.shadowBlur = 8
+    ctx.fillStyle   = 'rgba(255,255,255,0.85)'
+    ctx.globalAlpha = 0.8
     ctx.beginPath(); ctx.arc(sx, sy, sr, 0, Math.PI * 2); ctx.fill()
-    // Cruz de luz
-    ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 0.8
-    ctx.beginPath(); ctx.moveTo(sx - sr * 3, sy); ctx.lineTo(sx + sr * 3, sy); ctx.stroke()
-    ctx.beginPath(); ctx.moveTo(sx, sy - sr * 3); ctx.lineTo(sx, sy + sr * 3); ctx.stroke()
   }
   ctx.restore()
 
