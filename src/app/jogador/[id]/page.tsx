@@ -1011,6 +1011,12 @@ export default async function JogadorPublicoPage({ params }: Props) {
                 return a
               })() : null}
               profileUrl={`${SERVER_BASE_URL}/jogador/${id}`}
+              statPac={ultimaAv?.velocidade ?? null}
+              statSho={ultimaAv?.finalizacao ?? null}
+              statPas={ultimaAv?.visao_jogo ?? null}
+              statDri={ultimaAv?.tecnica ?? null}
+              statDef={ultimaAv?.posicionamento ?? null}
+              statPhy={ultimaAv?.forca ?? null}
             />
           </div>
         )}
