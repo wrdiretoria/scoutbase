@@ -161,12 +161,62 @@ export default function LiveFeed() {
           50%     { opacity:.45; transform:scale(0.7); }
         }
 
-        /* ── GRID MOBILE ── */
+        /* ── GRID COM LINHAS DOURADAS ── */
+        .feed-grid-wrap {
+          position: relative;
+        }
+
         .feed-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 12px;
+          gap: 0;
+          /* Linha dourada vertical entre colunas */
+          column-gap: 0;
+          row-gap: 0;
         }
+
+        /* Cada card tem borda direita e inferior dourada */
+        .feed-grid > * {
+          position: relative;
+          padding: 10px;
+        }
+
+        /* Linha vertical dourada entre colunas */
+        .feed-grid > *:nth-child(odd)::after {
+          content: '';
+          position: absolute;
+          right: 0;
+          top: 16px;
+          bottom: 16px;
+          width: 1px;
+          background: linear-gradient(
+            to bottom,
+            transparent,
+            rgba(200,150,10,0.55) 20%,
+            rgba(255,215,0,0.65) 50%,
+            rgba(200,150,10,0.55) 80%,
+            transparent
+          );
+        }
+
+        /* Linha horizontal dourada entre linhas */
+        .feed-grid > *:not(:nth-last-child(-n+2))::before {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 16px;
+          right: 16px;
+          height: 1px;
+          background: linear-gradient(
+            to right,
+            transparent,
+            rgba(200,150,10,0.45) 20%,
+            rgba(255,215,0,0.60) 50%,
+            rgba(200,150,10,0.45) 80%,
+            transparent
+          );
+        }
+
         .feed-skeleton {
           height: 360px;
           border-radius: 22px;
@@ -177,13 +227,15 @@ export default function LiveFeed() {
         /* Mobile: single column on very small screens */
         @media (max-width: 380px) {
           .feed-grid { grid-template-columns: 1fr !important; }
+          /* No vertical divider in single column */
+          .feed-grid > *:nth-child(odd)::after { display: none !important; }
         }
 
         /* Mobile: tighter padding */
         @media (max-width: 480px) {
           .feed-header h2 { font-size: 22px !important; }
           .feed-header p  { font-size: 13px !important; }
-          .feed-grid { gap: 10px !important; }
+          .feed-grid > * { padding: 8px !important; }
         }
       `}</style>
 
@@ -237,26 +289,29 @@ export default function LiveFeed() {
           </div>
 
         ) : (
-          <div className="feed-grid" style={{
-            gridTemplateColumns: events.length <= 2 ? `repeat(${events.length},1fr)` : '1fr 1fr',
-          }}>
-            {events.map(event => (
-              <AtletaCard
-                key={event.id}
-                nome={event.nome}
-                ovr={event.ovr}
-                foto={event.fotos[photoIndices[event.id] ?? 0] ?? null}
-                posicao={event.posicao || null}
-                categoria={event.cidade?.split(',')[0] || null}
-                atributos={event.atributos ?? null}
-                avaliadoPor={event.treinadorNome}
-                href={`/jogador/${event.atletaId}`}
-                athleteId={event.mcId}
-                isNew={false}
-                rank={null}
-                width="100%"
-              />
-            ))}
+          <div className="feed-grid-wrap">
+            <div className="feed-grid" style={{
+              gridTemplateColumns: events.length <= 2 ? `repeat(${events.length},1fr)` : '1fr 1fr',
+            }}>
+              {events.map(event => (
+                <div key={event.id}>
+                  <AtletaCard
+                    nome={event.nome}
+                    ovr={event.ovr}
+                    foto={event.fotos[photoIndices[event.id] ?? 0] ?? null}
+                    posicao={event.posicao || null}
+                    categoria={event.cidade?.split(',')[0] || null}
+                    atributos={event.atributos ?? null}
+                    avaliadoPor={event.treinadorNome}
+                    href={`/jogador/${event.atletaId}`}
+                    athleteId={event.mcId}
+                    isNew={false}
+                    rank={null}
+                    width="100%"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
