@@ -44,9 +44,17 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Hide scrollbars — cleaner mobile feel */
-::-webkit-scrollbar { display: none; }
-* { scrollbar-width: none; }
+/* Scrollbar — hidden on mobile, subtle on desktop */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar { display: none; }
+  * { scrollbar-width: none; }
+}
+@media (min-width: 769px) {
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(0,255,136,0.2); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(0,255,136,0.4); }
+}
 
 /* Select dropdowns — fundo escuro em todos os selects do app */
 option {
