@@ -289,40 +289,77 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
     ctx.restore()
   }
 
-  // ── 7. OVR (topo esquerdo, sobre a foto) ──────────────────────────────────
+  // ── 7. GRADIENTE DE LEITURA — canto superior esquerdo ────────────────────
+  ctx.save()
+  const readGrad = ctx.createRadialGradient(0, PHOTO_TOP, 0, 170, PHOTO_TOP + 160, 200)
+  readGrad.addColorStop(0,   'rgba(0,0,0,0.78)')
+  readGrad.addColorStop(0.5, 'rgba(0,0,0,0.42)')
+  readGrad.addColorStop(1,   'rgba(0,0,0,0)')
+  ctx.fillStyle = readGrad
+  ctx.fillRect(0, PHOTO_TOP, 200, 180)
+  ctx.restore()
+
+  // ── 8. BLOCO SUPERIOR ESQUERDO — hierarquia limpa ────────────────────────
+  //
+  //  [OVR]          ← label 10px, muted
+  //  [  4 0  ]      ← número dominante, tier color
+  //  [○MC  MEU CRAQUE] ← logo pequeno abaixo
+
+  const INFO_X = 16
+  const INFO_Y = PHOTO_TOP + 14
+
+  // Linha "OVR"
   ctx.save()
   ctx.textAlign = 'left'; ctx.textBaseline = 'top'
-  ctx.fillStyle = 'rgba(255,255,255,0.55)'
-  ctx.font = 'bold 12px system-ui, sans-serif'
-  ctx.fillText('OVR', 22, PHOTO_TOP + 14)
-  ctx.shadowColor = OVR_COLOR; ctx.shadowBlur = 36
-  ctx.fillStyle = OVR_COLOR
-  ctx.font = 'bold 88px system-ui, -apple-system, sans-serif'
-  ctx.fillText(opts.ovr ? String(opts.ovr) : '—', 14, PHOTO_TOP + 26)
+  ctx.fillStyle = 'rgba(255,255,255,0.50)'
+  ctx.font = '600 10px system-ui, sans-serif'
+  ctx.letterSpacing = '0.18em'
+  ctx.fillText('OVR', INFO_X, INFO_Y)
   ctx.restore()
 
-  // ── 8. LOGO MC (topo esquerdo) ────────────────────────────────────────────
+  // Número OVR — elemento dominante
   ctx.save()
-  const MCX = 18, MCY = PHOTO_TOP + 14
-  ctx.shadowColor = GREEN; ctx.shadowBlur = 16
-  ctx.fillStyle = GREEN + '20'; ctx.strokeStyle = GREEN + '85'; ctx.lineWidth = 1.5
-  ctx.beginPath(); ctx.arc(MCX + 14, MCY + 14, 14, 0, Math.PI * 2); ctx.fill(); ctx.stroke()
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top'
+  ctx.shadowColor = OVR_COLOR; ctx.shadowBlur = 32
+  ctx.fillStyle = OVR_COLOR
+  ctx.font = 'bold 84px system-ui, -apple-system, sans-serif'
+  ctx.fillText(opts.ovr ? String(opts.ovr) : '—', INFO_X - 2, INFO_Y + 12)
+  ctx.restore()
+
+  // Logo MC + MEU CRAQUE — abaixo do número
+  const MC_Y = INFO_Y + 104
+  ctx.save()
+  // Círculo MC
+  ctx.shadowColor = GREEN; ctx.shadowBlur = 10
+  ctx.fillStyle = 'rgba(0,255,136,0.12)'
+  ctx.strokeStyle = GREEN + '90'; ctx.lineWidth = 1.5
+  ctx.beginPath(); ctx.arc(INFO_X + 10, MC_Y + 10, 10, 0, Math.PI * 2); ctx.fill(); ctx.stroke()
   ctx.shadowBlur = 0
   ctx.fillStyle = GREEN
-  ctx.font = 'bold 10px system-ui, sans-serif'
+  ctx.font = 'bold 8px system-ui, sans-serif'
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-  ctx.fillText('MC', MCX + 14, MCY + 14)
-  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'
-  ctx.fillStyle = 'rgba(255,255,255,0.80)'
-  ctx.font = 'bold 7px system-ui, sans-serif'
-  ctx.fillText('MEU', MCX + 32, MCY + 11)
-  ctx.fillStyle = GREEN; ctx.fillText('CRAQUE', MCX + 32, MCY + 22)
+  ctx.fillText('MC', INFO_X + 10, MC_Y + 10)
+  // Texto MEU CRAQUE
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle'
+  ctx.fillStyle = 'rgba(255,255,255,0.75)'
+  ctx.font = 'bold 9px system-ui, sans-serif'
+  ctx.fillText('MEU CRAQUE', INFO_X + 26, MC_Y + 10)
   ctx.restore()
 
-  // ── 9. NOME DO ATLETA (dentro da foto, acima do painel ID) ────────────────
-  const PHOTO_END = PHOTO_TOP + PHOTO_H          // onde a foto termina
-  const NAME_LAST_BASE = PHOTO_END - 18          // baseline do sobrenome
-  const NAME_FIRST_BASE = NAME_LAST_BASE - 54    // baseline do primeiro nome
+  // ── 9. GRADIENTE INFERIOR — leitura do nome ──────────────────────────────
+  const PHOTO_END = PHOTO_TOP + PHOTO_H
+  ctx.save()
+  const nameGrad = ctx.createLinearGradient(0, PHOTO_END - 120, 0, PHOTO_END)
+  nameGrad.addColorStop(0,   'rgba(0,0,0,0)')
+  nameGrad.addColorStop(0.4, 'rgba(0,0,0,0.55)')
+  nameGrad.addColorStop(1,   'rgba(0,0,0,0.88)')
+  ctx.fillStyle = nameGrad
+  ctx.fillRect(0, PHOTO_END - 120, W, 120)
+  ctx.restore()
+
+  // ── 10. NOME DO ATLETA ────────────────────────────────────────────────────
+  const NAME_LAST_BASE  = PHOTO_END - 14
+  const NAME_FIRST_BASE = NAME_LAST_BASE - 50
 
   const parts    = opts.nome.trim().split(' ')
   const lastName  = (parts.length > 1 ? parts[parts.length - 1] : opts.nome).toUpperCase()
@@ -331,19 +368,19 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
   ctx.save()
   ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'
 
-  // Primeiro nome
   if (firstName) {
-    ctx.fillStyle = 'rgba(255,255,255,0.92)'
+    ctx.fillStyle = '#ffffff'
     ctx.font = 'bold 26px system-ui, sans-serif'
-    ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 8
+    ctx.shadowColor = 'rgba(0,0,0,0.95)'; ctx.shadowBlur = 6
     ctx.fillText(firstName, 18, NAME_FIRST_BASE)
   }
 
-  // Sobrenome — cor do tier
-  ctx.shadowColor = TC; ctx.shadowBlur = 24
+  // Sobrenome — cor do tier, com glow
+  ctx.shadowColor = TC; ctx.shadowBlur = 20
   ctx.fillStyle = TC
-  ctx.font = `bold 54px system-ui, -apple-system, sans-serif`
+  ctx.font = 'bold 54px system-ui, -apple-system, sans-serif'
   let ln = lastName
+  ctx.font = 'bold 54px system-ui, -apple-system, sans-serif'
   while (ctx.measureText(ln).width > W - 28 && ln.length > 3) ln = ln.slice(0, -1)
   if (ln !== lastName) ln += '…'
   ctx.fillText(ln, 16, NAME_LAST_BASE)
