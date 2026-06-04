@@ -93,18 +93,17 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
   const W = 400, H = 700
   canvas.width = W; canvas.height = H
 
-  const GOLD  = '#d4a017'
-  const GOLDF = '#f5c842'
+  const GOLD  = '#c8960c'
+  const GOLDF = '#ffd700'
   const GREEN = '#00FF88'
-  const NEON  = '#00ff66'
   const BG    = '#050505'
 
   // Tier
   const ovr = opts.ovr ?? 0
-  let TC: string, TG: string, TL: string
-  if      (ovr >= 80) { TC = GOLD;    TG = GOLDF;   TL = 'CARD OURO'   }
-  else if (ovr >= 50) { TC = '#a8a9ac'; TG = '#d8d8d8'; TL = 'CARD PRATA' }
-  else                { TC = '#cd7f32'; TG = '#e8a060'; TL = 'CARD BRONZE' }
+  let TC: string, TG: string, TL: string, OVR_COLOR: string
+  if      (ovr >= 80) { TC = GOLDF; TG = '#fff5c0'; TL = 'CARD OURO';   OVR_COLOR = GOLDF   }
+  else if (ovr >= 50) { TC = '#c0c8d0'; TG = '#eceff1'; TL = 'CARD PRATA';  OVR_COLOR = '#dce3ec' }
+  else                { TC = '#cd7f32'; TG = '#e8a060'; TL = 'CARD BRONZE'; OVR_COLOR = '#e8a060' }
 
   // ── 1. FUNDO PRETO ────────────────────────────────────────────────────────
   ctx.fillStyle = BG
@@ -241,7 +240,7 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
   let img: HTMLImageElement | null = null
   if (opts.fotoUrl) img = await loadImage(opts.fotoUrl)
 
-  const PHOTO_TOP = 64, PHOTO_H = 420
+  const PHOTO_TOP = 55, PHOTO_H = 400
 
   if (img) {
     ctx.save()
@@ -293,13 +292,13 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
   // ── 7. OVR (topo esquerdo, sobre a foto) ──────────────────────────────────
   ctx.save()
   ctx.textAlign = 'left'; ctx.textBaseline = 'top'
-  ctx.fillStyle = 'rgba(255,255,255,0.48)'
-  ctx.font = 'bold 11px system-ui, sans-serif'
-  ctx.fillText('OVR', 22, PHOTO_TOP + 12)
-  ctx.shadowColor = NEON; ctx.shadowBlur = 40
-  ctx.fillStyle = NEON
-  ctx.font = 'bold 96px system-ui, -apple-system, sans-serif'
-  ctx.fillText(opts.ovr ? String(opts.ovr) : '—', 14, PHOTO_TOP + 24)
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'
+  ctx.font = 'bold 12px system-ui, sans-serif'
+  ctx.fillText('OVR', 22, PHOTO_TOP + 14)
+  ctx.shadowColor = OVR_COLOR; ctx.shadowBlur = 36
+  ctx.fillStyle = OVR_COLOR
+  ctx.font = 'bold 88px system-ui, -apple-system, sans-serif'
+  ctx.fillText(opts.ovr ? String(opts.ovr) : '—', 14, PHOTO_TOP + 26)
   ctx.restore()
 
   // ── 8. LOGO MC (topo esquerdo) ────────────────────────────────────────────
@@ -320,26 +319,34 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
   ctx.fillStyle = GREEN; ctx.fillText('CRAQUE', MCX + 32, MCY + 22)
   ctx.restore()
 
-  // ── 9. NOME DO ATLETA ──────────────────────────────────────────────────────
-  const NAME_BASE = PHOTO_TOP + PHOTO_H - 36
-  const parts     = opts.nome.trim().split(' ')
+  // ── 9. NOME DO ATLETA (dentro da foto, acima do painel ID) ────────────────
+  const PHOTO_END = PHOTO_TOP + PHOTO_H          // onde a foto termina
+  const NAME_LAST_BASE = PHOTO_END - 18          // baseline do sobrenome
+  const NAME_FIRST_BASE = NAME_LAST_BASE - 54    // baseline do primeiro nome
+
+  const parts    = opts.nome.trim().split(' ')
   const lastName  = (parts.length > 1 ? parts[parts.length - 1] : opts.nome).toUpperCase()
   const firstName = (parts.length > 1 ? parts.slice(0, -1).join(' ') : '').toUpperCase()
 
   ctx.save()
   ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'
+
+  // Primeiro nome
   if (firstName) {
-    ctx.fillStyle = 'rgba(255,255,255,0.90)'
-    ctx.font = 'bold 24px system-ui, sans-serif'
-    ctx.fillText(firstName, 18, NAME_BASE - 2)
+    ctx.fillStyle = 'rgba(255,255,255,0.92)'
+    ctx.font = 'bold 26px system-ui, sans-serif'
+    ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 8
+    ctx.fillText(firstName, 18, NAME_FIRST_BASE)
   }
-  ctx.shadowColor = GREEN; ctx.shadowBlur = 22
-  ctx.fillStyle = GREEN
-  ctx.font = 'bold 58px system-ui, -apple-system, sans-serif'
+
+  // Sobrenome — cor do tier
+  ctx.shadowColor = TC; ctx.shadowBlur = 24
+  ctx.fillStyle = TC
+  ctx.font = `bold 54px system-ui, -apple-system, sans-serif`
   let ln = lastName
   while (ctx.measureText(ln).width > W - 28 && ln.length > 3) ln = ln.slice(0, -1)
   if (ln !== lastName) ln += '…'
-  ctx.fillText(ln, 16, NAME_BASE + (firstName ? 56 : 12))
+  ctx.fillText(ln, 16, NAME_LAST_BASE)
   ctx.restore()
 
   // ── 10. BLOCO IDENTIFICAÇÃO ───────────────────────────────────────────────
