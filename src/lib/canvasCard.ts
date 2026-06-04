@@ -90,8 +90,13 @@ function drawBrazilFlag(ctx: CanvasRenderingContext2D, x: number, y: number, w: 
 
 export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardProps): Promise<void> {
   const ctx = canvas.getContext('2d')!
+
+  // Renderiza em 2x para nitidez — HiDPI / Retina
+  const DPR = 2
   const W = 400, H = 700
-  canvas.width = W; canvas.height = H
+  canvas.width  = W * DPR
+  canvas.height = H * DPR
+  ctx.scale(DPR, DPR)
 
   const GOLD  = '#c8960c'
   const GOLDF = '#ffd700'
@@ -386,45 +391,55 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
   ctx.fillText(ln, 16, NAME_LAST_BASE)
   ctx.restore()
 
+  // ── helper: painel com gradiente premium ─────────────────────────────────
+  function drawPanel(y: number, h: number) {
+    ctx.save()
+    const bg = ctx.createLinearGradient(0, y, 0, y + h)
+    bg.addColorStop(0, '#121212'); bg.addColorStop(1, '#090909')
+    octPath(ctx, 14, y, W - 28, h, 7)
+    ctx.fillStyle = bg; ctx.fill()
+    // borda tier
+    ctx.shadowColor = TC; ctx.shadowBlur = 6
+    ctx.strokeStyle = TC + '38'; ctx.lineWidth = 1
+    ctx.stroke()
+    // linha de brilho superior
+    ctx.shadowColor = TC; ctx.shadowBlur = 4
+    ctx.strokeStyle = TC + '65'; ctx.lineWidth = 1
+    ctx.beginPath(); ctx.moveTo(28, y + 1); ctx.lineTo(W - 28, y + 1); ctx.stroke()
+    ctx.restore()
+  }
+
   // ── 10. BLOCO IDENTIFICAÇÃO ───────────────────────────────────────────────
-  const ID_Y = PHOTO_TOP + PHOTO_H + 6, ID_H = 50
+  const ID_Y = PHOTO_END + 8, ID_H = 52
   const QR_SIZE = 46, QR_X = W - 14 - QR_SIZE
 
-  // Caixa principal
-  ctx.save()
-  const idBg = ctx.createLinearGradient(0, ID_Y, 0, ID_Y + ID_H)
-  idBg.addColorStop(0, '#0d0d0d'); idBg.addColorStop(1, '#080808')
-  octPath(ctx, 14, ID_Y, W - 28, ID_H, 6); ctx.fillStyle = idBg; ctx.fill()
-  ctx.shadowColor = TC; ctx.shadowBlur = 8
-  ctx.strokeStyle = TC + '40'; ctx.lineWidth = 1
-  octPath(ctx, 14, ID_Y, W - 28, ID_H, 6); ctx.stroke()
-  // Linha de brilho no topo da caixa
-  ctx.shadowColor = TC; ctx.shadowBlur = 6; ctx.strokeStyle = TC + '70'; ctx.lineWidth = 1
-  ctx.beginPath(); ctx.moveTo(30, ID_Y + 1); ctx.lineTo(QR_X - 4, ID_Y + 1); ctx.stroke()
-  ctx.restore()
+  drawPanel(ID_Y, ID_H)
 
   ctx.save()
   ctx.textAlign = 'left'; ctx.textBaseline = 'top'
-  ctx.fillStyle = 'rgba(255,255,255,0.35)'
-  ctx.font = 'bold 8px system-ui, sans-serif'
-  ctx.fillText('ID ÚNICO', 24, ID_Y + 10)
-  ctx.shadowColor = GREEN; ctx.shadowBlur = 12
-  ctx.fillStyle = GREEN; ctx.font = 'bold 20px system-ui, sans-serif'
+  ctx.fillStyle = 'rgba(255,255,255,0.32)'
+  ctx.font = '700 9px system-ui, sans-serif'
+  ctx.letterSpacing = '0.12em'
+  ctx.fillText('ID ÚNICO', 24, ID_Y + 9)
+  ctx.shadowColor = GREEN; ctx.shadowBlur = 14
+  ctx.fillStyle = GREEN
+  ctx.font = 'bold 22px system-ui, sans-serif'
   ctx.fillText((opts.athleteId ?? '—').replace(/^[A-Z]+-/, ''), 24, ID_Y + 22)
 
-  // Divisor
-  ctx.shadowBlur = 0; ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1
-  ctx.beginPath(); ctx.moveTo(96, ID_Y + 10); ctx.lineTo(96, ID_Y + ID_H - 10); ctx.stroke()
+  // Divisor vertical
+  ctx.shadowBlur = 0; ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1
+  ctx.beginPath(); ctx.moveTo(100, ID_Y + 10); ctx.lineTo(100, ID_Y + ID_H - 10); ctx.stroke()
 
-  // Bandeira + BRASIL
-  drawBrazilFlag(ctx, 104, ID_Y + ID_H / 2 - 10, 28, 20)
-  ctx.shadowBlur = 0; ctx.fillStyle = 'rgba(255,255,255,0.72)'
-  ctx.font = 'bold 11px system-ui, sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'
-  ctx.fillText('BRASIL', 138, ID_Y + ID_H / 2)
+  // Bandeira + país
+  drawBrazilFlag(ctx, 110, ID_Y + ID_H / 2 - 10, 28, 20)
+  ctx.fillStyle = 'rgba(255,255,255,0.78)'
+  ctx.font = 'bold 12px system-ui, sans-serif'
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle'
+  ctx.fillText('BRASIL', 145, ID_Y + ID_H / 2)
   ctx.restore()
 
-  // QR code
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=92x92&data=${encodeURIComponent(opts.profileUrl)}&color=00FF88&bgcolor=050505&margin=1`
+  // QR code — maior e mais nítido
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=128x128&data=${encodeURIComponent(opts.profileUrl)}&color=00FF88&bgcolor=121212&margin=1`
   const qrImg = await loadImage(qrUrl)
   if (qrImg) {
     ctx.save()
@@ -436,15 +451,9 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
   }
 
   // ── 11. ATRIBUTOS ─────────────────────────────────────────────────────────
-  const STATS_Y = ID_Y + ID_H + 5, STATS_H = 52
+  const STATS_Y = ID_Y + ID_H + 5, STATS_H = 56
 
-  ctx.save()
-  const stBg = ctx.createLinearGradient(0, STATS_Y, 0, STATS_Y + STATS_H)
-  stBg.addColorStop(0, '#0e0e0e'); stBg.addColorStop(1, '#080808')
-  octPath(ctx, 14, STATS_Y, W - 28, STATS_H, 6); ctx.fillStyle = stBg; ctx.fill()
-  ctx.strokeStyle = `rgba(255,255,255,0.07)`; ctx.lineWidth = 1
-  octPath(ctx, 14, STATS_Y, W - 28, STATS_H, 6); ctx.stroke()
-  ctx.restore()
+  drawPanel(STATS_Y, STATS_H)
 
   const toStat = (v: number | null | undefined) => v ? Math.min(99, Math.round(v * 9.9)) : null
   const statCols = [
@@ -463,21 +472,22 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
     statCols.forEach((s, i) => {
       const cx = 14 + i * colW + colW / 2
       if (i > 0) {
-        ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1
+        ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.lineWidth = 1
         ctx.beginPath(); ctx.moveTo(14 + i * colW, STATS_Y + 8); ctx.lineTo(14 + i * colW, STATS_Y + STATS_H - 8); ctx.stroke()
       }
       ctx.textAlign = 'center'; ctx.textBaseline = 'top'
-      ctx.fillStyle = 'rgba(255,255,255,0.42)'
-      ctx.font = 'bold 8px system-ui, sans-serif'
-      ctx.fillText(s.label, cx, STATS_Y + 7)
-      ctx.shadowColor = GREEN; ctx.shadowBlur = 14
-      ctx.fillStyle = GREEN; ctx.font = 'bold 22px system-ui, sans-serif'
-      ctx.fillText(s.val !== null ? String(s.val) : '—', cx, STATS_Y + 18)
+      ctx.fillStyle = 'rgba(255,255,255,0.40)'
+      ctx.font = '700 9px system-ui, sans-serif'
+      ctx.fillText(s.label, cx, STATS_Y + 8)
+      ctx.shadowColor = GREEN; ctx.shadowBlur = 16
+      ctx.fillStyle = GREEN
+      ctx.font = 'bold 24px system-ui, sans-serif'
+      ctx.fillText(s.val !== null ? String(s.val) : '—', cx, STATS_Y + 20)
       ctx.shadowBlur = 0
     })
   } else {
-    ctx.fillStyle = 'rgba(255,255,255,0.20)'
-    ctx.font = '11px system-ui, sans-serif'
+    ctx.fillStyle = 'rgba(255,255,255,0.22)'
+    ctx.font = '500 11px system-ui, sans-serif'
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
     ctx.fillText('Aguardando avaliação de treinador', W / 2, STATS_Y + STATS_H / 2)
   }
@@ -486,13 +496,7 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
   // ── 12. DADOS DO ATLETA ────────────────────────────────────────────────────
   const FOOT_Y = STATS_Y + STATS_H + 5, FOOT_H = 52
 
-  ctx.save()
-  const ftBg = ctx.createLinearGradient(0, FOOT_Y, 0, FOOT_Y + FOOT_H)
-  ftBg.addColorStop(0, '#0e0e0e'); ftBg.addColorStop(1, '#080808')
-  octPath(ctx, 14, FOOT_Y, W - 28, FOOT_H, 6); ctx.fillStyle = ftBg; ctx.fill()
-  ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.lineWidth = 1
-  octPath(ctx, 14, FOOT_Y, W - 28, FOOT_H, 6); ctx.stroke()
-  ctx.restore()
+  drawPanel(FOOT_Y, FOOT_H)
 
   const footCols = [
     { icon: '⚽', label: 'POSIÇÃO', val: (opts.posicao || opts.pos).toUpperCase() },
@@ -505,60 +509,80 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
   footCols.forEach((s, i) => {
     const cx = 14 + i * fColW + fColW / 2
     if (i > 0) {
-      ctx.strokeStyle = 'rgba(255,255,255,0.08)'; ctx.lineWidth = 1
+      ctx.strokeStyle = TC + '28'; ctx.lineWidth = 1
       ctx.beginPath(); ctx.moveTo(14 + i * fColW, FOOT_Y + 8); ctx.lineTo(14 + i * fColW, FOOT_Y + FOOT_H - 8); ctx.stroke()
     }
     ctx.textAlign = 'center'; ctx.textBaseline = 'top'
-    ctx.font = '12px system-ui, sans-serif'
-    ctx.fillStyle = 'rgba(255,255,255,0.55)'
-    ctx.fillText(s.icon, cx, FOOT_Y + 6)
-    ctx.fillStyle = 'rgba(255,255,255,0.35)'
-    ctx.font = 'bold 7px system-ui, sans-serif'
-    ctx.fillText(s.label, cx, FOOT_Y + 21)
-    ctx.fillStyle = 'rgba(255,255,255,0.88)'
-    ctx.font = 'bold 11px system-ui, sans-serif'
+    ctx.font = '13px system-ui, sans-serif'
+    ctx.fillStyle = 'rgba(255,255,255,0.60)'
+    ctx.fillText(s.icon, cx, FOOT_Y + 7)
+    ctx.fillStyle = 'rgba(255,255,255,0.32)'
+    ctx.font = '600 8px system-ui, sans-serif'
+    ctx.letterSpacing = '0.1em'
+    ctx.fillText(s.label, cx, FOOT_Y + 23)
+    ctx.fillStyle = 'rgba(255,255,255,0.92)'
+    ctx.font = 'bold 12px system-ui, sans-serif'
+    ctx.letterSpacing = '0.03em'
     let v = s.val
-    while (ctx.measureText(v).width > fColW - 8 && v.length > 2) v = v.slice(0, -1)
+    ctx.font = 'bold 12px system-ui, sans-serif'
+    while (ctx.measureText(v).width > fColW - 10 && v.length > 2) v = v.slice(0, -1)
     if (v !== s.val) v += '.'
-    ctx.fillText(v, cx, FOOT_Y + 32)
+    ctx.fillText(v, cx, FOOT_Y + 35)
   })
   ctx.restore()
 
   // ── 13. RODAPÉ TAGLINE ────────────────────────────────────────────────────
-  const TAG_Y = FOOT_Y + FOOT_H + 7
+  const TAG_Y = FOOT_Y + FOOT_H + 8
 
   ctx.save()
-  // Linhas decorativas
-  ctx.strokeStyle = TC + '50'; ctx.lineWidth = 1
-  ctx.beginPath(); ctx.moveTo(18, TAG_Y + 8); ctx.lineTo(110, TAG_Y + 8); ctx.stroke()
-  ctx.beginPath(); ctx.moveTo(W - 110, TAG_Y + 8); ctx.lineTo(W - 18, TAG_Y + 8); ctx.stroke()
+  // Linhas decorativas com gradiente
+  const tgl1 = ctx.createLinearGradient(16, 0, 120, 0)
+  tgl1.addColorStop(0, 'transparent'); tgl1.addColorStop(1, TC + '70')
+  ctx.strokeStyle = tgl1; ctx.lineWidth = 1
+  ctx.beginPath(); ctx.moveTo(16, TAG_Y + 9); ctx.lineTo(120, TAG_Y + 9); ctx.stroke()
 
-  // Tagline
-  const tag1 = 'NASCIDA PARA FAZER ', tag2 = 'HISTÓRIA'
+  const tgl2 = ctx.createLinearGradient(W - 120, 0, W - 16, 0)
+  tgl2.addColorStop(0, TC + '70'); tgl2.addColorStop(1, 'transparent')
+  ctx.strokeStyle = tgl2; ctx.lineWidth = 1
+  ctx.beginPath(); ctx.moveTo(W - 120, TAG_Y + 9); ctx.lineTo(W - 16, TAG_Y + 9); ctx.stroke()
+
+  // Tagline dinâmica
+  function getTagline(pos: string | null | undefined): [string, string] {
+    const p = (pos ?? '').toLowerCase()
+    if (p.includes('atacante') || p.includes('avante')) return ['NASCIDA PARA FAZER ', 'HISTÓRIA']
+    if (p.includes('meia') || p.includes('volante'))    return ['O JOGO PASSA PELOS ', 'SEUS PÉS']
+    if (p.includes('zagueiro') || p.includes('lateral')) return ['A MURALHA QUE ', 'NINGUÉM PASSA']
+    if (p.includes('goleiro'))                           return ['A ÚLTIMA ', 'BARREIRA']
+    return ['SEU TALENTO, ', 'SUA IDENTIDADE']
+  }
+  const [tag1, tag2] = getTagline(opts.posicao || opts.pos)
   ctx.font = 'italic bold 11px system-ui, sans-serif'
   const tw1 = ctx.measureText(tag1).width, tw2 = ctx.measureText(tag2).width
-  const startX = W / 2 - (tw1 + tw2) / 2
+  const tagX = W / 2 - (tw1 + tw2) / 2
   ctx.textAlign = 'left'; ctx.textBaseline = 'middle'
   ctx.fillStyle = 'rgba(255,255,255,0.45)'
-  ctx.fillText(tag1, startX, TAG_Y + 8)
-  ctx.shadowColor = GREEN; ctx.shadowBlur = 12
-  ctx.fillStyle = GREEN
-  ctx.fillText(tag2, startX + tw1, TAG_Y + 8)
+  ctx.shadowBlur = 0
+  ctx.fillText(tag1, tagX, TAG_Y + 9)
+  ctx.shadowColor = TC; ctx.shadowBlur = 12
+  ctx.fillStyle = TC
+  ctx.fillText(tag2, tagX + tw1, TAG_Y + 9)
   ctx.restore()
 
-  // ── 14. REFLEXO METÁLICO FINAL ────────────────────────────────────────────
+  // ── 14. REFLEXO METÁLICO PREMIUM ─────────────────────────────────────────
   ctx.save()
-  const shine = ctx.createLinearGradient(0, 0, W * 0.6, H * 0.4)
-  shine.addColorStop(0,   'rgba(255,255,255,0.03)')
-  shine.addColorStop(0.4, 'rgba(255,255,255,0.06)')
-  shine.addColorStop(0.5, 'rgba(255,255,255,0.015)')
+  const shine = ctx.createLinearGradient(0, 0, W * 0.55, H * 0.38)
+  shine.addColorStop(0,   'rgba(255,255,255,0.04)')
+  shine.addColorStop(0.35,'rgba(255,255,255,0.07)')
+  shine.addColorStop(0.5, 'rgba(255,255,255,0.02)')
   shine.addColorStop(1,   'rgba(255,255,255,0)')
   ctx.fillStyle = shine; ctx.fillRect(0, 0, W, H)
   ctx.restore()
 
-  // Watermark
-  ctx.fillStyle = 'rgba(255,255,255,0.06)'
+  // ── 15. WATERMARK ─────────────────────────────────────────────────────────
+  ctx.save()
+  ctx.fillStyle = 'rgba(255,255,255,0.07)'
   ctx.font = '8px system-ui, sans-serif'
   ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'
-  ctx.fillText('meucraque.com', W / 2, H - 5)
+  ctx.fillText('meucraque.com', W / 2, H - 4)
+  ctx.restore()
 }
