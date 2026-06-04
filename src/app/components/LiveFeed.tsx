@@ -113,51 +113,118 @@ export default function LiveFeed() {
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
-    <section style={{
-      background:   '#030905',
-      padding:      '72px 0 80px',
-      borderTop:    '1px solid rgba(0,255,136,0.07)',
-      borderBottom: '1px solid rgba(0,255,136,0.05)',
-    }}>
+    <section style={{ background: '#030905', padding: '0 0 80px' }}>
       <style>{`
         @keyframes feedSlideIn {
           from { opacity:0; transform:translateY(-12px) }
           to   { opacity:1; transform:translateY(0) }
         }
+
+        /* ── SEPARADOR ── */
+        .feed-divider {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          padding: 0 clamp(16px,4vw,24px);
+          margin: 0 auto 52px;
+          max-width: 760px;
+        }
+        .feed-divider-line {
+          flex: 1;
+          height: 1px;
+          background: linear-gradient(to right, transparent, rgba(0,255,136,0.28), transparent);
+        }
+        .feed-divider-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 6px 16px;
+          border-radius: 100px;
+          border: 1px solid rgba(0,255,136,0.18);
+          background: rgba(0,255,136,0.05);
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          color: rgba(0,255,136,0.65);
+          text-transform: uppercase;
+          white-space: nowrap;
+        }
+        .feed-divider-dot {
+          width: 5px; height: 5px;
+          border-radius: 50%;
+          background: #00FF88;
+          box-shadow: 0 0 6px rgba(0,255,136,0.8);
+          animation: pulseFeed 2s ease-in-out infinite;
+        }
+        @keyframes pulseFeed {
+          0%,100% { opacity:1; transform:scale(1); }
+          50%     { opacity:.45; transform:scale(0.7); }
+        }
+
+        /* ── GRID MOBILE ── */
+        .feed-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+        }
+        .feed-skeleton {
+          height: 360px;
+          border-radius: 22px;
+          background: rgba(255,255,255,0.025);
+          border: 1px solid rgba(255,255,255,0.04);
+        }
+
+        /* Mobile: single column on very small screens */
+        @media (max-width: 380px) {
+          .feed-grid { grid-template-columns: 1fr !important; }
+        }
+
+        /* Mobile: tighter padding */
+        @media (max-width: 480px) {
+          .feed-header h2 { font-size: 22px !important; }
+          .feed-header p  { font-size: 13px !important; }
+          .feed-grid { gap: 10px !important; }
+        }
       `}</style>
 
-      {/* Container estreito — 2 colunas de ~206px cada */}
-      <div style={{ maxWidth: '440px', margin: '0 auto', padding: '0 clamp(16px,4vw,24px)' }}>
+      {/* ══ SEPARADOR ══════════════════════════════════════════════════════════ */}
+      <div style={{ padding: '56px clamp(16px,4vw,24px) 0' }}>
+        <div className="feed-divider">
+          <div className="feed-divider-line" />
+          <div className="feed-divider-label">
+            <span className="feed-divider-dot" />
+            Novos Talentos
+          </div>
+          <div className="feed-divider-line" />
+        </div>
+      </div>
+
+      {/* Container */}
+      <div style={{ maxWidth: '760px', margin: '0 auto', padding: '0 clamp(16px,4vw,24px)' }}>
 
         {/* ── Header ── */}
-        <div style={{ marginBottom: '28px' }}>
+        <div className="feed-header" style={{ marginBottom: '28px' }}>
           <h2 style={{
             margin: '0 0 8px', fontSize: 'clamp(22px,4vw,34px)',
             fontWeight: 900, color: 'white',
             letterSpacing: '-0.028em', lineHeight: 1.06,
           }}>
-            Novos <span style={{ color: '#00FF88' }}>Talentos</span>
+            Atletas <span style={{ color: '#00FF88' }}>em destaque</span>
           </h2>
           <p style={{
             margin: 0, fontSize: '14px',
             color: 'rgba(255,255,255,0.38)', lineHeight: 1.5,
           }}>
-            Atletas que acabaram de entrar na plataforma
+            Perfis recentes na plataforma
           </p>
         </div>
 
         {/* ── Cards ── */}
         {loading && events.length === 0 ? (
-          /* Skeleton — mesma grade, altura do AtletaCard */
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div className="feed-grid">
             {[0, 1, 2, 3].map(i => (
-              <div key={i} style={{
-                height: '360px',
-                borderRadius: '22px',
-                background: 'rgba(255,255,255,0.025)',
-                border: '1px solid rgba(255,255,255,0.04)',
-                animation: `feedSlideIn .4s ease both ${i * 0.06}s`,
-              }} />
+              <div key={i} className="feed-skeleton skel"
+                style={{ animation: `feedSlideIn .4s ease both ${i * 0.06}s` }} />
             ))}
           </div>
 
@@ -170,7 +237,9 @@ export default function LiveFeed() {
           </div>
 
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div className="feed-grid" style={{
+            gridTemplateColumns: events.length <= 2 ? `repeat(${events.length},1fr)` : '1fr 1fr',
+          }}>
             {events.map(event => (
               <AtletaCard
                 key={event.id}
@@ -193,22 +262,22 @@ export default function LiveFeed() {
 
         {/* ── Carregar mais ── */}
         {hasMore && (
-          <div style={{ textAlign: 'center', marginTop: '24px' }}>
+          <div style={{ textAlign: 'center', marginTop: '28px' }}>
             <button
               onClick={handleLoadMore}
               disabled={loadingMore}
               style={{
-                padding: '11px 28px', borderRadius: '100px',
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.12)',
-                color: loadingMore ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.58)',
-                fontSize: '13px', fontWeight: 600,
+                padding: '12px 32px', borderRadius: '100px',
+                background: 'rgba(0,255,136,0.05)',
+                border: '1px solid rgba(0,255,136,0.18)',
+                color: loadingMore ? 'rgba(255,255,255,0.28)' : 'rgba(0,255,136,0.70)',
+                fontSize: '13px', fontWeight: 700,
                 cursor: loadingMore ? 'default' : 'pointer',
-                letterSpacing: '0.04em',
-                transition: 'border-color .2s, color .2s',
+                letterSpacing: '0.06em',
+                transition: 'all .2s',
               }}
             >
-              {loadingMore ? 'Carregando...' : 'Carregar mais →'}
+              {loadingMore ? 'Carregando...' : 'Ver mais atletas →'}
             </button>
           </div>
         )}

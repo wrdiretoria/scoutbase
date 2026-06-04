@@ -354,6 +354,29 @@ export default async function LandingPage() {
         @media (max-width: 768px) {
           .three-cols { grid-template-columns:1fr !important; gap:40px !important; }
           .video-grid { grid-template-columns:repeat(3,1fr) !important; }
+
+          /* ── Mobile section padding ── */
+          .section-como  { padding:60px 20px !important; }
+          .section-cta   { padding:72px 20px !important; }
+          .section-deps  { padding:60px 20px !important; }
+
+          /* ── Como funciona — mobile ── */
+          .steps-grid       { grid-template-columns:1fr !important; gap:36px !important; }
+          .steps-connector  { display:none !important; }
+          .step-card        { padding:0 !important; text-align:left !important; }
+          .step-icon-wrap   { margin:0 0 16px !important; width:64px !important; height:64px !important; font-size:26px !important; }
+
+          /* ── Final CTA ── */
+          .fcta-wrap        { flex-direction:column !important; align-items:stretch !important; gap:10px !important; }
+          .fcta-primary     { padding:16px !important; font-size:14px !important; justify-content:center !important; text-align:center !important; }
+          .fcta-secondary   { padding:14px !important; font-size:14px !important; justify-content:center !important; }
+
+          /* ── Depoimentos ── */
+          .dep-grid { grid-template-columns:1fr !important; gap:12px !important; }
+          .dep-card { padding:20px !important; }
+
+          /* ── Footer ── */
+          .footer-inner { flex-direction:column !important; gap:8px !important; text-align:center !important; }
         }
         @media (max-width: 480px) {
           .cards-grid   { grid-template-columns:1fr !important; }
@@ -575,7 +598,7 @@ export default async function LandingPage() {
       <RankingSection />
 
       {/* ══════════════════════════════════════ COMO FUNCIONA ══ */}
-      <section style={{ padding: '88px 20px', background: '#0d1a0d' }}>
+      <section className="section-como" style={{ padding: '88px 20px', background: '#0d1a0d' }}>
         <div style={{ maxWidth: '860px', margin: '0 auto' }}>
 
           {/* Título */}
@@ -622,7 +645,7 @@ export default async function LandingPage() {
       </section>
 
       {/* ══════════════════════════════════════ FINAL CTA ══ */}
-      <section style={{ padding:'110px 20px', background:'#030905', position:'relative', overflow:'hidden' }}>
+      <section className="section-cta" style={{ padding:'110px 20px', background:'#030905', position:'relative', overflow:'hidden' }}>
         {/* Background orb */}
         <div style={{
           position:'absolute', left:'50%', top:'50%',
