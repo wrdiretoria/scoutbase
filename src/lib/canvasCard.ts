@@ -188,121 +188,122 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
   }
   ctx.restore()
 
-  // ── 4. MOLDURA DUPLA PREMIUM ──────────────────────────────────────────────
+  // ── 4. MOLDURA PREMIUM ────────────────────────────────────────────────────
 
-  // Camada 1 — borda exterior com glow tier
+  // Borda exterior — glow tier
   ctx.save()
-  octPath(ctx, 6, 6, W - 12, H - 12, 28)
-  ctx.shadowColor = TG; ctx.shadowBlur = 32
-  ctx.strokeStyle = TC; ctx.lineWidth = 3; ctx.stroke()
+  octPath(ctx, 5, 5, W - 10, H - 10, 26)
+  ctx.shadowColor = TC; ctx.shadowBlur = 28
+  ctx.strokeStyle = TC; ctx.lineWidth = 2.5; ctx.stroke()
   ctx.restore()
 
-  // Camada 2 — borda interior verde neon fina
+  // Borda interior — linha fina tier (sem verde, uniforme)
   ctx.save()
-  octPath(ctx, 13, 13, W - 26, H - 26, 22)
-  ctx.shadowColor = GREEN; ctx.shadowBlur = 12
-  ctx.strokeStyle = GREEN + '55'; ctx.lineWidth = 1; ctx.stroke()
+  octPath(ctx, 12, 12, W - 24, H - 24, 20)
+  ctx.strokeStyle = TC + '30'; ctx.lineWidth = 1; ctx.stroke()
   ctx.restore()
 
-  // Cantos facetados — losangos decorativos
+  // Losangos apenas nas laterais (esquerda e direita) — sem topo/base
   ctx.save()
-  const cornerPts = [[W/2, 6], [W - 6, H/2], [W/2, H - 6], [6, H/2]]
-  for (const [cx, cy] of cornerPts) {
+  const sidePts = [[W - 5, H / 2], [5, H / 2]]
+  for (const [cx, cy] of sidePts) {
     ctx.save()
     ctx.translate(cx, cy); ctx.rotate(Math.PI / 4)
-    ctx.shadowColor = TG; ctx.shadowBlur = 16
-    ctx.strokeStyle = TC; ctx.lineWidth = 1.5
+    ctx.shadowColor = TG; ctx.shadowBlur = 10
+    ctx.strokeStyle = TC + 'cc'; ctx.lineWidth = 1.5
     ctx.strokeRect(-4, -4, 8, 8)
     ctx.fillStyle = BG; ctx.fillRect(-3, -3, 6, 6)
     ctx.restore()
   }
-  // Linha decorativa horizontal no topo e base
-  ctx.shadowColor = TC; ctx.shadowBlur = 8
-  ctx.strokeStyle = TC + '60'; ctx.lineWidth = 1
-  ctx.beginPath(); ctx.moveTo(60, 18); ctx.lineTo(W - 60, 18); ctx.stroke()
-  ctx.beginPath(); ctx.moveTo(60, H - 18); ctx.lineTo(W - 60, H - 18); ctx.stroke()
+  // Linha fina na base
+  const baseGrad = ctx.createLinearGradient(40, 0, W - 40, 0)
+  baseGrad.addColorStop(0, 'transparent')
+  baseGrad.addColorStop(0.3, TC + '50')
+  baseGrad.addColorStop(0.7, TC + '50')
+  baseGrad.addColorStop(1, 'transparent')
+  ctx.strokeStyle = baseGrad; ctx.lineWidth = 1; ctx.shadowBlur = 0
+  ctx.beginPath(); ctx.moveTo(40, H - 16); ctx.lineTo(W - 40, H - 16); ctx.stroke()
   ctx.restore()
 
-  // ── 5. BADGE PREMIUM — plaquinha horizontal com setas laterais ────────────
+  // ── 5. BADGE — TAB PENDURADO DO TOPO ─────────────────────────────────────
   ctx.save()
-  const BW = 148, BH = 28, BX = (W - BW) / 2, BY = 8
 
-  // Sombra de glow atrás do badge inteiro
-  ctx.shadowColor = TG; ctx.shadowBlur = 22
+  // Dimensões
+  const BW = 160, BH = 30
+  const BX = (W - BW) / 2
+  const BY = 0  // começa no topo do card
 
-  // Fundo do badge
-  const badgeBg = ctx.createLinearGradient(BX, BY, BX, BY + BH)
-  badgeBg.addColorStop(0, '#1a1200')
-  badgeBg.addColorStop(0.5, '#110d00')
-  badgeBg.addColorStop(1, '#0d0900')
-  ctx.fillStyle = badgeBg
+  // Fundo escuro com gradiente
+  const bBg = ctx.createLinearGradient(0, BY, 0, BY + BH)
+  bBg.addColorStop(0, '#161000')
+  bBg.addColorStop(1, '#0f0a00')
 
-  // Shape: retângulo com cortes nos 4 cantos (cut-corner)
-  const CUT = 5
+  // Shape: topo reto (fica "preso" na borda superior), base com cantos cortados
   ctx.beginPath()
-  ctx.moveTo(BX + CUT, BY)
-  ctx.lineTo(BX + BW - CUT, BY)
-  ctx.lineTo(BX + BW, BY + CUT)
-  ctx.lineTo(BX + BW, BY + BH - CUT)
-  ctx.lineTo(BX + BW - CUT, BY + BH)
-  ctx.lineTo(BX + CUT, BY + BH)
-  ctx.lineTo(BX, BY + BH - CUT)
-  ctx.lineTo(BX, BY + CUT)
+  ctx.moveTo(BX, BY)                      // top-left
+  ctx.lineTo(BX + BW, BY)                 // top-right
+  ctx.lineTo(BX + BW, BY + BH - 6)        // right antes do corte
+  ctx.lineTo(BX + BW - 6, BY + BH)        // corte direito
+  ctx.lineTo(BX + 6, BY + BH)             // base
+  ctx.lineTo(BX, BY + BH - 6)             // corte esquerdo
   ctx.closePath()
-  ctx.fill()
 
-  // Borda tier com glow
-  ctx.shadowColor = TG; ctx.shadowBlur = 16
-  ctx.strokeStyle = TC
-  ctx.lineWidth = 1.5
-  ctx.stroke()
+  ctx.shadowColor = TG; ctx.shadowBlur = 18
+  ctx.fillStyle = bBg; ctx.fill()
 
-  // Linha brilhante interna (reflexo superior)
-  ctx.shadowBlur = 0
-  ctx.strokeStyle = TG + '60'
-  ctx.lineWidth = 1
+  // Borda — sem o topo (fica "colado" na moldura)
   ctx.beginPath()
-  ctx.moveTo(BX + CUT + 2, BY + 1.5)
-  ctx.lineTo(BX + BW - CUT - 2, BY + 1.5)
+  ctx.moveTo(BX, BY + BH - 6)
+  ctx.lineTo(BX, BY)
+  ctx.moveTo(BX + BW, BY)
+  ctx.lineTo(BX + BW, BY + BH - 6)
+  ctx.lineTo(BX + BW - 6, BY + BH)
+  ctx.lineTo(BX + 6, BY + BH)
+  ctx.lineTo(BX, BY + BH - 6)
+  ctx.shadowColor = TG; ctx.shadowBlur = 12
+  ctx.strokeStyle = TC; ctx.lineWidth = 1.5
   ctx.stroke()
 
-  // Setas/chevrons laterais
-  const arrowSize = 5
-  ctx.strokeStyle = TC + 'cc'
-  ctx.lineWidth = 1.5
-  ctx.lineCap = 'round'
-  ctx.lineJoin = 'round'
-  // Esquerda: ‹ ‹
-  const lx = BX - 18, my = BY + BH / 2
-  ctx.beginPath(); ctx.moveTo(lx + 8, my - arrowSize); ctx.lineTo(lx + 3, my); ctx.lineTo(lx + 8, my + arrowSize); ctx.stroke()
-  ctx.globalAlpha = 0.55
-  ctx.beginPath(); ctx.moveTo(lx + 14, my - arrowSize); ctx.lineTo(lx + 9, my); ctx.lineTo(lx + 14, my + arrowSize); ctx.stroke()
-  ctx.globalAlpha = 1
-  // Direita: › ›
-  const rx = BX + BW + 4
-  ctx.beginPath(); ctx.moveTo(rx + 0, my - arrowSize); ctx.lineTo(rx + 5, my); ctx.lineTo(rx + 0, my + arrowSize); ctx.stroke()
-  ctx.globalAlpha = 0.55
-  ctx.beginPath(); ctx.moveTo(rx + 6, my - arrowSize); ctx.lineTo(rx + 11, my); ctx.lineTo(rx + 6, my + arrowSize); ctx.stroke()
-  ctx.globalAlpha = 1
+  // Reflexo superior interno
+  ctx.shadowBlur = 0
+  ctx.strokeStyle = TG + '55'; ctx.lineWidth = 1
+  ctx.beginPath()
+  ctx.moveTo(BX + 1, BY + 1); ctx.lineTo(BX + BW - 1, BY + 1)
+  ctx.stroke()
 
-  // Texto do tier
-  ctx.shadowColor = TG; ctx.shadowBlur = 12
-  const badgeGrad = ctx.createLinearGradient(0, BY, 0, BY + BH)
-  badgeGrad.addColorStop(0, TG)
-  badgeGrad.addColorStop(0.5, TC)
-  badgeGrad.addColorStop(1, TG)
-  ctx.fillStyle = badgeGrad
+  // Linhas horizontais flanqueando o badge (esquerda e direita)
+  const lineY = BY + BH / 2
+  // Esquerda
+  const lg1 = ctx.createLinearGradient(12, 0, BX - 4, 0)
+  lg1.addColorStop(0, 'transparent'); lg1.addColorStop(1, TC + '80')
+  ctx.strokeStyle = lg1; ctx.lineWidth = 1; ctx.shadowBlur = 0
+  ctx.beginPath(); ctx.moveTo(12, lineY); ctx.lineTo(BX - 4, lineY); ctx.stroke()
+  // Direita
+  const lg2 = ctx.createLinearGradient(BX + BW + 4, 0, W - 12, 0)
+  lg2.addColorStop(0, TC + '80'); lg2.addColorStop(1, 'transparent')
+  ctx.strokeStyle = lg2; ctx.lineWidth = 1
+  ctx.beginPath(); ctx.moveTo(BX + BW + 4, lineY); ctx.lineTo(W - 12, lineY); ctx.stroke()
+
+  // Texto do tier — gradiente dourado
+  const txtGrad = ctx.createLinearGradient(0, BY + 4, 0, BY + BH - 4)
+  txtGrad.addColorStop(0, TG)
+  txtGrad.addColorStop(0.5, TC)
+  txtGrad.addColorStop(1, TG + 'cc')
+  ctx.fillStyle = txtGrad
+  ctx.shadowColor = TG; ctx.shadowBlur = 10
   ctx.font = 'bold 12px system-ui, sans-serif'
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-  ctx.letterSpacing = '0.22em'
-  ctx.fillText(TL, W / 2 + 1, BY + BH / 2 + 0.5)
+  ctx.letterSpacing = '0.2em'
+  ctx.fillText(TL, W / 2 + 1, BY + BH / 2 + 1)
 
-  // Losangos decorativos (◆) nos lados do texto
+  // Pequenos losangos flanqueando o texto
   ctx.font = 'bold 6px system-ui, sans-serif'
   ctx.shadowBlur = 6
-  const txtW = ctx.measureText(TL).width
-  ctx.fillText('◆', W / 2 - txtW / 2 - 10, BY + BH / 2 + 0.5)
-  ctx.fillText('◆', W / 2 + txtW / 2 + 10, BY + BH / 2 + 0.5)
+  ctx.font = 'bold 12px system-ui, sans-serif'
+  const tw = ctx.measureText(TL).width
+  ctx.font = 'bold 6px system-ui, sans-serif'
+  ctx.fillText('◆', W / 2 - tw / 2 - 10, BY + BH / 2 + 1)
+  ctx.fillText('◆', W / 2 + tw / 2 + 10, BY + BH / 2 + 1)
 
   ctx.restore()
 
