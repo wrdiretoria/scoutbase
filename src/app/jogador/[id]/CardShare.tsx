@@ -85,7 +85,7 @@ export default function CardShare(props: CanvasCardProps) {
         >
           <div
             onClick={e => e.stopPropagation()}
-            style={{ width: '100%', maxWidth: '380px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}
+            style={{ width: '100%', maxWidth: '320px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}
           >
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
@@ -110,16 +110,15 @@ export default function CardShare(props: CanvasCardProps) {
               >×</button>
             </div>
 
-            {/* Canvas preview */}
+            {/* Canvas preview — 320px wide → canvas 400x700 → 320x560 exibido */}
             <div style={{
               position: 'relative', width: '100%',
-              maxHeight: '60vh', overflow: 'hidden',
-              borderRadius: '22px',
-              boxShadow: '0 0 56px rgba(0,255,136,0.22), 0 24px 64px rgba(0,0,0,0.80)',
+              borderRadius: '16px',
+              boxShadow: '0 0 40px rgba(0,255,136,0.20), 0 16px 48px rgba(0,0,0,0.80)',
             }}>
               <canvas
                 ref={canvasRef}
-                style={{ display: 'block', width: '100%', height: 'auto', opacity: ready ? 1 : 0, transition: 'opacity .35s ease' }}
+                style={{ display: 'block', width: '100%', height: 'auto', borderRadius: '16px', opacity: ready ? 1 : 0, transition: 'opacity .35s ease' }}
               />
               {!ready && (
                 <div style={{
