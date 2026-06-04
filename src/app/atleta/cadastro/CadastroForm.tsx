@@ -50,6 +50,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
   const [posicao, setPosicao] = useState('')
   const [cidade, setCidade] = useState('')
   const [estado, setEstado] = useState('')
+  const [pais,   setPais]   = useState('Brasil')
   const [dataNasc, setDataNasc] = useState('')
   const [recoveryEmail, setRecoveryEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -114,7 +115,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
         email: internalEmail,
         password,
         options: {
-          data: { nome, posicao, cidade, estado: estado || undefined, tipo: 'atleta' },
+          data: { nome, posicao, cidade, estado: estado || undefined, pais, tipo: 'atleta' },
         },
       })
 
@@ -435,7 +436,31 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
               </select>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '10px' }}>
+            <div>
+              <label style={labelStyle}>País</label>
+              <select
+                value={pais} onChange={e => { setPais(e.target.value); setEstado('') }}
+                style={{ ...inputStyle, cursor: 'pointer' }}
+              >
+                {[
+                  'Brasil','Argentina','Bolívia','Chile','Colômbia','Equador','Guiana',
+                  'Guiana Francesa','Paraguai','Peru','Suriname','Uruguai','Venezuela',
+                  '—',
+                  'Portugal','Espanha','França','Itália','Alemanha','Inglaterra','Holanda',
+                  'Bélgica','Suíça','Suécia','Noruega','Dinamarca','Polônia','Turquia',
+                  '—',
+                  'Estados Unidos','Canadá','México',
+                  '—',
+                  'Angola','Moçambique','Cabo Verde','Guiné-Bissau','São Tomé e Príncipe',
+                  '—',
+                  'Japão','Coreia do Sul','China','Austrália','Outro',
+                ].map(p => (
+                  <option key={p} value={p} disabled={p === '—'}>{p === '—' ? '──────────' : p}</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: pais === 'Brasil' ? '1fr auto' : '1fr', gap: '10px' }}>
               <div>
                 <label style={labelStyle}>Cidade</label>
                 <input
@@ -443,18 +468,20 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
                   placeholder="Sua cidade" style={inputStyle}
                 />
               </div>
-              <div>
-                <label style={labelStyle}>Estado</label>
-                <select
-                  value={estado} onChange={e => setEstado(e.target.value)}
-                  style={{ ...inputStyle, width: '80px', paddingLeft: '10px', paddingRight: '10px', cursor: 'pointer' }}
-                >
-                  <option value="">UF</option>
-                  {['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'].map(uf => (
-                    <option key={uf} value={uf}>{uf}</option>
-                  ))}
-                </select>
-              </div>
+              {pais === 'Brasil' && (
+                <div>
+                  <label style={labelStyle}>Estado</label>
+                  <select
+                    value={estado} onChange={e => setEstado(e.target.value)}
+                    style={{ ...inputStyle, width: '80px', paddingLeft: '10px', paddingRight: '10px', cursor: 'pointer' }}
+                  >
+                    <option value="">UF</option>
+                    {['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'].map(uf => (
+                      <option key={uf} value={uf}>{uf}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
 
             <div>
