@@ -223,22 +223,87 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
   ctx.beginPath(); ctx.moveTo(60, H - 18); ctx.lineTo(W - 60, H - 18); ctx.stroke()
   ctx.restore()
 
-  // ── 5. BADGE HEXAGONAL "CARD OURO" ────────────────────────────────────────
-  const BHX = W / 2, BHY = 38, BHR = 26
+  // ── 5. BADGE PREMIUM — plaquinha horizontal com setas laterais ────────────
   ctx.save()
-  // Glow externo do hexágono
-  hexPath(ctx, BHX, BHY, BHR + 4)
-  ctx.shadowColor = TG; ctx.shadowBlur = 20; ctx.strokeStyle = TC + '55'; ctx.lineWidth = 2; ctx.stroke()
-  // Hexágono principal
-  hexPath(ctx, BHX, BHY, BHR)
-  ctx.fillStyle = BG; ctx.fill()
-  ctx.shadowColor = TG; ctx.shadowBlur = 14; ctx.strokeStyle = TC; ctx.lineWidth = 1.8; ctx.stroke()
+  const BW = 148, BH = 28, BX = (W - BW) / 2, BY = 8
+
+  // Sombra de glow atrás do badge inteiro
+  ctx.shadowColor = TG; ctx.shadowBlur = 22
+
+  // Fundo do badge
+  const badgeBg = ctx.createLinearGradient(BX, BY, BX, BY + BH)
+  badgeBg.addColorStop(0, '#1a1200')
+  badgeBg.addColorStop(0.5, '#110d00')
+  badgeBg.addColorStop(1, '#0d0900')
+  ctx.fillStyle = badgeBg
+
+  // Shape: retângulo com cortes nos 4 cantos (cut-corner)
+  const CUT = 5
+  ctx.beginPath()
+  ctx.moveTo(BX + CUT, BY)
+  ctx.lineTo(BX + BW - CUT, BY)
+  ctx.lineTo(BX + BW, BY + CUT)
+  ctx.lineTo(BX + BW, BY + BH - CUT)
+  ctx.lineTo(BX + BW - CUT, BY + BH)
+  ctx.lineTo(BX + CUT, BY + BH)
+  ctx.lineTo(BX, BY + BH - CUT)
+  ctx.lineTo(BX, BY + CUT)
+  ctx.closePath()
+  ctx.fill()
+
+  // Borda tier com glow
+  ctx.shadowColor = TG; ctx.shadowBlur = 16
+  ctx.strokeStyle = TC
+  ctx.lineWidth = 1.5
+  ctx.stroke()
+
+  // Linha brilhante interna (reflexo superior)
+  ctx.shadowBlur = 0
+  ctx.strokeStyle = TG + '60'
+  ctx.lineWidth = 1
+  ctx.beginPath()
+  ctx.moveTo(BX + CUT + 2, BY + 1.5)
+  ctx.lineTo(BX + BW - CUT - 2, BY + 1.5)
+  ctx.stroke()
+
+  // Setas/chevrons laterais
+  const arrowSize = 5
+  ctx.strokeStyle = TC + 'cc'
+  ctx.lineWidth = 1.5
+  ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
+  // Esquerda: ‹ ‹
+  const lx = BX - 18, my = BY + BH / 2
+  ctx.beginPath(); ctx.moveTo(lx + 8, my - arrowSize); ctx.lineTo(lx + 3, my); ctx.lineTo(lx + 8, my + arrowSize); ctx.stroke()
+  ctx.globalAlpha = 0.55
+  ctx.beginPath(); ctx.moveTo(lx + 14, my - arrowSize); ctx.lineTo(lx + 9, my); ctx.lineTo(lx + 14, my + arrowSize); ctx.stroke()
+  ctx.globalAlpha = 1
+  // Direita: › ›
+  const rx = BX + BW + 4
+  ctx.beginPath(); ctx.moveTo(rx + 0, my - arrowSize); ctx.lineTo(rx + 5, my); ctx.lineTo(rx + 0, my + arrowSize); ctx.stroke()
+  ctx.globalAlpha = 0.55
+  ctx.beginPath(); ctx.moveTo(rx + 6, my - arrowSize); ctx.lineTo(rx + 11, my); ctx.lineTo(rx + 6, my + arrowSize); ctx.stroke()
+  ctx.globalAlpha = 1
+
   // Texto do tier
-  ctx.shadowColor = TG; ctx.shadowBlur = 10
-  ctx.fillStyle = TC
-  ctx.font = 'bold 8.5px system-ui, sans-serif'
+  ctx.shadowColor = TG; ctx.shadowBlur = 12
+  const badgeGrad = ctx.createLinearGradient(0, BY, 0, BY + BH)
+  badgeGrad.addColorStop(0, TG)
+  badgeGrad.addColorStop(0.5, TC)
+  badgeGrad.addColorStop(1, TG)
+  ctx.fillStyle = badgeGrad
+  ctx.font = 'bold 12px system-ui, sans-serif'
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-  ctx.fillText(TL, BHX, BHY)
+  ctx.letterSpacing = '0.22em'
+  ctx.fillText(TL, W / 2 + 1, BY + BH / 2 + 0.5)
+
+  // Losangos decorativos (◆) nos lados do texto
+  ctx.font = 'bold 6px system-ui, sans-serif'
+  ctx.shadowBlur = 6
+  const txtW = ctx.measureText(TL).width
+  ctx.fillText('◆', W / 2 - txtW / 2 - 10, BY + BH / 2 + 0.5)
+  ctx.fillText('◆', W / 2 + txtW / 2 + 10, BY + BH / 2 + 0.5)
+
   ctx.restore()
 
   // ── 6. FOTO ────────────────────────────────────────────────────────────────
