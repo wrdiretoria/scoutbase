@@ -225,85 +225,73 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
   ctx.beginPath(); ctx.moveTo(40, H - 16); ctx.lineTo(W - 40, H - 16); ctx.stroke()
   ctx.restore()
 
-  // ── 5. BADGE — TAB PENDURADO DO TOPO ─────────────────────────────────────
+  // ── 5. BADGE — plaquinha limpa no topo ───────────────────────────────────
   ctx.save()
 
-  // Dimensões
-  const BW = 160, BH = 30
+  const BH = 28, BY = 0
+  const BADGE_TEXT = `◇  ${TL}  ◇`
+
+  // Mede o texto para dimensionar o badge
+  ctx.font = 'bold 11px system-ui, sans-serif'
+  ctx.letterSpacing = '0.14em'
+  const BW = Math.max(160, ctx.measureText(BADGE_TEXT).width + 40)
   const BX = (W - BW) / 2
-  const BY = 0  // começa no topo do card
 
-  // Fundo escuro com gradiente
+  // Fundo
   const bBg = ctx.createLinearGradient(0, BY, 0, BY + BH)
-  bBg.addColorStop(0, '#161000')
-  bBg.addColorStop(1, '#0f0a00')
+  bBg.addColorStop(0, '#1c1200'); bBg.addColorStop(1, '#100b00')
 
-  // Shape: topo reto (fica "preso" na borda superior), base com cantos cortados
+  // Shape: trapézio — topo colado na moldura, base levemente mais larga
+  const TAPER = 8
   ctx.beginPath()
-  ctx.moveTo(BX, BY)                      // top-left
-  ctx.lineTo(BX + BW, BY)                 // top-right
-  ctx.lineTo(BX + BW, BY + BH - 6)        // right antes do corte
-  ctx.lineTo(BX + BW - 6, BY + BH)        // corte direito
-  ctx.lineTo(BX + 6, BY + BH)             // base
-  ctx.lineTo(BX, BY + BH - 6)             // corte esquerdo
+  ctx.moveTo(BX + TAPER, BY)           // top-left
+  ctx.lineTo(BX + BW - TAPER, BY)      // top-right
+  ctx.lineTo(BX + BW, BY + BH)         // base-right
+  ctx.lineTo(BX, BY + BH)              // base-left
   ctx.closePath()
 
-  ctx.shadowColor = TG; ctx.shadowBlur = 18
+  ctx.shadowColor = TG; ctx.shadowBlur = 20
   ctx.fillStyle = bBg; ctx.fill()
 
-  // Borda — sem o topo (fica "colado" na moldura)
+  // Borda principal — apenas os 3 lados (sem o topo)
   ctx.beginPath()
-  ctx.moveTo(BX, BY + BH - 6)
-  ctx.lineTo(BX, BY)
-  ctx.moveTo(BX + BW, BY)
-  ctx.lineTo(BX + BW, BY + BH - 6)
-  ctx.lineTo(BX + BW - 6, BY + BH)
-  ctx.lineTo(BX + 6, BY + BH)
-  ctx.lineTo(BX, BY + BH - 6)
-  ctx.shadowColor = TG; ctx.shadowBlur = 12
+  ctx.moveTo(BX + TAPER, BY)
+  ctx.lineTo(BX, BY + BH)
+  ctx.lineTo(BX + BW, BY + BH)
+  ctx.lineTo(BX + BW - TAPER, BY)
+  ctx.shadowColor = TG; ctx.shadowBlur = 14
   ctx.strokeStyle = TC; ctx.lineWidth = 1.5
   ctx.stroke()
 
-  // Reflexo superior interno
+  // Linha fina de brilho interna no topo
   ctx.shadowBlur = 0
-  ctx.strokeStyle = TG + '55'; ctx.lineWidth = 1
+  ctx.strokeStyle = TG + '70'; ctx.lineWidth = 1
   ctx.beginPath()
-  ctx.moveTo(BX + 1, BY + 1); ctx.lineTo(BX + BW - 1, BY + 1)
+  ctx.moveTo(BX + TAPER + 2, BY + 2)
+  ctx.lineTo(BX + BW - TAPER - 2, BY + 2)
   ctx.stroke()
 
-  // Linhas horizontais flanqueando o badge (esquerda e direita)
-  const lineY = BY + BH / 2
-  // Esquerda
-  const lg1 = ctx.createLinearGradient(12, 0, BX - 4, 0)
-  lg1.addColorStop(0, 'transparent'); lg1.addColorStop(1, TC + '80')
-  ctx.strokeStyle = lg1; ctx.lineWidth = 1; ctx.shadowBlur = 0
-  ctx.beginPath(); ctx.moveTo(12, lineY); ctx.lineTo(BX - 4, lineY); ctx.stroke()
-  // Direita
-  const lg2 = ctx.createLinearGradient(BX + BW + 4, 0, W - 12, 0)
-  lg2.addColorStop(0, TC + '80'); lg2.addColorStop(1, 'transparent')
-  ctx.strokeStyle = lg2; ctx.lineWidth = 1
-  ctx.beginPath(); ctx.moveTo(BX + BW + 4, lineY); ctx.lineTo(W - 12, lineY); ctx.stroke()
+  // Linhas laterais estendidas (saem do badge para os lados)
+  const midY = BY + BH * 0.6
+  const lineGradL = ctx.createLinearGradient(14, 0, BX - 2, 0)
+  lineGradL.addColorStop(0, 'transparent'); lineGradL.addColorStop(1, TC + '70')
+  ctx.strokeStyle = lineGradL; ctx.lineWidth = 1
+  ctx.beginPath(); ctx.moveTo(14, midY); ctx.lineTo(BX - 2, midY); ctx.stroke()
 
-  // Texto do tier — gradiente dourado
-  const txtGrad = ctx.createLinearGradient(0, BY + 4, 0, BY + BH - 4)
-  txtGrad.addColorStop(0, TG)
-  txtGrad.addColorStop(0.5, TC)
-  txtGrad.addColorStop(1, TG + 'cc')
-  ctx.fillStyle = txtGrad
-  ctx.shadowColor = TG; ctx.shadowBlur = 10
-  ctx.font = 'bold 12px system-ui, sans-serif'
+  const lineGradR = ctx.createLinearGradient(BX + BW + 2, 0, W - 14, 0)
+  lineGradR.addColorStop(0, TC + '70'); lineGradR.addColorStop(1, 'transparent')
+  ctx.strokeStyle = lineGradR
+  ctx.beginPath(); ctx.moveTo(BX + BW + 2, midY); ctx.lineTo(W - 14, midY); ctx.stroke()
+
+  // Texto — gradiente dourado
+  const tGrad = ctx.createLinearGradient(0, BY + 2, 0, BY + BH - 2)
+  tGrad.addColorStop(0, TG); tGrad.addColorStop(0.5, TC); tGrad.addColorStop(1, TG)
+  ctx.fillStyle = tGrad
+  ctx.shadowColor = TG; ctx.shadowBlur = 8
+  ctx.font = 'bold 11px system-ui, sans-serif'
+  ctx.letterSpacing = '0.14em'
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-  ctx.letterSpacing = '0.2em'
-  ctx.fillText(TL, W / 2 + 1, BY + BH / 2 + 1)
-
-  // Pequenos losangos flanqueando o texto
-  ctx.font = 'bold 6px system-ui, sans-serif'
-  ctx.shadowBlur = 6
-  ctx.font = 'bold 12px system-ui, sans-serif'
-  const tw = ctx.measureText(TL).width
-  ctx.font = 'bold 6px system-ui, sans-serif'
-  ctx.fillText('◆', W / 2 - tw / 2 - 10, BY + BH / 2 + 1)
-  ctx.fillText('◆', W / 2 + tw / 2 + 10, BY + BH / 2 + 1)
+  ctx.fillText(BADGE_TEXT, W / 2, BY + BH / 2 + 1)
 
   ctx.restore()
 
