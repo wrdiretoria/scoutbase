@@ -798,24 +798,44 @@ export default async function JogadorPublicoPage({ params }: Props) {
                 qualquer: '✈️ Qualquer lugar', estado: '📍 No meu estado', nao: '🏠 Cidade atual',
               }
               const OBJ_LABEL: Record<string, string> = {
-                clube_pro: '🏟 Clube profissional', estadual: '🏆 Estadual',
+                clube_pro: '🏟 Clube profissional', estadual: '🏆 Disputar estadual',
                 profissional: '⭐ Virar profissional', exterior: '🌍 Jogar no exterior',
+              }
+              const CLUBE_LABEL: Record<string, string> = {
+                sim_atual: '✅ Sim, atualmente', ja_estive: '📋 Já estive',
+                ainda_nao: '🎯 Ainda não, mas quero', nao: '➖ Não tenho esse objetivo',
+              }
+              const ANOS_LABEL: Record<string, string> = {
+                menos1: '⏱ Menos de 1 ano', '1a3': '📅 1 a 3 anos',
+                '3a5': '📆 3 a 5 anos',     mais5: '🏆 Mais de 5 anos',
+              }
+              const FREQ_LABEL: Record<string, string> = {
+                '1a2': '🗓 1 a 2 vezes/semana', '3a4': '💪 3 a 4 vezes/semana',
+                '5+': '🔥 5 ou mais vezes/semana', parado: '⏸ Não estou treinando',
+              }
+              const SUPORTE_LABEL: Record<string, string> = {
+                familia: '👨‍👩‍👦 Família', empresario: '🤝 Empresário',
+                treinador_particular: '👨‍🏫 Treinador particular', sozinho: '🧍 Sozinho por agora',
               }
               const tags = [
                 ESTILO_LABEL[questionario.estilo],
                 CARACT_LABEL[questionario.caracteristica],
               ].filter(Boolean)
-              const nivel    = NIVEL_LABEL[questionario.nivel_competicao]
-              const disp     = DISP_LABEL[questionario.disponibilidade]
+              const nivel   = NIVEL_LABEL[questionario.nivel_competicao]
+              const disp    = DISP_LABEL[questionario.disponibilidade]
               const objetivo = OBJ_LABEL[questionario.objetivo]
-              if (!tags.length && !nivel && !disp && !objetivo) return null
+              const clube   = CLUBE_LABEL[questionario.clube_profissional]
+              const anos    = ANOS_LABEL[questionario.anos_treinando]
+              const freq    = FREQ_LABEL[questionario.frequencia]
+              const suporte = SUPORTE_LABEL[questionario.suporte]
+              if (!tags.length && !nivel && !disp && !objetivo && !clube && !anos && !freq && !suporte) return null
               return (
                 <div style={{ background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', padding: '18px' }}>
                   <p style={{ margin: '0 0 12px', fontSize: '10px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                     ⚽ Perfil do Atleta
                   </p>
                   {tags.length > 0 && (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: nivel || disp || objetivo ? '10px' : 0 }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '10px' }}>
                       {tags.map(t => (
                         <span key={t} style={{ padding: '4px 12px', borderRadius: '100px', fontSize: '12px', fontWeight: 700, background: 'rgba(34,197,94,0.10)', border: '1px solid rgba(34,197,94,0.22)', color: '#22c55e' }}>
                           {t}
@@ -825,8 +845,12 @@ export default async function JogadorPublicoPage({ params }: Props) {
                   )}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     {nivel    && <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.60)' }}>Nível: <strong style={{ color: 'rgba(255,255,255,0.88)' }}>{nivel}</strong></p>}
+                    {clube    && <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.60)' }}>Clube profissional: <strong style={{ color: 'rgba(255,255,255,0.88)' }}>{clube}</strong></p>}
+                    {anos     && <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.60)' }}>Anos treinando: <strong style={{ color: 'rgba(255,255,255,0.88)' }}>{anos}</strong></p>}
+                    {freq     && <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.60)' }}>Frequência: <strong style={{ color: 'rgba(255,255,255,0.88)' }}>{freq}</strong></p>}
                     {disp     && <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.60)' }}>Disponibilidade: <strong style={{ color: 'rgba(255,255,255,0.88)' }}>{disp}</strong></p>}
                     {objetivo && <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.60)' }}>Objetivo: <strong style={{ color: 'rgba(255,255,255,0.88)' }}>{objetivo}</strong></p>}
+                    {suporte  && <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.60)' }}>Suporte na carreira: <strong style={{ color: 'rgba(255,255,255,0.88)' }}>{suporte}</strong></p>}
                   </div>
                 </div>
               )
