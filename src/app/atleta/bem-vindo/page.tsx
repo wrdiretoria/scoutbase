@@ -902,6 +902,28 @@ function BemVindoContent() {
           </div>
         )}
 
+        {/* ── Banner: adicionar foto ── */}
+        {!avatarUrl && (
+          <Link href="/atleta/perfil" style={{ textDecoration:'none', width:'100%' }}>
+            <div style={{
+              width:'100%', padding:'14px 16px', borderRadius:'14px',
+              background:'rgba(251,191,36,0.07)', border:'1px solid rgba(251,191,36,0.25)',
+              display:'flex', alignItems:'center', gap:'12px', boxSizing:'border-box',
+            }}>
+              <span style={{ fontSize:'22px', flexShrink:0 }}>📸</span>
+              <div>
+                <p style={{ margin:0, fontSize:'13px', fontWeight:800, color:'rgba(251,191,36,0.9)' }}>
+                  Adicione uma foto ao seu perfil
+                </p>
+                <p style={{ margin:'2px 0 0', fontSize:'11px', color:'rgba(255,255,255,0.4)', lineHeight:1.4 }}>
+                  Atletas com foto recebem 3× mais visitas de scouts
+                </p>
+              </div>
+              <span style={{ marginLeft:'auto', fontSize:'14px', color:'rgba(251,191,36,0.6)', flexShrink:0 }}>→</span>
+            </div>
+          </Link>
+        )}
+
         {/* ── Botões ── */}
         <div className="anim-btns" style={{ width:'100%', display:'flex', flexDirection:'column', gap:'10px' }}>
           <button

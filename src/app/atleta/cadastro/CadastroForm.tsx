@@ -86,10 +86,6 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
       return
     }
 
-    if (!photo) {
-      setError('Adicione uma foto para continuar — ela é obrigatória para criar seu card.')
-      return
-    }
     setError(null)
     setStep(2)
   }
@@ -306,7 +302,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
             {/* ── FOTO ── */}
             <div>
               <label style={labelStyle}>
-                Foto do atleta <span style={{ color: '#ef4444' }}>*</span>
+                Foto do atleta <span style={{ color: 'rgba(255,255,255,0.3)', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(opcional)</span>
               </label>
 
               {/* Guia visual */}
@@ -379,8 +375,8 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
                 onClick={() => fileInputRef.current?.click()}
                 style={{
                   width: '100%', borderRadius: '14px', cursor: 'pointer',
-                  border: `2px dashed ${photoPreview ? 'rgba(34,197,94,0.5)' : 'rgba(239,100,100,0.35)'}`,
-                  background: photoPreview ? 'rgba(34,197,94,0.04)' : 'rgba(239,68,68,0.03)',
+                  border: `2px dashed ${photoPreview ? 'rgba(34,197,94,0.5)' : 'rgba(255,255,255,0.12)'}`,
+                  background: photoPreview ? 'rgba(34,197,94,0.04)' : 'rgba(255,255,255,0.02)',
                   display: 'flex', flexDirection: 'column', alignItems: 'center',
                   justifyContent: 'center', padding: photoPreview ? '8px' : '20px 16px',
                   gap: '8px', transition: 'all 0.2s', boxSizing: 'border-box',
@@ -398,8 +394,8 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
                     <p style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: 'rgba(255,255,255,0.7)' }}>
                       Toque para adicionar foto
                     </p>
-                    <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,150,150,0.7)', fontWeight: 600 }}>
-                      obrigatória — sem foto não dá pra criar o card
+                    <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.3)', fontWeight: 500 }}>
+                      Adicione agora ou depois no seu perfil
                     </p>
                   </>
                 )}
