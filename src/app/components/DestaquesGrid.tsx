@@ -98,9 +98,9 @@ async function fetchDestaques(): Promise<AtletaCard[]> {
 }
 
 const TIER_STYLE = {
-  OURO:   { badge: '#f0c040', badgeBg: 'rgba(212,168,67,0.18)', border: 'rgba(212,168,67,0.35)', glow: 'rgba(212,168,67,0.20)', photoBg: 'linear-gradient(160deg,#3d2e05,#1a1400)' },
-  PRATA:  { badge: '#c0c0d8', badgeBg: 'rgba(192,192,210,0.14)', border: 'rgba(192,192,210,0.28)', glow: 'rgba(192,192,210,0.12)', photoBg: 'linear-gradient(160deg,#1e2028,#0e0f18)' },
-  BRONZE: { badge: '#d4804a', badgeBg: 'rgba(180,100,40,0.16)', border: 'rgba(180,100,40,0.30)', glow: 'rgba(180,100,40,0.14)', photoBg: 'linear-gradient(160deg,#2e1400,#140800)' },
+  OURO:   { badge: '#f0c040', badgeBg: 'rgba(212,168,67,0.18)', border: '#d4a843', glow: 'rgba(212,168,67,0.30)', photoBg: 'linear-gradient(160deg,#3d2e05,#1a1400)' },
+  PRATA:  { badge: '#c0c0d8', badgeBg: 'rgba(192,192,210,0.14)', border: '#a0a0c0', glow: 'rgba(192,192,210,0.22)', photoBg: 'linear-gradient(160deg,#1e2028,#0e0f18)' },
+  BRONZE: { badge: '#d4804a', badgeBg: 'rgba(180,100,40,0.16)', border: '#b46028', glow: 'rgba(180,100,40,0.24)', photoBg: 'linear-gradient(160deg,#2e1400,#140800)' },
 }
 
 export default async function DestaquesGrid() {
@@ -132,7 +132,7 @@ export default async function DestaquesGrid() {
           border-radius: 16px;
           overflow: hidden;
           background: #0b1610;
-          border: 1px solid rgba(255,255,255,0.07);
+          border: none;
           transition: transform .18s, box-shadow .18s;
           cursor: pointer;
           text-decoration: none;
@@ -233,8 +233,7 @@ export default async function DestaquesGrid() {
           const t = TIER_STYLE[a.tier]
           return (
             <Link key={a.id} href={a.athleteId ? `/atleta/${a.athleteId.replace(/^[A-Z]+-/, '')}` : `/atleta/${a.id}`} className="dg-card" style={{
-              boxShadow: `0 0 20px ${t.glow}`,
-              borderColor: t.border,
+              boxShadow: `0 0 0 1.5px ${t.border}, 0 0 22px ${t.glow}, 0 8px 32px rgba(0,0,0,0.70)`,
             }}>
               {/* Foto */}
               <div className="dg-photo" style={{ background: t.photoBg }}>
