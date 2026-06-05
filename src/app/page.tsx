@@ -543,23 +543,6 @@ export default async function LandingPage() {
               </Link>
             </div>
 
-            {/* Social proof — mobile */}
-            <div className="hero-social h-social">
-              <div className="hero-avatars">
-                {[
-                  { init:'RF', bg:'#1a6b3c' },
-                  { init:'MC', bg:'#1e3a5f' },
-                  { init:'LS', bg:'#5f1e3a' },
-                  { init:'PA', bg:'#3a5f1e' },
-                  { init:'GV', bg:'#3a1e5f' },
-                ].map(({ init, bg }) => (
-                  <div key={init} className="hero-av" style={{ background: bg }}>{init}</div>
-                ))}
-              </div>
-              <p className="hero-social-txt">
-                <strong>{atletasNoRadar}</strong> atleta{atletasNoRadar !== 1 ? 's' : ''} no radar
-              </p>
-            </div>
           </div>
 
           {/* RIGHT — Tier cards no desktop */}
