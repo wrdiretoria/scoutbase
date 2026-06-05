@@ -169,16 +169,23 @@ export default function LiveFeed() {
         .feed-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
+          grid-auto-rows: 1fr;
           gap: 0;
-          /* Linha dourada vertical entre colunas */
           column-gap: 0;
           row-gap: 0;
+          align-items: stretch;
         }
 
         /* Cada card tem borda direita e inferior dourada */
         .feed-grid > * {
           position: relative;
           padding: 10px;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .feed-grid > * > * {
+          flex: 1;
         }
 
         /* Linha vertical dourada entre colunas */
