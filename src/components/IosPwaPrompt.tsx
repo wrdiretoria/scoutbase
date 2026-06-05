@@ -6,25 +6,21 @@ export default function IosPwaPrompt() {
   const [show, setShow] = useState(false)
 
   useEffect(() => {
-    // Detecta iOS Safari
+    // Detecta iOS Safari (inclui Chrome/Firefox no iOS que também usam WebKit)
     const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent)
+      || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
     // Detecta se já está instalado como PWA (standalone)
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches
       || ('standalone' in window.navigator && (window.navigator as { standalone?: boolean }).standalone === true)
-    // Verifica se o usuário já fechou o banner antes
-    const dismissed = sessionStorage.getItem('iosPwaDismissed')
 
-    if (isIos && !isStandalone && !dismissed) {
-      // Aguarda 3s para não aparecer imediatamente
-      const t = setTimeout(() => setShow(true), 3000)
-      return () => clearTimeout(t)
+    if (isIos && !isStandalone) {
+      setShow(true)
     }
   }, [])
 
   if (!show) return null
 
   function dismiss() {
-    sessionStorage.setItem('iosPwaDismissed', '1')
     setShow(false)
   }
 
