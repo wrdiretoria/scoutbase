@@ -73,6 +73,15 @@ button, a, [role="button"] {
   touch-action: manipulation;
 }
 
+/* Prevent iOS Safari auto-zoom on input focus.
+   Safari zooms in whenever an input has font-size < 16px.
+   !important is needed to override inline styles. */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+select,
+textarea {
+  font-size: 16px !important;
+}
+
 /* ── Skeleton shimmer ───────────────────────────────────────
    Use className="skel" on placeholder divs during loading.
    No additional props needed — radius via inline style.
