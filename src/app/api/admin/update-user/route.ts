@@ -1,7 +1,8 @@
 ﻿import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient, createAdminClient } from '@/lib/supabase'
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? 'wrdiretoria@gmail.com'
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL
+if (!ADMIN_EMAIL) throw new Error('ADMIN_EMAIL env var não configurada')
 
 export async function POST(req: NextRequest) {
   const supabase = await createServerClient()

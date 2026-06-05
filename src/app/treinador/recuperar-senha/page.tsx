@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase'
 
 export default function TreinadorRecuperarSenhaPage() {
   const [treinadorId, setTreinadorId] = useState('')
@@ -15,29 +14,18 @@ export default function TreinadorRecuperarSenhaPage() {
     setError(null)
     setLoading(true)
 
-    // Normaliza para TR-XXXXX e busca o email no banco
-    const digitos  = treinadorId.trim().replace(/\D/g, '').padStart(5, '0')
-    const trId     = `TR-${digitos}`
-
-    const lookup = await fetch('/api/auth/buscar-por-id', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ athleteId: trId }),
-    })
-
-    if (!lookup.ok) {
-      setError('ID não encontrado. Verifique e tente novamente.')
-      setLoading(false)
-      return
-    }
-
-    const { email } = await lookup.json() as { email: string }
-    const supabase  = createClient()
+    const digitos    = treinadorId.trim().replace(/\D/g, '').padStart(5, '0')
+    const athleteId  = `TR-${digitos}`
     const redirectTo = `${window.location.origin}/treinador/nova-senha`
 
-    const { error: err } = await supabase.auth.resetPasswordForEmail(email, { redirectTo })
+    // Reset feito server-side para nunca expor o email ao browser
+    const res = await fetch('/api/auth/reset-por-id', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ athleteId, redirectTo }),
+    })
 
-    if (err) {
+    if (!res.ok) {
       setError('Não foi possível enviar o email. Tente novamente.')
     } else {
       setSent(true)

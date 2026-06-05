@@ -76,34 +76,38 @@ export default function LoginPage() {
     setError(null)
     setLoading(true)
 
-    let emailParaLogin = identifier
-
     if (area === 'atleta' || area === 'treinador') {
-      const raw      = identifier.trim().toUpperCase().replace(/\D/g, '').padStart(5, '0')
-      const prefix   = area === 'atleta' ? 'MC' : 'TR'
+      const raw       = identifier.trim().toUpperCase().replace(/\D/g, '').padStart(5, '0')
+      const prefix    = area === 'atleta' ? 'MC' : 'TR'
       const athleteId = `${prefix}-${raw}`
-      const res = await fetch('/api/auth/buscar-por-id', {
+      const res = await fetch('/api/auth/signin-por-id', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ athleteId }),
+        body: JSON.stringify({ athleteId, password }),
       })
       if (!res.ok) {
-        setError('ID não encontrado. Verifique e tente novamente.')
+        const body = await res.json().catch(() => ({})) as { error?: string }
+        setError(body.error === 'Credenciais incorretas.' ? 'Senha incorreta.' : 'ID não encontrado. Verifique e tente novamente.')
         setLoading(false)
         return
       }
-      const { email } = await res.json() as { email: string }
-      emailParaLogin = email
+      const { tipo } = await res.json() as { tipo: string }
+      if (tipo === 'atleta' || area === 'atleta') {
+        router.push('/atleta/perfil')
+      } else {
+        router.push('/treinador/dashboard')
+      }
+      return
     }
 
     const supabase = createClient()
     const { data, error: signInErr } = await supabase.auth.signInWithPassword({
-      email: emailParaLogin,
+      email: identifier,
       password,
     })
 
     if (signInErr || !data.user) {
-      setError(area === 'atleta' ? 'Senha incorreta.' : 'Email ou senha incorretos.')
+      setError('Email ou senha incorretos.')
       setLoading(false)
       return
     }
@@ -115,11 +119,7 @@ export default function LoginPage() {
       router.push('/atleta/perfil')
     } else if (tipo === 'treinador' || tipo === 'escola') {
       router.push('/treinador/dashboard')
-    } else if (area === 'atleta') {
-      // tipo ausente no metadata, mas usuário entrou como atleta
-      router.push('/atleta/perfil')
     } else {
-      // treinador/escola sem metadata definido — dashboard é seguro
       router.push('/treinador/dashboard')
     }
   }

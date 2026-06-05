@@ -1,28 +1,34 @@
 /**
  * POST /api/atleta/recuperar-senha
  * Verifica athleteId + recoveryEmail → atualiza a senha via admin
+ *
+ * Rate limit duplo:
+ *   - Por IP: 5 tentativas/hora (em memória — redefine no redeploy, limitação conhecida)
+ *   - Por athleteId: 3 tentativas/hora (em memória — idem)
+ * Para rate limit persistente, instale Upstash Redis (@upstash/ratelimit).
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
 
-// Rate-limit: 5 tentativas por IP por hora
-const attempts = new Map<string, { count: number; resetAt: number }>()
+const byIp      = new Map<string, { count: number; resetAt: number }>()
+const byAthleteId = new Map<string, { count: number; resetAt: number }>()
 
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const entry = attempts.get(ip)
+function checkLimit(map: Map<string, { count: number; resetAt: number }>, key: string, max: number): boolean {
+  const now   = Date.now()
+  const entry = map.get(key)
   if (!entry || now > entry.resetAt) {
-    attempts.set(ip, { count: 1, resetAt: now + 3_600_000 })
+    map.set(key, { count: 1, resetAt: now + 3_600_000 })
     return true
   }
-  if (entry.count >= 5) return false
+  if (entry.count >= max) return false
   entry.count++
   return true
 }
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
-  if (!checkRateLimit(ip)) {
+
+  if (!checkLimit(byIp, ip, 5)) {
     return NextResponse.json({ error: 'Muitas tentativas. Tente novamente em 1 hora.' }, { status: 429 })
   }
 
@@ -36,17 +42,25 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Dados incompletos.' }, { status: 400 })
   }
 
-  if (novaSenha.length < 6) {
-    return NextResponse.json({ error: 'A senha deve ter pelo menos 6 caracteres.' }, { status: 400 })
+  const idFormatado = athleteId.trim().toUpperCase()
+  if (!/^(MC|TR)-\d{5}$/.test(idFormatado)) {
+    return NextResponse.json({ error: 'ID inválido.' }, { status: 400 })
+  }
+
+  if (!checkLimit(byAthleteId, idFormatado, 3)) {
+    return NextResponse.json({ error: 'Muitas tentativas para este ID. Tente novamente em 1 hora.' }, { status: 429 })
+  }
+
+  if (novaSenha.length < 8) {
+    return NextResponse.json({ error: 'A senha deve ter pelo menos 8 caracteres.' }, { status: 400 })
   }
 
   const admin = createAdminClient()
 
-  // 1. Busca perfil pelo ID + email de recuperação
   const { data: profile, error: profileErr } = await admin
     .from('profiles')
     .select('id')
-    .eq('athlete_id', athleteId.toUpperCase().trim())
+    .eq('athlete_id', idFormatado)
     .eq('recovery_email', recoveryEmail.toLowerCase().trim())
     .maybeSingle()
 
@@ -54,14 +68,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'ID ou email de recuperação incorretos.' }, { status: 404 })
   }
 
-  // 2. Atualiza a senha via admin
   const { error: updateErr } = await admin.auth.admin.updateUserById(
     profile.id,
     { password: novaSenha }
   )
 
   if (updateErr) {
-    console.error('[recuperar-senha]', updateErr)
+    console.error('[recuperar-senha] update error code:', updateErr.code)
     return NextResponse.json({ error: 'Não foi possível redefinir a senha.' }, { status: 500 })
   }
 
