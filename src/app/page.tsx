@@ -444,7 +444,7 @@ export default async function LandingPage() {
                 color:'rgba(255,255,255,0.42)',
                 letterSpacing:'0.20em', textTransform:'uppercase',
               }}>
-                PERFIL OFICIAL DE ATLETA
+                APERTE O PLAY
               </span>
             </div>
 
@@ -467,7 +467,7 @@ export default async function LandingPage() {
                   MozOsxFontSmoothing:'grayscale',
                   textShadow:'0 2px 32px rgba(0,0,0,0.75)',
                 }}>
-                  SEU CARD.
+                  SEU PERFIL
                 </span>
                 <span className="h-line-2 hero-h1-line" style={{
                   display:'block',
@@ -480,7 +480,7 @@ export default async function LandingPage() {
                   MozOsxFontSmoothing:'grayscale',
                   textShadow:'0 2px 32px rgba(0,0,0,0.75)',
                 }}>
-                  <span style={{ color:'white' }}>SEUS </span><span style={{ color:'#00FF88' }}>SCOUTS.</span>
+                  <span style={{ color:'white' }}>DE </span><span style={{ color:'#00FF88' }}>ATLETA.</span>
                 </span>
               </h1>
 
@@ -512,7 +512,7 @@ export default async function LandingPage() {
               color:'rgba(255,255,255,0.70)',
               letterSpacing:'0.01em', lineHeight:1.5,
             }}>
-              Crie seu perfil, receba avaliação de treinadores<br/>e entre no radar dos scouts.
+              Gratuito. Avaliado por treinadores. Visto por scouts e clubes.
             </p>
 
 
