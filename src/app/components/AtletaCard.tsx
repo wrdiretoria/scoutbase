@@ -165,6 +165,7 @@ export default function AtletaCard({
           flexShrink: 0,
           cursor:     href ? 'pointer' : 'default',
           animation:  animate ? 'acFloat 5s ease-in-out infinite' : 'none',
+          filter:     `drop-shadow(0 0 6px ${tier.color}99) drop-shadow(0 0 1px ${tier.color})`,
         }}
       >
         {href && (
