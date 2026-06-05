@@ -467,7 +467,7 @@ export default async function LandingPage() {
                   MozOsxFontSmoothing:'grayscale',
                   textShadow:'0 2px 32px rgba(0,0,0,0.75)',
                 }}>
-                  SEU PERFIL
+                  CRIE SEU PERFIL
                 </span>
                 <span className="h-line-2 hero-h1-line" style={{
                   display:'block',
