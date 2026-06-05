@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 const navLinks = [
@@ -13,6 +13,26 @@ const navLinks = [
 
 export default function NavBar() {
   const [open, setOpen] = useState(false)
+  const [installPrompt, setInstallPrompt] = useState<Event | null>(null)
+  const [showInstall, setShowInstall] = useState(false)
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault()
+      setInstallPrompt(e)
+      setShowInstall(true)
+    }
+    window.addEventListener('beforeinstallprompt', handler)
+    return () => window.removeEventListener('beforeinstallprompt', handler)
+  }, [])
+
+  async function handleInstall() {
+    if (!installPrompt) return
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (installPrompt as any).prompt()
+    setShowInstall(false)
+    setInstallPrompt(null)
+  }
 
   return (
     <>
@@ -132,6 +152,20 @@ export default function NavBar() {
 
           {/* Action buttons */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '36px' }}>
+            {showInstall && (
+              <button
+                onClick={handleInstall}
+                style={{
+                  padding: '16px', textAlign: 'center', fontSize: '16px', fontWeight: 700,
+                  color: 'white', background: 'rgba(0,255,136,0.1)',
+                  border: '1.5px solid rgba(0,255,136,0.35)',
+                  borderRadius: '14px', cursor: 'pointer', fontFamily: 'system-ui, sans-serif',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                }}
+              >
+                📲 Instalar app
+              </button>
+            )}
             <Link
               href="/login"
               onClick={() => setOpen(false)}
