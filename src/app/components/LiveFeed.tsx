@@ -66,7 +66,7 @@ export default function LiveFeed() {
 
   // ── Initial load + polling ───────────────────────────────────────────────────
   useEffect(() => {
-    loadEvents({ limit: 8 })
+    loadEvents({ limit: 16 })
     const iv = setInterval(() => loadEvents({ limit: 3, prepend: true }), POLL_MS)
     return () => clearInterval(iv)
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -274,7 +274,7 @@ export default function LiveFeed() {
         {/* ── Cards ── */}
         {loading && events.length === 0 ? (
           <div className="feed-grid">
-            {[0, 1, 2, 3].map(i => (
+            {[0, 1, 2, 3, 4, 5, 6, 7].map(i => (
               <div key={i} className="feed-skeleton skel"
                 style={{ animation: `feedSlideIn .4s ease both ${i * 0.06}s` }} />
             ))}
