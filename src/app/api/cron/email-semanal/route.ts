@@ -109,7 +109,7 @@ export async function GET(req: NextRequest) {
         // Pequena pausa entre emails para evitar rate limit
         await new Promise(r => setTimeout(r, 120))
       } catch (err) {
-        console.error(`[cron] Erro ao enviar para ${atleta.email}:`, err)
+        console.error('[cron] Erro ao enviar email:', (err as Error)?.message ?? 'unknown')
         erros++
       }
     }

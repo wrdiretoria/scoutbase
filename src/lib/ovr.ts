@@ -18,7 +18,6 @@
  */
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { unstable_cache } from 'next/cache'
-import { listAllUsers } from '@/lib/auth'
 
 type ProfileRow = {
   id:         string
@@ -77,11 +76,14 @@ export async function fetchOvrMap(admin: SupabaseClient): Promise<Map<string, nu
 
   if (!profiles || profiles.length === 0) return map
 
-  // 2. Todos os user_metadata de uma vez (evita N+1)
-  const authUsers = await listAllUsers(admin)
+  // 2. user_metadata apenas dos atletas presentes nos profiles (evita N+1 e listAllUsers)
+  const profileIds = (profiles as ProfileRow[]).map(p => p.id)
+  const authResults = await Promise.all(
+    profileIds.map(id => admin.auth.admin.getUserById(id).then(r => r.data.user))
+  )
   const metaByUuid = new Map<string, UserMeta>()
-  for (const u of authUsers) {
-    metaByUuid.set(u.id, (u.user_metadata ?? {}) as UserMeta)
+  for (const u of authResults) {
+    if (u) metaByUuid.set(u.id, (u.user_metadata ?? {}) as UserMeta)
   }
 
   // 3. Todas as avaliações com score
@@ -129,20 +131,23 @@ export async function fetchOvrMapByUuid(admin: SupabaseClient): Promise<Map<stri
     async (): Promise<Record<string, number>> => {
       const result: Record<string, number> = {}
 
+      // Filtra apenas atletas reais (MC-) — evita listAllUsers para descobrir o tipo
       const { data: profiles } = await admin
         .from('profiles')
         .select('id, athlete_id, avatar_url')
+        .like('athlete_id', 'MC-%')
 
       if (!profiles || profiles.length === 0) return result
 
-      const authUsers = await listAllUsers(admin)
-
-      const atletaUuids = new Set(
-        authUsers.filter(u => u.user_metadata?.tipo === 'atleta').map(u => u.id)
+      // Carrega user_metadata apenas dos IDs necessários
+      const profileIds = (profiles as ProfileRow[]).map(p => p.id)
+      const authResults = await Promise.all(
+        profileIds.map(id => admin.auth.admin.getUserById(id).then(r => r.data.user))
       )
+
       const metaByUuid = new Map<string, UserMeta>()
-      for (const u of authUsers) {
-        metaByUuid.set(u.id, (u.user_metadata ?? {}) as UserMeta)
+      for (const u of authResults) {
+        if (u) metaByUuid.set(u.id, (u.user_metadata ?? {}) as UserMeta)
       }
 
       const { data: avs } = await admin
@@ -158,7 +163,6 @@ export async function fetchOvrMapByUuid(admin: SupabaseClient): Promise<Map<stri
       }
 
       for (const profile of profiles as ProfileRow[]) {
-        if (!atletaUuids.has(profile.id)) continue
         const meta         = metaByUuid.get(profile.id) ?? {}
         const profileScore = calcProfileScore(profile, meta)
         const scores       = scoresByUuid.get(profile.id)
