@@ -39,9 +39,16 @@ html {
 body {
   /* Prevent overscroll rubber-band bleed on dark pages */
   overscroll-behavior-y: none;
+  /* Bloqueia scroll/bounce horizontal — evita balanço no iOS */
+  overflow-x: hidden;
   /* Crisp text everywhere */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  /* Necessário junto com body para o overflow-x funcionar no iOS Safari */
+  overflow-x: hidden;
 }
 
 /* Scrollbar — hidden on mobile, subtle on desktop */
