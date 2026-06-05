@@ -19,12 +19,15 @@ export default function TreinadorRecuperarIdPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email }),
     })
-    const data = await res.json() as { treinadorId?: string; nome?: string; error?: string }
+    const data = await res.json() as { ok?: boolean; treinadorId?: string; nome?: string; error?: string }
 
     if (!res.ok || data.error) {
       setError(data.error ?? 'Nenhum treinador encontrado.')
+    } else if (data.treinadorId) {
+      setResult({ treinadorId: data.treinadorId, nome: data.nome ?? '' })
     } else {
-      setResult({ treinadorId: data.treinadorId ?? '', nome: data.nome ?? '' })
+      // Resposta neutra — não revela se email existe
+      setError('Nenhum treinador encontrado com este email.')
     }
 
     setLoading(false)

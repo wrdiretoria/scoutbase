@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
-import { listAllUsers } from '@/lib/auth'
 
 export const revalidate = 30
 
@@ -45,16 +44,25 @@ export async function GET() {
       }
     }
 
-    // Posição e cidade via user_metadata
-    const authData = { users: await listAllUsers(admin) }
+    // Posição e cidade via user_metadata — busca apenas os IDs que aparecem no resultado
+    const idsNecessarios = [
+      ...new Set([
+        ...(avs ?? []).map(a => a.aluno_id as string),
+        ...(profiles ?? []).map(p => p.id as string),
+      ]),
+    ]
     const posMap    = new Map<string, string>()
     const cidadeMap = new Map<string, string>()
-    for (const u of authData?.users ?? []) {
-      const pos    = u.user_metadata?.posicao as string | undefined
-      const cidade = u.user_metadata?.cidade  as string | undefined
-      if (pos)    posMap.set(u.id, pos)
-      if (cidade) cidadeMap.set(u.id, cidade)
-    }
+    await Promise.all(
+      idsNecessarios.map(async (id) => {
+        const { data: { user } } = await admin.auth.admin.getUserById(id)
+        if (!user) return
+        const pos    = user.user_metadata?.posicao as string | undefined
+        const cidade = user.user_metadata?.cidade  as string | undefined
+        if (pos)    posMap.set(id, pos)
+        if (cidade) cidadeMap.set(id, cidade)
+      })
+    )
 
     const items: HeroAtleta[] = []
 

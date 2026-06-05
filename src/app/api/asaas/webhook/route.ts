@@ -45,13 +45,15 @@ export async function POST(req: NextRequest) {
 
     const supabase = await createServerClient()
 
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
     // ── Card de Avaliação: pagamento identificado pelo externalReference ──
     if (
       (event === 'PAYMENT_RECEIVED' || event === 'PAYMENT_CONFIRMED') &&
       payment.externalReference?.startsWith('carta_')
     ) {
       const userId = payment.externalReference.replace('carta_', '')
-      if (userId) {
+      if (userId && UUID_RE.test(userId)) {
         const adminClient = createAdminClient()
         const { data: { user: atletaUser } } = await adminClient.auth.admin.getUserById(userId)
         // Idempotência: ignora se este payment.id já foi processado
@@ -64,9 +66,9 @@ export async function POST(req: NextRequest) {
               pagamentos_processados: [...processados, payment.id],
             },
           })
-          console.log(`[webhook] Card adicionado para userId=${userId} (total: ${atual + 1})`)
+          console.log('[webhook] carta: card adicionado, total:', atual + 1)
         } else {
-          console.log(`[webhook] Pagamento ${payment.id} já processado — ignorado.`)
+          console.log('[webhook] carta: pagamento já processado, ignorado')
         }
       }
       return NextResponse.json({ ok: true, event, tipo: 'carta' })
@@ -78,7 +80,7 @@ export async function POST(req: NextRequest) {
       payment.externalReference?.startsWith('promover:')
     ) {
       const userId = payment.externalReference.replace('promover:', '')
-      if (userId) {
+      if (userId && UUID_RE.test(userId)) {
         const adminClient = createAdminClient()
         const { data: { user: atletaUser } } = await adminClient.auth.admin.getUserById(userId)
         // Idempotência: ignora se este payment.id já foi processado
@@ -92,9 +94,9 @@ export async function POST(req: NextRequest) {
               pagamentos_processados: [...processados, payment.id],
             },
           })
-          console.log(`[webhook] Promoção ativada para userId=${userId} até ${promovido_ate.toISOString()}`)
+          console.log('[webhook] promover: promoção ativada por 30 dias')
         } else {
-          console.log(`[webhook] Pagamento ${payment.id} já processado — ignorado.`)
+          console.log('[webhook] promover: pagamento já processado, ignorado')
         }
       }
       return NextResponse.json({ ok: true, event, tipo: 'promover' })

@@ -35,8 +35,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Nenhum arquivo enviado.' }, { status: 400 })
   }
 
+  const MAX_BYTES = 5 * 1024 * 1024 // 5 MB
+  if (file.size > MAX_BYTES) {
+    return NextResponse.json({ error: 'Arquivo muito grande. Máximo: 5 MB.' }, { status: 400 })
+  }
+
   const bytes = await file.arrayBuffer()
   const buffer = Buffer.from(bytes)
+
+  // Valida magic bytes — rejeita qualquer coisa que não seja JPEG, PNG ou WebP
+  const magic = buffer.subarray(0, 12)
+  const isJpeg = magic[0] === 0xFF && magic[1] === 0xD8 && magic[2] === 0xFF
+  const isPng  = magic[0] === 0x89 && magic[1] === 0x50 && magic[2] === 0x4E && magic[3] === 0x47
+  const isWebp = magic[0] === 0x52 && magic[1] === 0x49 && magic[2] === 0x46 && magic[3] === 0x46
+                && magic[8] === 0x57 && magic[9] === 0x45 && magic[10] === 0x42 && magic[11] === 0x50
+
+  if (!isJpeg && !isPng && !isWebp) {
+    return NextResponse.json({ error: 'Formato inválido. Envie JPEG, PNG ou WebP.' }, { status: 400 })
+  }
 
   const path = `${userId}.jpg`
 
