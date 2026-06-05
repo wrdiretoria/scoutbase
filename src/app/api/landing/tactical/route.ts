@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
-import { listAllUsers } from '@/lib/auth'
 
 export const revalidate = 30
 
@@ -82,10 +81,10 @@ export async function GET() {
 
     const atletaIds = [...new Set(avs.map(a => a.aluno_id as string))]
 
-    // ── 2. Profiles (nome, fotos) + auth users (posicao, cidade) em paralelo ──
-    const [profilesRes, authUsers] = await Promise.all([
+    // ── 2. Profiles (nome, fotos) + auth users (posicao, cidade) apenas dos IDs necessários ──
+    const [profilesRes, atletaUsers] = await Promise.all([
       admin.from('profiles').select('id, nome, fotos, athlete_id').in('id', atletaIds),
-      listAllUsers(admin),
+      Promise.all(atletaIds.map(id => admin.auth.admin.getUserById(id).then(r => r.data.user))),
     ])
 
     const profileMap = new Map<string, { nome: string; fotos: string[]; mcId: string | null }>()
@@ -99,7 +98,8 @@ export async function GET() {
     }
 
     const metaMap = new Map<string, { nome: string; posicao: string; cidade: string }>()
-    for (const u of authUsers) {
+    for (const u of atletaUsers) {
+      if (!u) continue
       metaMap.set(u.id, {
         nome:    (u.user_metadata?.nome    as string) ?? '',
         posicao: (u.user_metadata?.posicao as string) ?? '',
@@ -195,7 +195,14 @@ export async function GET() {
         counts.set(pid, (counts.get(pid) ?? 0) + 1)
       }
       const [topId, topCount] = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]
-      const tm = metaMap.get(topId)
+
+      // Busca metadados do treinador (pode não estar em atletaIds)
+      const tmUser = metaMap.get(topId)
+        ?? await admin.auth.admin.getUserById(topId).then(r => {
+          const u = r.data.user
+          return u ? { nome: (u.user_metadata?.nome as string) ?? '', posicao: '', cidade: (u.user_metadata?.cidade as string) ?? '' } : null
+        })
+      const tm = tmUser
 
       // Total de avaliações, scores e profile do treinador em paralelo
       const [

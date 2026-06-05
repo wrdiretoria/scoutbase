@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
-import { listAllUsers } from '@/lib/auth'
 
 export const revalidate = 30
 
@@ -57,16 +56,19 @@ export async function GET() {
       }
     }
 
-    // Busca posição e cidade de cada atleta via user_metadata (auth.users)
-    const authData = { users: await listAllUsers(admin) }
+    // Busca posição e cidade apenas dos atletas presentes no resultado
     const posMap    = new Map<string, string>()
     const cidadeMap = new Map<string, string>()
-    for (const u of authData?.users ?? []) {
-      const pos    = u.user_metadata?.posicao as string | undefined
-      const cidade = u.user_metadata?.cidade  as string | undefined
-      if (pos)    posMap.set(u.id, pos)
-      if (cidade) cidadeMap.set(u.id, cidade)
-    }
+    await Promise.all(
+      ids.map(async (id) => {
+        const { data: { user } } = await admin.auth.admin.getUserById(id)
+        if (!user) return
+        const pos    = user.user_metadata?.posicao as string | undefined
+        const cidade = user.user_metadata?.cidade  as string | undefined
+        if (pos)    posMap.set(id, pos)
+        if (cidade) cidadeMap.set(id, cidade)
+      })
+    )
 
     const items: FotoItem[] = comFotos.map(p => {
       const fotosArr = p.fotos as (string | null)[]
