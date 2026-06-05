@@ -26,13 +26,13 @@ export default function IosPwaPrompt() {
 
   return (
     <div style={{
-      position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 9999,
-      paddingBottom: 'env(safe-area-inset-bottom)',
+      position: 'fixed', top: 68, left: 12, right: 12, zIndex: 9999,
       background: 'rgba(10,22,14,0.98)',
-      borderTop: '1px solid rgba(0,255,136,0.25)',
+      border: '1px solid rgba(0,255,136,0.3)',
+      borderRadius: 16,
       backdropFilter: 'blur(20px)',
       WebkitBackdropFilter: 'blur(20px)',
-      boxShadow: '0 -4px 24px rgba(0,0,0,0.6)',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.7)',
       fontFamily: 'system-ui, sans-serif',
       WebkitTapHighlightColor: 'transparent',
     }}>
