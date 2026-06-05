@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
     .upload(path, buffer, { contentType, upsert: true })
 
   if (upErr) {
-    console.error('[upload-galeria] storage error code:', upErr.error)
+    console.error('[upload-galeria] storage error:', upErr.message)
     return NextResponse.json({ error: 'Erro ao salvar imagem.' }, { status: 500 })
   }
 
