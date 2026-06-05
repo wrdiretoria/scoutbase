@@ -47,8 +47,7 @@ body {
 }
 
 html {
-  /* Necessário junto com body para o overflow-x funcionar no iOS Safari */
-  overflow-x: hidden;
+  /* overflow-x removido — causava bloqueio de scroll vertical no Chrome */
 }
 
 /* Scrollbar — hidden on mobile, subtle on desktop */
