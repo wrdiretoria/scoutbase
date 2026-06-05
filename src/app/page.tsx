@@ -467,7 +467,7 @@ export default async function LandingPage() {
                   MozOsxFontSmoothing:'grayscale',
                   textShadow:'0 2px 32px rgba(0,0,0,0.75)',
                 }}>
-                  SEU CARD.
+                  SEJA
                 </span>
                 <span className="h-line-2 hero-h1-line" style={{
                   display:'block',
@@ -480,7 +480,7 @@ export default async function LandingPage() {
                   MozOsxFontSmoothing:'grayscale',
                   textShadow:'0 2px 32px rgba(0,0,0,0.75)',
                 }}>
-                  <span style={{ color:'white' }}>SEUS </span><span style={{ color:'#00FF88' }}>SCOUTS.</span>
+                  <span style={{ color:'#00FF88' }}>DESCOBERTO.</span>
                 </span>
               </h1>
 
@@ -512,7 +512,7 @@ export default async function LandingPage() {
               color:'rgba(255,255,255,0.70)',
               letterSpacing:'0.01em', lineHeight:1.5,
             }}>
-              Crie seu perfil, receba avaliação de treinadores<br/>e entre no radar dos scouts.
+              Monte seu perfil de atleta, receba avaliações e entre no radar dos scouts.
             </p>
 
 
