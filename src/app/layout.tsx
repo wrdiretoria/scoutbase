@@ -3,6 +3,7 @@ import { Bebas_Neue, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { SERVER_BASE_URL } from "@/lib/base-url";
 import ServiceWorkerRegister from "./components/ServiceWorkerRegister";
+import IosPwaPrompt from "@/components/IosPwaPrompt";
 
 const bebasNeue = Bebas_Neue({
   weight: "400",
@@ -71,6 +72,7 @@ export default function RootLayout({
       <body className="font-[family-name:var(--font-dm-sans)]">
         {children}
         <ServiceWorkerRegister />
+        <IosPwaPrompt />
       </body>
     </html>
   );
