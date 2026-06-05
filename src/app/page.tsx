@@ -444,7 +444,7 @@ export default async function LandingPage() {
                 color:'rgba(255,255,255,0.42)',
                 letterSpacing:'0.20em', textTransform:'uppercase',
               }}>
-                APERTE O PLAY
+                PERFIL OFICIAL DE ATLETA
               </span>
             </div>
 
@@ -467,7 +467,7 @@ export default async function LandingPage() {
                   MozOsxFontSmoothing:'grayscale',
                   textShadow:'0 2px 32px rgba(0,0,0,0.75)',
                 }}>
-                  APERTE
+                  SEU CARD.
                 </span>
                 <span className="h-line-2 hero-h1-line" style={{
                   display:'block',
@@ -480,7 +480,7 @@ export default async function LandingPage() {
                   MozOsxFontSmoothing:'grayscale',
                   textShadow:'0 2px 32px rgba(0,0,0,0.75)',
                 }}>
-                  <span style={{ color:'white' }}>O </span><span style={{ color:'#00FF88' }}>PLAY.</span>
+                  <span style={{ color:'white' }}>SEUS </span><span style={{ color:'#00FF88' }}>SCOUTS.</span>
                 </span>
               </h1>
 
@@ -507,12 +507,12 @@ export default async function LandingPage() {
             {/* Subheadline */}
             <p className="h-line-3" style={{
               margin:0, padding:0,
-              fontSize:'clamp(14px,1.5vw,20px)',
-              fontWeight:400, fontStyle:'italic',
-              color:'rgba(255,255,255,0.44)',
-              letterSpacing:'0.04em', lineHeight:1,
+              fontSize:'clamp(14px,1.5vw,18px)',
+              fontWeight:500,
+              color:'rgba(255,255,255,0.70)',
+              letterSpacing:'0.01em', lineHeight:1.5,
             }}>
-              O jogo começa aqui.
+              Crie seu perfil, receba avaliação de treinadores<br/>e entre no radar dos scouts.
             </p>
 
 
