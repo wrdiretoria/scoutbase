@@ -444,7 +444,7 @@ export default async function LandingPage() {
                 color:'rgba(255,255,255,0.42)',
                 letterSpacing:'0.20em', textTransform:'uppercase',
               }}>
-                PERFIL OFICIAL DE ATLETA
+                APERTE O PLAY
               </span>
             </div>
 
@@ -507,12 +507,12 @@ export default async function LandingPage() {
             {/* Subheadline */}
             <p className="h-line-3" style={{
               margin:0, padding:0,
-              fontSize:'clamp(14px,1.5vw,18px)',
-              fontWeight:500,
-              color:'rgba(255,255,255,0.70)',
-              letterSpacing:'0.01em', lineHeight:1.5,
+              fontSize:'clamp(14px,1.5vw,20px)',
+              fontWeight:400, fontStyle:'italic',
+              color:'rgba(255,255,255,0.44)',
+              letterSpacing:'0.04em', lineHeight:1,
             }}>
-              Gratuito. Avaliado por treinadores. Visto por scouts e clubes.
+              O jogo começa aqui.
             </p>
 
 
