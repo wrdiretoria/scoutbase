@@ -1,7 +1,57 @@
-import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
+import { NextResponse, type NextRequest } from 'next/server'
 
-// Rotas de API que não exigem sessão
+const ALWAYS_PUBLIC = [
+  '/ranking',
+  '/jogador',
+  '/scout/busca',
+  '/scout/cadastro',
+  '/scout/entrar',
+  '/atleta/cadastro',
+  '/atleta/recuperar-id',
+  '/atleta/recuperar-senha',
+  '/treinador/cadastro',
+  '/treinador/recuperar-id',
+  '/treinador/recuperar-senha',
+  '/cadastro',
+  '/planos',
+  '/termos',
+  '/p',
+]
+
+const PRIVATE_PREFIXES = [
+  '/atleta/perfil',
+  '/atleta/carta',
+  '/atleta/compartilhar',
+  '/atleta/historico',
+  '/atleta/promover',
+  '/atleta/questionario',
+  '/atleta/bem-vindo',
+  '/treinador/dashboard',
+  '/treinador/avaliar',
+  '/treinador/perfil',
+  '/treinador/compartilhar',
+  '/treinador/configurar',
+  '/treinador/nova-senha',
+  '/treinador/bem-vindo',
+  '/treinador/questionario',
+  '/scout/dashboard',
+  '/scout/favoritos',
+  '/avaliacoes',
+  '/pais/perfil',
+  '/admin',
+  '/dashboard',
+  '/agenda',
+  '/alunos',
+  '/configuracoes',
+  '/financeiro',
+  '/presencas',
+  '/relatorios',
+  '/turmas',
+]
+
+const AUTH_ROUTES = ['/login']
+
 const PUBLIC_API_PREFIXES = [
   '/api/landing/',
   '/api/cadastro/',
@@ -15,19 +65,26 @@ const PUBLIC_API_PREFIXES = [
   '/api/asaas/webhook',
 ]
 
-function isPublicRoute(pathname: string): boolean {
-  if (!pathname.startsWith('/api/')) return true
+function isAlwaysPublic(pathname: string) {
+  return ALWAYS_PUBLIC.some(p => pathname === p || pathname.startsWith(p + '/'))
+}
+
+function isPrivate(pathname: string) {
+  return PRIVATE_PREFIXES.some(p => pathname === p || pathname.startsWith(p + '/'))
+}
+
+function isAuthRoute(pathname: string) {
+  return AUTH_ROUTES.some(p => pathname === p || pathname.startsWith(p + '/'))
+}
+
+function isPublicApiRoute(pathname: string): boolean {
   return PUBLIC_API_PREFIXES.some((prefix) => pathname.startsWith(prefix))
 }
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  if (isPublicRoute(pathname)) {
-    return NextResponse.next()
-  }
-
-  const response = NextResponse.next()
+  let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -38,10 +95,11 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            request.cookies.set(name, value)
-            response.cookies.set(name, value, options)
-          })
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+          supabaseResponse = NextResponse.next({ request })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          )
         },
       },
     }
@@ -49,13 +107,44 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) {
-    return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 })
+  // Rotas de API
+  if (pathname.startsWith('/api/')) {
+    if (isPublicApiRoute(pathname)) return supabaseResponse
+    if (!user) {
+      return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 })
+    }
+    return supabaseResponse
   }
 
-  return response
+  // Rotas de página
+  if (isAlwaysPublic(pathname)) return supabaseResponse
+
+  if (isPrivate(pathname) && !user) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    url.searchParams.set('next', pathname)
+    return NextResponse.redirect(url)
+  }
+
+  if (isAuthRoute(pathname) && user) {
+    const tipo = user.user_metadata?.tipo as string | undefined
+    const url = request.nextUrl.clone()
+    if (tipo === 'treinador') {
+      url.pathname = '/treinador/dashboard'
+    } else if (tipo === 'scout') {
+      url.pathname = '/scout/dashboard'
+    } else {
+      url.pathname = '/atleta/perfil'
+    }
+    url.searchParams.delete('next')
+    return NextResponse.redirect(url)
+  }
+
+  return supabaseResponse
 }
 
 export const config = {
-  matcher: ['/api/:path*'],
+  matcher: [
+    '/((?!_next/static|_next/image|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff2?)$).*)',
+  ],
 }
