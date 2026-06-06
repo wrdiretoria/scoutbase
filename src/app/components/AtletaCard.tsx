@@ -83,8 +83,8 @@ export default function AtletaCard({
   const [imgErr, setImgErr] = useState(false)
   const showPhoto = !!foto && !imgErr
 
-  const parts    = nome.trim().split(' ')
-  const lastName  = (parts.length > 1 ? parts[parts.length - 1] : nome).toUpperCase()
+  const parts     = nome.trim().split(' ')
+  const lastName  = (parts.length > 1 ? (parts.length <= 3 ? parts.slice(1).join(' ') : parts[parts.length - 1]) : nome).toUpperCase()
   const firstName = (parts.length > 1 ? parts[0] : '').toUpperCase()
   const [tagPart1, tagPart2] = tagline(posicao)
 
