@@ -85,7 +85,11 @@ export default function AtletaCard({
 
   const parts     = nome.trim().split(' ')
   const firstName = parts[0].toUpperCase()
-  const lastName  = (parts[1] ?? '').toUpperCase()
+  const PREPS     = new Set(['da','de','do','das','dos','des'])
+  const lastName  = (PREPS.has((parts[1] ?? '').toLowerCase()) && parts[2]
+    ? parts.slice(1, 3).join(' ')
+    : parts[1] ?? ''
+  ).toUpperCase()
   const [tagPart1, tagPart2] = tagline(posicao)
 
   const GREEN = '#00ff44'
