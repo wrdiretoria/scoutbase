@@ -123,6 +123,7 @@ export default async function DestaquesGrid() {
           gap: 18px;
           max-width: 1200px;
           margin: 0 auto;
+          align-items: start;
         }
         @media (min-width: 600px)  { .dg-grid { grid-template-columns: repeat(3, 1fr); } }
         @media (min-width: 1200px) { .dg-grid { grid-template-columns: repeat(4, 1fr); } }
