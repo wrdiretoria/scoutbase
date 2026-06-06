@@ -172,6 +172,7 @@ export default function LiveFeed() {
           gap: 0;
           column-gap: 0;
           row-gap: 0;
+          align-items: start;
         }
 
         /* Cada card tem borda direita e inferior dourada */
