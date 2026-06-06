@@ -291,7 +291,7 @@ export default function AtletaCard({
           {/* ─── NOME ─── */}
           <div style={{ padding:'6px 10px 4px', background:'#000' }}>
             {firstName && (
-              <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:'11px', fontWeight:700, color:'rgba(255,255,255,0.88)', letterSpacing:'0.06em', lineHeight:1 }}>{firstName}</div>
+              <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:'11px', fontWeight:700, color:'rgba(255,255,255,0.88)', letterSpacing:'0.06em', lineHeight:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{firstName}</div>
             )}
             <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:'26px', color:GREEN, lineHeight:0.95, letterSpacing:'0.01em', textShadow:`0 0 16px ${GREEN}77`, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>
               {lastName}
