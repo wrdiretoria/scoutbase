@@ -154,7 +154,7 @@ export default async function RankingPage({ searchParams }: Props) {
         </Link>
       </nav>
 
-      <div style={{ maxWidth: '640px', margin: '0 auto', padding: '28px 20px 80px' }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '28px 20px 80px' }}>
 
         {/* Header */}
         <div style={{ marginBottom: '24px' }}>

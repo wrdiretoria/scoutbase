@@ -391,6 +391,9 @@ export default async function ProspectsSection() {
 
         /* ── Responsive ── */
         @media (max-width:1024px) {
+          .prospects-grid { grid-template-columns:repeat(3,1fr) !important; }
+        }
+        @media (max-width:900px) {
           .prospects-grid { grid-template-columns:repeat(2,1fr) !important; }
         }
         @media (max-width:640px) {

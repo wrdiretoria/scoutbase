@@ -200,7 +200,7 @@ export default function CadastroForm({ isEscola }: { isEscola: boolean }) {
   const fieldStyle = {
     width: '100%', padding: '10px 14px', borderRadius: '10px', boxSizing: 'border-box' as const,
     background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-    color: 'white', fontSize: '14px', outline: 'none',
+    color: 'white', fontSize: '16px', outline: 'none',
   }
   const labelStyle = {
     display: 'block', fontSize: '12px', fontWeight: 600,

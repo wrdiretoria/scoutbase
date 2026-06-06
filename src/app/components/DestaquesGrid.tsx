@@ -120,13 +120,12 @@ export default async function DestaquesGrid() {
         .dg-grid {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
-          gap: 12px;
+          gap: 18px;
           max-width: 1200px;
           margin: 0 auto;
         }
         @media (min-width: 600px)  { .dg-grid { grid-template-columns: repeat(3, 1fr); } }
-        @media (min-width: 900px)  { .dg-grid { grid-template-columns: repeat(4, 1fr); } }
-        @media (min-width: 1200px) { .dg-grid { grid-template-columns: repeat(6, 1fr); } }
+        @media (min-width: 1200px) { .dg-grid { grid-template-columns: repeat(4, 1fr); } }
 
         .dg-card {
           border-radius: 16px;

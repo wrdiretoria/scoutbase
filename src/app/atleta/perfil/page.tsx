@@ -1115,7 +1115,7 @@ function AtletaPerfilContent() {
                   <input
                     value={editNome} onChange={e => setEditNome(e.target.value)}
                     required placeholder="Seu nome completo"
-                    style={{ background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.15)', borderRadius:'10px', padding:'10px 14px', color:'white', fontSize:'14px', fontWeight:600, outline:'none' }}
+                    style={{ background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.15)', borderRadius:'10px', padding:'10px 14px', color:'white', fontSize:'16px', fontWeight:600, outline:'none' }}
                   />
                 </div>
                 {/* Posição */}
@@ -1975,7 +1975,6 @@ function AtletaPerfilContent() {
                 value={hlUrl}
                 onChange={e => handleHlUrlChange(e.target.value)}
                 placeholder="YouTube, TikTok, Instagram ou Vimeo…"
-                autoFocus
               />
 
               {/* Platform detection badge */}
