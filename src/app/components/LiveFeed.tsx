@@ -167,12 +167,13 @@ export default function LiveFeed() {
         }
 
         .feed-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 0;
+          columns: 2;
           column-gap: 0;
-          row-gap: 0;
-          align-items: start;
+        }
+        .feed-grid > * {
+          break-inside: avoid;
+          display: inline-block;
+          width: 100%;
         }
 
         /* Cada card tem borda direita e inferior dourada */
