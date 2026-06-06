@@ -237,6 +237,7 @@ export default async function ProspectsSection() {
           max-width:1200px;
           margin:0 auto;
           padding:0 40px;
+          align-items:start;
         }
 
         /* ── Card ── */

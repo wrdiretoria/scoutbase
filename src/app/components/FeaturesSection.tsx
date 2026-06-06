@@ -58,6 +58,7 @@ export default function FeaturesSection() {
           margin: 0 auto;
           padding: 0 24px;
           gap: 0;
+          align-items: start;
         }
         .feat-card {
           padding: 32px 24px 36px;
