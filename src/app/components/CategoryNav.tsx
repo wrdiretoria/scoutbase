@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 const SUBS = [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].map(n => `Sub-${n}`)
@@ -17,13 +17,13 @@ const POSICAO_QUERY: Record<string, string> = {
   'Atacantes': 'Atacante',
 }
 
-export default function CategoryNav() {
+function CategoryNavInner() {
   const router = useRouter()
   const params = useSearchParams()
   const [open, setOpen] = useState(false)
 
-  const catAtiva  = params.get('categoria') ?? null
-  const posAtiva  = params.get('posicao')   ?? null
+  const catAtiva = params.get('categoria') ?? null
+  const posAtiva = params.get('posicao')   ?? null
 
   function buildUrl(newCat: string | null, newPos: string | null) {
     const p = new URLSearchParams()
@@ -62,7 +62,6 @@ export default function CategoryNav() {
         }
         .cat-pill:hover { color: rgba(255,255,255,0.90); border-bottom-color: rgba(0,255,136,0.30); }
         .cat-pill-active { color: #00e676 !important; border-bottom-color: #00e676 !important; }
-
         .pos-pill {
           display: inline-flex; align-items: center;
           padding: 6px 16px; border-radius: 20px;
@@ -70,13 +69,11 @@ export default function CategoryNav() {
           color: rgba(255,255,255,0.55);
           background: rgba(255,255,255,0.05);
           border: 1px solid rgba(255,255,255,0.10);
-          text-decoration: none; white-space: nowrap;
-          cursor: pointer;
+          white-space: nowrap; cursor: pointer;
           transition: background .15s, color .15s, border-color .15s;
         }
         .pos-pill:hover { background: rgba(0,230,118,0.10); color: #00e676; border-color: rgba(0,230,118,0.30); }
         .pos-pill-active { background: rgba(0,230,118,0.15) !important; color: #00e676 !important; border-color: rgba(0,230,118,0.50) !important; }
-
         .cat-dropdown {
           position: absolute; top: 100%; left: 0; right: 0;
           background: #111;
@@ -96,29 +93,21 @@ export default function CategoryNav() {
           cursor: pointer;
           transition: background .15s, color .15s, border-color .15s;
         }
-        .cat-sub-pill:hover    { background: rgba(0,230,118,0.12); color: #00e676; border-color: rgba(0,230,118,0.35); }
-        .cat-sub-pill-active   { background: rgba(0,230,118,0.18) !important; color: #00e676 !important; border-color: rgba(0,230,118,0.55) !important; }
+        .cat-sub-pill:hover  { background: rgba(0,230,118,0.12); color: #00e676; border-color: rgba(0,230,118,0.35); }
+        .cat-sub-pill-active { background: rgba(0,230,118,0.18) !important; color: #00e676 !important; border-color: rgba(0,230,118,0.55) !important; }
       `}</style>
 
-      {/* ── Linha 1: Categoria ── */}
+      {/* Linha 1: Categoria */}
       <div className="cat-nav" style={{ display: 'flex', maxWidth: '1280px', margin: '0 auto', padding: '0 16px', overflowX: 'auto', scrollbarWidth: 'none' }}>
-
-        {/* Todos — limpa filtros */}
-        <Link
-          href="/ranking"
-          className={`cat-pill${!catAtiva && !posAtiva ? ' cat-pill-active' : ''}`}
-        >
+        <Link href="/ranking" className={`cat-pill${!catAtiva && !posAtiva ? ' cat-pill-active' : ''}`}>
           Todos
         </Link>
-
-        {/* Categorias dropdown */}
         <button
           className={`cat-pill${catAtiva ? ' cat-pill-active' : ''}`}
           onClick={() => setOpen(o => !o)}
         >
           {catAtiva ?? 'Categorias'} {open ? '▲' : '▼'}
         </button>
-
       </div>
 
       {/* Dropdown Sub-6 → Sub-20 */}
@@ -139,7 +128,7 @@ export default function CategoryNav() {
         </>
       )}
 
-      {/* ── Linha 2: Posição ── */}
+      {/* Linha 2: Posição */}
       <div style={{ borderTop: '1px solid rgba(255,255,255,0.04)', background: '#0a0a0a' }}>
         <div className="cat-nav" style={{ display: 'flex', gap: '8px', maxWidth: '1280px', margin: '0 auto', padding: '8px 16px', overflowX: 'auto', scrollbarWidth: 'none' }}>
           {POSICOES.map(pos => {
@@ -157,7 +146,16 @@ export default function CategoryNav() {
           })}
         </div>
       </div>
-
     </nav>
+  )
+}
+
+export default function CategoryNav() {
+  return (
+    <Suspense fallback={
+      <nav style={{ background: '#080808', borderBottom: '1px solid rgba(255,255,255,0.06)', height: '80px' }} />
+    }>
+      <CategoryNavInner />
+    </Suspense>
   )
 }
