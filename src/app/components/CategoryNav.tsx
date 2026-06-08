@@ -99,9 +99,6 @@ function CategoryNavInner() {
 
       {/* Linha 1: Categoria */}
       <div className="cat-nav" style={{ display: 'flex', maxWidth: '1280px', margin: '0 auto', padding: '0 16px', overflowX: 'auto', scrollbarWidth: 'none' }}>
-        <Link href="/ranking" className={`cat-pill${!catAtiva && !posAtiva ? ' cat-pill-active' : ''}`}>
-          Todos
-        </Link>
         <button
           className={`cat-pill${catAtiva ? ' cat-pill-active' : ''}`}
           onClick={() => setOpen(o => !o)}
