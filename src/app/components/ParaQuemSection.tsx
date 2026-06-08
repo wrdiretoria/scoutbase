@@ -7,7 +7,7 @@ const audiences = [
     title: 'Para quem sonha grande',
     desc: 'De 13 a 23 anos. Crie seu perfil, mostre sua evolução e seja visto por quem decide.',
     cta: 'Criar meu perfil',
-    href: '/atleta/cadastro',
+    href: '/login',
     color: '#00FF88',
   },
   {
@@ -25,7 +25,7 @@ const audiences = [
     title: 'Para quem forma craques',
     desc: 'Gerencie sua equipe, acompanhe a evolução e coloque seus atletas no mapa do futebol.',
     cta: 'Cadastrar escolinha',
-    href: '/treinador/cadastro',
+    href: '/login',
     color: '#38bdf8',
   },
   {

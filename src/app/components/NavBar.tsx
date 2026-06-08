@@ -6,8 +6,8 @@ import Link from 'next/link'
 
 const navLinks = [
   { label: '🏆 Ranking',    href: '/ranking' },
-  { label: 'Para atletas',  href: '/atleta/cadastro' },
-  { label: 'Para treinadores',  href: '/treinador/cadastro' },
+  { label: 'Para atletas',  href: '/login' },
+  { label: 'Para treinadores',  href: '/login' },
   { label: '🔍 Para scouts', href: '/scout/busca' },
   { label: 'Planos',        href: '/planos' },
 ]
@@ -135,7 +135,7 @@ export default function NavBar() {
             }}>
               Entrar
             </Link>
-            <Link href="/atleta/cadastro" style={{
+            <Link href="/login" style={{
               padding: '8px 20px', fontSize: '14px', fontWeight: 700,
               color: 'black', background: '#00e676', borderRadius: '10px', textDecoration: 'none',
             }}>
@@ -227,7 +227,7 @@ export default function NavBar() {
               Entrar
             </Link>
             <Link
-              href="/atleta/cadastro"
+              href="/login"
               onClick={() => setOpen(false)}
               style={{
                 padding: '16px', textAlign: 'center', fontSize: '16px', fontWeight: 700,

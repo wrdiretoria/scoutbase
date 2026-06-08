@@ -558,7 +558,7 @@ export default async function ProspectsSection() {
 
       {/* ── CTA ── */}
       <div className="pros-cta-wrap">
-        <a href="/cadastro" className="pros-cta">
+        <a href="/login" className="pros-cta">
           Criar meu perfil e entrar no ranking →
         </a>
       </div>

@@ -98,7 +98,7 @@ export default function ComoFunciona() {
 
         {/* CTA */}
         <div style={{ textAlign: 'center', marginTop: '60px' }}>
-          <a href="/atleta/cadastro" style={{
+          <a href="/login" style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
             padding: '15px 38px', borderRadius: '100px',
             background: 'linear-gradient(160deg,#00FF99 0%,#00E07A 52%,#00CC66 100%)',

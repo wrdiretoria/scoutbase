@@ -91,7 +91,7 @@ export default function CardShowcase() {
             ))}
 
             {/* CTA inline */}
-            <a href="/atleta/cadastro" style={{
+            <a href="/login" style={{
               display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
               padding: '15px 28px', borderRadius: '100px', marginTop: '8px',
               background: 'linear-gradient(160deg,#00FF99 0%,#00E07A 52%,#00CC66 100%)',

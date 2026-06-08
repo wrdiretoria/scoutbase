@@ -130,7 +130,7 @@ export default function FeaturesSection() {
               fontSize: '13px', color: 'rgba(255,255,255,0.45)',
               lineHeight: 1.65, margin: 0,
             }}>{f.desc}</p>
-            <a href="/atleta/cadastro" className="feat-more">
+            <a href="/login" className="feat-more">
               SAIBA MAIS &nbsp;→
             </a>
           </div>

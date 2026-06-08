@@ -56,14 +56,14 @@ export default function CardExemplo() {
             posicao={null}
             categoria={null}
             atributos={null}
-            href="/atleta/cadastro"
+            href="/login"
             athleteId={null}
             width="200px"
           />
         </div>
 
         {/* CTA */}
-        <Link href="/atleta/cadastro" style={{
+        <Link href="/login" style={{
           display: 'inline-flex', alignItems: 'center', gap: '8px',
           padding: '16px 40px', borderRadius: '100px',
           background: 'linear-gradient(160deg,#00e676 0%,#00c853 100%)',

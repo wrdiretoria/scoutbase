@@ -252,7 +252,7 @@ export default async function CardCraqueSection() {
             ))}
           </div>
 
-          <a href="/atleta/cadastro" className="ccs-cta-btn">
+          <a href="/login" className="ccs-cta-btn">
             CRIAR MEU CARD &nbsp;→
           </a>
         </div>
