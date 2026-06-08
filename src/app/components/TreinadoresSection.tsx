@@ -184,7 +184,7 @@ export default async function TreinadoresSection() {
 
               {/* Foto */}
               <div style={{
-                height: '120px', position: 'relative', overflow: 'hidden',
+                height: '160px', position: 'relative', overflow: 'hidden',
                 background: 'linear-gradient(135deg, #052e16, #0b3d1e)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
@@ -193,16 +193,16 @@ export default async function TreinadoresSection() {
                   <img
                     src={t.avatarUrl}
                     alt={t.nome}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%' }}
+                    style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center center' }}
                   />
                 ) : (
-                  <span style={{ fontSize: '40px', fontWeight: 900, color: 'rgba(0,230,118,0.35)' }}>
+                  <span style={{ fontSize: '48px', fontWeight: 900, color: 'rgba(0,230,118,0.35)' }}>
                     {t.initials}
                   </span>
                 )}
                 {/* Gradiente inferior sobre foto */}
                 <div style={{
-                  position: 'absolute', bottom: 0, left: 0, right: 0, height: '50%',
+                  position: 'absolute', bottom: 0, left: 0, right: 0, height: '40%',
                   background: 'linear-gradient(to top, #0f1a12, transparent)',
                   pointerEvents: 'none',
                 }} />
