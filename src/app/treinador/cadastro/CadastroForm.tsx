@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -8,14 +8,12 @@ import { createClient } from '@/lib/supabase'
 function formatarDocumento(value: string, isEscola: boolean) {
   const nums = value.replace(/\D/g, '')
   if (isEscola && nums.length > 11) {
-    // CNPJ: XX.XXX.XXX/XXXX-XX
     return nums.slice(0, 14)
       .replace(/(\d{2})(\d)/, '$1.$2')
       .replace(/(\d{3})(\d)/, '$1.$2')
       .replace(/(\d{3})(\d)/, '$1/$2')
       .replace(/(\d{4})(\d{1,2})$/, '$1-$2')
   }
-  // CPF: XXX.XXX.XXX-XX
   return nums.slice(0, 11)
     .replace(/(\d{3})(\d)/, '$1.$2')
     .replace(/(\d{3})(\d)/, '$1.$2')
@@ -70,20 +68,25 @@ const CATEGORIAS = ['Sub-11', 'Sub-13', 'Sub-15', 'Sub-17', 'Sub-20', 'Adulto']
 
 export default function CadastroForm({ isEscola }: { isEscola: boolean }) {
   const router = useRouter()
-  const [nome, setNome] = useState('')
-  const [nomeEscola, setNomeEscola] = useState('')
+  const [step, setStep] = useState<1 | 2>(1)
+
+  // Step 1 — Acesso
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [consent, setConsent] = useState(false)
+
+  // Step 2 — Perfil
+  const [nome, setNome] = useState('')
+  const [nomeEscola, setNomeEscola] = useState('')
   const [cpf, setCpf] = useState('')
   const [dataNasc, setDataNasc] = useState('')
-  // Campos extras — só para treinador
   const [paisNascimento, setPaisNascimento] = useState('')
   const [cidade, setCidade] = useState('')
   const [clubeAtual, setClubeAtual] = useState('')
   const [categoria, setCategoria] = useState('')
   const [certificacao, setCertificacao] = useState('')
   const [experienciaAnos, setExperienciaAnos] = useState('')
-  const [consent, setConsent] = useState(false)
+
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -91,16 +94,21 @@ export default function CadastroForm({ isEscola }: { isEscola: boolean }) {
     setCpf(formatarDocumento(e.target.value, isEscola))
   }
 
+  function handleNext(e: React.FormEvent) {
+    e.preventDefault()
+    if (!email.trim()) { setError('Informe seu email.'); return }
+    if (!password || password.length < 6) { setError('A senha precisa ter pelo menos 6 caracteres.'); return }
+    if (!consent) { setError('Confirme os termos de uso para continuar.'); return }
+    setError(null)
+    setStep(2)
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
 
-    if (!consent) { setError('Confirme os termos de uso para continuar.'); return }
     if (!dataNasc) { setError('Informe sua data de nascimento.'); return }
-    if (calcularIdade(dataNasc) < 18) {
-      setError('É necessário ter 18 anos ou mais.')
-      return
-    }
+    if (calcularIdade(dataNasc) < 18) { setError('É necessário ter 18 anos ou mais.'); return }
     if (!validarDocumento(cpf)) {
       setError(`${isEscola ? 'CPF ou CNPJ' : 'CPF'} inválido. Verifique e tente novamente.`)
       return
@@ -115,7 +123,6 @@ export default function CadastroForm({ isEscola }: { isEscola: boolean }) {
         body: JSON.stringify({ cpf }),
       })
       const verificarData = await verificar.json() as { disponivel?: boolean; error?: string }
-
       if (!verificar.ok || verificarData.disponivel === false) {
         throw new Error('Este CPF já está cadastrado.')
       }
@@ -129,40 +136,30 @@ export default function CadastroForm({ isEscola }: { isEscola: boolean }) {
             nome,
             tipo: isEscola ? 'escola' : 'treinador',
             ...(isEscola && nomeEscola ? { nome_escola: nomeEscola } : {}),
-            // Campos extras do treinador (armazenados em user_metadata)
             ...(!isEscola && {
-              pais_nascimento:  paisNascimento.trim()  || null,
-              cidade:           cidade.trim()           || null,
-              clube_atual:      clubeAtual.trim()       || null,
+              pais_nascimento:    paisNascimento.trim() || null,
+              cidade:             cidade.trim()         || null,
+              clube_atual:        clubeAtual.trim()     || null,
               categoria_trabalho: categoria             || null,
-              certificacao:     certificacao.trim()     || null,
-              experiencia_anos: experienciaAnos ? Number(experienciaAnos) : null,
+              certificacao:       certificacao.trim()   || null,
+              experiencia_anos:   experienciaAnos ? Number(experienciaAnos) : null,
             }),
           },
         },
       })
 
       if (signUpErr || !data.user) {
-        console.error('[cadastro-treinador] signUp error:', signUpErr?.message, signUpErr?.status)
         let msg = 'Não foi possível criar a conta. Tente novamente.'
         if (signUpErr?.message) {
           const m = signUpErr.message.toLowerCase()
-          if (m.includes('already registered') || m.includes('user already registered')) {
-            msg = 'Este e-mail já está cadastrado. Tente fazer login.'
-          } else if (m.includes('password should be at least') || m.includes('password')) {
-            msg = 'A senha deve ter pelo menos 6 caracteres.'
-          } else if (m.includes('rate limit') || m.includes('email rate limit exceeded')) {
-            msg = 'Muitas tentativas. Aguarde alguns minutos e tente novamente.'
-          } else if (m.includes('invalid email') || m.includes('unable to validate')) {
-            msg = 'E-mail inválido. Verifique e tente novamente.'
-          } else if (m.includes('signup') && m.includes('disabled')) {
-            msg = 'Cadastros estão temporariamente desabilitados.'
-          }
+          if (m.includes('already registered')) msg = 'Este e-mail já está cadastrado. Tente fazer login.'
+          else if (m.includes('password')) msg = 'A senha deve ter pelo menos 6 caracteres.'
+          else if (m.includes('rate limit')) msg = 'Muitas tentativas. Aguarde alguns minutos e tente novamente.'
+          else if (m.includes('invalid email')) msg = 'E-mail inválido. Verifique e tente novamente.'
         }
         throw new Error(msg)
       }
 
-      // Supabase retorna user sem identities quando o e-mail já está cadastrado
       if (!data.user.identities || data.user.identities.length === 0) {
         throw new Error('Este e-mail já está cadastrado. Tente fazer login ou use outro e-mail.')
       }
@@ -178,7 +175,6 @@ export default function CadastroForm({ isEscola }: { isEscola: boolean }) {
         throw new Error(salvar.status === 409 ? 'Este CPF já está cadastrado.' : (salvarData.error ?? 'Erro ao salvar perfil.'))
       }
 
-      // Log de aceite dos termos — falha silenciosa, não bloqueia o cadastro
       try {
         await fetch('/api/aceite-termos', {
           method: 'POST',
@@ -197,204 +193,238 @@ export default function CadastroForm({ isEscola }: { isEscola: boolean }) {
     }
   }
 
-  const fieldStyle = {
-    width: '100%', padding: '10px 14px', borderRadius: '10px', boxSizing: 'border-box' as const,
-    background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-    color: 'white', fontSize: '16px', outline: 'none',
+  const fieldStyle: React.CSSProperties = {
+    width: '100%', padding: '14px 16px', borderRadius: '12px', boxSizing: 'border-box',
+    background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
+    color: 'white', fontSize: '16px', outline: 'none', fontFamily: 'system-ui, sans-serif',
+    transition: 'border-color .2s',
   }
-  const labelStyle = {
-    display: 'block', fontSize: '12px', fontWeight: 600,
-    color: 'rgba(255,255,255,0.6)', marginBottom: '6px',
+  const labelStyle: React.CSSProperties = {
+    display: 'block', fontSize: '12px', fontWeight: 700,
+    color: 'rgba(255,255,255,0.5)', marginBottom: '8px',
+    letterSpacing: '0.04em', textTransform: 'uppercase',
   }
 
   return (
     <main style={{
       background: '#06100a', minHeight: '100dvh',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '24px', fontFamily: 'system-ui, sans-serif',
+      display: 'flex', flexDirection: 'column', alignItems: 'center',
+      padding: '24px',
+      paddingTop: 'max(24px, env(safe-area-inset-top))',
+      paddingBottom: 'max(32px, env(safe-area-inset-bottom))',
+      fontFamily: 'system-ui, sans-serif',
     }}>
-      <div style={{
-        width: '100%', maxWidth: '360px',
-        background: 'rgba(255,255,255,0.03)',
-        border: '1px solid rgba(255,255,255,0.08)',
-        borderRadius: '20px', padding: '32px 28px',
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <Link href="/cadastro" style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>
-            ← Voltar
-          </Link>
-          <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.3)' }}>
-            Já tem conta?{' '}
-            <Link href="/login" style={{ color: '#22c55e', textDecoration: 'none', fontWeight: 600 }}>Entrar →</Link>
+      <div style={{ width: '100%', maxWidth: '380px', margin: 'auto 0' }}>
+
+        {/* Header */}
+        <div style={{ marginBottom: '32px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+            <button
+              onClick={() => step === 2 ? (setStep(1), setError(null)) : router.push('/cadastro')}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', color: 'rgba(255,255,255,0.35)', padding: 0, fontFamily: 'system-ui, sans-serif' }}
+            >
+              ← Voltar
+            </button>
+            <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.3)' }}>
+              Já tem conta?{' '}
+              <Link href="/login" style={{ color: '#22c55e', textDecoration: 'none', fontWeight: 700 }}>Entrar →</Link>
+            </p>
+          </div>
+
+          {/* Steps */}
+          <div style={{ display: 'flex', gap: '6px', marginBottom: '24px' }}>
+            {[1, 2].map(s => (
+              <div key={s} style={{
+                flex: 1, height: '3px', borderRadius: '2px',
+                background: s <= step ? '#22c55e' : 'rgba(255,255,255,0.1)',
+                transition: 'background 0.3s',
+              }} />
+            ))}
+          </div>
+
+          <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', color: '#22c55e', textTransform: 'uppercase' }}>
+            {step === 1 ? 'Acesso · 1 de 2' : 'Perfil · 2 de 2'}
+          </p>
+          <h1 style={{ margin: '0 0 6px', fontSize: '26px', fontWeight: 900, color: 'white', letterSpacing: '-0.02em' }}>
+            {step === 1 ? 'Crie seu acesso' : isEscola ? 'Dados da escola' : 'Perfil profissional'}
+          </h1>
+          <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.4)' }}>
+            {step === 1
+              ? 'Crie email e senha para entrar na plataforma.'
+              : isEscola ? 'Informações da escola e do responsável.' : 'Monte seu currículo e seja encontrado por escolas.'}
           </p>
         </div>
 
-        <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em', color: '#22c55e', textTransform: 'uppercase' }}>
-          {isEscola ? '🏟️ Escola de Futebol' : '👨‍🏫 Treinador'}
-        </p>
-        <h1 style={{ margin: '0 0 6px', fontSize: '22px', fontWeight: 800, color: 'white' }}>
-          {isEscola ? 'Cadastrar minha escola' : 'Criar perfil de treinador'}
-        </h1>
-        <p style={{ margin: '0 0 24px', fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>
-          {isEscola ? 'Gerencie turmas, atletas e avaliações no Meu Craque.' : 'Monte seu currículo e seja encontrado por escolas.'}
-        </p>
+        {/* ── STEP 1: Acesso ── */}
+        {step === 1 && (
+          <form onSubmit={handleNext} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-
-          {isEscola && (
             <div>
-              <label style={labelStyle}>Nome da escola</label>
+              <label style={labelStyle}>Email</label>
               <input
-                type="text" required value={nomeEscola}
-                onChange={e => setNomeEscola(e.target.value)}
-                placeholder="Ex: Escolinha do Craque FC"
-                style={fieldStyle}
+                type="email" required value={email} onChange={e => setEmail(e.target.value)}
+                placeholder="seu@email.com" style={fieldStyle}
               />
             </div>
-          )}
 
-          {[
-            { id: 'nome', label: 'Nome completo', type: 'text', value: nome, setter: setNome, placeholder: 'Seu nome' },
-            { id: 'cpf', label: isEscola ? 'CPF ou CNPJ' : 'CPF', type: 'text', value: cpf, setter: (v: string) => setCpf(v), placeholder: isEscola ? 'CPF ou CNPJ da escola' : '000.000.000-00' },
-            { id: 'email', label: 'Email', type: 'email', value: email, setter: setEmail, placeholder: 'seu@email.com' },
-            { id: 'password', label: 'Senha', type: 'password', value: password, setter: setPassword, placeholder: 'Mínimo 6 caracteres' },
-          ].map(f => (
-            <div key={f.id}>
-              <label style={labelStyle}>{f.label}</label>
+            <div>
+              <label style={labelStyle}>Senha</label>
               <input
-                id={f.id} type={f.type} required value={f.value}
-                onChange={f.id === 'cpf' ? handleCpf : (e) => (f.setter as (v: string) => void)(e.target.value)}
-                placeholder={f.placeholder}
-                style={fieldStyle}
+                type="password" required minLength={6} value={password} onChange={e => setPassword(e.target.value)}
+                placeholder="Mínimo 6 caracteres" style={fieldStyle}
               />
+              <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.25)' }}>
+                Use este email + senha para entrar na plataforma.
+              </p>
             </div>
-          ))}
 
-          <div>
-            <label style={labelStyle}>Data de nascimento</label>
-            <input
-              type="date" required value={dataNasc}
-              onChange={e => setDataNasc(e.target.value)}
-              max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
-              style={fieldStyle}
-            />
-            <p style={{ margin: '4px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.25)' }}>Necessário ter 18 anos ou mais.</p>
-          </div>
-
-          {/* ── Campos adicionais — só para treinador ── */}
-          {!isEscola && (
-            <>
-              <div style={{ margin: '4px 0 0', padding: '12px 0 0', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-                <p style={{ margin: '0 0 14px', fontSize: '11px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                  📋 Perfil profissional
-                </p>
+            <div
+              onClick={() => setConsent(c => !c)}
+              style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer', userSelect: 'none' }}
+            >
+              <div style={{
+                width: '20px', height: '20px', borderRadius: '6px', flexShrink: 0, marginTop: '1px',
+                background: consent ? '#22c55e' : 'rgba(255,255,255,0.06)',
+                border: `1.5px solid ${consent ? '#22c55e' : 'rgba(255,255,255,0.15)'}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.2s',
+              }}>
+                {consent && <span style={{ fontSize: '12px', color: 'black', fontWeight: 900 }}>✓</span>}
               </div>
+              <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>
+                Confirmo que sou maior de idade e concordo com os{' '}
+                <Link href="/termos" target="_blank" onClick={e => e.stopPropagation()} style={{ color: '#22c55e', textDecoration: 'none' }}>Termos de Uso</Link>{' '}da plataforma.
+              </span>
+            </div>
 
-              <div>
-                <label style={labelStyle}>País de nascimento</label>
-                <input
-                  type="text" value={paisNascimento}
-                  onChange={e => setPaisNascimento(e.target.value)}
-                  placeholder="Ex: Brasil"
-                  style={fieldStyle}
-                />
-              </div>
+            {error && (
+              <p style={{ margin: 0, padding: '10px 14px', borderRadius: '10px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '13px', color: '#f87171' }}>
+                {error}
+              </p>
+            )}
 
-              <div>
-                <label style={labelStyle}>Cidade e Estado</label>
-                <input
-                  type="text" value={cidade}
-                  onChange={e => setCidade(e.target.value)}
-                  placeholder="Ex: São Paulo – SP"
-                  style={fieldStyle}
-                />
-              </div>
-
-              <div>
-                <label style={labelStyle}>Clube ou organização atual</label>
-                <input
-                  type="text" value={clubeAtual}
-                  onChange={e => setClubeAtual(e.target.value)}
-                  placeholder="Ex: Escolinha Craque FC"
-                  style={fieldStyle}
-                />
-              </div>
-
-              <div>
-                <label style={labelStyle}>Categoria que trabalha</label>
-                <select
-                  value={categoria}
-                  onChange={e => setCategoria(e.target.value)}
-                  style={{ ...fieldStyle, appearance: 'none', cursor: 'pointer' }}
-                >
-                  <option value="" style={{ background: '#1a1a1a', color: 'rgba(255,255,255,0.4)' }}>Selecione...</option>
-                  {CATEGORIAS.map(c => (
-                    <option key={c} value={c} style={{ background: '#1a1a1a', color: 'white' }}>{c}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label style={labelStyle}>Certificação / licença</label>
-                <input
-                  type="text" value={certificacao}
-                  onChange={e => setCertificacao(e.target.value)}
-                  placeholder='Ex: "CBF A", "UEFA B", "Sem certificação"'
-                  style={fieldStyle}
-                />
-              </div>
-
-              <div>
-                <label style={labelStyle}>Tempo de experiência (anos)</label>
-                <input
-                  type="number" value={experienciaAnos}
-                  onChange={e => setExperienciaAnos(e.target.value)}
-                  min="0" max="60"
-                  placeholder="Ex: 5"
-                  style={fieldStyle}
-                />
-              </div>
-            </>
-          )}
-
-          {/* Consentimento — LGPD */}
-          <div
-            onClick={() => setConsent(c => !c)}
-            style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer', userSelect: 'none' }}
-          >
-            <div style={{
-              width: '20px', height: '20px', borderRadius: '6px', flexShrink: 0, marginTop: '1px',
-              background: consent ? '#22c55e' : 'rgba(255,255,255,0.06)',
-              border: `1.5px solid ${consent ? '#22c55e' : 'rgba(255,255,255,0.15)'}`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'all 0.2s',
+            <button type="submit" style={{
+              padding: '16px', borderRadius: '14px', border: 'none', cursor: 'pointer',
+              background: '#22c55e', color: 'black', fontWeight: 800, fontSize: '16px', marginTop: '4px',
+              minHeight: '56px', boxShadow: '0 0 28px rgba(34,197,94,0.2)',
             }}>
-              {consent && <span style={{ fontSize: '12px', color: 'black', fontWeight: 900 }}>✓</span>}
+              Continuar →
+            </button>
+          </form>
+        )}
+
+        {/* ── STEP 2: Perfil ── */}
+        {step === 2 && (
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+
+            {isEscola && (
+              <div>
+                <label style={labelStyle}>Nome da escola</label>
+                <input
+                  type="text" required value={nomeEscola} onChange={e => setNomeEscola(e.target.value)}
+                  placeholder="Ex: Escolinha do Craque FC" style={fieldStyle}
+                />
+              </div>
+            )}
+
+            <div>
+              <label style={labelStyle}>Nome completo</label>
+              <input
+                type="text" required value={nome} onChange={e => setNome(e.target.value)}
+                placeholder="Seu nome" style={fieldStyle}
+              />
             </div>
-            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>
-              Confirmo que sou maior de idade, que as informações fornecidas são verdadeiras e concordo com os{' '}
-              <Link href="/termos" target="_blank" onClick={e => e.stopPropagation()} style={{ color: '#22c55e', textDecoration: 'none' }}>Termos de Uso</Link>{' '}da plataforma.
-            </span>
-          </div>
 
-          {error && (
-            <p style={{ margin: 0, padding: '10px 14px', borderRadius: '10px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '13px', color: '#f87171' }}>
-              {error}
-            </p>
-          )}
+            <div>
+              <label style={labelStyle}>{isEscola ? 'CPF ou CNPJ' : 'CPF'}</label>
+              <input
+                type="text" required value={cpf} onChange={handleCpf}
+                placeholder={isEscola ? 'CPF ou CNPJ' : '000.000.000-00'} style={fieldStyle}
+              />
+            </div>
 
-          <button
-            type="submit" disabled={loading}
-            style={{
-              padding: '12px', borderRadius: '12px', border: 'none',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              background: '#22c55e', color: 'black', fontWeight: 800,
-              fontSize: '15px', opacity: loading ? 0.6 : 1, marginTop: '4px',
-            }}
-          >
-            {loading ? 'Criando conta…' : isEscola ? 'Cadastrar escola' : 'Criar perfil'}
-          </button>
-        </form>
+            <div>
+              <label style={labelStyle}>Data de nascimento</label>
+              <input
+                type="date" required value={dataNasc} onChange={e => setDataNasc(e.target.value)}
+                max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
+                style={fieldStyle}
+              />
+              <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.25)' }}>Necessário ter 18 anos ou mais.</p>
+            </div>
+
+            {/* Campos extras — só treinador */}
+            {!isEscola && (
+              <>
+                <div style={{ padding: '12px 0 0', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+                  <p style={{ margin: '0 0 14px', fontSize: '11px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                    📋 Perfil profissional
+                  </p>
+                </div>
+
+                <div>
+                  <label style={labelStyle}>País de nascimento</label>
+                  <input type="text" value={paisNascimento} onChange={e => setPaisNascimento(e.target.value)} placeholder="Ex: Brasil" style={fieldStyle} />
+                </div>
+
+                <div>
+                  <label style={labelStyle}>Cidade e Estado</label>
+                  <input type="text" value={cidade} onChange={e => setCidade(e.target.value)} placeholder="Ex: São Paulo – SP" style={fieldStyle} />
+                </div>
+
+                <div>
+                  <label style={labelStyle}>Clube ou organização atual</label>
+                  <input type="text" value={clubeAtual} onChange={e => setClubeAtual(e.target.value)} placeholder="Ex: Escolinha Craque FC" style={fieldStyle} />
+                </div>
+
+                <div>
+                  <label style={labelStyle}>Categoria que trabalha</label>
+                  <select value={categoria} onChange={e => setCategoria(e.target.value)} style={{ ...fieldStyle, appearance: 'none', cursor: 'pointer' }}>
+                    <option value="" style={{ background: '#1a1a1a' }}>Selecione...</option>
+                    {CATEGORIAS.map(c => <option key={c} value={c} style={{ background: '#1a1a1a' }}>{c}</option>)}
+                  </select>
+                </div>
+
+                <div>
+                  <label style={labelStyle}>Certificação / licença</label>
+                  <input type="text" value={certificacao} onChange={e => setCertificacao(e.target.value)} placeholder='Ex: "CBF A", "UEFA B"' style={fieldStyle} />
+                </div>
+
+                <div>
+                  <label style={labelStyle}>Tempo de experiência (anos)</label>
+                  <input type="number" value={experienciaAnos} onChange={e => setExperienciaAnos(e.target.value)} min="0" max="60" placeholder="Ex: 5" style={fieldStyle} />
+                </div>
+              </>
+            )}
+
+            {error && (
+              <p style={{ margin: 0, padding: '10px 14px', borderRadius: '10px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '13px', color: '#f87171' }}>
+                {error}
+              </p>
+            )}
+
+            <button
+              type="submit" disabled={loading}
+              style={{
+                padding: '16px', borderRadius: '14px', border: 'none',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                background: '#22c55e', color: 'black', fontWeight: 800, fontSize: '16px',
+                opacity: loading ? 0.6 : 1, marginTop: '4px',
+                minHeight: '56px', boxShadow: '0 0 28px rgba(34,197,94,0.2)',
+              }}
+            >
+              {loading ? 'Criando conta…' : isEscola ? '🏟️ Cadastrar escola' : '👨‍🏫 Criar perfil'}
+            </button>
+
+            <button type="button" onClick={() => { setStep(1); setError(null) }} style={{
+              padding: '10px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)',
+              background: 'transparent', color: 'rgba(255,255,255,0.4)', fontSize: '13px', cursor: 'pointer', fontFamily: 'system-ui, sans-serif',
+            }}>
+              ← Voltar
+            </button>
+          </form>
+        )}
+
       </div>
     </main>
   )
