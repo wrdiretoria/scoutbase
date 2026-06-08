@@ -105,6 +105,16 @@ function CategoryNavInner() {
         >
           {catAtiva ?? 'Categorias'} {open ? '▲' : '▼'}
         </button>
+
+        {(['Meias','Atacantes'] as const).map(pos => {
+          const query = POSICAO_QUERY[pos]
+          const ativo = posAtiva === query
+          return (
+            <button key={pos} className={`cat-pill${ativo ? ' cat-pill-active' : ''}`} onClick={() => togglePos(pos)}>
+              {pos}
+            </button>
+          )
+        })}
       </div>
 
       {/* Dropdown Sub-6 → Sub-20 */}
