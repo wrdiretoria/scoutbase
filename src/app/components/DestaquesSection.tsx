@@ -53,7 +53,7 @@ export default async function DestaquesSection() {
   if (top.length === 0) return null
 
   return (
-    <section style={{ background: '#080808', padding: '20px 0 24px' }}>
+    <section style={{ background: '#080808', padding: '16px 0 20px' }}>
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 clamp(16px,4vw,24px)' }}>
 
         {/* Header */}

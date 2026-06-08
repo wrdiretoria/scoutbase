@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase'
 import { fetchOvrMapByUuid } from '@/lib/ovr'
 import AtletaCardLanding from './AtletaCardLanding'
@@ -50,7 +51,7 @@ export default async function MaisVisitadosSection() {
   if (items.length === 0) return null
 
   return (
-    <section style={{ background: '#080808', padding: '28px 0' }}>
+    <section style={{ background: '#080808', padding: '16px 0' }}>
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 clamp(16px,4vw,24px)' }}>
 
         <div style={{ marginBottom: '20px' }}>
@@ -87,6 +88,18 @@ export default async function MaisVisitadosSection() {
               )
             })}
           </div>
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: '24px' }}>
+          <Link href="/ranking" style={{
+            display: 'inline-flex', alignItems: 'center', gap: '8px',
+            padding: '12px 32px', borderRadius: '100px',
+            border: '1.5px solid rgba(0,230,118,0.40)',
+            color: '#00e676', fontSize: '13px', fontWeight: 700,
+            textDecoration: 'none', letterSpacing: '0.08em',
+          }}>
+            Carregar Mais
+          </Link>
         </div>
 
       </div>
