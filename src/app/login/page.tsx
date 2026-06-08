@@ -63,10 +63,31 @@ export default function LoginPage() {
       return
     }
 
-    // Treinador — login por email
+    // Treinador — login por ID (TR-XXXXX) ou email
+    const raw = identifier.trim()
+    const isId = !raw.includes('@')
+
+    if (isId) {
+      const digitos = raw.toUpperCase().replace(/\D/g, '').padStart(5, '0')
+      const athleteId = `TR-${digitos}`
+      const res = await fetch('/api/auth/signin-por-id', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ athleteId, password }),
+      })
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({})) as { error?: string }
+        setError(body.error === 'Credenciais incorretas.' ? 'Senha incorreta.' : 'ID não encontrado. Verifique e tente novamente.')
+        setLoading(false)
+        return
+      }
+      router.push('/treinador/dashboard')
+      return
+    }
+
     const supabase = createClient()
     const { data, error: signInErr } = await supabase.auth.signInWithPassword({
-      email: identifier.trim(),
+      email: raw,
       password,
     })
     if (signInErr || !data.user) {
@@ -162,7 +183,7 @@ export default function LoginPage() {
           Bem-vindo de volta
         </h1>
         <p style={{ margin: '0 0 24px', fontSize: '14px', color: 'rgba(255,255,255,0.35)' }}>
-          {area === 'atleta' ? 'Entre com seu ID e senha.' : 'Entre com seu email e senha.'}
+          {area === 'atleta' ? 'Entre com seu ID e senha.' : 'Entre com seu ID ou email e senha.'}
         </p>
 
         {/* Formulário */}
@@ -170,16 +191,16 @@ export default function LoginPage() {
 
           <div>
             <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '8px' }}>
-              {area === 'atleta' ? 'ID do Atleta' : 'Email'}
+              {area === 'atleta' ? 'ID do Atleta' : 'ID ou Email'}
             </label>
             <input
               key={area}
-              type={area === 'atleta' ? 'text' : 'email'}
+              type="text"
               required
               autoFocus
               value={identifier}
               onChange={e => setIdentifier(e.target.value)}
-              placeholder={area === 'atleta' ? 'Ex: 16138' : 'seu@email.com'}
+              placeholder={area === 'atleta' ? 'Ex: 16138' : 'ID (ex: 00001) ou email'}
               style={{
                 ...inputStyle,
                 ...(area === 'atleta' ? { textTransform: 'uppercase', letterSpacing: '0.06em' } : {}),
