@@ -15,9 +15,19 @@ export default function RecentAvaliacoesSection() {
       .then(r => r.ok ? r.json() : null)
       .then((json: { events: FeedEvent[] } | null) => {
         if (!json) return
-        // Filtra apenas avaliações recentes (tipo='avaliacao')
-        const avs = json.events.filter(e => e.tipo === 'avaliacao')
-        setEvents(avs)
+        // Filtra avaliações dos últimos 30 dias
+        const limite30dias = Date.now() - 30 * 24 * 60 * 60 * 1000
+        const avs = json.events.filter(e =>
+          e.tipo === 'avaliacao' && new Date(e.ts).getTime() >= limite30dias
+        )
+        // Deduplica — mostra cada atleta uma vez (avaliação mais recente)
+        const vistos = new Set<string>()
+        const uniq = avs.filter(e => {
+          if (vistos.has(e.atletaId)) return false
+          vistos.add(e.atletaId)
+          return true
+        })
+        setEvents(uniq)
       })
       .catch(() => {/* silencioso */})
       .finally(() => setLoading(false))
@@ -33,7 +43,7 @@ export default function RecentAvaliacoesSection() {
 
         <div style={{ marginBottom: '20px' }}>
           <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.18em', color: 'rgba(0,255,136,0.60)', textTransform: 'uppercase' }}>
-            📋 Últimas avaliações
+            📋 Avaliados nos últimos 30 dias
           </p>
           <h2 style={{ margin: 0, fontSize: 'clamp(20px,3vw,28px)', fontWeight: 900, color: 'white', letterSpacing: '-0.02em' }}>
             Recém <span style={{ color: '#00e676' }}>Avaliados</span>
