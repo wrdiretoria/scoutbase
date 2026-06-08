@@ -51,7 +51,38 @@ function calcularCategoria(dataNasc?: string): string {
   if (i <= 15) return 'Sub-15'
   if (i <= 16) return 'Sub-16'
   if (i <= 17) return 'Sub-17'
-  return 'Adulto'
+  if (i <= 18) return 'Sub-18'
+  if (i <= 19) return 'Sub-19'
+  if (i <= 20) return 'Sub-20'
+  return 'Sub-20+'
+}
+
+// Fase descritiva para exibição
+function getFaseLabel(dataNasc?: string): { fase: string; cor: string; bg: string; borda: string } {
+  if (!dataNasc) return { fase: '—', cor: 'rgba(255,255,255,0.4)', bg: 'rgba(255,255,255,0.04)', borda: 'rgba(255,255,255,0.1)' }
+  const i = getIdadeExata(dataNasc)
+  if (i <= 10) return { fase: 'INICIAÇÃO · Sub-7 ao Sub-10',    cor: '#60a5fa', bg: 'rgba(96,165,250,0.08)',  borda: 'rgba(96,165,250,0.25)'  }
+  if (i <= 14) return { fase: 'FORMAÇÃO · Sub-11 ao Sub-14',    cor: '#a78bfa', bg: 'rgba(167,139,250,0.08)', borda: 'rgba(167,139,250,0.25)' }
+  if (i <= 17) return { fase: 'COMPETIÇÃO · Sub-15 ao Sub-17',  cor: '#fb923c', bg: 'rgba(251,146,60,0.08)',  borda: 'rgba(251,146,60,0.25)'  }
+  return           { fase: 'SUB-20 · Elite Pré-Profissional',   cor: '#00FF88', bg: 'rgba(0,255,136,0.08)',   borda: 'rgba(0,255,136,0.3)'    }
+}
+
+// Posição em português completo + ícone
+function getPosicaoInfo(pos: string): { nome: string; icone: string; grupo: string } {
+  const map: Record<string, { nome: string; icone: string; grupo: string }> = {
+    'Goleiro':          { nome: 'Goleiro',          icone: '🧤', grupo: 'Defensor' },
+    'Zagueiro':         { nome: 'Zagueiro',          icone: '🛡', grupo: 'Defensor' },
+    'Lateral Direito':  { nome: 'Lateral Direito',   icone: '➡', grupo: 'Defensor' },
+    'Lateral Esquerdo': { nome: 'Lateral Esquerdo',  icone: '⬅', grupo: 'Defensor' },
+    'Volante':          { nome: 'Volante',            icone: '⚙', grupo: 'Meio-campo' },
+    'Meia':             { nome: 'Meia',               icone: '🎯', grupo: 'Meio-campo' },
+    'Meia-Atacante':    { nome: 'Meia-Atacante',     icone: '⚡', grupo: 'Meio-campo' },
+    'Ponta Direita':    { nome: 'Ponta Direita',      icone: '💨', grupo: 'Atacante' },
+    'Ponta Esquerda':   { nome: 'Ponta Esquerda',     icone: '💨', grupo: 'Atacante' },
+    'Atacante':         { nome: 'Atacante',           icone: '🔥', grupo: 'Atacante' },
+    'Centro-Avante':    { nome: 'Centro-Avante',      icone: '⚽', grupo: 'Atacante' },
+  }
+  return map[pos] ?? { nome: pos, icone: '⚽', grupo: 'Atleta' }
 }
 
 function getInitials(nome: string) {
@@ -244,6 +275,9 @@ function AvaliarPageInner() {
   const varianteLabel  = VARIANTES[variante].label
   const todasPerguntas = atleta ? getTodasPerguntas(variante) : []
   const totalPerguntas = todasPerguntas.length  // 20
+
+  const faseInfo    = atleta?.dataNasc ? getFaseLabel(atleta.dataNasc) : null
+  const posInfo     = atleta?.posicao  ? getPosicaoInfo(atleta.posicao) : null
 
   // Contagens por bloco
   const contTecnico  = blocoA.filter(q => (notas[q.key] ?? 0) > 0).length
@@ -537,80 +571,142 @@ function AvaliarPageInner() {
         ════════════════════════════════════════ */}
         {step === 'confirmar' && atleta && (
           <div className="fade-page">
-            <div style={{ marginBottom:'24px' }}>
+            <div style={{ marginBottom:'20px' }}>
               <p style={{ margin:'0 0 6px', fontSize:'11px', fontWeight:700, letterSpacing:'0.14em', color:'rgba(0,255,136,0.7)', textTransform:'uppercase' }}>
                 Atleta encontrado
               </p>
               <h1 style={{ margin:'0 0 4px', fontSize:'24px', fontWeight:900, color:'white', letterSpacing:'-0.03em' }}>
-                Confirme o atleta
+                Confirme antes de avaliar
               </h1>
-              {atleta.dataNasc && (
-                <p style={{ margin:0, fontSize:'12px', color:'rgba(255,255,255,0.35)' }}>
-                  Questionário: <span style={{ color:'#00FF88', fontWeight:700 }}>{varianteLabel}</span>
-                </p>
-              )}
+              <p style={{ margin:0, fontSize:'13px', color:'rgba(255,255,255,0.3)', lineHeight:1.5 }}>
+                O questionário é gerado automaticamente com base na posição e idade do atleta. Verifique os dados abaixo.
+              </p>
             </div>
 
             {/* Card do atleta */}
             <div style={{
-              borderRadius:'20px', overflow:'hidden',
+              borderRadius:'16px', overflow:'hidden',
               background:'linear-gradient(160deg,#122018 0%,#0a1912 45%,#050e08 100%)',
               border:'1px solid rgba(0,255,136,0.18)',
-              boxShadow:'0 20px 50px rgba(0,0,0,0.8), 0 0 40px rgba(0,255,136,0.06)',
-              marginBottom:'20px',
+              boxShadow:'0 20px 50px rgba(0,0,0,0.8)',
+              marginBottom:'14px',
             }}>
-              <div style={{ position:'relative', height:'180px', overflow:'hidden' }}>
+              <div style={{ position:'relative', height:'140px', overflow:'hidden' }}>
                 {atleta.avatar_url ? (
                   <img src={atleta.avatar_url} alt={atleta.nome}
-                    style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center 18%', filter:'contrast(1.05)' }} />
+                    style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center 18%' }} />
                 ) : (
-                  <div style={{
-                    width:'100%', height:'100%',
-                    background:'linear-gradient(160deg,#1a3828 0%,#0e2018 50%,#040c07 100%)',
-                    display:'flex', alignItems:'center', justifyContent:'center', position:'relative',
-                  }}>
-                    <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 65% 55% at 50% 45%,rgba(0,255,136,0.12) 0%,transparent 70%)' }} />
-                    <div style={{ position:'relative', zIndex:1, width:'80px', height:'80px', borderRadius:'50%', background:'linear-gradient(145deg,#1a7a42,#22c55e)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'28px', fontWeight:900, color:'white', boxShadow:'0 0 40px rgba(0,255,136,0.4)' }}>
+                  <div style={{ width:'100%', height:'100%', background:'linear-gradient(160deg,#1a3828 0%,#050e08 100%)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <div style={{ width:'64px', height:'64px', borderRadius:'50%', background:'linear-gradient(145deg,#1a7a42,#22c55e)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'22px', fontWeight:900, color:'white' }}>
                       {initials}
                     </div>
                   </div>
                 )}
-                <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top,rgba(5,14,8,1) 0%,rgba(5,14,8,0.6) 30%,transparent 65%)' }} />
-                {categoria && (
-                  <div style={{ position:'absolute', top:'12px', right:'12px', zIndex:3, background:'rgba(0,0,0,0.6)', backdropFilter:'blur(16px)', border:'1px solid rgba(0,255,136,0.4)', borderRadius:'8px', padding:'4px 10px', fontSize:'10px', fontWeight:800, color:'#00FF88', letterSpacing:'0.10em' }}>
-                    {categoria}
+                <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top,rgba(5,14,8,1) 0%,rgba(5,14,8,0.55) 40%,transparent 70%)' }} />
+                <div style={{ position:'absolute', bottom:0, left:0, right:0, padding:'0 16px 12px', display:'flex', alignItems:'flex-end', justifyContent:'space-between' }}>
+                  <div>
+                    <p style={{ margin:0, fontSize:'20px', fontWeight:900, color:'white', lineHeight:1, textShadow:'0 2px 12px rgba(0,0,0,0.9)' }}>{atleta.nome.split(' ')[0]}</p>
+                    {atleta.nome.split(' ').slice(1).join(' ') && (
+                      <p style={{ margin:0, fontSize:'10px', fontWeight:700, color:'rgba(255,255,255,0.4)', textTransform:'uppercase', letterSpacing:'0.12em' }}>{atleta.nome.split(' ').slice(1).join(' ')}</p>
+                    )}
                   </div>
-                )}
-                <div style={{ position:'absolute', bottom:0, left:0, right:0, zIndex:3, padding:'0 18px 14px' }}>
-                  <p style={{ margin:'0 0 2px', fontSize:'24px', fontWeight:900, color:'white', letterSpacing:'-0.03em', lineHeight:1, textShadow:'0 2px 16px rgba(0,0,0,0.9)' }}>
-                    {atleta.nome.split(' ')[0]}
-                  </p>
-                  {atleta.nome.split(' ').slice(1).join(' ') && (
-                    <p style={{ margin:0, fontSize:'11px', fontWeight:700, color:'rgba(255,255,255,0.45)', textTransform:'uppercase', letterSpacing:'0.14em' }}>
-                      {atleta.nome.split(' ').slice(1).join(' ')}
-                    </p>
-                  )}
+                  <div style={{ textAlign:'right' }}>
+                    <span style={{ fontSize:'9px', color:'rgba(255,255,255,0.3)', fontWeight:600, letterSpacing:'0.06em', textTransform:'uppercase', display:'block' }}>ID</span>
+                    <span style={{ fontSize:'14px', fontWeight:900, color:'white', letterSpacing:'0.10em' }}>{atleta.athlete_id.replace('MC-', '')}</span>
+                  </div>
                 </div>
               </div>
-
-              <div style={{ padding:'12px 18px 14px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-                <div style={{ display:'inline-flex', alignItems:'center', background:'rgba(0,255,136,0.1)', border:'1px solid rgba(0,255,136,0.25)', borderRadius:'8px', padding:'5px 12px' }}>
-                  <span style={{ fontSize:'12px', fontWeight:900, color:'#00FF88', letterSpacing:'0.10em' }}>
-                    {posLabel(atleta.posicao)}
-                  </span>
-                </div>
-                <div style={{ textAlign:'right' }}>
-                  <span style={{ fontSize:'10px', color:'rgba(255,255,255,0.3)', fontWeight:600, letterSpacing:'0.06em', textTransform:'uppercase' }}>ID</span>
-                  <p style={{ margin:0, fontSize:'15px', fontWeight:900, color:'white', letterSpacing:'0.10em', fontVariantNumeric:'tabular-nums' }}>
-                    {atleta.athlete_id.replace('MC-', '')}
-                  </p>
-                </div>
+              <div style={{ padding:'10px 16px 12px', display:'flex', alignItems:'center', gap:'8px' }}>
+                <span style={{ fontSize:'18px' }}>{posInfo?.icone}</span>
+                <span style={{ fontSize:'13px', fontWeight:800, color:'white' }}>{atleta.posicao}</span>
+                <span style={{ fontSize:'11px', color:'rgba(255,255,255,0.3)', fontWeight:500 }}>·</span>
+                <span style={{ fontSize:'12px', fontWeight:700, color:'rgba(255,255,255,0.5)' }}>{categoria}</span>
+                <span style={{ fontSize:'12px', color:'rgba(255,255,255,0.25)', marginLeft:'auto' }}>{getIdadeExata(atleta.dataNasc)} anos</span>
               </div>
             </div>
 
+            {/* ⚠️ BANNER DE ATENÇÃO — Questionário que será aplicado */}
+            {faseInfo && posInfo && (
+              <div style={{
+                borderRadius:'16px', overflow:'hidden',
+                border:`1.5px solid ${faseInfo.borda}`,
+                marginBottom:'16px',
+              }}>
+                {/* Cabeçalho vermelho de atenção */}
+                <div style={{
+                  padding:'10px 16px',
+                  background:'rgba(239,68,68,0.12)',
+                  borderBottom:'1px solid rgba(239,68,68,0.2)',
+                  display:'flex', alignItems:'center', gap:'8px',
+                }}>
+                  <span style={{ fontSize:'15px' }}>⚠️</span>
+                  <span style={{ fontSize:'11px', fontWeight:900, color:'#f87171', letterSpacing:'0.10em', textTransform:'uppercase' }}>
+                    Verifique o questionário antes de continuar
+                  </span>
+                </div>
+
+                {/* Posição + Fase */}
+                <div style={{ padding:'14px 16px', background:faseInfo.bg }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'12px' }}>
+                    <div style={{ width:'40px', height:'40px', borderRadius:'12px', background:`${faseInfo.borda}30`, border:`1px solid ${faseInfo.borda}`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'20px', flexShrink:0 }}>
+                      {posInfo.icone}
+                    </div>
+                    <div>
+                      <p style={{ margin:0, fontSize:'16px', fontWeight:900, color:'white', letterSpacing:'-0.01em' }}>
+                        {atleta.posicao}
+                      </p>
+                      <p style={{ margin:0, fontSize:'11px', fontWeight:700, color:faseInfo.cor, letterSpacing:'0.06em' }}>
+                        {faseInfo.fase}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style={{ height:'1px', background:'rgba(255,255,255,0.06)', marginBottom:'12px' }} />
+
+                  <p style={{ margin:'0 0 8px', fontSize:'10px', fontWeight:800, color:'rgba(255,255,255,0.3)', letterSpacing:'0.12em', textTransform:'uppercase' }}>
+                    As 20 perguntas serão:
+                  </p>
+
+                  <div style={{ display:'flex', flexDirection:'column', gap:'6px' }}>
+                    {[
+                      { icone:'⚽', bloco:'Bloco A — Técnico', qtd:'10 perguntas', desc:`Fundamentos específicos de ${atleta.posicao}`, cor:'#60a5fa' },
+                      { icone:'🎭', bloco:'Bloco B — Perfil',  qtd:'6 perguntas',  desc:'Personalidade e comportamento (igual para todos)', cor:'#a78bfa' },
+                      { icone:'💪', bloco:'Bloco C — Físico',  qtd:'4 perguntas',  desc:`Condicionamento físico para ${posInfo.grupo}`, cor:faseInfo.cor },
+                    ].map(b => (
+                      <div key={b.bloco} style={{
+                        display:'flex', alignItems:'center', gap:'10px',
+                        padding:'8px 12px', borderRadius:'10px',
+                        background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.06)',
+                      }}>
+                        <span style={{ fontSize:'14px', flexShrink:0 }}>{b.icone}</span>
+                        <div style={{ flex:1, minWidth:0 }}>
+                          <p style={{ margin:0, fontSize:'11px', fontWeight:800, color:'rgba(255,255,255,0.7)' }}>{b.bloco}</p>
+                          <p style={{ margin:0, fontSize:'10px', color:'rgba(255,255,255,0.3)', lineHeight:1.4 }}>{b.desc}</p>
+                        </div>
+                        <span style={{
+                          flexShrink:0, padding:'2px 8px', borderRadius:'100px',
+                          background:`${b.cor}18`, border:`1px solid ${b.cor}40`,
+                          fontSize:'10px', fontWeight:800, color:b.cor,
+                        }}>{b.qtd}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{
+                    marginTop:'12px', padding:'10px 12px', borderRadius:'10px',
+                    background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.2)',
+                  }}>
+                    <p style={{ margin:0, fontSize:'11px', color:'#f87171', fontWeight:700, lineHeight:1.5 }}>
+                      🚫 Se a posição ou categoria estiver errada, <strong>não avalie</strong>. Peça ao atleta para corrigir o cadastro primeiro — uma avaliação errada prejudica o OVR do atleta.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
               <button className="btn-primary" onClick={() => setStep('avaliar')}>
-                ✔ É este atleta — iniciar avaliação
+                ✔ Dados corretos — iniciar avaliação
               </button>
               <button className="btn-ghost" onClick={resetar}>
                 ← Buscar outro atleta
@@ -625,29 +721,50 @@ function AvaliarPageInner() {
         {step === 'avaliar' && atleta && (
           <div className="fade-page">
 
-            {/* Mini header do atleta */}
+            {/* ══ STICKY CONTEXT HEADER ══ */}
             <div style={{
-              display:'flex', alignItems:'center', gap:'14px',
-              padding:'14px 16px', borderRadius:'14px', marginBottom:'16px',
-              background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.07)',
+              position:'sticky', top:0, zIndex:50,
+              marginLeft:'-24px', marginRight:'-24px', marginBottom:'16px',
+              paddingLeft:'24px', paddingRight:'24px',
+              paddingTop:'12px', paddingBottom:'12px',
+              background:'rgba(5,14,8,0.96)',
+              backdropFilter:'blur(20px)',
+              borderBottom:`1px solid ${faseInfo?.borda ?? 'rgba(0,255,136,0.15)'}`,
             }}>
-              {atleta.avatar_url
-                ? <img src={atleta.avatar_url} alt={atleta.nome} style={{ width:'44px', height:'44px', borderRadius:'50%', objectFit:'cover', objectPosition:'center 15%', flexShrink:0 }} />
-                : <div style={{ width:'44px', height:'44px', borderRadius:'50%', background:'linear-gradient(145deg,#1a7a42,#22c55e)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'16px', fontWeight:900, color:'white', flexShrink:0 }}>{initials}</div>
-              }
-              <div style={{ flex:1, minWidth:0 }}>
-                <p style={{ margin:0, fontSize:'15px', fontWeight:800, color:'white', letterSpacing:'-0.01em' }}>{atleta.nome}</p>
-                <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.35)' }}>
-                  {atleta.posicao || 'Atleta'}{categoria ? ` · ${categoria}` : ''}
-                </p>
+              {/* Linha 1: Atleta + Progresso */}
+              <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'8px' }}>
+                {atleta.avatar_url
+                  ? <img src={atleta.avatar_url} alt={atleta.nome} style={{ width:'36px', height:'36px', borderRadius:'50%', objectFit:'cover', objectPosition:'center 15%', flexShrink:0 }} />
+                  : <div style={{ width:'36px', height:'36px', borderRadius:'50%', background:'linear-gradient(145deg,#1a7a42,#22c55e)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'13px', fontWeight:900, color:'white', flexShrink:0 }}>{initials}</div>
+                }
+                <div style={{ flex:1, minWidth:0 }}>
+                  <p style={{ margin:0, fontSize:'14px', fontWeight:800, color:'white', letterSpacing:'-0.01em', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{atleta.nome}</p>
+                </div>
+                <div style={{ textAlign:'right', flexShrink:0 }}>
+                  <span style={{ fontSize:'9px', fontWeight:700, letterSpacing:'0.10em', textTransform:'uppercase', color:'rgba(255,255,255,0.25)', display:'block' }}>Progresso</span>
+                  <span style={{ fontSize:'16px', fontWeight:900, fontVariantNumeric:'tabular-nums', color: totalPreench === totalPerguntas ? '#00FF88' : 'rgba(255,255,255,0.5)' }}>
+                    {totalPreench}/{totalPerguntas}
+                  </span>
+                </div>
               </div>
-              <div style={{ textAlign:'right', flexShrink:0 }}>
-                <span style={{ fontSize:'9px', fontWeight:700, letterSpacing:'0.10em', textTransform:'uppercase', color:'rgba(255,255,255,0.25)', display:'block' }}>
-                  Progresso
-                </span>
-                <span style={{ fontSize:'18px', fontWeight:900, fontVariantNumeric:'tabular-nums', color: totalPreench === totalPerguntas ? '#00FF88' : 'rgba(255,255,255,0.5)' }}>
-                  {totalPreench}/{totalPerguntas}
-                </span>
+
+              {/* Linha 2: Posição + Fase — DESTAQUE */}
+              <div style={{
+                display:'flex', alignItems:'center', gap:'8px',
+                padding:'6px 12px', borderRadius:'8px',
+                background: faseInfo ? `${faseInfo.bg}` : 'rgba(0,255,136,0.05)',
+                border: `1px solid ${faseInfo?.borda ?? 'rgba(0,255,136,0.2)'}`,
+              }}>
+                <span style={{ fontSize:'14px', flexShrink:0 }}>{posInfo?.icone}</span>
+                <span style={{ fontSize:'11px', fontWeight:900, color:'white' }}>{atleta.posicao}</span>
+                <span style={{ fontSize:'10px', color:'rgba(255,255,255,0.3)' }}>·</span>
+                <span style={{ fontSize:'11px', fontWeight:700, color: faseInfo?.cor ?? '#00FF88' }}>{faseInfo?.fase}</span>
+                {categoria && (
+                  <>
+                    <span style={{ fontSize:'10px', color:'rgba(255,255,255,0.3)' }}>·</span>
+                    <span style={{ fontSize:'10px', fontWeight:700, color:'rgba(255,255,255,0.45)', letterSpacing:'0.06em' }}>{categoria}</span>
+                  </>
+                )}
               </div>
             </div>
 
@@ -659,9 +776,6 @@ function AvaliarPageInner() {
               <h2 style={{ margin:'0 0 4px', fontSize:'20px', fontWeight:900, color:'white', letterSpacing:'-0.02em' }}>
                 Avalie cada atributo
               </h2>
-              <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.3)' }}>
-                {varianteLabel}
-              </p>
             </div>
 
             {/* ── Bloco A: Técnico ── */}
@@ -670,8 +784,8 @@ function AvaliarPageInner() {
               borderRadius:'18px', overflow:'hidden', marginBottom:'12px',
             }}>
               <SectionHeader
-                title="⚽ Atributos Técnicos"
-                subtitle="Fundamentos do jogo"
+                title="⚽ Bloco A — Técnico (10 perguntas)"
+                subtitle={`Específico para ${atleta.posicao} · ${faseInfo?.fase ?? varianteLabel}`}
                 count={contTecnico}
                 total={blocoA.length}
               />
@@ -691,8 +805,8 @@ function AvaliarPageInner() {
               borderRadius:'18px', overflow:'hidden', marginBottom:'12px',
             }}>
               <SectionHeader
-                title="🎭 Perfil do Jogador"
-                subtitle="Características e personalidade"
+                title="🎭 Bloco B — Perfil (6 perguntas)"
+                subtitle="Comportamento e personalidade — igual para todas as posições"
                 count={contPerfil}
                 total={BLOCO_PERFIL.length}
               />
@@ -712,8 +826,8 @@ function AvaliarPageInner() {
               borderRadius:'18px', overflow:'hidden', marginBottom:'20px',
             }}>
               <SectionHeader
-                title="💪 Físico / Contextual"
-                subtitle={varianteLabel}
+                title="💪 Bloco C — Físico (4 perguntas)"
+                subtitle={`Condicionamento físico para ${posInfo?.grupo ?? atleta.posicao} · ${faseInfo?.fase ?? ''}`}
                 count={contContexto}
                 total={blocoC.length}
               />
