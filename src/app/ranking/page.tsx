@@ -36,7 +36,7 @@ function posAbrev(pos: string): string {
   return map[pos] ?? pos.slice(0, 3).toUpperCase()
 }
 
-const CATEGORIAS = [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].map(n => `Sub-${n}`).concat(['Adulto'])
+const CATEGORIAS = [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].map(n => `Sub-${n}`)
 
 const RANK_COLORS: Record<number, { bg: string; text: string; border: string }> = {
   1: { bg: 'rgba(245,158,11,0.15)', text: '#f59e0b', border: 'rgba(245,158,11,0.4)' },
@@ -53,10 +53,10 @@ const AVATAR_TIER: Record<number, { bg: string; color: string }> = {
 
 // ── Page ────────────────────────────────────────────────────────────────────
 
-type Props = { searchParams: Promise<{ categoria?: string; posicao?: string; cidade?: string; estado?: string }> }
+type Props = { searchParams: Promise<{ categoria?: string; posicao?: string; cidade?: string; estado?: string; pais?: string }> }
 
 export default async function RankingPage({ searchParams }: Props) {
-  const { categoria: categoriaFiltro, posicao: posicaoFiltro, cidade: cidadeFiltro, estado: estadoFiltro } = await searchParams
+  const { categoria: categoriaFiltro, posicao: posicaoFiltro, cidade: cidadeFiltro, estado: estadoFiltro, pais: paisFiltro } = await searchParams
 
   const admin = createAdminClient()
 
@@ -83,14 +83,14 @@ export default async function RankingPage({ searchParams }: Props) {
 
   // 4. Monta ranking — só atletas com avaliação, ordenados por OVR real
   type RankingItem = {
-    id: string; nome: string; posicao: string; cidade: string; estado: string
+    id: string; nome: string; posicao: string; cidade: string; estado: string; pais: string
     dataNasc: string | null; ovr: number; categoria: string | null
     initials: string; pos: string; avatarUrl: string | null; athleteId: string | null
   }
 
   const ranking: RankingItem[] = atletas
     .map(u => {
-      const meta = u.user_metadata as { nome?: string; posicao?: string; cidade?: string; estado?: string }
+      const meta = u.user_metadata as { nome?: string; posicao?: string; cidade?: string; estado?: string; pais?: string }
       const profile   = profileMap.get(u.id)
       const nome      = (profile?.nome as string | null) ?? meta.nome ?? 'Atleta'
       const dataNasc  = (profile?.data_nascimento as string | null) ?? null
@@ -102,6 +102,7 @@ export default async function RankingPage({ searchParams }: Props) {
         posicao:   meta.posicao ?? '',
         cidade:    meta.cidade  ?? '',
         estado:    meta.estado  ?? '',
+        pais:      meta.pais    ?? 'Brasil',
         dataNasc,  ovr,
         categoria: dataNasc ? calcularCategoria(dataNasc) : null,
         initials:  getInitials(nome),
@@ -117,7 +118,8 @@ export default async function RankingPage({ searchParams }: Props) {
   const filtered = ranking.filter(a => {
     if (categoriaFiltro && a.categoria !== categoriaFiltro) return false
     if (posicaoFiltro   && a.posicao   !== posicaoFiltro)   return false
-    if (estadoFiltro    && a.estado.toUpperCase()    !== estadoFiltro.toUpperCase())    return false
+    if (paisFiltro      && a.pais.toLowerCase() !== paisFiltro.toLowerCase()) return false
+    if (estadoFiltro    && a.estado.toUpperCase() !== estadoFiltro.toUpperCase()) return false
     if (cidadeFiltro    && !a.cidade.toLowerCase().includes(cidadeFiltro.toLowerCase())) return false
     return true
   })
@@ -223,6 +225,7 @@ export default async function RankingPage({ searchParams }: Props) {
           posicaoFiltro={posicaoFiltro}
           estadoFiltro={estadoFiltro}
           cidadeFiltro={cidadeFiltro}
+          paisFiltro={paisFiltro}
         />
 
         {/* Lista de atletas */}
