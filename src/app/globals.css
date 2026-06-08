@@ -13,12 +13,9 @@
 }
 
 html, body {
-  background: #030a05;
+  background: #080808;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-  /* dvh: dynamic viewport height — corrige o espaço extra no iOS Safari
-     causado pelo 100vh fixo que não acompanha a barra de endereço */
-  min-height: 100dvh;
 }
 
 /* ─────────────────────────────────────────────────────────────
