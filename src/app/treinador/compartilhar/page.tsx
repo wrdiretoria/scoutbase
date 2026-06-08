@@ -322,21 +322,12 @@ export default function TreinadorCompartilharPage() {
                   }} />
                 </div>
 
-                {/* ── TOP LEFT: OVR + Role ── */}
+                {/* ── TOP LEFT: Role badge ── */}
                 <div style={{ position: 'absolute', top: '16px', left: '18px', zIndex: 10 }}>
-                  <div style={{
-                    fontSize: '52px', fontWeight: 900, color: 'white', lineHeight: 1,
-                    letterSpacing: '-0.04em',
-                    textShadow: '0 2px 20px rgba(0,0,0,.9),0 0 40px rgba(251,191,36,.3)',
-                    fontVariantNumeric: 'tabular-nums',
-                  }}>
-                    {ovrAnim}
-                  </div>
                   <div style={{
                     fontSize: '12px', fontWeight: 900, color: '#fbbf24',
                     letterSpacing: '0.14em', textTransform: 'uppercase',
                     textShadow: '0 0 16px rgba(251,191,36,.7)',
-                    marginTop: '2px',
                   }}>
                     TRE
                   </div>
