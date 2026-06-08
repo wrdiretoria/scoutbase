@@ -114,19 +114,6 @@ export default function TreinadorBottomNav() {
             </span>
           </Link>
 
-          {/* Avaliar */}
-          <Link
-            href="/treinador/avaliar"
-            className={`tc-nav-item${isActive('/treinador/avaliar') ? ' active' : ''}`}
-          >
-            <span className="tc-nav-icon" style={{ color: isActive('/treinador/avaliar') ? '#00FF88' : 'rgba(255,255,255,0.38)' }}>
-              ⭐
-            </span>
-            <span className="tc-nav-label" style={{ color: isActive('/treinador/avaliar') ? '#00FF88' : 'rgba(255,255,255,0.35)' }}>
-              Avaliar
-            </span>
-          </Link>
-
           {/* Perfil */}
           <Link
             href="/treinador/perfil"

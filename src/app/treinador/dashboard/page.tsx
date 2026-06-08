@@ -573,17 +573,6 @@ export default function TreinadorDashboardPage() {
           </div>
         )}
 
-        {/* ── CTA: avaliar atleta ── */}
-        <div className="a4" style={{ marginBottom: '32px' }}>
-          <Link href="/treinador/avaliar" className="cta-avaliar">
-            <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span style={{ fontSize: '22px' }}>🔍</span>
-              <span>Avaliar novo atleta</span>
-            </span>
-            <span style={{ fontSize: '22px', opacity: .45 }}>→</span>
-          </Link>
-        </div>
-
         {/* ── Solicitações pendentes ── */}
         {solicitacoes.length > 0 && (
           <div className="a4" style={{ marginBottom: '24px' }}>
@@ -641,6 +630,33 @@ export default function TreinadorDashboardPage() {
                   </Link>
                 )
               })}
+            </div>
+          </div>
+        )}
+
+        {/* ── Zero state convites ── */}
+        {solicitacoes.length === 0 && (
+          <div className="a4" style={{
+            padding: '20px', background: 'rgba(251,191,36,0.04)',
+            border: '1px solid rgba(251,191,36,0.14)', borderRadius: '18px', marginBottom: '24px',
+            display: 'flex', gap: '14px', alignItems: 'flex-start',
+          }}>
+            <span style={{ fontSize: '24px', flexShrink: 0 }}>📨</span>
+            <div>
+              <p style={{ margin: '0 0 4px', fontSize: '13px', fontWeight: 700, color: 'rgba(251,191,36,0.8)' }}>
+                Nenhum convite ainda
+              </p>
+              <p style={{ margin: '0 0 10px', fontSize: '12px', color: 'rgba(255,255,255,0.28)', lineHeight: 1.6 }}>
+                Compartilhe seu card com atletas para que eles possam te enviar um convite de avaliação.
+              </p>
+              <Link href="/treinador/compartilhar" style={{
+                display: 'inline-flex', alignItems: 'center', gap: '6px',
+                padding: '8px 16px', borderRadius: '10px',
+                background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.25)',
+                fontSize: '12px', fontWeight: 800, color: '#fbbf24', textDecoration: 'none',
+              }}>
+                📲 Compartilhar meu card
+              </Link>
             </div>
           </div>
         )}
@@ -733,7 +749,6 @@ export default function TreinadorDashboardPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {[
               { icon: '👤', label: 'Meu currículo', sub: 'Perfil, bio e credenciais', href: '/treinador/perfil' },
-              { icon: '📊', label: 'Nova avaliação', sub: 'Avaliar atleta pelo ID',   href: '/treinador/avaliar' },
             ].map((item, i) => (
               <Link key={i} href={item.href} className="quick-btn">
                 <div style={{

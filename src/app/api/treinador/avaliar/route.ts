@@ -9,7 +9,12 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 })
 
-  if (user.user_metadata?.tipo !== 'treinador') {
+  const m = user.user_metadata ?? {}
+  const eTreinador =
+    m.tipo === 'treinador' ||
+    m.tipo === 'escola' ||
+    (!m.posicao && !m.athlete_id && (m.clube_atual || m.especialidade || m.anos_exp || m.certificacoes || m.clubes_trabalhados))
+  if (!eTreinador) {
     return NextResponse.json({ error: 'Acesso restrito a treinadores.' }, { status: 403 })
   }
 

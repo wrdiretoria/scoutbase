@@ -55,8 +55,28 @@ export default function LoginPage() {
     })
   }, [router])
 
-  // Enquanto verifica a sessão, não renderiza o formulário
-  if (checking) return null
+  // Enquanto verifica a sessão, mostra tela de carregamento (evita tela preta)
+  if (checking) return (
+    <main style={{
+      background: '#06100a', minHeight: '100dvh',
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      padding: '24px', fontFamily: 'system-ui, sans-serif',
+    }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ fontSize: '18px', fontWeight: 800, color: 'white', marginBottom: '32px' }}>
+          ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+        </div>
+        <div style={{
+          width: '36px', height: '36px', margin: '0 auto',
+          border: '3px solid rgba(0,255,136,0.15)',
+          borderTopColor: '#00ff87',
+          borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite',
+        }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    </main>
+  )
 
   const areaInfo = areas.find(a => a.id === area)
 
