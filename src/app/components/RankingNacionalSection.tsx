@@ -32,7 +32,7 @@ export default async function RankingNacionalSection() {
   if (ranked.length === 0) return null
 
   return (
-    <section style={{ background: '#080808', padding: '48px 0' }}>
+    <section style={{ background: '#080808', padding: '28px 0' }}>
       <style>{`.ranking-scroll::-webkit-scrollbar { display: none; }`}</style>
       <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 clamp(16px,4vw,24px)' }}>
 

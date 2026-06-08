@@ -53,7 +53,7 @@ export default async function DestaquesSection() {
   if (top.length === 0) return null
 
   return (
-    <section style={{ background: '#080808', padding: '20px 0 48px' }}>
+    <section style={{ background: '#080808', padding: '20px 0 24px' }}>
       <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 clamp(16px,4vw,24px)' }}>
 
         {/* Header */}
@@ -98,6 +98,20 @@ export default async function DestaquesSection() {
               />
             )
           })}
+        </div>
+
+        {/* Botão Carregar Mais */}
+        <div style={{ textAlign: 'center', marginTop: '24px' }}>
+          <Link href="/ranking" style={{
+            display: 'inline-flex', alignItems: 'center', gap: '8px',
+            padding: '12px 32px', borderRadius: '100px',
+            border: '1.5px solid rgba(0,230,118,0.40)',
+            color: '#00e676', fontSize: '13px', fontWeight: 700,
+            textDecoration: 'none', letterSpacing: '0.08em',
+            transition: 'background .18s, border-color .18s',
+          }}>
+            Carregar Mais
+          </Link>
         </div>
 
       </div>
