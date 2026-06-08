@@ -18,9 +18,16 @@ export default async function TreinadoresSection() {
 
   try {
     const users = await listAllUsers(admin)
-    const treinadorUsers = users.filter(
-      u => u.user_metadata?.tipo === 'treinador' || u.user_metadata?.tipo === 'escola'
-    ).slice(0, 12)
+    const treinadorUsers = users.filter(u => {
+      const m = u.user_metadata ?? {}
+      // Filtro principal: tipo gravado
+      if (m.tipo === 'treinador' || m.tipo === 'escola') return true
+      // Fallback: usuários cadastrados pelo fluxo de treinador
+      // que não gravaram o campo tipo (ex: cadastros antigos)
+      const temDadosTreinador = !!(m.clube_atual || m.especialidade || m.anos_exp || m.certificacoes || m.clubes_trabalhados)
+      const naoEAtleta = !m.athlete_id && !m.posicao
+      return temDadosTreinador && naoEAtleta
+    }).slice(0, 12)
 
     const ids = treinadorUsers.map(u => u.id)
     const { data: profiles } = ids.length > 0
