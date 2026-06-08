@@ -29,6 +29,8 @@ export type VarianteKey =
   | 'formacao_volante'      | 'formacao_meia'           | 'formacao_ponta'     | 'formacao_centroavante'
   | 'competicao_goleiro'    | 'competicao_zagueiro'    | 'competicao_lateral'
   | 'competicao_volante'    | 'competicao_meia'         | 'competicao_ponta'   | 'competicao_centroavante'
+  | 'sub20_goleiro'         | 'sub20_zagueiro'         | 'sub20_lateral'
+  | 'sub20_volante'         | 'sub20_meia'              | 'sub20_ponta'        | 'sub20_centroavante'
 
 export type VarianteDef = {
   label:  string
@@ -510,6 +512,150 @@ const BLOCO_C_CAV_COMPETICAO: QuestionDef[] = [
   { key: 'cav_resistencia',           label: 'Resistência Física',      icon: '🔋' },
 ]
 
+// ─────────────────────────────────────────────────────────────────────────────
+// SUB-20 — Nível Elite / Pré-Profissional (18–20 anos)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const BLOCO_A_GK_SUB20: QuestionDef[] = [
+  { key: 's20gk_seguranca_pressao',   label: 'Segurança sob Alta Pressão',              icon: '🔒' },
+  { key: 's20gk_posicionamento',      label: 'Posicionamento Tático Avançado',           icon: '📍' },
+  { key: 's20gk_defesa_reflexo',      label: 'Defesa de Reflexo / Reação',              icon: '⚡' },
+  { key: 's20gk_dominio_cruzamentos', label: 'Domínio Total em Cruzamentos',            icon: '⬆' },
+  { key: 's20gk_saida_linha',         label: 'Saída de Linha / Sweeper Keeper',         icon: '↕' },
+  { key: 's20gk_penaltis',            label: 'Defesa em Pênaltis',                      icon: '🎯' },
+  { key: 's20gk_jogo_pes',            label: 'Jogo com os Pés (curto/médio/longo)',     icon: '🦶' },
+  { key: 's20gk_passe_longo',         label: 'Passe Longo / Reposição de Jogo',         icon: '🏹' },
+  { key: 's20gk_lideranca',           label: 'Liderança e Organização da Defesa',       icon: '👑' },
+  { key: 's20gk_tomada_decisao',      label: 'Tomada de Decisão sob Alta Pressão',      icon: '🧠' },
+]
+
+const BLOCO_C_GK_SUB20: QuestionDef[] = [
+  { key: 's20gk_explosao',            label: 'Explosão e Potência Física',              icon: '💥' },
+  { key: 's20gk_velocidade_reacao',   label: 'Velocidade de Reação',                   icon: '⚡' },
+  { key: 's20gk_resistencia',         label: 'Resistência e Concentração Total',        icon: '🔋' },
+  { key: 's20gk_forca_fisica',        label: 'Força Física e Impulsão',                icon: '💪' },
+]
+
+const BLOCO_A_ZAG_SUB20: QuestionDef[] = [
+  { key: 's20zag_posicionamento',     label: 'Posicionamento Tático de Alto Nível',    icon: '📍' },
+  { key: 's20zag_marcacao_1x1',       label: 'Marcação no 1×1 sob Pressão Máxima',    icon: '⚔' },
+  { key: 's20zag_desarme',            label: 'Desarme / Bloqueio / Corte Preciso',     icon: '✋' },
+  { key: 's20zag_jogo_aereo',         label: 'Domínio Total no Jogo Aéreo',            icon: '⬆' },
+  { key: 's20zag_antecipacao',        label: 'Antecipação e Leitura Tática Avançada',  icon: '🧠' },
+  { key: 's20zag_saida_qualidade',    label: 'Saída de Bola com Qualidade e Pressão',  icon: '↗' },
+  { key: 's20zag_passe_longo',        label: 'Passe Longo / Lançamento Preciso',       icon: '🏹' },
+  { key: 's20zag_duelo_fisico',       label: 'Duelo Físico Dominante',                 icon: '💪' },
+  { key: 's20zag_lideranca',          label: 'Liderança e Organização da Linha',       icon: '👑' },
+  { key: 's20zag_concentracao',       label: 'Concentração e Disciplina Tática',       icon: '🎯' },
+]
+
+const BLOCO_C_ZAG_SUB20: QuestionDef[] = [
+  { key: 's20zag_forca_fisica',       label: 'Força Física nos Duelos',                icon: '💪' },
+  { key: 's20zag_potencia_aereo',     label: 'Potência no Jogo Aéreo',                icon: '🦘' },
+  { key: 's20zag_resistencia',        label: 'Resistência Física em Alta Intensidade', icon: '🔋' },
+  { key: 's20zag_velocidade',         label: 'Velocidade de Aceleração e Sprint',      icon: '🏃' },
+]
+
+const BLOCO_A_LAT_SUB20: QuestionDef[] = [
+  { key: 's20lat_velocidade',         label: 'Velocidade e Aceleração em Sprint',      icon: '🏃' },
+  { key: 's20lat_marcacao_1x1',       label: 'Marcação no 1×1 sob Alta Pressão',      icon: '⚔' },
+  { key: 's20lat_desarme',            label: 'Desarme e Bloqueio Preciso',             icon: '✋' },
+  { key: 's20lat_cobertura_zaga',     label: 'Cobertura e Apoio Estrutural à Zaga',   icon: '🛡' },
+  { key: 's20lat_cruzamento',         label: 'Qualidade e Precisão no Cruzamento',    icon: '🎯' },
+  { key: 's20lat_conducao',           label: 'Condução em Alta Velocidade no 1×1',    icon: '⚽' },
+  { key: 's20lat_passe_variado',      label: 'Variação de Passe (curto/médio/longo)', icon: '🏹' },
+  { key: 's20lat_posicionamento',     label: 'Posicionamento Tático Duplo (def/ofe)', icon: '📍' },
+  { key: 's20lat_leitura',            label: 'Leitura de Jogo Ofensivo e Defensivo',  icon: '🧠' },
+  { key: 's20lat_resistencia',        label: 'Resistência para Repetir Sprints',       icon: '🔋' },
+]
+
+const BLOCO_C_LAT_SUB20: QuestionDef[] = [
+  { key: 's20lat_velocidade_aceler',  label: 'Velocidade e Aceleração',               icon: '🏃' },
+  { key: 's20lat_resistencia_fisica', label: 'Resistência Aeróbica de Alto Nível',    icon: '🔋' },
+  { key: 's20lat_agilidade',          label: 'Agilidade Explosiva',                   icon: '🤸' },
+  { key: 's20lat_concentracao',       label: 'Concentração e Disciplina Tática',      icon: '🎯' },
+]
+
+const BLOCO_A_VOL_SUB20: QuestionDef[] = [
+  { key: 's20vol_marcacao_1x1',       label: 'Marcação no 1×1 em Alta Intensidade',  icon: '⚔' },
+  { key: 's20vol_interceptacao',      label: 'Interceptação e Antecipação Tática',    icon: '✋' },
+  { key: 's20vol_recuperacao',        label: 'Recuperação de Bola sob Alta Pressão',  icon: '🔄' },
+  { key: 's20vol_passe_variado',      label: 'Variação de Passe com Precisão',        icon: '🏹' },
+  { key: 's20vol_recepcao',           label: 'Recepção sob Pressão Máxima',           icon: '🦶' },
+  { key: 's20vol_conducao',           label: 'Condução em Espaços Reduzidos',         icon: '⚽' },
+  { key: 's20vol_transicao',          label: 'Velocidade de Transição Def/Ataq',      icon: '⚡' },
+  { key: 's20vol_posicionamento',     label: 'Posicionamento e Cobertura Tática',     icon: '📍' },
+  { key: 's20vol_lideranca',          label: 'Liderança e Organização do Meio',       icon: '👑' },
+  { key: 's20vol_finalizacao',        label: 'Finalização de Média/Longa Distância',  icon: '🎯' },
+]
+
+const BLOCO_C_VOL_SUB20: QuestionDef[] = [
+  { key: 's20vol_resistencia',        label: 'Resistência Física de Alto Nível',      icon: '🔋' },
+  { key: 's20vol_velocidade',         label: 'Velocidade e Aceleração',               icon: '🏃' },
+  { key: 's20vol_forca',              label: 'Força Corporal nos Duelos',             icon: '💪' },
+  { key: 's20vol_concentracao',       label: 'Concentração e Disciplina',             icon: '🧘' },
+]
+
+const BLOCO_A_MEI_SUB20: QuestionDef[] = [
+  { key: 's20mei_passe_variado',      label: 'Variação e Precisão de Passe',          icon: '🏹' },
+  { key: 's20mei_visao_decisao',      label: 'Visão de Jogo e Tomada de Decisão',     icon: '🧠' },
+  { key: 's20mei_recepcao',           label: 'Recepção sob Alta Pressão',             icon: '🦶' },
+  { key: 's20mei_conducao_drible',    label: 'Condução e Drible no 1×1 de Elite',    icon: '⚽' },
+  { key: 's20mei_finalizacao',        label: 'Finalização com Qualidade e Pressão',   icon: '🎯' },
+  { key: 's20mei_assistencia',        label: 'Assistência / Último Passe',            icon: '🏃' },
+  { key: 's20mei_movimentacao',       label: 'Movimentação sem Bola e Ruptura',       icon: '💨' },
+  { key: 's20mei_posicionamento',     label: 'Posicionamento Ofensivo e de Apoio',    icon: '📍' },
+  { key: 's20mei_transicao',          label: 'Velocidade de Transição',               icon: '⚡' },
+  { key: 's20mei_criatividade',       label: 'Criatividade e Imprevisibilidade',      icon: '✨' },
+]
+
+const BLOCO_C_MEI_SUB20: QuestionDef[] = [
+  { key: 's20mei_velocidade',         label: 'Velocidade e Aceleração',               icon: '🏃' },
+  { key: 's20mei_agilidade',          label: 'Agilidade e Explosão',                  icon: '🤸' },
+  { key: 's20mei_resistencia',        label: 'Resistência Física de Alto Nível',      icon: '🔋' },
+  { key: 's20mei_concentracao',       label: 'Concentração e Constância',             icon: '🧘' },
+]
+
+const BLOCO_A_PON_SUB20: QuestionDef[] = [
+  { key: 's20pon_velocidade',         label: 'Velocidade e Aceleração Máxima',        icon: '🏃' },
+  { key: 's20pon_conducao',           label: 'Condução Explosiva no 1×1',             icon: '⚽' },
+  { key: 's20pon_drible',             label: 'Drible em Alta Velocidade de Elite',    icon: '⚡' },
+  { key: 's20pon_cruzamento',         label: 'Qualidade e Variedade no Cruzamento',   icon: '🎯' },
+  { key: 's20pon_passe_profundidade', label: 'Passe em Profundidade / Assistência',   icon: '🏹' },
+  { key: 's20pon_protecao_bola',      label: 'Proteção de Bola sob Alta Pressão',     icon: '🦶' },
+  { key: 's20pon_movimentacao',       label: 'Movimentação e Ruptura sem Bola',       icon: '💨' },
+  { key: 's20pon_posicionamento',     label: 'Aproveitamento de Espaços',             icon: '📍' },
+  { key: 's20pon_decisao',            label: 'Tomada de Decisão no Último Terço',     icon: '🧠' },
+  { key: 's20pon_finalizacao',        label: 'Finalização sob Alta Pressão',          icon: '⭐' },
+]
+
+const BLOCO_C_PON_SUB20: QuestionDef[] = [
+  { key: 's20pon_velocidade_aceler',  label: 'Velocidade e Aceleração',               icon: '🏃' },
+  { key: 's20pon_agilidade',          label: 'Agilidade Explosiva',                   icon: '🤸' },
+  { key: 's20pon_resistencia',        label: 'Resistência para Repetir Sprints',       icon: '🔋' },
+  { key: 's20pon_concentracao',       label: 'Concentração e Consistência',           icon: '🧘' },
+]
+
+const BLOCO_A_CAV_SUB20: QuestionDef[] = [
+  { key: 's20cav_finalizacao',        label: 'Finalização de Elite sob Pressão',      icon: '🎯' },
+  { key: 's20cav_protecao_bola',      label: 'Proteção e Manutenção de Bola',         icon: '⚽' },
+  { key: 's20cav_jogo_aereo',         label: 'Domínio Total no Jogo Aéreo Ofensivo',  icon: '👆' },
+  { key: 's20cav_movimentacao',       label: 'Movimentação e Ruptura Inteligente',    icon: '💨' },
+  { key: 's20cav_posicionamento',     label: 'Posicionamento Instintivo na Área',     icon: '📍' },
+  { key: 's20cav_drible_espacos',     label: 'Drible e Criação de Espaços',           icon: '⚡' },
+  { key: 's20cav_assistencia',        label: 'Assistência / Envolvimento no Jogo',    icon: '🏹' },
+  { key: 's20cav_leitura_defesa',     label: 'Leitura do Posicionamento Defensivo',   icon: '🧠' },
+  { key: 's20cav_forca_pressao',      label: 'Força e Proteção sob Pressão Total',    icon: '💪' },
+  { key: 's20cav_frieza',             label: 'Frieza e Decisão nas Situações Finais', icon: '🔥' },
+]
+
+const BLOCO_C_CAV_SUB20: QuestionDef[] = [
+  { key: 's20cav_forca_fisica',       label: 'Força Física nos Duelos',               icon: '💪' },
+  { key: 's20cav_velocidade',         label: 'Velocidade e Aceleração',               icon: '🏃' },
+  { key: 's20cav_potencia_aereo',     label: 'Potência no Jogo Aéreo',               icon: '👆' },
+  { key: 's20cav_resistencia',        label: 'Resistência em Alta Intensidade',       icon: '🔋' },
+]
+
 // ── Bloco C genérico (legacy — usado apenas pela variante 'iniciacao') ────────
 
 const BLOCO_C_INICIACAO_LEGADO: QuestionDef[] = [
@@ -644,6 +790,44 @@ export const VARIANTES: Record<VarianteKey, VarianteDef> = {
     blocoA: BLOCO_A_CAV_COMPETICAO,
     blocoC: BLOCO_C_CAV_COMPETICAO,
   },
+
+  // ── Sub-20 / Elite (18–20 anos) ────────────────────────────────────────────
+
+  sub20_goleiro: {
+    label:  'Sub-20 — Goleiro (18 a 20 anos)',
+    blocoA: BLOCO_A_GK_SUB20,
+    blocoC: BLOCO_C_GK_SUB20,
+  },
+  sub20_zagueiro: {
+    label:  'Sub-20 — Zagueiro (18 a 20 anos)',
+    blocoA: BLOCO_A_ZAG_SUB20,
+    blocoC: BLOCO_C_ZAG_SUB20,
+  },
+  sub20_lateral: {
+    label:  'Sub-20 — Lateral (18 a 20 anos)',
+    blocoA: BLOCO_A_LAT_SUB20,
+    blocoC: BLOCO_C_LAT_SUB20,
+  },
+  sub20_volante: {
+    label:  'Sub-20 — Volante (18 a 20 anos)',
+    blocoA: BLOCO_A_VOL_SUB20,
+    blocoC: BLOCO_C_VOL_SUB20,
+  },
+  sub20_meia: {
+    label:  'Sub-20 — Meia (18 a 20 anos)',
+    blocoA: BLOCO_A_MEI_SUB20,
+    blocoC: BLOCO_C_MEI_SUB20,
+  },
+  sub20_ponta: {
+    label:  'Sub-20 — Ponta (18 a 20 anos)',
+    blocoA: BLOCO_A_PON_SUB20,
+    blocoC: BLOCO_C_PON_SUB20,
+  },
+  sub20_centroavante: {
+    label:  'Sub-20 — Centroavante (18 a 20 anos)',
+    blocoA: BLOCO_A_CAV_SUB20,
+    blocoC: BLOCO_C_CAV_SUB20,
+  },
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -657,11 +841,12 @@ export function getIdade(dataNasc: string): number {
   return idade
 }
 
-export function getFase(dataNasc: string): 'iniciacao' | 'formacao' | 'competicao' {
+export function getFase(dataNasc: string): 'iniciacao' | 'formacao' | 'competicao' | 'sub20' {
   const idade = getIdade(dataNasc)
   if (idade <= 10) return 'iniciacao'
   if (idade <= 14) return 'formacao'
-  return 'competicao'
+  if (idade <= 17) return 'competicao'
+  return 'sub20'
 }
 
 export function getGrupoPosicao(
@@ -688,6 +873,7 @@ export function getVariante(dataNasc: string, posicao: string): VarianteKey {
     if (grupo === 'ponta')        return 'iniciacao_ponta'
     return 'iniciacao_centroavante'
   }
+  // sub20, formacao, competicao → padrão fase_grupo
   return `${fase}_${grupo}` as VarianteKey
 }
 

@@ -63,9 +63,9 @@ export async function POST(req: NextRequest) {
     const hoje = new Date()
     const idade = hoje.getFullYear() - nasc.getFullYear() -
       (hoje < new Date(hoje.getFullYear(), nasc.getMonth(), nasc.getDate()) ? 1 : 0)
-    if (idade >= 18) {
+    if (idade > 20) {
       return NextResponse.json({
-        error: 'Este atleta já completou 18 anos. O Meu Craque é exclusivo para o futebol de base (sub-18). O histórico de avaliações anteriores permanece salvo.',
+        error: 'Este atleta já completou 20 anos. O Meu Craque é exclusivo para o futebol de base (até Sub-20). O histórico de avaliações anteriores permanece salvo.',
       }, { status: 403 })
     }
   }

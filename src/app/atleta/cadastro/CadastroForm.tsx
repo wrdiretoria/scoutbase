@@ -93,13 +93,13 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
       return
     }
 
-    // Validação de idade — perfil de atleta só para menores de 18 anos
+    // Validação de idade — perfil de atleta até Sub-20 (20 anos)
     const nascimento = new Date(dataNasc)
     const hoje = new Date()
     const idade = hoje.getFullYear() - nascimento.getFullYear() -
       (hoje < new Date(hoje.getFullYear(), nascimento.getMonth(), nascimento.getDate()) ? 1 : 0)
-    if (idade >= 18) {
-      setError('⚠️ O Meu Craque é exclusivo para atletas do futebol de base (abaixo de 18 anos). Se você é treinador ou profissional, crie um perfil de treinador.')
+    if (idade > 20) {
+      setError('⚠️ O Meu Craque é exclusivo para atletas do futebol de base (até Sub-20). Se você é treinador ou profissional, crie um perfil de treinador.')
       return
     }
     setError(null)
