@@ -32,17 +32,28 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'ID do treinador é obrigatório.' }, { status: 400 })
     }
 
-    const mcId = treinadorMcId.trim().toUpperCase()
+    const raw = treinadorMcId.trim().toUpperCase()
 
-    // Admin declarado aqui para bypasser RLS em todas as queries seguintes
+    // Admin declarado aqui para bypassar RLS em todas as queries seguintes
     const admin = createAdminClient()
 
-    // Busca o treinador pelo athlete_id na tabela profiles (admin bypassa RLS)
-    const { data: treinadorProfile } = await admin
-      .from('profiles')
-      .select('id, nome')
-      .eq('athlete_id', mcId)
-      .single()
+    // Monta candidatos de athlete_id: aceita "00001", "TR-00001", "MC-00001" etc.
+    const candidatos = Array.from(new Set([
+      raw,
+      raw.startsWith('TR-') ? raw : `TR-${raw}`,
+      raw.startsWith('MC-') ? raw : `MC-${raw}`,
+    ]))
+
+    // Busca o treinador pelo athlete_id (tenta todos os formatos)
+    let treinadorProfile: { id: string; nome: string } | null = null
+    for (const id of candidatos) {
+      const { data } = await admin
+        .from('profiles')
+        .select('id, nome')
+        .eq('athlete_id', id)
+        .maybeSingle()
+      if (data) { treinadorProfile = data as { id: string; nome: string }; break }
+    }
 
     if (!treinadorProfile) {
       return NextResponse.json({ error: 'Treinador não encontrado. Verifique o ID.' }, { status: 404 })
@@ -50,9 +61,17 @@ export async function POST(req: NextRequest) {
 
     const treinadorId = treinadorProfile.id as string
 
-    // Verifica se o treinador existe e é de fato um treinador
+    // Verifica se é de fato um treinador (tipo='treinador'|'escola' OU campos de treinador preenchidos)
     const { data: { user: treinadorUser } } = await admin.auth.admin.getUserById(treinadorId)
-    if (!treinadorUser || treinadorUser.user_metadata?.tipo !== 'treinador') {
+    if (!treinadorUser) {
+      return NextResponse.json({ error: 'Treinador não encontrado.' }, { status: 404 })
+    }
+    const tm = treinadorUser.user_metadata ?? {}
+    const eTreinador =
+      tm.tipo === 'treinador' ||
+      tm.tipo === 'escola' ||
+      (!tm.posicao && !tm.athlete_id && (tm.clube_atual || tm.especialidade || tm.anos_exp || tm.certificacoes || tm.clubes_trabalhados))
+    if (!eTreinador) {
       return NextResponse.json({ error: 'ID não pertence a um treinador.' }, { status: 404 })
     }
 
