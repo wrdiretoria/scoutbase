@@ -70,6 +70,24 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
 
   function handleNext(e: React.FormEvent) {
     e.preventDefault()
+    if (!password || password.length < 6) {
+      setError('A senha precisa ter pelo menos 6 caracteres.')
+      return
+    }
+    if (!recoveryEmail.trim()) {
+      setError('Informe um email de recuperação.')
+      return
+    }
+    if (!consent) {
+      setError('Confirme o consentimento para continuar.')
+      return
+    }
+    setError(null)
+    setStep(2)
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
     if (!nome || !posicao || !cidade || !dataNasc) {
       setError('Preencha todos os campos.')
       return
@@ -80,19 +98,10 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
     const hoje = new Date()
     const idade = hoje.getFullYear() - nascimento.getFullYear() -
       (hoje < new Date(hoje.getFullYear(), nascimento.getMonth(), nascimento.getDate()) ? 1 : 0)
-
     if (idade >= 18) {
       setError('⚠️ O Meu Craque é exclusivo para atletas do futebol de base (abaixo de 18 anos). Se você é treinador ou profissional, crie um perfil de treinador.')
       return
     }
-
-    setError(null)
-    setStep(2)
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!consent) { setError('Confirme o consentimento para continuar.'); return }
     setError(null)
     setLoading(true)
 
@@ -283,21 +292,82 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
           </div>
 
           <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', color: '#22c55e', textTransform: 'uppercase' }}>
-            {step === 1 ? 'Identidade · 1 de 2' : 'Acesso · 2 de 2'}
+            {step === 1 ? 'Acesso · 1 de 2' : 'Identidade · 2 de 2'}
           </p>
           <h1 style={{ margin: '0 0 6px', fontSize: '26px', fontWeight: 900, color: 'white', letterSpacing: '-0.02em' }}>
-            {step === 1 ? 'Monte seu perfil' : 'Quase lá'}
+            {step === 1 ? 'Crie seu acesso' : 'Monte seu perfil'}
           </h1>
           <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.4)' }}>
             {step === 1
-              ? 'Essas informações constroem sua identidade no ranking.'
-              : 'Crie uma senha e pronto — seu ID é gerado automaticamente.'}
+              ? 'Crie uma senha — seu ID é gerado automaticamente.'
+              : 'Essas informações constroem sua identidade no ranking.'}
           </p>
         </div>
 
-        {/* STEP 1 — Identidade + Foto */}
+        {/* STEP 1 — Acesso */}
         {step === 1 && (
           <form onSubmit={handleNext} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+
+            <div>
+              <label style={labelStyle}>Senha</label>
+              <input
+                type="password" required minLength={6} value={password} onChange={e => setPassword(e.target.value)}
+                placeholder="Mínimo 6 caracteres" style={inputStyle}
+              />
+              <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.25)' }}>
+                O login é feito pelo ID gerado automaticamente + esta senha.
+              </p>
+            </div>
+
+            <div>
+              <label style={labelStyle}>
+                Email de recuperação <span style={{ color: '#ef4444' }}>*</span>
+              </label>
+              <input
+                type="email" required value={recoveryEmail} onChange={e => setRecoveryEmail(e.target.value)}
+                placeholder="email do responsável / pai ou mãe"
+                style={inputStyle}
+              />
+              <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.25)', lineHeight: 1.5 }}>
+                Se esquecer o ID, use este email para recuperar. Um pai pode colocar o mesmo email em vários filhos.
+              </p>
+            </div>
+
+            <div
+              onClick={() => setConsent(c => !c)}
+              style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer', userSelect: 'none' }}
+            >
+              <div style={{
+                width: '20px', height: '20px', borderRadius: '6px', flexShrink: 0, marginTop: '1px',
+                background: consent ? '#22c55e' : 'rgba(255,255,255,0.06)',
+                border: `1.5px solid ${consent ? '#22c55e' : 'rgba(255,255,255,0.15)'}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.2s',
+              }}>
+                {consent && <span style={{ fontSize: '12px', color: 'black', fontWeight: 900 }}>✓</span>}
+              </div>
+              <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>
+                Confirmo que sou o responsável legal pelo atleta cadastrado e autorizo o uso de seus dados e imagens conforme os{' '}
+                <Link href="/termos" target="_blank" onClick={e => e.stopPropagation()} style={{ color: '#22c55e', textDecoration: 'none' }}>Termos de Uso</Link>.
+              </span>
+            </div>
+
+            {error && <p style={{ margin: 0, padding: '10px 14px', borderRadius: '10px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '13px', color: '#f87171' }}>{error}</p>}
+
+            <button type="submit" style={{
+              padding: '16px', borderRadius: '14px', border: 'none', cursor: 'pointer',
+              background: '#22c55e', color: 'black', fontWeight: 800, fontSize: '16px', marginTop: '4px',
+              minHeight: '56px', transition: 'transform .08s, opacity .1s',
+              boxShadow: '0 0 28px rgba(34,197,94,0.2)',
+            }}>
+              Continuar →
+            </button>
+          </form>
+        )}
+
+        {/* STEP 2 — Identidade + Foto */}
+        {step === 2 && (
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
 
             {/* ── FOTO ── */}
             <div>
@@ -507,69 +577,6 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
               </div>
             )}
 
-            <button type="submit" style={{
-              padding: '16px', borderRadius: '14px', border: 'none', cursor: 'pointer',
-              background: '#22c55e', color: 'black', fontWeight: 800, fontSize: '16px', marginTop: '4px',
-              minHeight: '56px', transition: 'transform .08s, opacity .1s',
-              boxShadow: '0 0 28px rgba(34,197,94,0.2)',
-            }}>
-              Continuar →
-            </button>
-          </form>
-        )}
-
-        {/* STEP 2 — Acesso */}
-        {step === 2 && (
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-            <div>
-              <label style={labelStyle}>Senha</label>
-              <input
-                type="password" required minLength={6} value={password} onChange={e => setPassword(e.target.value)}
-                placeholder="Mínimo 6 caracteres" style={inputStyle}
-              />
-              <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.25)' }}>
-                O login é feito pelo ID gerado automaticamente + esta senha.
-              </p>
-            </div>
-
-            <div>
-              <label style={labelStyle}>
-                Email de recuperação <span style={{ color: '#ef4444' }}>*</span>
-              </label>
-              <input
-                type="email" required value={recoveryEmail} onChange={e => setRecoveryEmail(e.target.value)}
-                placeholder="email do responsável / pai ou mãe"
-                style={inputStyle}
-              />
-              <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.25)', lineHeight: 1.5 }}>
-                Se esquecer o ID, use este email para recuperar. Um pai pode colocar o mesmo email em vários filhos.
-              </p>
-            </div>
-
-            {/* Área inteira clicável — essencial no mobile onde o toque cai no texto */}
-            <div
-              onClick={() => setConsent(c => !c)}
-              style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer', userSelect: 'none' }}
-            >
-              <div
-                style={{
-                  width: '20px', height: '20px', borderRadius: '6px', flexShrink: 0, marginTop: '1px',
-                  background: consent ? '#22c55e' : 'rgba(255,255,255,0.06)',
-                  border: `1.5px solid ${consent ? '#22c55e' : 'rgba(255,255,255,0.15)'}`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  transition: 'all 0.2s',
-                }}
-              >
-                {consent && <span style={{ fontSize: '12px', color: 'black', fontWeight: 900 }}>✓</span>}
-              </div>
-              <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>
-                Confirmo que sou o responsável legal pelo atleta cadastrado e autorizo o uso de seus dados e imagens conforme os{' '}
-                <Link href="/termos" target="_blank" onClick={e => e.stopPropagation()} style={{ color: '#22c55e', textDecoration: 'none' }}>Termos de Uso</Link>.
-              </span>
-            </div>
-
-            {error && <p style={{ margin: 0, padding: '10px 14px', borderRadius: '10px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '13px', color: '#f87171' }}>{error}</p>}
-
             <button
               type="submit" disabled={loading}
               style={{
@@ -584,7 +591,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
               {loading ? 'Criando perfil…' : '🔥 Entrar no jogo'}
             </button>
 
-            <button type="button" onClick={() => setStep(1)} style={{
+            <button type="button" onClick={() => { setStep(1); setError(null) }} style={{
               padding: '10px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)',
               background: 'transparent', color: 'rgba(255,255,255,0.4)', fontSize: '13px', cursor: 'pointer',
             }}>
