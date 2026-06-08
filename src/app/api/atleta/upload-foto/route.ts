@@ -49,11 +49,14 @@ export async function POST(req: NextRequest) {
 
   const { data: { publicUrl } } = admin.storage.from('avatars').getPublicUrl(path)
 
-  // ── Salva URL no perfil ──
+  // Cache-busting: timestamp garante que browser/CDN não serve versão antiga
+  const urlFresh = `${publicUrl}?t=${Date.now()}`
+
+  // ── Salva URL com timestamp no perfil (evita CDN cache em todas as telas) ──
   await admin
     .from('profiles')
-    .update({ avatar_url: publicUrl })
+    .update({ avatar_url: urlFresh })
     .eq('id', user.id)
 
-  return NextResponse.json({ ok: true, url: publicUrl })
+  return NextResponse.json({ ok: true, url: urlFresh })
 }
