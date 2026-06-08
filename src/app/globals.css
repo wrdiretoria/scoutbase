@@ -37,13 +37,17 @@ html {
 }
 
 body {
-  /* Prevent overscroll rubber-band bleed on dark pages */
-  overscroll-behavior-y: none;
-  /* Bloqueia scroll/bounce horizontal — evita balanço no iOS */
-  overflow-x: hidden;
   /* Crisp text everywhere */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Bloqueia overflow horizontal sem criar scroll context no iOS Safari.
+   overflow-x: hidden no body é bug documentado do iOS — transforma o html
+   no scroll container, que fica maior que o conteúdo e gera espaço preto.
+   overflow-x: clip resolve sem esse efeito colateral. */
+html {
+  overflow-x: clip;
 }
 
 html {
