@@ -1,22 +1,29 @@
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase'
 import { fetchOvrMapByUuid } from '@/lib/ovr'
-import AtletaCardLanding from './AtletaCardLanding'
 import { formatNome } from '@/lib/formatNome'
+import LoadMoreCardsRow from './LoadMoreCardsRow'
+import type { MaisCard } from '@/app/api/landing/mais/route'
 
 export const revalidate = 30
+
+const LIMIT = 12
 
 export default async function RankingNacionalSection() {
   const admin = createAdminClient()
 
-  const [ovrByUuid, profilesRes] = await Promise.all([
+  const [ovrByUuid, profilesRes, countRes] = await Promise.all([
     fetchOvrMapByUuid(admin),
     admin
       .from('profiles')
       .select('id, nome, athlete_id, avatar_url, fotos, criado_em')
       .like('athlete_id', 'MC-%')
       .order('criado_em', { ascending: false })
-      .limit(12),
+      .limit(LIMIT),
+    admin
+      .from('profiles')
+      .select('id', { count: 'exact', head: true })
+      .like('athlete_id', 'MC-%'),
   ])
 
   const profiles = (profilesRes.data ?? []) as {
@@ -26,6 +33,21 @@ export default async function RankingNacionalSection() {
   }[]
 
   if (profiles.length === 0) return null
+
+  const hasMore = (countRes.count ?? 0) > LIMIT
+
+  const initial: MaisCard[] = profiles.map(p => {
+    const fotos = (p.fotos ?? []).filter((f): f is string => !!f)
+    return {
+      id: p.id,
+      nome: formatNome(p.nome ?? 'Atleta'),
+      posicao: null,
+      athlete_id: p.athlete_id,
+      foto: fotos[0] ?? p.avatar_url ?? null,
+      ovr: ovrByUuid.get(p.id) ?? null,
+      categoria: null,
+    }
+  })
 
   return (
     <section style={{ background: '#080808', padding: '16px 0' }}>
@@ -46,40 +68,13 @@ export default async function RankingNacionalSection() {
           </Link>
         </div>
 
-        <div className="ranking-scroll landing-cards" style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '12px', scrollbarWidth: 'none' }}>
-          {profiles.map((p) => {
-            const fotos = (p.fotos ?? []).filter((f): f is string => !!f)
-            const foto = fotos[0] ?? p.avatar_url ?? null
-            const ovr = ovrByUuid.get(p.id) ?? null
-            return (
-              <div key={p.id} style={{ flexShrink: 0, width: '180px' }}>
-                <AtletaCardLanding
-                  nome={formatNome(p.nome ?? 'Atleta')}
-                  ovr={ovr}
-                  foto={foto}
-                  posicao={null}
-                  categoria={null}
-                  atributos={null}
-                  href={`/jogador/${p.id}`}
-                  athleteId={p.athlete_id}
-                  width="180px"
-                />
-              </div>
-            )
-          })}
-        </div>
-
-        <div style={{ textAlign: 'center', marginTop: '24px' }}>
-          <Link href="/ranking" style={{
-            display: 'inline-flex', alignItems: 'center', gap: '8px',
-            padding: '12px 32px', borderRadius: '100px',
-            border: '1.5px solid rgba(0,230,118,0.40)',
-            color: '#00e676', fontSize: '13px', fontWeight: 700,
-            textDecoration: 'none', letterSpacing: '0.08em',
-          }}>
-            Carregar Mais
-          </Link>
-        </div>
+        <LoadMoreCardsRow
+          tipo="novos"
+          initialItems={initial}
+          initialOffset={LIMIT}
+          limit={LIMIT}
+          hasMoreInit={hasMore}
+        />
 
       </div>
     </section>
