@@ -18,11 +18,7 @@ function calcularCategoria(dataNasc: string): string {
   let idade = hoje.getFullYear() - nasc.getFullYear()
   const m = hoje.getMonth() - nasc.getMonth()
   if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--
-  if (idade <= 11) return 'Sub-11'
-  if (idade <= 13) return 'Sub-13'
-  if (idade <= 15) return 'Sub-15'
-  if (idade <= 17) return 'Sub-17'
-  if (idade <= 20) return 'Sub-20'
+  if (idade <= 20) return `Sub-${idade}`
   return 'Adulto'
 }
 
@@ -40,7 +36,7 @@ function posAbrev(pos: string): string {
   return map[pos] ?? pos.slice(0, 3).toUpperCase()
 }
 
-const CATEGORIAS = ['Sub-11', 'Sub-13', 'Sub-15', 'Sub-17', 'Sub-20', 'Adulto']
+const CATEGORIAS = [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].map(n => `Sub-${n}`).concat(['Adulto'])
 
 const RANK_COLORS: Record<number, { bg: string; text: string; border: string }> = {
   1: { bg: 'rgba(245,158,11,0.15)', text: '#f59e0b', border: 'rgba(245,158,11,0.4)' },
