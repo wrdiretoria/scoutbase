@@ -1038,24 +1038,49 @@ function AtletaPerfilContent() {
                 {categoria}
               </div>
             )}
-            {/* OVR total no canto superior esquerdo */}
-            {ovrTotal > 0 && (
-              <div style={{
-                position:'absolute', top:'12px', left:'14px',
-                display:'flex', flexDirection:'column', alignItems:'flex-start',
-                pointerEvents:'none',
-              }}>
-                <span style={{
-                  fontSize:'30px', fontWeight:900, lineHeight:1, letterSpacing:'-0.04em',
-                  color:'white', textShadow:'0 0 20px rgba(0,255,136,0.4)',
+            {/* OVR total + Medalha — canto superior esquerdo */}
+            <div style={{
+              position:'absolute', top:'12px', left:'14px',
+              display:'flex', flexDirection:'column', alignItems:'flex-start', gap:'4px',
+              pointerEvents:'none',
+            }}>
+              {ovrTotal > 0 && (
+                <>
+                  <div style={{ display:'flex', alignItems:'center', gap:'6px' }}>
+                    <span style={{
+                      fontSize:'30px', fontWeight:900, lineHeight:1, letterSpacing:'-0.04em',
+                      color:'white', textShadow:'0 0 20px rgba(0,255,136,0.4)',
+                    }}>
+                      {ovrTotal}
+                    </span>
+                    {/* Medalha por OVR */}
+                    {ovrTotal >= 80 && (
+                      <span style={{ fontSize:'22px', lineHeight:1, filter:'drop-shadow(0 0 6px #ffd70099)' }} title="Ouro — OVR ≥ 80">🥇</span>
+                    )}
+                    {ovrTotal >= 60 && ovrTotal < 80 && (
+                      <span style={{ fontSize:'22px', lineHeight:1, filter:'drop-shadow(0 0 6px #c0c0c099)' }} title="Prata — OVR 60-79">🥈</span>
+                    )}
+                    {ovrTotal >= 40 && ovrTotal < 60 && (
+                      <span style={{ fontSize:'22px', lineHeight:1, filter:'drop-shadow(0 0 6px #cd7f3299)' }} title="Bronze — OVR 40-59">🥉</span>
+                    )}
+                  </div>
+                  <span style={{ fontSize:'8px', fontWeight:800, letterSpacing:'0.18em', color:'rgba(0,255,136,0.7)', textTransform:'uppercase' }}>
+                    OVR
+                  </span>
+                </>
+              )}
+              {/* Sem avaliação ou OVR < 40 — incentivo */}
+              {ovrTotal < 40 && (
+                <div style={{
+                  marginTop:'4px', padding:'4px 8px', borderRadius:'8px',
+                  background:'rgba(0,0,0,0.55)', border:'1px solid rgba(255,255,255,0.12)',
+                  fontSize:'9px', fontWeight:700, color:'rgba(255,255,255,0.6)',
+                  letterSpacing:'0.04em', maxWidth:'120px', lineHeight:1.4,
                 }}>
-                  {ovrTotal}
-                </span>
-                <span style={{ fontSize:'8px', fontWeight:800, letterSpacing:'0.18em', color:'rgba(0,255,136,0.7)', textTransform:'uppercase' }}>
-                  OVR
-                </span>
-              </div>
-            )}
+                  Complete o perfil para ganhar medalha
+                </div>
+              )}
+            </div>
             {/* Foto ou iniciais — label nativo garante abertura do seletor em iOS/Android */}
             <div id="foto" style={{ position:'relative', width:'72px', height:'72px', flexShrink:0, marginBottom:'-20px' }}>
               <label htmlFor="foto-input" style={{
