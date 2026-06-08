@@ -50,7 +50,7 @@ export default async function RankingNacionalSection() {
           </Link>
         </div>
 
-        <div className="ranking-scroll" style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '12px', scrollbarWidth: 'none' }}>
+        <div className="ranking-scroll landing-cards" style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '12px', scrollbarWidth: 'none' }}>
           {ranked.map((p, i) => {
             const fotos = (p.fotos ?? []).filter((f): f is string => !!f)
             const foto = fotos[0] ?? p.avatar_url ?? null

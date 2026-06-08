@@ -72,7 +72,7 @@ export default async function DestaquesSection() {
         </div>
 
         {/* Grid de cards — mesmo visual de "Mais Visitados", alinhamento igual */}
-        <div style={{
+        <div className="landing-cards" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, 180px)',
           gap: '16px',

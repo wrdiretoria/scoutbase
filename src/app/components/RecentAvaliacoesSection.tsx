@@ -46,7 +46,7 @@ export default function RecentAvaliacoesSection() {
             ))}
           </div>
         ) : (
-          <div className="recem-scroll" style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '12px', scrollbarWidth: 'none' }}>
+          <div className="recem-scroll landing-cards" style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '12px', scrollbarWidth: 'none' }}>
             {events.map(e => (
               <div key={e.id} style={{ flexShrink: 0, width: '180px' }}>
                 <AtletaCardLanding

@@ -65,7 +65,7 @@ export default async function MaisVisitadosSection() {
         {/* Scroll horizontal */}
         <div style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '12px', scrollbarWidth: 'none' }}>
           <style>{`.mais-visitados-scroll::-webkit-scrollbar { display: none; }`}</style>
-          <div className="mais-visitados-scroll" style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '12px' }}>
+          <div className="mais-visitados-scroll landing-cards" style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '12px' }}>
             {items.map(p => {
               const fotos = (p.fotos ?? []).filter((f): f is string => !!f)
               const foto = fotos[0] ?? p.avatar_url ?? null

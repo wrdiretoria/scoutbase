@@ -115,3 +115,30 @@ textarea {
   opacity: 0.88;
   transition: transform 0.08s ease, opacity 0.08s ease;
 }
+
+/* ── Landing cards grid — 2 por linha no mobile ────────────
+   Use className="landing-cards" no container de cards.
+   Desktop: comportamento definido inline (scroll ou grid).
+   Mobile:  sempre 2 colunas, cards em stretch, sem scroll lateral.
+   Qualquer seção futura que use "landing-cards" herda automaticamente.
+─────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .landing-cards {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    overflow-x: visible !important;
+    padding-bottom: 0 !important;
+    scrollbar-width: none !important;
+  }
+
+  /* Wrappers de card dentro do grid */
+  .landing-cards > div {
+    width: 100% !important;
+    flex-shrink: unset !important;
+  }
+
+  /* O card AtletaCardLanding em si (width vem como prop inline) */
+  .landing-cards > div > div[style] {
+    width: 100% !important;
+  }
+}
