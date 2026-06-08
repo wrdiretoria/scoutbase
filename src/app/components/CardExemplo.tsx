@@ -52,7 +52,7 @@ export default function CardExemplo() {
           <AtletaCardLanding
             nome="Seu Nome"
             ovr={null}
-            foto={null}
+            foto="/images/hero-player.png"
             posicao={null}
             categoria={null}
             atributos={null}
