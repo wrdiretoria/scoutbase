@@ -8,6 +8,38 @@ function getInitials(nome: string) {
   return nome.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase()
 }
 
+/** Pontuação por qualificações — quanto maior, mais à frente na lista */
+function calcScore(u: { user_metadata?: Record<string, unknown> }, avatarUrl: string | null): number {
+  const m = (u.user_metadata ?? {}) as Record<string, unknown>
+  let score = 0
+
+  // Anos de experiência (até 30 pts)
+  const anos = parseInt(String(m.anos_exp ?? '0'), 10)
+  score += Math.min(anos, 30)
+
+  // Certificações (10 pts cada linha, até 20 pts)
+  const certs = String(m.certificacoes ?? '').trim().split('\n').filter(Boolean)
+  score += Math.min(certs.length * 10, 20)
+
+  // Clubes trabalhados (5 pts cada, até 20 pts)
+  const clubes = String(m.clubes_trabalhados ?? '').trim().split('\n').filter(Boolean)
+  score += Math.min(clubes.length * 5, 20)
+
+  // Tem foto (15 pts)
+  if (avatarUrl) score += 15
+
+  // Tem especialidade (5 pts)
+  if (m.especialidade) score += 5
+
+  // Tem cidade (3 pts)
+  if (m.cidade) score += 3
+
+  // Tem clube atual (5 pts)
+  if (m.clube_atual) score += 5
+
+  return score
+}
+
 export default async function TreinadoresSection() {
   const admin = createAdminClient()
 
@@ -39,15 +71,17 @@ export default async function TreinadoresSection() {
     treinadores = treinadorUsers.map(u => {
       const meta = u.user_metadata as { nome?: string; cidade?: string }
       const profile = profileMap.get(u.id)
+      const avatarUrl = (profile as { avatar_url?: string | null } | undefined)?.avatar_url ?? null
       return {
         id: u.id,
         nome: (profile as { nome?: string } | undefined)?.nome ?? meta.nome ?? 'Treinador',
         initials: getInitials(meta.nome ?? 'T'),
         cidade: meta.cidade ?? null,
         clubeAtual: (profile as { clube_atual?: string | null } | undefined)?.clube_atual ?? null,
-        avatarUrl: (profile as { avatar_url?: string | null } | undefined)?.avatar_url ?? null,
+        avatarUrl,
+        score: calcScore(u, avatarUrl),
       }
-    })
+    }).sort((a, b) => b.score - a.score)
   } catch { /* silencioso */ }
 
   if (treinadores.length === 0) return null
