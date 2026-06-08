@@ -199,11 +199,11 @@ export default function TreinadorCompartilharPage() {
 
   return (
     <main style={{
-      background: '#080400', minHeight: '100dvh',
+      background: '#080400',
       display: 'flex', flexDirection: 'column', alignItems: 'center',
       padding: '28px 20px',
       paddingTop: 'max(28px, env(safe-area-inset-top))',
-      paddingBottom: '40px',
+      paddingBottom: 'max(40px, env(safe-area-inset-bottom))',
       fontFamily: 'system-ui, sans-serif',
     }}>
 
