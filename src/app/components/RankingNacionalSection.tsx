@@ -13,16 +13,16 @@ export default async function RankingNacionalSection() {
     fetchOvrMapByUuid(admin),
     admin
       .from('profiles')
-      .select('id, nome, athlete_id, avatar_url, fotos, created_at')
+      .select('id, nome, athlete_id, avatar_url, fotos, criado_em')
       .like('athlete_id', 'MC-%')
-      .order('created_at', { ascending: false })
+      .order('criado_em', { ascending: false })
       .limit(12),
   ])
 
   const profiles = (profilesRes.data ?? []) as {
     id: string; nome: string | null; athlete_id: string | null
     avatar_url: string | null; fotos: (string | null)[] | null
-    created_at: string | null
+    criado_em: string | null
   }[]
 
   if (profiles.length === 0) return null
