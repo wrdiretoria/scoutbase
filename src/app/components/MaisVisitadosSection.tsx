@@ -6,6 +6,20 @@ import { formatNome } from '@/lib/formatNome'
 
 export const revalidate = 120
 
+type AvalRow = {
+  aluno_id: string
+  velocidade: number | null
+  tecnica: number | null
+  finalizacao: number | null
+  forca: number | null
+  visao_jogo: number | null
+  posicionamento: number | null
+}
+
+function toAttr(n: unknown) {
+  return Math.min(99, Math.max(0, Math.round(typeof n === 'number' ? n : 0)))
+}
+
 export default async function MaisVisitadosSection() {
   const admin = createAdminClient()
 
@@ -15,7 +29,6 @@ export default async function MaisVisitadosSection() {
     .select('atleta_id')
 
   if (error || !visitasData || visitasData.length === 0) {
-    // Métrica não disponível — oculta a seção conforme instrução do prompt
     return null
   }
 
@@ -35,12 +48,12 @@ export default async function MaisVisitadosSection() {
     .map(([id]) => id)
 
   const [profilesRes, ovrByUuid] = await Promise.all([
-    admin.from('profiles').select('id, nome, athlete_id, avatar_url, fotos').in('id', topIds),
+    admin.from('profiles').select('id, nome, posicao, athlete_id, avatar_url, fotos').in('id', topIds),
     fetchOvrMapByUuid(admin),
   ])
 
   const profiles = (profilesRes.data ?? []) as {
-    id: string; nome: string | null; athlete_id: string | null
+    id: string; nome: string | null; posicao: string | null; athlete_id: string | null
     avatar_url: string | null; fotos: (string | null)[] | null
   }[]
 
@@ -49,6 +62,18 @@ export default async function MaisVisitadosSection() {
     .filter((p): p is NonNullable<typeof p> => !!p)
 
   if (items.length === 0) return null
+
+  // Busca avaliações mais recentes em batch
+  const { data: avRows } = await admin
+    .from('avaliacoes')
+    .select('aluno_id, velocidade, tecnica, finalizacao, forca, visao_jogo, posicionamento, created_at')
+    .in('aluno_id', topIds)
+    .order('created_at', { ascending: false })
+
+  const avsMap = new Map<string, AvalRow>()
+  for (const row of (avRows ?? []) as unknown as (AvalRow & { created_at: string })[]) {
+    if (!avsMap.has(row.aluno_id)) avsMap.set(row.aluno_id, row)
+  }
 
   return (
     <section style={{ background: '#080808', padding: '16px 0' }}>
@@ -71,15 +96,24 @@ export default async function MaisVisitadosSection() {
               const fotos = (p.fotos ?? []).filter((f): f is string => !!f)
               const foto = fotos[0] ?? p.avatar_url ?? null
               const ovr = ovrByUuid.get(p.id) ?? null
+              const av = avsMap.get(p.id)
+              const atributos = av ? {
+                vel: toAttr(av.velocidade),
+                tec: toAttr(av.tecnica),
+                dri: toAttr(av.finalizacao),
+                fis: toAttr(av.forca),
+                tat: toAttr(av.visao_jogo),
+                pos: toAttr(av.posicionamento),
+              } : null
               return (
                 <div key={p.id} style={{ flexShrink: 0, width: '180px' }}>
                   <AtletaCardLanding
                     nome={formatNome(p.nome ?? 'Atleta')}
                     ovr={ovr}
                     foto={foto}
-                    posicao={null}
+                    posicao={p.posicao ?? null}
                     categoria={null}
-                    atributos={null}
+                    atributos={atributos}
                     href={`/jogador/${p.id}`}
                     athleteId={p.athlete_id}
                     width="180px"

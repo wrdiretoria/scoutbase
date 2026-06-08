@@ -9,10 +9,21 @@ export const revalidate = 60
 type ProfileRow = {
   id: string
   nome: string | null
+  posicao: string | null
   athlete_id: string | null
   avatar_url: string | null
   fotos: (string | null)[] | null
   data_nascimento: string | null
+}
+
+type AvalRow = {
+  aluno_id: string
+  velocidade: number | null
+  tecnica: number | null
+  finalizacao: number | null
+  forca: number | null
+  visao_jogo: number | null
+  posicionamento: number | null
 }
 
 function calcCategoria(dataNasc: string | null): string | null {
@@ -29,6 +40,10 @@ function calcCategoria(dataNasc: string | null): string | null {
   return 'Adulto'
 }
 
+function toAttr(n: unknown) {
+  return Math.min(99, Math.max(0, Math.round(typeof n === 'number' ? n : 0)))
+}
+
 export default async function DestaquesSection() {
   const admin = createAdminClient()
 
@@ -36,14 +51,14 @@ export default async function DestaquesSection() {
     fetchOvrMapByUuid(admin),
     admin
       .from('profiles')
-      .select('id, nome, athlete_id, avatar_url, fotos, data_nascimento')
+      .select('id, nome, posicao, athlete_id, avatar_url, fotos, data_nascimento')
       .like('athlete_id', 'MC-%')
       .limit(50),
   ])
 
   const profiles = (profilesRes.data ?? []) as unknown as ProfileRow[]
 
-  // Só atletas com OVR calculado (têm avaliação ou perfil), ordenados por OVR desc
+  // Só atletas com OVR calculado, ordenados por OVR desc
   const top = profiles
     .map(p => ({ ...p, ovr: ovrByUuid.get(p.id) ?? null }))
     .filter(p => p.ovr !== null)
@@ -51,6 +66,20 @@ export default async function DestaquesSection() {
     .slice(0, 6)
 
   if (top.length === 0) return null
+
+  // Busca a avaliação mais recente de cada atleta em batch
+  const ids = top.map(p => p.id)
+  const { data: avRows } = await admin
+    .from('avaliacoes')
+    .select('aluno_id, velocidade, tecnica, finalizacao, forca, visao_jogo, posicionamento, created_at')
+    .in('aluno_id', ids)
+    .order('created_at', { ascending: false })
+
+  // Pega a mais recente por atleta (já vem ordenada por created_at desc)
+  const avsMap = new Map<string, AvalRow>()
+  for (const row of (avRows ?? []) as unknown as (AvalRow & { created_at: string })[]) {
+    if (!avsMap.has(row.aluno_id)) avsMap.set(row.aluno_id, row)
+  }
 
   return (
     <section style={{ background: '#080808', padding: '16px 0 20px' }}>
@@ -71,7 +100,7 @@ export default async function DestaquesSection() {
           </Link>
         </div>
 
-        {/* Grid de cards — mesmo visual de "Mais Visitados", alinhamento igual */}
+        {/* Grid de cards */}
         <div className="landing-cards" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fill, 180px)',
@@ -82,15 +111,24 @@ export default async function DestaquesSection() {
             const fotos = (p.fotos ?? []).filter((f): f is string => !!f)
             const foto = fotos[0] ?? p.avatar_url ?? null
             const categoria = calcCategoria(p.data_nascimento)
+            const av = avsMap.get(p.id)
+            const atributos = av ? {
+              vel: toAttr(av.velocidade),
+              tec: toAttr(av.tecnica),
+              dri: toAttr(av.finalizacao),
+              fis: toAttr(av.forca),
+              tat: toAttr(av.visao_jogo),
+              pos: toAttr(av.posicionamento),
+            } : null
             return (
               <AtletaCardLanding
                 key={p.id}
                 nome={formatNome(p.nome ?? 'Atleta')}
                 ovr={p.ovr}
                 foto={foto}
-                posicao={null}
+                posicao={p.posicao ?? null}
                 categoria={categoria}
-                atributos={null}
+                atributos={atributos}
                 href={`/jogador/${p.id}`}
                 athleteId={p.athlete_id}
                 rank={i + 1}
