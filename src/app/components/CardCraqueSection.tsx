@@ -57,20 +57,20 @@ async function fetchTopAtleta(): Promise<AtletaData | null> {
     const ovr = Math.round(av.scout_score as number)
 
     const attrs = [
-      { label: 'TÉCNICA',       val: v(av.tecnica) },
-      { label: 'VELOCIDADE',    val: v(av.velocidade) },
-      { label: 'VISÃO DE JOGO', val: v(av.visao_jogo) },
-      { label: 'FINALIZAÇÃO',   val: v(av.finalizacao) },
-      { label: 'FORÇA',         val: v(av.forca) },
-      { label: 'POSICIONAMENTO',val: v(av.posicionamento) },
+      { label: 'VEL',      val: v(av.velocidade) },
+      { label: 'TEC',      val: v(av.tecnica) },
+      { label: 'DRI',      val: v(av.finalizacao) },
+      { label: 'FIS',      val: v(av.forca) },
+      { label: 'TAT',      val: v(av.visao_jogo) },
+      { label: 'POS',      val: v(av.posicionamento) },
     ]
 
     const cardStats: [string, string][] = [
       ['VEL', String(v(av.velocidade))],
-      ['FIN', String(v(av.finalizacao))],
       ['TEC', String(v(av.tecnica))],
-      ['VIS', String(v(av.visao_jogo))],
-      ['FOR', String(v(av.forca))],
+      ['DRI', String(v(av.finalizacao))],
+      ['FIS', String(v(av.forca))],
+      ['TAT', String(v(av.visao_jogo))],
       ['POS', String(v(av.posicionamento))],
     ]
 

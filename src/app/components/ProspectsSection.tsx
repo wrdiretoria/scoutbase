@@ -56,33 +56,33 @@ function calcIdade(dataNasc: string | null): number | null {
 }
 
 function getStats(posicao: string, av: Record<string, unknown>) {
-  const v = (n: unknown) => Math.round((typeof n === 'number' ? n : 0) * 10)
+  const v = (n: unknown) => Math.min(99, Math.max(0, Math.round(typeof n === 'number' ? n : 0)))
   const p = posicao.toLowerCase()
   if (p.includes('goleiro')) return [
-    { label: 'Posicionam.', val: v(av.posicionamento) },
-    { label: 'Técnica',     val: v(av.tecnica) },
-    { label: 'Força',       val: v(av.forca) },
+    { label: 'POS', val: v(av.posicionamento) },
+    { label: 'TEC', val: v(av.tecnica) },
+    { label: 'FIS', val: v(av.forca) },
   ]
   if (p.includes('zagueiro')) return [
-    { label: 'Posicionam.', val: v(av.posicionamento) },
-    { label: 'Força',       val: v(av.forca) },
-    { label: 'Técnica',     val: v(av.tecnica) },
+    { label: 'TAT', val: v(av.visao_jogo) },
+    { label: 'FIS', val: v(av.forca) },
+    { label: 'TEC', val: v(av.tecnica) },
   ]
   if (p.includes('volante')) return [
-    { label: 'Visão de jogo', val: v(av.visao_jogo) },
-    { label: 'Força',         val: v(av.forca) },
-    { label: 'Técnica',       val: v(av.tecnica) },
+    { label: 'TAT', val: v(av.visao_jogo) },
+    { label: 'FIS', val: v(av.forca) },
+    { label: 'TEC', val: v(av.tecnica) },
   ]
   if (p.includes('meia')) return [
-    { label: 'Visão de jogo', val: v(av.visao_jogo) },
-    { label: 'Técnica',       val: v(av.tecnica) },
-    { label: 'Posicionam.',   val: v(av.posicionamento) },
+    { label: 'TAT', val: v(av.visao_jogo) },
+    { label: 'TEC', val: v(av.tecnica) },
+    { label: 'DRI', val: v(av.finalizacao) },
   ]
   // atacante, ponta, avante, lateral, default
   return [
-    { label: 'Finalização', val: v(av.finalizacao) },
-    { label: 'Velocidade',  val: v(av.velocidade) },
-    { label: 'Técnica',     val: v(av.tecnica) },
+    { label: 'DRI', val: v(av.finalizacao) },
+    { label: 'VEL', val: v(av.velocidade) },
+    { label: 'TEC', val: v(av.tecnica) },
   ]
 }
 

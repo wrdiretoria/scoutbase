@@ -694,15 +694,15 @@ export default async function JogadorPublicoPage({ params }: Props) {
               : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {[
-                    { label: 'Velocidade',     val: ultimaAv.velocidade    },
-                    { label: 'Técnica',        val: ultimaAv.tecnica       },
-                    { label: 'Visão de Jogo',  val: ultimaAv.visao_jogo   },
-                    { label: 'Finalização',    val: ultimaAv.finalizacao   },
-                    { label: 'Força',          val: ultimaAv.forca         },
-                    { label: 'Posicionamento', val: ultimaAv.posicionamento },
+                    { label: 'VEL — Velocidade',  val: ultimaAv.velocidade    },
+                    { label: 'TEC — Técnica',      val: ultimaAv.tecnica       },
+                    { label: 'DRI — Drible',       val: ultimaAv.finalizacao   },
+                    { label: 'FIS — Físico',       val: ultimaAv.forca         },
+                    { label: 'TAT — Tática',       val: ultimaAv.visao_jogo   },
+                    { label: 'POS — Postura',      val: ultimaAv.posicionamento },
                   ].map(attr => {
-                    const pct = (attr.val / 10) * 100
-                    const cor = attr.val >= 8 ? '#22c55e' : attr.val >= 6 ? '#f59e0b' : '#94a3b8'
+                    const pct = Math.min(100, attr.val)
+                    const cor = attr.val >= 70 ? '#22c55e' : attr.val >= 50 ? '#f59e0b' : '#94a3b8'
                     return (
                       <div key={attr.label}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
@@ -1014,12 +1014,12 @@ export default async function JogadorPublicoPage({ params }: Props) {
                 return a
               })() : null}
               profileUrl={`${SERVER_BASE_URL}/jogador/${id}`}
-              statPac={ultimaAv?.velocidade ?? null}
-              statSho={ultimaAv?.finalizacao ?? null}
-              statPas={ultimaAv?.visao_jogo ?? null}
-              statDri={ultimaAv?.tecnica ?? null}
-              statDef={ultimaAv?.posicionamento ?? null}
-              statPhy={ultimaAv?.forca ?? null}
+              statPac={ultimaAv?.velocidade    ?? null}   /* VEL */
+              statSho={ultimaAv?.tecnica       ?? null}   /* TEC */
+              statPas={ultimaAv?.finalizacao   ?? null}   /* DRI */
+              statDri={ultimaAv?.forca         ?? null}   /* FIS */
+              statDef={ultimaAv?.visao_jogo    ?? null}   /* TAT */
+              statPhy={ultimaAv?.posicionamento ?? null}  /* POS */
             />
           </div>
         )}

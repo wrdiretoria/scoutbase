@@ -509,14 +509,14 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
 
   drawPanel(STATS_Y, STATS_H)
 
-  const toStat = (v: number | null | undefined) => v ? Math.min(99, Math.round(v * 9.9)) : null
+  const toStat = (v: number | null | undefined) => v != null ? Math.min(99, Math.max(0, Math.round(v))) : null
   const statCols = [
-    { label:'PAC', val: toStat(opts.statPac) },
-    { label:'SHO', val: toStat(opts.statSho) },
-    { label:'PAS', val: toStat(opts.statPas) },
-    { label:'DRI', val: toStat(opts.statDri) },
-    { label:'DEF', val: toStat(opts.statDef) },
-    { label:'PHY', val: toStat(opts.statPhy) },
+    { label:'VEL', val: toStat(opts.statPac) },
+    { label:'TEC', val: toStat(opts.statSho) },
+    { label:'DRI', val: toStat(opts.statPas) },
+    { label:'FIS', val: toStat(opts.statDri) },
+    { label:'TAT', val: toStat(opts.statDef) },
+    { label:'POS', val: toStat(opts.statPhy) },
   ]
   const hasStats = statCols.some(s => s.val !== null)
   const colW = (W - 28) / 6

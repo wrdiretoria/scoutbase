@@ -15,7 +15,7 @@ export type FeedEvent = {
   posicao:       string
   cidade:        string
   ovr:           number | null
-  atributos:     { vel: number | null; fin: number | null; tec: number | null; vis: number | null; forca: number | null; pos: number | null } | null
+  atributos:     { vel: number | null; tec: number | null; dri: number | null; fis: number | null; tat: number | null; pos: number | null } | null
   treinadorNome: string | null
   fotos:         string[]
   ts:            string        // ISO 8601
@@ -129,12 +129,12 @@ export async function GET(req: Request) {
         cidade:        '',
         ovr:           ovrByUuid.get(av.aluno_id as string) ?? null,
         atributos:     {
-          vel:   (av.velocidade     as number | null) ?? null,
-          fin:   (av.finalizacao    as number | null) ?? null,
-          tec:   (av.tecnica        as number | null) ?? null,
-          vis:   (av.visao_jogo     as number | null) ?? null,
-          forca: (av.forca          as number | null) ?? null,
-          pos:   (av.posicionamento as number | null) ?? null,
+          vel: (av.velocidade     as number | null) ?? null,
+          tec: (av.tecnica        as number | null) ?? null,
+          dri: (av.finalizacao    as number | null) ?? null,
+          fis: (av.forca          as number | null) ?? null,
+          tat: (av.visao_jogo     as number | null) ?? null,
+          pos: (av.posicionamento as number | null) ?? null,
         },
         treinadorNome: treinador?.nome ?? null,
         fotos:         atleta?.fotos  ?? [],

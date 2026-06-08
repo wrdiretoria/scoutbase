@@ -735,6 +735,169 @@ export function getAMelhorar(
     .slice(0, top)
 }
 
+// ── Atributos FIFA-style (VEL / TEC / DRI / FIS / TAT / POS) ────────────────
+//
+// Para cada grupo de posição, mapeamos quais question-keys alimentam cada
+// atributo. Keys ausentes nas respostas (ex.: de outra fase) são ignoradas,
+// então o mesmo mapa funciona para iniciacao / formacao / competicao.
+//
+// GOLEIRO  → DRI representa "jogo com os pés" (distribuição, passe curto)
+// ZAGUEIRO → DRI representa "saída de bola" (condução/passe pelo chão)
+// (todos os outros → DRI = drible/condução convencional)
+
+export type Atributos = {
+  VEL: number   // Velocidade
+  TEC: number   // Técnica
+  DRI: number   // Drible / Jogo com a bola
+  FIS: number   // Físico
+  TAT: number   // Tática
+  POS: number   // Postura / Perfil
+}
+
+type AtributoMap = Record<keyof Atributos, string[]>
+
+const ATRIBUTOS_KEYS: Record<ReturnType<typeof getGrupoPosicao>, AtributoMap> = {
+
+  goleiro: {
+    VEL: ['gk_velocidade_reacao', 'gk_agilidade_lateral', 'gk_explosao_potencia'],
+    TEC: ['gk_controle_maos', 'gk_seguranca_maos', 'gk_seguranca_confianca',
+          'gk_defesa_chao', 'gk_defesa_chao_pressao', 'gk_defesa_alta',
+          'gk_dominio_cruzamentos', 'gk_defesa_1x1', 'gk_defesa_1x1_penaltis'],
+    DRI: ['gk_distribuicao_pes', 'gk_passe_curto_pes', 'gk_jogo_pes_curto_medio',
+          'gk_passe_longo_meta', 'gk_distribuicao_maos'],
+    FIS: ['gk_salto', 'gk_forca_maos_bracos', 'gk_forca_fisica_geral',
+          'gk_resistencia_concentracao'],
+    TAT: ['gk_posicionamento', 'gk_posicionamento_tatico', 'gk_saida_gol',
+          'gk_saida_avancada', 'gk_leitura_antecipada', 'gk_leitura_jogo',
+          'gk_tomada_decisao_pressao'],
+    POS: ['gk_comunicacao', 'gk_comunicacao_defesa', 'gk_lideranca_organizacao',
+          'gk_atencao_foco', 'pf_lider', 'pf_competitivo', 'pf_decisivo', 'pf_inteligente'],
+  },
+
+  zagueiro: {
+    VEL: ['zag_potencia_aereo', 'zag_forca_duel', 'zag_duelo_corpo', 'zag_duelo_aereo'],
+    TEC: ['zag_desarme', 'zag_desarme_bloqueio', 'zag_marcacao', 'zag_marcacao_1x1',
+          'zag_marcacao_1x1_pressao', 'zag_jogo_aereo', 'zag_dominio_cruzamentos',
+          'zag_dominio_bola', 'zag_passe_curto'],
+    DRI: ['zag_saida_bola', 'zag_saida_qualidade', 'zag_passe_medio', 'zag_passe_longo',
+          'zag_dominio_bola'],
+    FIS: ['zag_forca_fisica', 'zag_potencia_aereo', 'zag_resistencia', 'zag_forca_duel'],
+    TAT: ['zag_posicionamento', 'zag_posicionamento_estrutural', 'zag_posicionamento_tatico',
+          'zag_antecipacao', 'zag_interceptacao', 'zag_antecipacao_tatica',
+          'zag_recuperacao', 'zag_tomada_decisao'],
+    POS: ['zag_lideranca', 'zag_lideranca_organizacao', 'zag_coragem', 'zag_comunicacao',
+          'pf_lider', 'pf_competitivo', 'pf_decisivo'],
+  },
+
+  lateral: {
+    VEL: ['lat_velocidade', 'lat_velocidade_sprint', 'lat_velocidade_aceleracao',
+          'lat_agilidade', 'lat_agilidade_defensiva', 'lat_agilidade_explosiva'],
+    TEC: ['lat_marcacao', 'lat_marcacao_1x1', 'lat_marcacao_1x1_pressao', 'lat_desarme',
+          'lat_cruzamento', 'lat_cruzamento_qualidade', 'lat_passe_curto',
+          'lat_passe_curto_medio', 'lat_passe_variado'],
+    DRI: ['lat_conducao_velocidade', 'lat_sobreposicao', 'lat_dominio'],
+    FIS: ['lat_resistencia', 'lat_resistencia_fisica', 'lat_agilidade', 'lat_coragem'],
+    TAT: ['lat_posicionamento', 'lat_posicionamento_tatico', 'lat_antecipacao',
+          'lat_cobertura_corredor', 'lat_cobertura_zaga', 'lat_leitura_jogo',
+          'lat_resistencia_tatica'],
+    POS: ['lat_disposicao', 'lat_comunicacao', 'lat_concentracao',
+          'pf_lider', 'pf_competitivo', 'pf_decisivo'],
+  },
+
+  volante: {
+    VEL: ['vol_velocidade_reacao', 'vol_velocidade_aceleracao', 'vol_transicao',
+          'vol_transicao_rapida'],
+    TEC: ['vol_passe_curto', 'vol_passe_curto_medio', 'vol_passe_variado', 'vol_dominio',
+          'vol_recepcao_pressao', 'vol_recepcao_alta', 'vol_marcacao', 'vol_marcacao_pressing',
+          'vol_marcacao_1x1', 'vol_interceptacao', 'vol_recuperacao', 'vol_recuperacao_pressao'],
+    DRI: ['vol_drible', 'vol_conducao', 'vol_conducao_espaco', 'vol_conducao_rapida'],
+    FIS: ['vol_forca_disputa', 'vol_forca_corporal', 'vol_resistencia', 'vol_resistencia_fisica',
+          'vol_duelo'],
+    TAT: ['vol_posicionamento', 'vol_transicao', 'vol_leitura_jogo', 'vol_lideranca',
+          'vol_visao'],
+    POS: ['vol_disposicao_garra', 'vol_atitude', 'vol_comunicacao', 'vol_concentracao',
+          'pf_lider', 'pf_competitivo', 'pf_decisivo'],
+  },
+
+  meia: {
+    VEL: ['mei_velocidade', 'mei_velocidade_reacao', 'mei_velocidade_aceleracao',
+          'mei_transicao', 'mei_agilidade'],
+    TEC: ['mei_passe_curto', 'mei_passe_curto_medio', 'mei_passe_variado',
+          'mei_recepcao_pressao', 'mei_recepcao_alta', 'mei_finalizacao',
+          'mei_finalizacao_pressao', 'mei_assistencia', 'mei_passe_profundidade'],
+    DRI: ['mei_drible', 'mei_drible_1x1', 'mei_conducao', 'mei_conducao_espaco',
+          'mei_conducao_drible'],
+    FIS: ['mei_agilidade', 'mei_resistencia', 'mei_coordenacao'],
+    TAT: ['mei_visao', 'mei_visao_circulacao', 'mei_visao_decisao', 'mei_posicionamento',
+          'mei_movimentacao', 'mei_criatividade', 'mei_imprevisibilidade'],
+    POS: ['mei_disposicao', 'mei_concentracao', 'mei_criatividade_ment',
+          'pf_lider', 'pf_competitivo', 'pf_decisivo', 'pf_inteligente'],
+  },
+
+  ponta: {
+    VEL: ['pon_velocidade', 'pon_velocidade_sprint', 'pon_velocidade_aceleracao',
+          'pon_agilidade', 'pon_agilidade_explosiva', 'pon_explosao'],
+    TEC: ['pon_cruzamento', 'pon_cruzamento_qualidade', 'pon_passe_curto',
+          'pon_passe_profundidade', 'pon_dominio', 'pon_dominio_protecao',
+          'pon_protecao_bola', 'pon_finalizacao', 'pon_finalizacao_pressao'],
+    DRI: ['pon_drible', 'pon_drible_1x1', 'pon_drible_velocidade',
+          'pon_conducao', 'pon_conducao_explosiva'],
+    FIS: ['pon_velocidade', 'pon_agilidade', 'pon_explosao', 'pon_resistencia_sprints',
+          'pon_coordenacao'],
+    TAT: ['pon_movimentacao', 'pon_movimentacao_ruptura', 'pon_posicionamento',
+          'pon_leitura_espaco', 'pon_leitura_jogo', 'pon_aproveitamento_espaco',
+          'pon_tomada_decisao'],
+    POS: ['pon_disposicao', 'pon_coragem_1x1', 'pon_concentracao', 'pon_criatividade',
+          'pf_competitivo', 'pf_decisivo', 'pf_lider'],
+  },
+
+  centroavante: {
+    VEL: ['cav_velocidade_reacao', 'cav_velocidade', 'cav_velocidade_aceleracao'],
+    TEC: ['cav_finalizacao', 'cav_finalizacao_precisao', 'cav_finalizacao_pressao',
+          'cav_jogo_aereo', 'cav_jogo_aereo_dominio', 'cav_jogo_aereo_basico',
+          'cav_dominio_protecao', 'cav_protecao_apoio', 'cav_protecao_bola',
+          'cav_assistencia', 'cav_passe_apoio'],
+    DRI: ['cav_drible', 'cav_drible_criacao', 'cav_drible_espacos',
+          'cav_movimentacao', 'cav_movimentacao_ruptura'],
+    FIS: ['cav_forca_duelos', 'cav_forca_fisica', 'cav_forca_protecao',
+          'cav_potencia_aereo', 'cav_resistencia'],
+    TAT: ['cav_posicionamento', 'cav_posicionamento_area', 'cav_leitura_jogo',
+          'cav_leitura_defesa', 'cav_frieza_decisao', 'cav_movimentacao'],
+    POS: ['cav_garra', 'cav_disposicao', 'cav_disposicao_garra',
+          'pf_competitivo', 'pf_decisivo', 'pf_lider', 'pf_forte'],
+  },
+}
+
+/** Média de um conjunto de keys → nota 0-99 (estilo FIFA). Keys ausentes = ignoradas. */
+function avgAtributo(respostas: Record<string, number>, keys: string[]): number {
+  const vals = keys.map(k => respostas[k] ?? 0).filter(v => v > 0)
+  if (vals.length === 0) return 0
+  const avg = vals.reduce((a, b) => a + b, 0) / vals.length
+  return Math.min(99, Math.round(((avg - 1) / 4) * 99))
+}
+
+/**
+ * Calcula os 6 atributos FIFA-style (0-99) a partir das respostas.
+ * O mapeamento de perguntas → atributo é específico por posição,
+ * então um Goleiro nunca é avaliado por "finalização" e um Zagueiro
+ * tem "DRI" representado pela qualidade da saída de bola.
+ */
+export function calcAtributos(
+  respostas: Record<string, number>,
+  posicao: string,
+): Atributos {
+  const grupo = getGrupoPosicao(posicao)
+  const map   = ATRIBUTOS_KEYS[grupo]
+  return {
+    VEL: avgAtributo(respostas, map.VEL),
+    TEC: avgAtributo(respostas, map.TEC),
+    DRI: avgAtributo(respostas, map.DRI),
+    FIS: avgAtributo(respostas, map.FIS),
+    TAT: avgAtributo(respostas, map.TAT),
+    POS: avgAtributo(respostas, map.POS),
+  }
+}
+
 // ── Backward-compat exports ───────────────────────────────────────────────────
 
 /** @deprecated Use VARIANTES[variante].blocoA */

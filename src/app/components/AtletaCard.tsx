@@ -11,12 +11,12 @@ import { useState } from 'react'
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type AtributosMap = {
-  vel?:   number | null
-  fin?:   number | null
-  tec?:   number | null
-  vis?:   number | null
-  forca?: number | null
-  pos?:   number | null
+  vel?: number | null   // VEL — Velocidade
+  tec?: number | null   // TEC — Técnica
+  dri?: number | null   // DRI — Drible / Jogo com bola
+  fis?: number | null   // FIS — Físico
+  tat?: number | null   // TAT — Tática
+  pos?: number | null   // POS — Postura / Perfil
 }
 
 export type AtletaCardProps = {
@@ -51,7 +51,8 @@ function initials(nome: string) {
 
 function toFifa(v: number | null | undefined): string {
   if (v == null) return '—'
-  return String(Math.min(99, Math.round(v * 9.9)))
+  // Valores já calculados em escala 0-99 (calcAtributos)
+  return String(Math.min(99, Math.max(0, Math.round(v))))
 }
 
 function tagline(posicao: string | null | undefined): [string, string] {
@@ -95,12 +96,12 @@ export default function AtletaCard({
   const GREEN = '#00ff44'
 
   const fifaStats = [
-    { label: 'PAC', val: toFifa(atributos?.vel) },
-    { label: 'SHO', val: toFifa(atributos?.fin) },
-    { label: 'PAS', val: toFifa(atributos?.vis) },
-    { label: 'DRI', val: toFifa(atributos?.tec) },
-    { label: 'DEF', val: toFifa(atributos?.pos) },
-    { label: 'PHY', val: toFifa(atributos?.forca) },
+    { label: 'VEL', val: toFifa(atributos?.vel) },
+    { label: 'TEC', val: toFifa(atributos?.tec) },
+    { label: 'DRI', val: toFifa(atributos?.dri) },
+    { label: 'FIS', val: toFifa(atributos?.fis) },
+    { label: 'TAT', val: toFifa(atributos?.tat) },
+    { label: 'POS', val: toFifa(atributos?.pos) },
   ]
 
   const uid = athleteId ? `ac-${athleteId.replace(/[^a-z0-9]/gi, '')}` : `ac-${Math.random().toString(36).slice(2)}`

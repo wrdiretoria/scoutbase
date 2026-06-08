@@ -30,7 +30,7 @@ function posAbrev(posicao: string | null | undefined): string | null {
 
 function toFifa(v: number | null | undefined): string {
   if (v == null) return '—'
-  return String(Math.min(99, Math.round(v * 9.9)))
+  return String(Math.min(99, Math.max(0, Math.round(v))))
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -55,12 +55,12 @@ export default function AtletaCardRow({
   const firstName = parts.length > 1 ? parts.slice(0, -1).join(' ') : ''
 
   const fifaStats = [
-    { label: 'PAC', val: toFifa(atributos?.vel) },
-    { label: 'SHO', val: toFifa(atributos?.fin) },
-    { label: 'PAS', val: toFifa(atributos?.vis) },
-    { label: 'DRI', val: toFifa(atributos?.tec) },
-    { label: 'DEF', val: toFifa(atributos?.pos) },
-    { label: 'PHY', val: toFifa(atributos?.forca) },
+    { label: 'VEL', val: toFifa(atributos?.vel) },
+    { label: 'TEC', val: toFifa(atributos?.tec) },
+    { label: 'DRI', val: toFifa(atributos?.dri) },
+    { label: 'FIS', val: toFifa(atributos?.fis) },
+    { label: 'TAT', val: toFifa(atributos?.tat) },
+    { label: 'POS', val: toFifa(atributos?.pos) },
   ]
   const hasStats = fifaStats.some(s => s.val !== '—')
   const mcId = athleteId?.replace('MC-', '') ?? null
