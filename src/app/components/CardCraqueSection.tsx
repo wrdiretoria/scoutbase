@@ -52,8 +52,8 @@ async function fetchTopAtleta(): Promise<AtletaData | null> {
     const fotosArr = profile?.fotos as (string | null)[] | null
     const foto = fotosArr?.[0] ?? (profile?.avatar_url as string | null) ?? null
 
-    // Atributos já em escala 0-99 (novas avaliações) — sem multiplicação
-    const v   = (n: unknown) => Math.min(99, Math.max(0, Math.round(typeof n === 'number' ? n : 0)))
+    // Atributos (escala 0-10 no DB → ×10 para exibir 0-100)
+    const v   = (n: unknown) => Math.round((typeof n === 'number' ? n : 0) * 10)
     const ovr = Math.round(av.scout_score as number)
 
     const attrs = [
