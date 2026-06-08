@@ -184,7 +184,7 @@ export default async function TreinadoresSection() {
 
               {/* Foto */}
               <div style={{
-                height: '160px', position: 'relative', overflow: 'hidden',
+                height: '180px', position: 'relative', overflow: 'hidden',
                 background: 'linear-gradient(135deg, #052e16, #0b3d1e)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
@@ -193,7 +193,7 @@ export default async function TreinadoresSection() {
                   <img
                     src={t.avatarUrl}
                     alt={t.nome}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%' }}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center center' }}
                   />
                 ) : (
                   <span style={{ fontSize: '48px', fontWeight: 900, color: 'rgba(0,230,118,0.35)' }}>
