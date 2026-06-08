@@ -48,8 +48,7 @@ export default function TreinadorCompartilharPage() {
   const [loading,   setLoading]   = useState(true)
 
   const cardRef = useRef<HTMLDivElement>(null)
-  const [shareStatus, setShareStatus] = useState<'idle' | 'generating' | 'ready' | 'sharing'>('idle')
-  const [cardBlob,    setCardBlob]    = useState<Blob | null>(null)
+  const [sharing,     setSharing]     = useState(false)
   const [downloading, setDownloading] = useState(false)
   const [copied,      setCopied]      = useState(false)
 
@@ -89,89 +88,45 @@ export default function TreinadorCompartilharPage() {
   const ovr     = treinador ? calcularOVR(stats.av, stats.dest, !!treinador.avatar_url, !!treinador.especialidade) : 65
   const ovrAnim = useCounter(ovr, 700, 1000)
 
-  // ── Pré-geração do blob (após card aparecer na tela) ──────────────────────
-  // iOS invalida o contexto de gesto se há async pesado antes do navigator.share.
-  // Geramos a imagem no background e guardamos o blob — no clique só usamos ele.
-  useEffect(() => {
-    if (!treinador || !cardRef.current) return
-    // Aguarda animação do card terminar (~1.3s) antes de capturar
-    const t = setTimeout(async () => {
-      try {
-        setShareStatus('generating')
-        const canvas = await html2canvas(cardRef.current!, {
-          useCORS: true, allowTaint: false,
-          backgroundColor: '#0d0600',
-          scale: 2, logging: false, imageTimeout: 8000,
-        })
-        const blob: Blob = await new Promise(res => canvas.toBlob(b => res(b!), 'image/png'))
-        setCardBlob(blob)
-        setShareStatus('ready')
-      } catch {
-        setShareStatus('idle') // falha silenciosa — botão ainda funciona sob demanda
-      }
-    }, 1400)
-    return () => clearTimeout(t)
-  }, [treinador])
-
-  // ── Captura sob demanda (fallback quando pré-geração falhou) ──────────────
-  async function captureCard() {
-    if (!cardRef.current) return null
-    return html2canvas(cardRef.current, {
-      useCORS: true, allowTaint: false,
-      backgroundColor: '#0d0600',
-      scale: 2, logging: false, imageTimeout: 8000,
-    })
-  }
-
+  // ── Share: compartilha o link do perfil público (funciona em qualquer iOS) ──
   async function handleShare() {
-    setShareStatus('sharing')
+    setSharing(true)
     try {
-      const nome = treinador?.nome ?? 'Treinador'
-      const texto = `⚽ Treinador OVR ${ovr} no Meu Craque!${treinador?.especialidade ? ` · ${treinador.especialidade}` : ''}`
-
-      // Usa blob pré-gerado se disponível (iOS-safe: gesto → share imediato)
-      const blob = cardBlob ?? await (async () => {
-        const canvas = await captureCard()
-        if (!canvas) return null
-        return new Promise<Blob>(res => canvas.toBlob(b => res(b!), 'image/png'))
-      })()
-
-      if (!blob) {
-        // Fallback: compartilha só texto/link
-        if (navigator.share) await navigator.share({ title: `${nome} · Meu Craque`, text: texto })
-        setShareStatus('ready'); return
-      }
-
-      const file = new File([blob], `${nome.replace(/\s+/g, '_')}_Treinador_MeuCraque.png`, { type: 'image/png' })
-
-      if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title: `${nome} · Meu Craque`, text: texto })
-      } else if (navigator.share) {
-        await navigator.share({ title: `${nome} · Meu Craque`, text: texto })
+      const nome  = treinador?.nome ?? 'Treinador'
+      const id    = treinador?.treinadorId ? treinador.treinadorId.replace(/^TR-/, '') : ''
+      const url   = `${window.location.origin}/treinador/${treinador?.treinadorId ?? ''}`
+      const texto = `⚽ ${nome} — Treinador OVR ${ovr} no Meu Craque!`
+      if (navigator.share) {
+        await navigator.share({ title: `${nome} · Meu Craque`, text: texto, url })
       } else {
-        // Desktop sem Web Share API: baixa o arquivo
-        const url = URL.createObjectURL(blob)
-        const a = Object.assign(document.createElement('a'), { href: url, download: file.name })
-        document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url)
+        await navigator.clipboard.writeText(url)
+        alert('Link copiado!')
       }
-    } catch { /* usuário cancelou */ }
-    setShareStatus(cardBlob ? 'ready' : 'idle')
+    } catch { /* cancelado */ }
+    setSharing(false)
   }
 
+  // ── Download: html2canvas + limpeza explícita do canvas ──────────────────
   async function handleDownload() {
+    if (!cardRef.current) return
     setDownloading(true)
     try {
-      const blob = cardBlob ?? await (async () => {
-        const canvas = await captureCard(); if (!canvas) return null
-        return new Promise<Blob>(res => canvas.toBlob(b => res(b!), 'image/png'))
-      })()
-      if (!blob) { setDownloading(false); return }
+      const canvas = await html2canvas(cardRef.current, {
+        useCORS: true, allowTaint: false,
+        backgroundColor: '#0d0600',
+        scale: 2, logging: false, imageTimeout: 8000,
+      })
+      const blob: Blob = await new Promise(res => canvas.toBlob(b => res(b!), 'image/png'))
+      // Limpa canvas para evitar que fique no DOM
+      canvas.width = 0; canvas.height = 0
+
       const url = URL.createObjectURL(blob)
       const a = Object.assign(document.createElement('a'), {
         href: url,
         download: `${(treinador?.nome ?? 'Treinador').replace(/\s+/g, '_')}_MeuCraque.png`,
       })
-      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url)
+      document.body.appendChild(a); a.click()
+      setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url) }, 100)
     } catch { /* ignorar */ }
     setDownloading(false)
   }
@@ -516,9 +471,9 @@ export default function TreinadorCompartilharPage() {
         {/* Ações */}
         <div className="a5" style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <button className="btn-primary" onClick={handleShare}
-            disabled={shareStatus === 'sharing' || shareStatus === 'generating'}
-            style={{ opacity: (shareStatus === 'sharing' || shareStatus === 'generating') ? .7 : 1 }}>
-            {shareStatus === 'generating' ? '⏳ Preparando card...' : shareStatus === 'sharing' ? '…' : '📲 Compartilhar meu card'}
+            disabled={sharing}
+            style={{ opacity: sharing ? .7 : 1 }}>
+            {sharing ? '…' : '📲 Compartilhar meu card'}
           </button>
           <button className="btn-glass" onClick={handleDownload} disabled={downloading}>
             {downloading ? 'Baixando…' : '⬇ Baixar imagem'}
