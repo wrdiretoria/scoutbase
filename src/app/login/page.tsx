@@ -46,8 +46,23 @@ export default function LoginPage() {
     setLoading(true)
 
     if (area === 'atleta') {
-      const raw = identifier.trim().toUpperCase().replace(/\D/g, '').padStart(5, '0')
-      const athleteId = `MC-${raw}`
+      const raw = identifier.trim()
+      const isEmail = raw.includes('@')
+
+      if (isEmail) {
+        const supabase = createClient()
+        const { data, error: signInErr } = await supabase.auth.signInWithPassword({ email: raw, password })
+        if (signInErr || !data.user) {
+          setError('Email ou senha incorretos.')
+          setLoading(false)
+          return
+        }
+        router.push('/atleta/perfil')
+        return
+      }
+
+      const digitos = raw.toUpperCase().replace(/\D/g, '').padStart(5, '0')
+      const athleteId = `MC-${digitos}`
       const res = await fetch('/api/auth/signin-por-id', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -183,7 +198,7 @@ export default function LoginPage() {
           Bem-vindo de volta
         </h1>
         <p style={{ margin: '0 0 24px', fontSize: '14px', color: 'rgba(255,255,255,0.35)' }}>
-          {area === 'atleta' ? 'Entre com seu ID e senha.' : 'Entre com seu ID ou email e senha.'}
+          Entre com seu ID ou email e senha.
         </p>
 
         {/* Formulário */}
@@ -191,7 +206,7 @@ export default function LoginPage() {
 
           <div>
             <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '8px' }}>
-              {area === 'atleta' ? 'ID do Atleta' : 'ID ou Email'}
+              ID ou Email
             </label>
             <input
               key={area}
@@ -200,7 +215,7 @@ export default function LoginPage() {
               autoFocus
               value={identifier}
               onChange={e => setIdentifier(e.target.value)}
-              placeholder={area === 'atleta' ? 'Ex: 16138' : 'ID (ex: 00001) ou email'}
+              placeholder={area === 'atleta' ? 'ID (ex: 16138) ou email' : 'ID (ex: 00001) ou email'}
               style={{
                 ...inputStyle,
                 ...(area === 'atleta' ? { textTransform: 'uppercase', letterSpacing: '0.06em' } : {}),
