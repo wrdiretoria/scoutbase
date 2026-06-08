@@ -27,7 +27,7 @@ export default async function TreinadoresSection() {
       const temDadosTreinador = !!(m.clube_atual || m.especialidade || m.anos_exp || m.certificacoes || m.clubes_trabalhados)
       const naoEAtleta = !m.athlete_id && !m.posicao
       return temDadosTreinador && naoEAtleta
-    }).slice(0, 12)
+    }).slice(0, 20)
 
     const ids = treinadorUsers.map(u => u.id)
     const { data: profiles } = ids.length > 0
