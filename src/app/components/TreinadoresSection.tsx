@@ -170,17 +170,6 @@ export default async function TreinadoresSection() {
                 position: 'relative',
               }}
             >
-              {/* Badge verificado */}
-              {t.certificado && (
-                <div style={{
-                  position: 'absolute', top: '10px', right: '10px', zIndex: 2,
-                  background: 'rgba(0,230,118,0.15)', border: '1px solid rgba(0,230,118,0.35)',
-                  borderRadius: '20px', padding: '2px 8px',
-                  fontSize: '9px', fontWeight: 800, color: '#00e676', letterSpacing: '0.08em',
-                }}>
-                  ✓ VERIFICADO
-                </div>
-              )}
 
               {/* Foto */}
               <div style={{
@@ -244,7 +233,7 @@ export default async function TreinadoresSection() {
                       background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.10)',
                       padding: '2px 7px', borderRadius: '20px',
                     }}>
-                      {t.anosExp} anos
+                      {t.anosExp} anos de exp.
                     </span>
                   )}
                 </div>
