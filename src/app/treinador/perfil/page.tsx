@@ -182,7 +182,9 @@ export default function TreinadorPerfilPage() {
         alert(json.error ?? 'Erro ao enviar foto. Tente novamente.')
         return
       }
-      setPerfil(prev => prev ? { ...prev, avatar_url: json.url } : prev)
+      // Cache-busting: adiciona timestamp para forçar nova requisição da imagem
+      const urlFresh = json.url + '?t=' + Date.now()
+      setPerfil(prev => prev ? { ...prev, avatar_url: urlFresh } : prev)
     } catch {
       alert('Erro ao enviar foto. Verifique sua conexão.')
     } finally {
@@ -259,6 +261,7 @@ export default function TreinadorPerfilPage() {
 
         .ring-pulse { animation: ringPulse 3.5s ease-in-out infinite }
         .badge-pulse { animation: badgePulse 2.5s ease-in-out infinite }
+        label:hover .foto-overlay { opacity: 1 !important }
 
         .btn-share {
           width:100%; padding:17px; border-radius:14px; border:none;
@@ -359,17 +362,16 @@ export default function TreinadorPerfilPage() {
                 </div>
               )}
 
-              {/* Overlay câmera — só aparece sem foto ou durante upload */}
-              {(!perfil.avatar_url || uploadingFoto) && (
-                <div style={{
-                  position:'absolute', inset:0, borderRadius:'50%',
-                  background: uploadingFoto ? 'rgba(0,0,0,0.65)' : 'rgba(0,0,0,0.38)',
-                  display:'flex', alignItems:'center', justifyContent:'center',
-                  transition:'background 0.2s',
-                }}>
-                  <span style={{ fontSize:'20px' }}>{uploadingFoto ? '⏳' : '📷'}</span>
-                </div>
-              )}
+              {/* Overlay câmera */}
+              <div className="foto-overlay" style={{
+                position:'absolute', inset:0, borderRadius:'50%',
+                background: uploadingFoto ? 'rgba(0,0,0,0.65)' : 'rgba(0,0,0,0.35)',
+                display:'flex', alignItems:'center', justifyContent:'center',
+                opacity: uploadingFoto ? 1 : perfil.avatar_url ? 0 : 1,
+                transition:'opacity 0.2s',
+              }}>
+                <span style={{ fontSize:'20px' }}>{uploadingFoto ? '⏳' : '📷'}</span>
+              </div>
             </label>
 
             {/* Ring de autoridade — pulsa sutilmente */}

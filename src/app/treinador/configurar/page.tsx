@@ -142,7 +142,8 @@ export default function TreinadorConfigurarPage() {
       const res = await fetch('/api/atleta/upload-foto', { method: 'POST', body: fd })
       if (!res.ok) return null
       const json = await res.json() as { url?: string }
-      return json.url ?? null
+      // Cache-busting para forçar nova imagem no browser
+      return json.url ? json.url + '?t=' + Date.now() : null
     } catch {
       return null
     }
