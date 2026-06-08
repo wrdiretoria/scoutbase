@@ -5,20 +5,20 @@ import { useRouter, useSearchParams } from 'next/navigation'
 
 const SUBS = [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].map(n => `Sub-${n}`)
 
-// Linha 1: Categorias + defesa/laterais
 const LINHA1 = [
   { label: 'Zagueiros',  query: 'Zagueiro' },
   { label: 'Lat. Esq',   query: 'Lateral Esquerdo' },
   { label: 'Lat. Dir',   query: 'Lateral Direito' },
 ]
 
-// Linha 2: meio-campo + ataque
 const LINHA2 = [
   { label: 'Volantes',       query: 'Volante' },
   { label: 'Meias',          query: 'Meia' },
   { label: 'Atacantes',      query: 'Atacante' },
   { label: 'Centro-Avantes', query: 'Centro-Avante' },
 ]
+
+const TODAS_POSICOES = [...LINHA1, ...LINHA2]
 
 function CategoryNavInner() {
   const router = useRouter()
@@ -28,6 +28,9 @@ function CategoryNavInner() {
   const catAtiva = params.get('categoria') ?? null
   const posAtiva = params.get('posicao')   ?? null
 
+  // Categoria selecionada mas sem posição — aguardando escolha
+  const aguardandoPos = !!catAtiva && !posAtiva
+
   function buildUrl(newCat: string | null, newPos: string | null) {
     const p = new URLSearchParams()
     if (newCat) p.set('categoria', newCat)
@@ -36,11 +39,12 @@ function CategoryNavInner() {
   }
 
   function toggleCat(cat: string) {
-    router.push(buildUrl(catAtiva === cat ? null : cat, posAtiva))
+    // Ao selecionar categoria, limpa posição — obriga escolher
+    router.push(buildUrl(catAtiva === cat ? null : cat, null))
     setOpen(false)
   }
 
-  function togglePos(query: string) {
+  function selectPos(query: string) {
     router.push(buildUrl(catAtiva, posAtiva === query ? null : query))
   }
 
@@ -53,8 +57,7 @@ function CategoryNavInner() {
           padding: 9px 14px;
           font-size: 13px; font-weight: 600;
           color: rgba(255,255,255,0.50);
-          text-decoration: none; white-space: nowrap;
-          border-bottom: 2px solid transparent;
+          white-space: nowrap; border-bottom: 2px solid transparent;
           transition: color .15s, border-color .15s;
           cursor: pointer; background: none;
           border-top: none; border-left: none; border-right: none;
@@ -62,6 +65,18 @@ function CategoryNavInner() {
         }
         .cat-pill:hover { color: rgba(255,255,255,0.90); border-bottom-color: rgba(0,255,136,0.30); }
         .cat-pill-active { color: #00e676 !important; border-bottom-color: #00e676 !important; }
+
+        /* Linha 2 em estado de espera — pulsa suavemente para chamar atenção */
+        @keyframes pulseGreen {
+          0%, 100% { border-color: rgba(0,230,118,0.15); }
+          50%       { border-color: rgba(0,230,118,0.50); }
+        }
+        .linha2-waiting {
+          animation: pulseGreen 1.5s ease-in-out infinite;
+          border-top: 1px solid rgba(0,230,118,0.15) !important;
+        }
+        .linha2-waiting .cat-pill { color: rgba(255,255,255,0.75) !important; }
+
         .cat-dropdown {
           position: absolute; top: 100%; left: 0; right: 0;
           background: #111;
@@ -85,9 +100,8 @@ function CategoryNavInner() {
         .cat-sub-pill-active { background: rgba(0,230,118,0.18) !important; color: #00e676 !important; border-color: rgba(0,230,118,0.55) !important; }
       `}</style>
 
-      {/* ── Linha 1: Categorias + Zagueiros + Laterais ── */}
+      {/* ── Linha 1 ── */}
       <div className="cat-nav" style={{ display: 'flex', maxWidth: '1280px', margin: '0 auto', padding: '0 16px', overflowX: 'auto', scrollbarWidth: 'none' }}>
-
         <button
           className={`cat-pill${catAtiva ? ' cat-pill-active' : ''}`}
           onClick={() => setOpen(o => !o)}
@@ -99,7 +113,7 @@ function CategoryNavInner() {
           <button
             key={label}
             className={`cat-pill${posAtiva === query ? ' cat-pill-active' : ''}`}
-            onClick={() => togglePos(query)}
+            onClick={() => selectPos(query)}
           >
             {label}
           </button>
@@ -124,14 +138,19 @@ function CategoryNavInner() {
         </>
       )}
 
-      {/* ── Linha 2: Volantes + Meias + Atacantes + Centro-Avantes ── */}
-      <div style={{ borderTop: '1px solid rgba(255,255,255,0.04)', background: '#0a0a0a' }}>
+      {/* ── Linha 2 — pulsa quando aguardando posição ── */}
+      <div className={aguardandoPos ? 'linha2-waiting' : ''} style={{ borderTop: '1px solid rgba(255,255,255,0.04)', background: '#0a0a0a', transition: 'border-color .3s' }}>
+        {aguardandoPos && (
+          <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '4px 16px 0', fontSize: '10px', fontWeight: 800, letterSpacing: '0.12em', color: '#00e676', textTransform: 'uppercase' }}>
+            ↓ Escolha a posição
+          </div>
+        )}
         <div className="cat-nav" style={{ display: 'flex', maxWidth: '1280px', margin: '0 auto', padding: '0 16px', overflowX: 'auto', scrollbarWidth: 'none' }}>
           {LINHA2.map(({ label, query }) => (
             <button
               key={label}
               className={`cat-pill${posAtiva === query ? ' cat-pill-active' : ''}`}
-              onClick={() => togglePos(query)}
+              onClick={() => selectPos(query)}
             >
               {label}
             </button>
