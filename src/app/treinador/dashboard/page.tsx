@@ -300,12 +300,12 @@ export default function TreinadorDashboardPage() {
 
   useEffect(() => {
     async function load() {
-      // Timeout de segurança: se demorar mais de 8s, sai do skeleton
-      const safetyTimeout = setTimeout(() => setLoading(false), 8000)
+      // Timeout de segurança: se demorar mais de 4s, sai do skeleton
+      const safetyTimeout = setTimeout(() => { setLoading(false); router.push('/login') }, 4000)
       try {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push('/login'); return }
+      if (!user) { clearTimeout(safetyTimeout); setLoading(false); router.push('/login'); return }
 
       const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
       const p = profile as Record<string, unknown> | null

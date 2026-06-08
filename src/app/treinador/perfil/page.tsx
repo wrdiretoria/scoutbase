@@ -87,9 +87,11 @@ export default function TreinadorPerfilPage() {
 
   useEffect(() => {
     async function load() {
+      const safetyTimeout = setTimeout(() => { setLoading(false); router.push('/login') }, 4000)
+      try {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push('/login'); return }
+      if (!user) { clearTimeout(safetyTimeout); setLoading(false); router.push('/login'); return }
 
       // ── Perfil ──
       const { data: profile } = await supabase
@@ -146,6 +148,8 @@ export default function TreinadorPerfilPage() {
       } catch { /* tabela avaliacoes ainda não criada — zeros são honestos */ }
 
       setLoading(false)
+      clearTimeout(safetyTimeout)
+      } catch { setLoading(false) }
     }
     load()
   }, [router])

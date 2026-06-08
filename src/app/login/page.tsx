@@ -19,7 +19,10 @@ export default function LoginPage() {
   // Se já tem sessão ativa, redireciona
   useEffect(() => {
     const supabase = createClient()
+    // Timeout de segurança: se getSession travar (ex: Safari ITP), libera o form em 3s
+    const timeout = setTimeout(() => setChecking(false), 3000)
     supabase.auth.getSession().then(({ data: { session } }) => {
+      clearTimeout(timeout)
       if (session) {
         const tipo = (session.user.user_metadata as { tipo?: string })?.tipo ?? ''
         if (tipo === 'treinador' || tipo === 'escola') {
@@ -30,7 +33,7 @@ export default function LoginPage() {
       } else {
         setChecking(false)
       }
-    })
+    }).catch(() => { clearTimeout(timeout); setChecking(false) })
   }, [router])
 
   // Ao trocar área, limpa os campos
