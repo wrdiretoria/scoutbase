@@ -4,7 +4,6 @@ import { fetchOvrMapByUuid } from '@/lib/ovr'
 import AtletaCardLanding from './AtletaCardLanding'
 import { formatNome } from '@/lib/formatNome'
 
-// Revalida a cada 30s — novos cadastros aparecem rápido
 export const revalidate = 30
 
 export default async function RankingNacionalSection() {
@@ -26,10 +25,7 @@ export default async function RankingNacionalSection() {
     created_at: string | null
   }[]
 
-  // Mostra todos os recém-chegados, com ou sem OVR
-  const recentes = profiles.slice(0, 10)
-
-  if (recentes.length === 0) return null
+  if (profiles.length === 0) return null
 
   return (
     <section style={{ background: '#080808', padding: '28px 0' }}>
@@ -51,7 +47,7 @@ export default async function RankingNacionalSection() {
         </div>
 
         <div className="ranking-scroll landing-cards" style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '12px', scrollbarWidth: 'none' }}>
-          {recentes.map((p) => {
+          {profiles.map((p) => {
             const fotos = (p.fotos ?? []).filter((f): f is string => !!f)
             const foto = fotos[0] ?? p.avatar_url ?? null
             const ovr = ovrByUuid.get(p.id) ?? null
