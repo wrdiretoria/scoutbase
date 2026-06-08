@@ -1,21 +1,24 @@
 'use client'
 
-import Link from 'next/link'
 import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 const SUBS = [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].map(n => `Sub-${n}`)
 
-const POSICOES = ['Goleiros','Zagueiros','Laterais','Volantes','Meias','Atacantes']
+// Linha 1: Categorias + defesa/laterais
+const LINHA1 = [
+  { label: 'Zagueiros',  query: 'Zagueiro' },
+  { label: 'Lat. Esq',   query: 'Lateral Esquerdo' },
+  { label: 'Lat. Dir',   query: 'Lateral Direito' },
+]
 
-const POSICAO_QUERY: Record<string, string> = {
-  'Goleiros':  'Goleiro',
-  'Zagueiros': 'Zagueiro',
-  'Laterais':  'Lateral',
-  'Volantes':  'Volante',
-  'Meias':     'Meia',
-  'Atacantes': 'Atacante',
-}
+// Linha 2: meio-campo + ataque
+const LINHA2 = [
+  { label: 'Volantes',       query: 'Volante' },
+  { label: 'Meias',          query: 'Meia' },
+  { label: 'Atacantes',      query: 'Atacante' },
+  { label: 'Centro-Avantes', query: 'Centro-Avante' },
+]
 
 function CategoryNavInner() {
   const router = useRouter()
@@ -33,15 +36,12 @@ function CategoryNavInner() {
   }
 
   function toggleCat(cat: string) {
-    const next = catAtiva === cat ? null : cat
-    router.push(buildUrl(next, posAtiva))
+    router.push(buildUrl(catAtiva === cat ? null : cat, posAtiva))
     setOpen(false)
   }
 
-  function togglePos(pos: string) {
-    const query = POSICAO_QUERY[pos]
-    const next  = posAtiva === query ? null : query
-    router.push(buildUrl(catAtiva, next))
+  function togglePos(query: string) {
+    router.push(buildUrl(catAtiva, posAtiva === query ? null : query))
   }
 
   return (
@@ -50,7 +50,7 @@ function CategoryNavInner() {
         .cat-nav::-webkit-scrollbar { display: none; }
         .cat-pill {
           display: inline-flex; align-items: center; gap: 4px;
-          padding: 10px 16px;
+          padding: 9px 14px;
           font-size: 13px; font-weight: 600;
           color: rgba(255,255,255,0.50);
           text-decoration: none; white-space: nowrap;
@@ -62,18 +62,6 @@ function CategoryNavInner() {
         }
         .cat-pill:hover { color: rgba(255,255,255,0.90); border-bottom-color: rgba(0,255,136,0.30); }
         .cat-pill-active { color: #00e676 !important; border-bottom-color: #00e676 !important; }
-        .pos-pill {
-          display: inline-flex; align-items: center;
-          padding: 6px 16px; border-radius: 20px;
-          font-size: 12px; font-weight: 700;
-          color: rgba(255,255,255,0.55);
-          background: rgba(255,255,255,0.05);
-          border: 1px solid rgba(255,255,255,0.10);
-          white-space: nowrap; cursor: pointer;
-          transition: background .15s, color .15s, border-color .15s;
-        }
-        .pos-pill:hover { background: rgba(0,230,118,0.10); color: #00e676; border-color: rgba(0,230,118,0.30); }
-        .pos-pill-active { background: rgba(0,230,118,0.15) !important; color: #00e676 !important; border-color: rgba(0,230,118,0.50) !important; }
         .cat-dropdown {
           position: absolute; top: 100%; left: 0; right: 0;
           background: #111;
@@ -97,8 +85,9 @@ function CategoryNavInner() {
         .cat-sub-pill-active { background: rgba(0,230,118,0.18) !important; color: #00e676 !important; border-color: rgba(0,230,118,0.55) !important; }
       `}</style>
 
-      {/* Linha 1: Categoria */}
+      {/* ── Linha 1: Categorias + Zagueiros + Laterais ── */}
       <div className="cat-nav" style={{ display: 'flex', maxWidth: '1280px', margin: '0 auto', padding: '0 16px', overflowX: 'auto', scrollbarWidth: 'none' }}>
+
         <button
           className={`cat-pill${catAtiva ? ' cat-pill-active' : ''}`}
           onClick={() => setOpen(o => !o)}
@@ -106,15 +95,15 @@ function CategoryNavInner() {
           {catAtiva ?? 'Categorias'} {open ? '▲' : '▼'}
         </button>
 
-        {(['Meias','Atacantes'] as const).map(pos => {
-          const query = POSICAO_QUERY[pos]
-          const ativo = posAtiva === query
-          return (
-            <button key={pos} className={`cat-pill${ativo ? ' cat-pill-active' : ''}`} onClick={() => togglePos(pos)}>
-              {pos}
-            </button>
-          )
-        })}
+        {LINHA1.map(({ label, query }) => (
+          <button
+            key={label}
+            className={`cat-pill${posAtiva === query ? ' cat-pill-active' : ''}`}
+            onClick={() => togglePos(query)}
+          >
+            {label}
+          </button>
+        ))}
       </div>
 
       {/* Dropdown Sub-6 → Sub-20 */}
@@ -135,24 +124,21 @@ function CategoryNavInner() {
         </>
       )}
 
-      {/* Linha 2: Posição */}
+      {/* ── Linha 2: Volantes + Meias + Atacantes + Centro-Avantes ── */}
       <div style={{ borderTop: '1px solid rgba(255,255,255,0.04)', background: '#0a0a0a' }}>
-        <div className="cat-nav" style={{ display: 'flex', gap: '8px', maxWidth: '1280px', margin: '0 auto', padding: '8px 16px', overflowX: 'auto', scrollbarWidth: 'none' }}>
-          {POSICOES.map(pos => {
-            const query = POSICAO_QUERY[pos]
-            const ativo = posAtiva === query
-            return (
-              <button
-                key={pos}
-                className={`pos-pill${ativo ? ' pos-pill-active' : ''}`}
-                onClick={() => togglePos(pos)}
-              >
-                {pos}
-              </button>
-            )
-          })}
+        <div className="cat-nav" style={{ display: 'flex', maxWidth: '1280px', margin: '0 auto', padding: '0 16px', overflowX: 'auto', scrollbarWidth: 'none' }}>
+          {LINHA2.map(({ label, query }) => (
+            <button
+              key={label}
+              className={`cat-pill${posAtiva === query ? ' cat-pill-active' : ''}`}
+              onClick={() => togglePos(query)}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
+
     </nav>
   )
 }
