@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 const navLinks = [
@@ -15,6 +16,17 @@ export default function NavBar() {
   const [open, setOpen] = useState(false)
   const [installPrompt, setInstallPrompt] = useState<Event | null>(null)
   const [showInstall, setShowInstall] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const router = useRouter()
+  const searchRef = useRef<HTMLInputElement>(null)
+
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault()
+    const q = searchQuery.trim()
+    if (!q) return
+    router.push(`/ranking?q=${encodeURIComponent(q)}`)
+    setSearchQuery('')
+  }
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -42,10 +54,20 @@ export default function NavBar() {
         .hamburger-btn { display:none; background:none; border:none; cursor:pointer; padding:8px; }
         .nav-desktop-links { display:flex; align-items:center; gap:24px; flex:1; justify-content:center; }
         .nav-desktop-btns { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+        .nav-search-form { display:flex; align-items:center; flex:1; max-width:320px; }
+        .nav-search-input {
+          width:100%; padding:8px 14px; border-radius:20px;
+          background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.12);
+          color:white; font-size:13px; outline:none;
+          transition:border-color .2s, background .2s;
+        }
+        .nav-search-input::placeholder { color:rgba(255,255,255,0.35); }
+        .nav-search-input:focus { border-color:rgba(0,255,136,0.45); background:rgba(255,255,255,0.10); }
         @media (max-width: 768px) {
           .hamburger-btn { display:flex !important; align-items:center; justify-content:center; }
           .nav-desktop-links { display:none !important; }
           .nav-desktop-btns { display:none !important; }
+          .nav-search-form { display:none !important; }
         }
       `}</style>
 
@@ -70,6 +92,19 @@ export default function NavBar() {
             </span>
           </Link>
 
+          {/* Search bar */}
+          <form className="nav-search-form" onSubmit={handleSearch}>
+            <input
+              ref={searchRef}
+              className="nav-search-input"
+              type="search"
+              placeholder="Buscar atleta, posição, cidade ou ID"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              aria-label="Buscar atleta"
+            />
+          </form>
+
           {/* Desktop links */}
           <div className="nav-desktop-links">
             {navLinks.map(l => (
@@ -77,8 +112,22 @@ export default function NavBar() {
             ))}
           </div>
 
-          {/* Desktop buttons */}
+          {/* Sino + Desktop buttons */}
           <div className="nav-desktop-btns">
+            {/* Ícone sino */}
+            <button aria-label="Notificações" style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: 'rgba(255,255,255,0.50)', padding: '6px', display: 'flex', alignItems: 'center',
+              transition: 'color .2s',
+            }}
+              onMouseEnter={e => (e.currentTarget.style.color = 'white')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.50)')}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+              </svg>
+            </button>
             <Link href="/login" style={{
               padding: '8px 20px', fontSize: '14px', fontWeight: 600,
               color: 'white', border: '1.5px solid rgba(255,255,255,0.3)',
@@ -88,7 +137,7 @@ export default function NavBar() {
             </Link>
             <Link href="/atleta/cadastro" style={{
               padding: '8px 20px', fontSize: '14px', fontWeight: 700,
-              color: 'black', background: '#22c55e', borderRadius: '10px', textDecoration: 'none',
+              color: 'black', background: '#00e676', borderRadius: '10px', textDecoration: 'none',
             }}>
               Começar agora
             </Link>
