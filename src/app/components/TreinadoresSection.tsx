@@ -193,7 +193,7 @@ export default async function TreinadoresSection() {
                   <img
                     src={t.avatarUrl}
                     alt={t.nome}
-                    style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center center' }}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%' }}
                   />
                 ) : (
                   <span style={{ fontSize: '48px', fontWeight: 900, color: 'rgba(0,230,118,0.35)' }}>
