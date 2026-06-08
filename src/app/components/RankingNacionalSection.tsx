@@ -4,7 +4,8 @@ import { fetchOvrMapByUuid } from '@/lib/ovr'
 import AtletaCardLanding from './AtletaCardLanding'
 import { formatNome } from '@/lib/formatNome'
 
-export const revalidate = 60
+// Revalida a cada 30s — novos cadastros aparecem rápido
+export const revalidate = 30
 
 export default async function RankingNacionalSection() {
   const admin = createAdminClient()
@@ -13,23 +14,22 @@ export default async function RankingNacionalSection() {
     fetchOvrMapByUuid(admin),
     admin
       .from('profiles')
-      .select('id, nome, athlete_id, avatar_url, fotos')
+      .select('id, nome, athlete_id, avatar_url, fotos, created_at')
       .like('athlete_id', 'MC-%')
-      .limit(50),
+      .order('created_at', { ascending: false })
+      .limit(12),
   ])
 
   const profiles = (profilesRes.data ?? []) as {
     id: string; nome: string | null; athlete_id: string | null
     avatar_url: string | null; fotos: (string | null)[] | null
+    created_at: string | null
   }[]
 
-  const ranked = profiles
-    .map(p => ({ ...p, ovr: ovrByUuid.get(p.id) ?? null }))
-    .filter(p => p.ovr !== null)
-    .sort((a, b) => (b.ovr ?? 0) - (a.ovr ?? 0))
-    .slice(0, 10)
+  // Mostra todos os recém-chegados, com ou sem OVR
+  const recentes = profiles.slice(0, 10)
 
-  if (ranked.length === 0) return null
+  if (recentes.length === 0) return null
 
   return (
     <section style={{ background: '#080808', padding: '28px 0' }}>
@@ -39,33 +39,33 @@ export default async function RankingNacionalSection() {
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '20px' }}>
           <div>
             <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.18em', color: 'rgba(0,255,136,0.60)', textTransform: 'uppercase' }}>
-              🏆 Nacional
+              🆕 Recém chegados
             </p>
             <h2 style={{ margin: 0, fontSize: 'clamp(20px,3vw,28px)', fontWeight: 900, color: 'white', letterSpacing: '-0.02em' }}>
-              Ranking <span style={{ color: '#00e676' }}>Nacional</span>
+              Novos <span style={{ color: '#00e676' }}>Craques</span>
             </h2>
           </div>
           <Link href="/ranking" style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(0,255,136,0.70)', textDecoration: 'none', whiteSpace: 'nowrap' }}>
-            Ver ranking →
+            Ver todos →
           </Link>
         </div>
 
         <div className="ranking-scroll landing-cards" style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '12px', scrollbarWidth: 'none' }}>
-          {ranked.map((p, i) => {
+          {recentes.map((p) => {
             const fotos = (p.fotos ?? []).filter((f): f is string => !!f)
             const foto = fotos[0] ?? p.avatar_url ?? null
+            const ovr = ovrByUuid.get(p.id) ?? null
             return (
               <div key={p.id} style={{ flexShrink: 0, width: '180px' }}>
                 <AtletaCardLanding
                   nome={formatNome(p.nome ?? 'Atleta')}
-                  ovr={p.ovr}
+                  ovr={ovr}
                   foto={foto}
                   posicao={null}
                   categoria={null}
                   atributos={null}
                   href={`/jogador/${p.id}`}
                   athleteId={p.athlete_id}
-                  rank={i + 1}
                   width="180px"
                 />
               </div>
