@@ -4,15 +4,6 @@ import { fetchOvrMapByUuid } from '@/lib/ovr'
 
 export const dynamic = 'force-dynamic'
 
-export type Atributos = {
-  vel: number | null
-  tec: number | null
-  dri: number | null
-  fis: number | null
-  tat: number | null
-  pos: number | null
-}
-
 export type MaisCard = {
   id:         string
   nome:       string
@@ -21,7 +12,6 @@ export type MaisCard = {
   foto:       string | null
   ovr:        number | null
   categoria:  string | null
-  atributos:  Atributos | null
 }
 
 function calcCategoria(dataNasc: string | null): string | null {
@@ -36,31 +26,6 @@ function calcCategoria(dataNasc: string | null): string | null {
   if (idade <= 17) return 'Sub-17'
   if (idade <= 20) return 'Sub-20'
   return 'Adulto'
-}
-
-type AvalRow = { aluno_id: string; velocidade: number|null; tecnica: number|null; finalizacao: number|null; forca: number|null; visao_jogo: number|null; posicionamento: number|null }
-
-async function fetchAtributosMap(admin: ReturnType<typeof import('@/lib/supabase').createAdminClient>, ids: string[]): Promise<Map<string, Atributos>> {
-  if (!ids.length) return new Map()
-  const { data } = await admin
-    .from('avaliacoes')
-    .select('aluno_id, velocidade, tecnica, finalizacao, forca, visao_jogo, posicionamento')
-    .in('aluno_id', ids)
-    .order('created_at', { ascending: false })
-  const map = new Map<string, Atributos>()
-  for (const row of (data ?? []) as AvalRow[]) {
-    if (!map.has(row.aluno_id)) {
-      map.set(row.aluno_id, {
-        vel: row.velocidade    ?? null,
-        tec: row.tecnica       ?? null,
-        dri: row.finalizacao   ?? null,
-        fis: row.forca         ?? null,
-        tat: row.visao_jogo    ?? null,
-        pos: row.posicionamento ?? null,
-      })
-    }
-  }
-  return map
 }
 
 export async function GET(req: NextRequest) {
@@ -96,8 +61,6 @@ export async function GET(req: NextRequest) {
       const page = sorted.slice(offset, offset + limit)
       const hasMore = sorted.length > offset + limit
 
-      const atributosMap = await fetchAtributosMap(admin, page.map(p => p.id))
-
       const items: MaisCard[] = page.map(p => {
         const fotos = (p.fotos ?? []).filter((f): f is string => !!f)
         return {
@@ -108,7 +71,6 @@ export async function GET(req: NextRequest) {
           foto: fotos[0] ?? p.avatar_url ?? null,
           ovr: p.ovr,
           categoria: calcCategoria(p.data_nascimento),
-          atributos: atributosMap.get(p.id) ?? null,
         }
       })
 
@@ -143,8 +105,6 @@ export async function GET(req: NextRequest) {
           .map(p => [p.id, p])
       )
 
-      const atributosMap = await fetchAtributosMap(admin, pageIds)
-
       const items: MaisCard[] = pageIds
         .flatMap(id => {
           const p = profileMap.get(id)
@@ -158,7 +118,6 @@ export async function GET(req: NextRequest) {
             foto: fotos[0] ?? p.avatar_url ?? null,
             ovr: ovrByUuid.get(p.id) ?? null,
             categoria: null,
-            atributos: atributosMap.get(p.id) ?? null,
           }
           return [card]
         })
@@ -192,8 +151,6 @@ export async function GET(req: NextRequest) {
 
       const hasMore = (count ?? 0) > offset + limit
 
-      const atributosMap = await fetchAtributosMap(admin, profiles.map(p => p.id))
-
       const items: MaisCard[] = profiles.map(p => {
         const fotos = (p.fotos ?? []).filter((f): f is string => !!f)
         return {
@@ -204,7 +161,6 @@ export async function GET(req: NextRequest) {
           foto: fotos[0] ?? p.avatar_url ?? null,
           ovr: ovrByUuid.get(p.id) ?? null,
           categoria: null,
-          atributos: atributosMap.get(p.id) ?? null,
         }
       })
 

@@ -9,20 +9,6 @@ export const revalidate = 30
 
 const LIMIT = 12
 
-function calcCategoria(dataNasc: string | null): string | null {
-  if (!dataNasc) return null
-  const hoje = new Date()
-  const nasc = new Date(dataNasc)
-  let idade = hoje.getFullYear() - nasc.getFullYear()
-  const m = hoje.getMonth() - nasc.getMonth()
-  if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--
-  if (idade <= 13) return 'Sub-13'
-  if (idade <= 15) return 'Sub-15'
-  if (idade <= 17) return 'Sub-17'
-  if (idade <= 20) return 'Sub-20'
-  return 'Adulto'
-}
-
 export default async function RankingNacionalSection() {
   const admin = createAdminClient()
 
@@ -30,7 +16,7 @@ export default async function RankingNacionalSection() {
     fetchOvrMapByUuid(admin),
     admin
       .from('profiles')
-      .select('id, nome, posicao, athlete_id, avatar_url, fotos, criado_em, data_nascimento')
+      .select('id, nome, athlete_id, avatar_url, fotos, criado_em')
       .like('athlete_id', 'MC-%')
       .order('criado_em', { ascending: false })
       .limit(LIMIT),
@@ -50,26 +36,16 @@ export default async function RankingNacionalSection() {
 
   const hasMore = (countRes.count ?? 0) > LIMIT
 
-  const profileIds = profiles.map(p => p.id)
-  const avalRes = profileIds.length
-    ? await admin.from('avaliacoes').select('aluno_id, velocidade, tecnica, finalizacao, forca, visao_jogo, posicionamento').in('aluno_id', profileIds).order('created_at', { ascending: false })
-    : { data: [] }
-  const atributosMap = new Map<string, { vel:number|null; tec:number|null; dri:number|null; fis:number|null; tat:number|null; pos:number|null }>()
-  for (const row of (avalRes.data ?? []) as { aluno_id:string; velocidade:number|null; tecnica:number|null; finalizacao:number|null; forca:number|null; visao_jogo:number|null; posicionamento:number|null }[]) {
-    if (!atributosMap.has(row.aluno_id)) atributosMap.set(row.aluno_id, { vel: row.velocidade??null, tec: row.tecnica??null, dri: row.finalizacao??null, fis: row.forca??null, tat: row.visao_jogo??null, pos: row.posicionamento??null })
-  }
-
   const initial: MaisCard[] = profiles.map(p => {
     const fotos = (p.fotos ?? []).filter((f): f is string => !!f)
     return {
       id: p.id,
       nome: formatNome(p.nome ?? 'Atleta'),
-      posicao: (p as Record<string,unknown>).posicao as string | null ?? null,
+      posicao: null,
       athlete_id: p.athlete_id,
       foto: fotos[0] ?? p.avatar_url ?? null,
       ovr: ovrByUuid.get(p.id) ?? null,
-      categoria: calcCategoria((p as Record<string,unknown>).data_nascimento as string | null ?? null),
-      atributos: atributosMap.get(p.id) ?? null,
+      categoria: null,
     }
   })
 

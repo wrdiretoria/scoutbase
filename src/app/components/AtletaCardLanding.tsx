@@ -234,7 +234,7 @@ export default function AtletaCardLanding({
       <div style={{ display: 'flex', padding: '5px 8px' }}>
         {[
           { icon: '⚽', label: 'POSIÇÃO', val: posicao ? posicao.toUpperCase().slice(0, 10) : '—' },
-          { icon: '🏷️', label: 'CATEG.',  val: categoria ? categoria.toUpperCase() : '—' },
+          { icon: '📅', label: 'CATEG.',  val: categoria ? categoria.toUpperCase() : '—' },
         ].map((col, i) => (
           <div key={col.label} style={{
             flex: 1, textAlign: 'center',
