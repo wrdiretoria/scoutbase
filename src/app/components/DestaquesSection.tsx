@@ -30,13 +30,13 @@ export default async function DestaquesSection() {
     fetchOvrMapByUuid(admin),
     admin
       .from('profiles')
-      .select('id, nome, athlete_id, avatar_url, fotos, data_nascimento')
+      .select('id, nome, posicao, athlete_id, avatar_url, fotos, data_nascimento')
       .like('athlete_id', 'MC-%')
       .limit(200),
   ])
 
   const profiles = (profilesRes.data ?? []) as {
-    id: string; nome: string | null; athlete_id: string | null
+    id: string; nome: string | null; posicao: string | null; athlete_id: string | null
     avatar_url: string | null; fotos: (string | null)[] | null
     data_nascimento: string | null
   }[]
@@ -53,7 +53,7 @@ export default async function DestaquesSection() {
     return {
       id: p.id,
       nome: formatNome(p.nome ?? 'Atleta'),
-      posicao: null,
+      posicao: p.posicao ?? null,
       athlete_id: p.athlete_id,
       foto: fotos[0] ?? p.avatar_url ?? null,
       ovr: p.ovr,
