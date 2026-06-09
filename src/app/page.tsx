@@ -13,7 +13,7 @@ import CardExemplo from './components/CardExemplo'
 
 export default async function LandingPage() {
   return (
-    <div style={{ background: '#080808', color: 'white', fontFamily: 'system-ui, sans-serif', minHeight: '100dvh' }}>
+    <div style={{ background: '#080808', color: 'white', fontFamily: 'system-ui, sans-serif' }}>
 
       {/* ── 1. Header ── */}
       <NavBar />
