@@ -148,48 +148,47 @@ export async function GET(req: NextRequest) {
             </div>
           ) : null}
 
-          {/* Bottom info */}
+          {/* Bottom info — fundo sólido escuro para legibilidade garantida */}
           <div style={{
             position: 'absolute', bottom: 0, left: 0, right: 0,
-            padding: '0 22px 24px',
+            background: 'linear-gradient(to top, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.92) 60%, transparent 100%)',
+            padding: '48px 22px 28px',
             display: 'flex', flexDirection: 'column',
           }}>
             {/* Nome */}
             <div style={{
-              fontSize: 52, fontWeight: 900, color: 'white',
-              letterSpacing: '-0.04em', lineHeight: 1,
-              textShadow: '0 2px 8px rgba(0,0,0,1), 0 4px 32px rgba(0,0,0,1)',
+              fontSize: 58, fontWeight: 900, color: '#ffffff',
+              letterSpacing: '-0.03em', lineHeight: 1,
               display: 'flex',
             }}>
               {primeiroNome}
             </div>
             {sobrenome ? (
               <div style={{
-                fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.75)',
+                fontSize: 15, fontWeight: 700, color: 'rgba(255,255,255,0.6)',
                 textTransform: 'uppercase', letterSpacing: '0.16em',
-                marginTop: 2, marginBottom: 12,
-                textShadow: '0 1px 6px rgba(0,0,0,1)',
+                marginTop: 4, marginBottom: 14,
                 display: 'flex',
               }}>
                 {sobrenome}
               </div>
-            ) : <div style={{ marginBottom: 12, display: 'flex' }} />}
+            ) : <div style={{ marginBottom: 14, display: 'flex' }} />}
 
             {/* Treinador badge + cidade */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{
-                background: 'rgba(251,191,36,0.14)',
-                border: '1px solid rgba(251,191,36,0.3)',
-                borderRadius: 7,
-                padding: '5px 14px',
-                fontSize: 13, fontWeight: 900, color: '#fbbf24',
-                letterSpacing: '0.09em',
+                background: 'rgba(251,191,36,0.22)',
+                border: '1.5px solid rgba(251,191,36,0.6)',
+                borderRadius: 8,
+                padding: '6px 16px',
+                fontSize: 15, fontWeight: 900, color: '#fde68a',
+                letterSpacing: '0.06em',
                 display: 'flex',
               }}>
                 ⚡ Treinador
               </div>
               {cidade ? (
-                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', fontWeight: 600, display: 'flex' }}>
+                <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.55)', fontWeight: 600, display: 'flex' }}>
                   · {cidade}
                 </div>
               ) : null}
@@ -197,35 +196,35 @@ export async function GET(req: NextRequest) {
 
             {/* Stats */}
             {av > 0 ? (
-              <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
+              <div style={{ marginTop: 14, display: 'flex', gap: 10 }}>
                 <div style={{
-                  display: 'flex', alignItems: 'baseline', gap: 5,
-                  background: 'rgba(10,5,0,0.8)',
-                  border: '1px solid rgba(251,191,36,0.2)',
-                  borderRadius: 8, padding: '5px 12px',
+                  display: 'flex', alignItems: 'baseline', gap: 6,
+                  background: 'rgba(0,0,0,0.6)',
+                  border: '1.5px solid rgba(251,191,36,0.4)',
+                  borderRadius: 10, padding: '7px 14px',
                 }}>
-                  <span style={{ fontSize: 18, fontWeight: 900, color: '#fbbf24' }}>{av}</span>
-                  <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>avaliações</span>
+                  <span style={{ fontSize: 22, fontWeight: 900, color: '#fbbf24' }}>{av}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.65)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>avaliações</span>
                 </div>
                 {at > 0 ? (
                   <div style={{
-                    display: 'flex', alignItems: 'baseline', gap: 5,
-                    background: 'rgba(10,5,0,0.8)',
-                    border: '1px solid rgba(251,191,36,0.2)',
-                    borderRadius: 8, padding: '5px 12px',
+                    display: 'flex', alignItems: 'baseline', gap: 6,
+                    background: 'rgba(0,0,0,0.6)',
+                    border: '1.5px solid rgba(251,191,36,0.4)',
+                    borderRadius: 10, padding: '7px 14px',
                   }}>
-                    <span style={{ fontSize: 18, fontWeight: 900, color: '#fbbf24' }}>{at}</span>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>atletas</span>
+                    <span style={{ fontSize: 22, fontWeight: 900, color: '#fbbf24' }}>{at}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.65)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>atletas</span>
                   </div>
                 ) : null}
               </div>
             ) : null}
 
             {/* Watermark */}
-            <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.07)', display: 'flex' }} />
-              <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: '0.22em', color: 'rgba(255,255,255,0.15)', textTransform: 'uppercase' }}>Meu Craque</span>
-              <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.07)', display: 'flex' }} />
+            <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.1)', display: 'flex' }} />
+              <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.2em', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>Meu Craque</span>
+              <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.1)', display: 'flex' }} />
             </div>
           </div>
 
