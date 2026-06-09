@@ -30,7 +30,7 @@ export default async function DestaquesSection() {
     fetchOvrMapByUuid(admin),
     admin
       .from('profiles')
-      .select('id, nome, athlete_id, avatar_url, fotos, data_nascimento')
+      .select('id, nome, posicao, athlete_id, avatar_url, fotos, data_nascimento')
       .like('athlete_id', 'MC-%')
       .limit(200),
     admin
@@ -65,7 +65,7 @@ export default async function DestaquesSection() {
     return {
       id: p.id,
       nome: formatNome(p.nome ?? 'Atleta'),
-      posicao: null,
+      posicao: (p as Record<string,unknown>).posicao as string | null ?? null,
       athlete_id: p.athlete_id,
       foto: fotos[0] ?? p.avatar_url ?? null,
       ovr: p.ovr,

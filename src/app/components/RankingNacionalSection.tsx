@@ -16,7 +16,7 @@ export default async function RankingNacionalSection() {
     fetchOvrMapByUuid(admin),
     admin
       .from('profiles')
-      .select('id, nome, athlete_id, avatar_url, fotos, criado_em')
+      .select('id, nome, posicao, athlete_id, avatar_url, fotos, criado_em')
       .like('athlete_id', 'MC-%')
       .order('criado_em', { ascending: false })
       .limit(LIMIT),
@@ -50,7 +50,7 @@ export default async function RankingNacionalSection() {
     return {
       id: p.id,
       nome: formatNome(p.nome ?? 'Atleta'),
-      posicao: null,
+      posicao: (p as Record<string,unknown>).posicao as string | null ?? null,
       athlete_id: p.athlete_id,
       foto: fotos[0] ?? p.avatar_url ?? null,
       ovr: ovrByUuid.get(p.id) ?? null,

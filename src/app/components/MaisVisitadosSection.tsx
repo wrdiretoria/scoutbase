@@ -32,7 +32,7 @@ export default async function MaisVisitadosSection() {
   const hasMore = sortedIds.length > LIMIT
 
   const [profilesRes, ovrByUuid, avalRes] = await Promise.all([
-    admin.from('profiles').select('id, nome, athlete_id, avatar_url, fotos').in('id', topIds),
+    admin.from('profiles').select('id, nome, posicao, athlete_id, avatar_url, fotos').in('id', topIds),
     fetchOvrMapByUuid(admin),
     admin.from('avaliacoes').select('aluno_id, velocidade, tecnica, finalizacao, forca, visao_jogo, posicionamento').in('aluno_id', topIds).order('created_at', { ascending: false }),
   ])
@@ -53,7 +53,7 @@ export default async function MaisVisitadosSection() {
     const card: MaisCard = {
       id: p.id,
       nome: formatNome(p.nome ?? 'Atleta'),
-      posicao: null,
+      posicao: (p as Record<string,unknown>).posicao as string | null ?? null,
       athlete_id: p.athlete_id,
       foto: fotos[0] ?? p.avatar_url ?? null,
       ovr: ovrByUuid.get(p.id) ?? null,
