@@ -17,20 +17,6 @@ function calcCategoria(dataNasc: string | null): string | null {
   return 'Adulto'
 }
 
-function varianteToPosicao(variante: string | null): string | null {
-  if (!variante) return null
-  const v = variante.toLowerCase()
-  if (v.includes('goleiro'))        return 'Goleiro'
-  if (v.includes('lateral'))        return 'Lateral'
-  if (v.includes('zagueiro'))       return 'Zagueiro'
-  if (v.includes('volante'))        return 'Volante'
-  if (v.includes('meia'))           return 'Meia'
-  if (v.includes('centroavante') || v.includes('centro_avante')) return 'Centro-Avante'
-  if (v.includes('atacante'))       return 'Atacante'
-  if (v.includes('ponta'))          return 'Ponta'
-  return null
-}
-
 export async function GET(req: NextRequest) {
   const id = req.nextUrl.searchParams.get('id')
   if (!id) return NextResponse.json({ posicao: null, atributos: null, categoria: null })
@@ -38,11 +24,12 @@ export async function GET(req: NextRequest) {
   try {
     const admin = createAdminClient()
 
-    const [profileRes, avRes] = await Promise.all([
+    const [userRes, profileRes, avRes] = await Promise.all([
+      admin.auth.admin.getUserById(id),
       admin.from('profiles').select('data_nascimento').eq('id', id).single(),
       admin
         .from('avaliacoes')
-        .select('velocidade, tecnica, finalizacao, forca, visao_jogo, posicionamento, variante')
+        .select('velocidade, tecnica, finalizacao, forca, visao_jogo, posicionamento')
         .eq('aluno_id', id)
         .not('scout_score', 'is', null)
         .order('created_at', { ascending: false })
@@ -50,10 +37,11 @@ export async function GET(req: NextRequest) {
         .single(),
     ])
 
+    const meta     = userRes.data?.user?.user_metadata as { posicao?: string } | undefined
+    const posicao  = meta?.posicao ?? null
     const dataNasc = (profileRes.data?.data_nascimento as string | null) ?? null
     const av       = avRes.data
 
-    const posicao   = varianteToPosicao((av?.variante as string | null) ?? null)
     const atributos = av ? {
       vel: av.velocidade     as number | null,
       tec: av.tecnica        as number | null,
