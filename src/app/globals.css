@@ -17,8 +17,6 @@ html, body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   min-height: 100%;
-  /* Impede o rubber-band scroll do iOS Safari que expõe fundo preto */
-  overscroll-behavior: none;
 }
 
 html {
