@@ -109,15 +109,15 @@ export async function GET(req: NextRequest) {
             </div>
           )}
 
-          {/* Overlay escuro topo */}
+          {/* Overlay escuro — forte o suficiente para texto legível em qualquer foto */}
           <div style={{
             position: 'absolute', inset: 0,
-            background: 'linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.05) 30%, transparent 55%, rgba(0,0,0,0.2) 65%, rgba(0,0,0,0.94) 100%)',
+            background: 'linear-gradient(to bottom, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.1) 28%, transparent 50%, rgba(0,0,0,0.35) 65%, rgba(0,0,0,0.97) 100%)',
             display: 'flex',
           }} />
           <div style={{
             position: 'absolute', inset: 0,
-            background: 'linear-gradient(to right, rgba(0,0,0,0.35) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.25) 100%)',
+            background: 'linear-gradient(to right, rgba(0,0,0,0.45) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.35) 100%)',
             display: 'flex',
           }} />
 
@@ -158,16 +158,17 @@ export async function GET(req: NextRequest) {
             <div style={{
               fontSize: 52, fontWeight: 900, color: 'white',
               letterSpacing: '-0.04em', lineHeight: 1,
-              textShadow: '0 2px 24px rgba(0,0,0,0.95)',
+              textShadow: '0 2px 8px rgba(0,0,0,1), 0 4px 32px rgba(0,0,0,1)',
               display: 'flex',
             }}>
               {primeiroNome}
             </div>
             {sobrenome ? (
               <div style={{
-                fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.45)',
+                fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.75)',
                 textTransform: 'uppercase', letterSpacing: '0.16em',
                 marginTop: 2, marginBottom: 12,
+                textShadow: '0 1px 6px rgba(0,0,0,1)',
                 display: 'flex',
               }}>
                 {sobrenome}
