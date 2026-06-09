@@ -4,6 +4,8 @@ import { fetchOvrMapByUuid } from '@/lib/ovr'
 
 export const dynamic = 'force-dynamic'
 
+export type AtributosCard = { vel: number | null; tec: number | null; dri: number | null; fis: number | null; tat: number | null; pos: number | null } | null
+
 export type MaisCard = {
   id:         string
   nome:       string
@@ -12,6 +14,7 @@ export type MaisCard = {
   foto:       string | null
   ovr:        number | null
   categoria:  string | null
+  atributos:  AtributosCard
 }
 
 function calcCategoria(dataNasc: string | null): string | null {
@@ -61,6 +64,23 @@ export async function GET(req: NextRequest) {
       const page = sorted.slice(offset, offset + limit)
       const hasMore = sorted.length > offset + limit
 
+      // Busca atributos da avaliação mais recente para cada atleta
+      const pageIds = page.map(p => p.id)
+      const { data: avsData } = await admin
+        .from('avaliacoes')
+        .select('aluno_id, velocidade, tecnica, finalizacao, forca, visao_jogo, posicionamento, created_at')
+        .in('aluno_id', pageIds)
+        .not('scout_score', 'is', null)
+        .order('created_at', { ascending: false })
+      const avsRows = (avsData ?? []) as { aluno_id: string; velocidade: number | null; tecnica: number | null; finalizacao: number | null; forca: number | null; visao_jogo: number | null; posicionamento: number | null }[]
+      // Pega apenas a mais recente por atleta
+      const atributosMap = new Map<string, AtributosCard>()
+      for (const av of avsRows) {
+        if (!atributosMap.has(av.aluno_id)) {
+          atributosMap.set(av.aluno_id, { vel: av.velocidade, tec: av.tecnica, dri: av.finalizacao, fis: av.forca, tat: av.visao_jogo, pos: av.posicionamento })
+        }
+      }
+
       const items: MaisCard[] = page.map(p => {
         const fotos = (p.fotos ?? []).filter((f): f is string => !!f)
         return {
@@ -71,6 +91,7 @@ export async function GET(req: NextRequest) {
           foto: fotos[0] ?? p.avatar_url ?? null,
           ovr: p.ovr,
           categoria: calcCategoria(p.data_nascimento),
+          atributos: atributosMap.get(p.id) ?? null,
         }
       })
 
@@ -118,6 +139,7 @@ export async function GET(req: NextRequest) {
             foto: fotos[0] ?? p.avatar_url ?? null,
             ovr: ovrByUuid.get(p.id) ?? null,
             categoria: null,
+            atributos: null,
           }
           return [card]
         })
@@ -161,6 +183,7 @@ export async function GET(req: NextRequest) {
           foto: fotos[0] ?? p.avatar_url ?? null,
           ovr: ovrByUuid.get(p.id) ?? null,
           categoria: null,
+          atributos: null,
         }
       })
 

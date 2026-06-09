@@ -48,6 +48,23 @@ export default async function DestaquesSection() {
 
   if (sorted.length === 0) return null
 
+  const topIds = sorted.slice(0, LIMIT).map(p => p.id)
+
+  // Busca atributos da avaliação mais recente para cada atleta do top
+  const { data: avsData } = await admin
+    .from('avaliacoes')
+    .select('aluno_id, velocidade, tecnica, finalizacao, forca, visao_jogo, posicionamento')
+    .in('aluno_id', topIds)
+    .not('scout_score', 'is', null)
+    .order('created_at', { ascending: false })
+  const avsRows = (avsData ?? []) as { aluno_id: string; velocidade: number | null; tecnica: number | null; finalizacao: number | null; forca: number | null; visao_jogo: number | null; posicionamento: number | null }[]
+  const atributosMap = new Map<string, { vel: number | null; tec: number | null; dri: number | null; fis: number | null; tat: number | null; pos: number | null }>()
+  for (const av of avsRows) {
+    if (!atributosMap.has(av.aluno_id)) {
+      atributosMap.set(av.aluno_id, { vel: av.velocidade, tec: av.tecnica, dri: av.finalizacao, fis: av.forca, tat: av.visao_jogo, pos: av.posicionamento })
+    }
+  }
+
   const initial: MaisCard[] = sorted.slice(0, LIMIT).map(p => {
     const fotos = (p.fotos ?? []).filter((f): f is string => !!f)
     return {
@@ -58,6 +75,7 @@ export default async function DestaquesSection() {
       foto: fotos[0] ?? p.avatar_url ?? null,
       ovr: p.ovr,
       categoria: calcCategoria(p.data_nascimento),
+      atributos: atributosMap.get(p.id) ?? null,
     }
   })
 
