@@ -31,10 +31,15 @@ export default async function MaisVisitadosSection() {
   const topIds = sortedIds.slice(0, LIMIT)
   const hasMore = sortedIds.length > LIMIT
 
-  const [profilesRes, ovrByUuid] = await Promise.all([
+  const [profilesRes, ovrByUuid, avalRes] = await Promise.all([
     admin.from('profiles').select('id, nome, athlete_id, avatar_url, fotos').in('id', topIds),
     fetchOvrMapByUuid(admin),
+    admin.from('avaliacoes').select('aluno_id, velocidade, tecnica, finalizacao, forca, visao_jogo, posicionamento').in('aluno_id', topIds).order('created_at', { ascending: false }),
   ])
+  const atributosMap = new Map<string, { vel:number|null; tec:number|null; dri:number|null; fis:number|null; tat:number|null; pos:number|null }>()
+  for (const row of (avalRes.data ?? []) as { aluno_id:string; velocidade:number|null; tecnica:number|null; finalizacao:number|null; forca:number|null; visao_jogo:number|null; posicionamento:number|null }[]) {
+    if (!atributosMap.has(row.aluno_id)) atributosMap.set(row.aluno_id, { vel: row.velocidade??null, tec: row.tecnica??null, dri: row.finalizacao??null, fis: row.forca??null, tat: row.visao_jogo??null, pos: row.posicionamento??null })
+  }
 
   const profileMap = new Map(
     ((profilesRes.data ?? []) as { id: string; nome: string | null; athlete_id: string | null; avatar_url: string | null; fotos: (string | null)[] | null }[])
@@ -53,6 +58,7 @@ export default async function MaisVisitadosSection() {
       foto: fotos[0] ?? p.avatar_url ?? null,
       ovr: ovrByUuid.get(p.id) ?? null,
       categoria: null,
+      atributos: atributosMap.get(p.id) ?? null,
     }
     return [card]
   })
