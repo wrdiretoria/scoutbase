@@ -46,9 +46,9 @@ export default function LoadMoreCards({
           nome={p.nome}
           ovr={p.ovr}
           foto={p.foto}
-          posicao={p.posicao}
+          posicao={null}
           categoria={p.categoria}
-          atributos={p.atributos ?? null}
+          atributos={null}
           href={`/jogador/${p.id}`}
           athleteId={p.athlete_id}
           rank={showRank ? i + 1 : undefined}

@@ -32,12 +32,12 @@ export default async function MaisVisitadosSection() {
   const hasMore = sortedIds.length > LIMIT
 
   const [profilesRes, ovrByUuid] = await Promise.all([
-    admin.from('profiles').select('id, nome, posicao, athlete_id, avatar_url, fotos').in('id', topIds),
+    admin.from('profiles').select('id, nome, athlete_id, avatar_url, fotos').in('id', topIds),
     fetchOvrMapByUuid(admin),
   ])
 
   const profileMap = new Map(
-    ((profilesRes.data ?? []) as { id: string; nome: string | null; posicao: string | null; athlete_id: string | null; avatar_url: string | null; fotos: (string | null)[] | null }[])
+    ((profilesRes.data ?? []) as { id: string; nome: string | null; athlete_id: string | null; avatar_url: string | null; fotos: (string | null)[] | null }[])
       .map(p => [p.id, p])
   )
 
@@ -48,7 +48,7 @@ export default async function MaisVisitadosSection() {
     const card: MaisCard = {
       id: p.id,
       nome: formatNome(p.nome ?? 'Atleta'),
-      posicao: p.posicao ?? null,
+      posicao: null,
       athlete_id: p.athlete_id,
       foto: fotos[0] ?? p.avatar_url ?? null,
       ovr: ovrByUuid.get(p.id) ?? null,
