@@ -13,9 +13,14 @@
 }
 
 html, body {
-  background: #080808;
+  background: #030805;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  min-height: 100%;
+}
+
+html {
+  min-height: 100dvh;
 }
 
 /* ─────────────────────────────────────────────────────────────
