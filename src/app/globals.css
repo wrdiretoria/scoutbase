@@ -42,17 +42,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Bloqueia overflow horizontal sem criar scroll context no iOS Safari.
-   overflow-x: hidden no body é bug documentado do iOS — transforma o html
-   no scroll container, que fica maior que o conteúdo e gera espaço preto.
-   overflow-x: clip resolve sem esse efeito colateral. */
-html {
-  overflow-x: clip;
-}
-
-html {
-  /* overflow-x removido — causava bloqueio de scroll vertical no Chrome */
-}
+/* overflow-x: clip e overflow-x: hidden no elemento <html> causam bug no iOS Safari:
+   o ICB (viewport) vira o scroll container, cresce quando a barra de endereços
+   some e gera espaço fantasma rolável abaixo do footer em todas as páginas.
+   Solução: não aplicar overflow no root. Controlar overflow em elementos específicos. */
 
 /* Scrollbar — hidden on mobile, subtle on desktop */
 @media (max-width: 768px) {
