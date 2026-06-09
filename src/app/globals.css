@@ -47,6 +47,24 @@ body {
    some e gera espaço fantasma rolável abaixo do footer em todas as páginas.
    Solução: não aplicar overflow no root. Controlar overflow em elementos específicos. */
 
+/* ── iOS Safari: dvh scroll fantasma ──────────────────────────────
+   A unidade dvh se atualiza dinamicamente quando a barra de endereços
+   do Safari some/aparece. Isso faz qualquer elemento com min-height:100dvh
+   CRESCER ~88px quando o usuário rola, criando espaço preto rolável abaixo
+   do conteúdo em TODAS as páginas.
+
+   Correção global: intercepta todos os estilos inline com "100dvh" e
+   substitui por "100svh" (viewport pequeno — estável, nunca cresce).
+   Funciona sem tocar em nenhum componente.
+   Requer iOS 15.4+ (suporte a svh) — o @supports garante fallback seguro.
+─────────────────────────────────────────────────────────────────── */
+@supports (min-height: 100svh) {
+  [style*="100dvh"] {
+    min-height: 100svh !important;
+    height: auto !important;
+  }
+}
+
 /* Scrollbar — hidden on mobile, subtle on desktop */
 @media (max-width: 768px) {
   ::-webkit-scrollbar { display: none; }
