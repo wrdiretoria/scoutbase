@@ -26,14 +26,26 @@ function calcCategoria(dataNasc: string | null): string | null {
 export default async function DestaquesSection() {
   const admin = createAdminClient()
 
-  const [ovrByUuid, profilesRes] = await Promise.all([
+  const [ovrByUuid, profilesRes, avalRes] = await Promise.all([
     fetchOvrMapByUuid(admin),
     admin
       .from('profiles')
       .select('id, nome, athlete_id, avatar_url, fotos, data_nascimento')
       .like('athlete_id', 'MC-%')
       .limit(200),
+    admin
+      .from('avaliacoes')
+      .select('aluno_id, velocidade, tecnica, finalizacao, forca, visao_jogo, posicionamento')
+      .order('created_at', { ascending: false }),
   ])
+
+  // Monta mapa de atributos (última avaliação por atleta)
+  const atributosMap = new Map<string, { vel: number|null; tec: number|null; dri: number|null; fis: number|null; tat: number|null; pos: number|null }>()
+  for (const row of (avalRes.data ?? []) as { aluno_id: string; velocidade: number|null; tecnica: number|null; finalizacao: number|null; forca: number|null; visao_jogo: number|null; posicionamento: number|null }[]) {
+    if (!atributosMap.has(row.aluno_id)) {
+      atributosMap.set(row.aluno_id, { vel: row.velocidade ?? null, tec: row.tecnica ?? null, dri: row.finalizacao ?? null, fis: row.forca ?? null, tat: row.visao_jogo ?? null, pos: row.posicionamento ?? null })
+    }
+  }
 
   const profiles = (profilesRes.data ?? []) as {
     id: string; nome: string | null; athlete_id: string | null
@@ -58,6 +70,7 @@ export default async function DestaquesSection() {
       foto: fotos[0] ?? p.avatar_url ?? null,
       ovr: p.ovr,
       categoria: calcCategoria(p.data_nascimento),
+      atributos: atributosMap.get(p.id) ?? null,
     }
   })
 

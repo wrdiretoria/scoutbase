@@ -52,7 +52,7 @@ export default function LoadMoreCardsRow({
               foto={p.foto}
               posicao={null}
               categoria={p.categoria}
-              atributos={null}
+              atributos={p.atributos ?? null}
               href={`/jogador/${p.id}`}
               athleteId={p.athlete_id}
               width="180px"
