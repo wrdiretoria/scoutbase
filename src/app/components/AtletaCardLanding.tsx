@@ -72,8 +72,8 @@ export default function AtletaCardLanding({
 
   useEffect(() => {
     if (!athleteUuid) return
-    // Só busca se a seção não passou os dados
-    if (posicao || atributos || categoria) return
+    // Só busca se ainda falta posicao ou atributos
+    if (posicao !== null && atributos !== null) return
     fetch(`/api/atleta/card-data?id=${athleteUuid}`)
       .then(r => r.ok ? r.json() : null)
       .then(data => { if (data) setExtraData(data) })
