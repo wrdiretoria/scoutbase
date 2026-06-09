@@ -52,6 +52,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
   const [estado, setEstado] = useState('')
   const [pais,   setPais]   = useState('Brasil')
   const [dataNasc, setDataNasc] = useState('')
+  const [sexo, setSexo] = useState<'Masculino' | 'Feminino' | ''>('')
   const [recoveryEmail, setRecoveryEmail] = useState('')
   const [password, setPassword] = useState('')
   const [consent, setConsent] = useState(false)
@@ -88,7 +89,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!nome || !posicao || !cidade || !dataNasc) {
+    if (!nome || !posicao || !cidade || !dataNasc || !sexo) {
       setError('Preencha todos os campos.')
       return
     }
@@ -120,7 +121,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
         email: internalEmail,
         password,
         options: {
-          data: { nome, posicao, cidade, estado: estado || undefined, pais, tipo: 'atleta' },
+          data: { nome, posicao, sexo, cidade, estado: estado || undefined, pais, tipo: 'atleta' },
         },
       })
 
@@ -487,6 +488,34 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
                 type="text" required value={nome} onChange={e => setNome(e.target.value)}
                 placeholder="Seu nome de atleta" style={inputStyle}
               />
+            </div>
+
+            {/* ── SEXO ── */}
+            <div>
+              <label style={labelStyle}>Sexo <span style={{ color: '#ef4444' }}>*</span></label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                {(['Masculino', 'Feminino'] as const).map(opt => {
+                  const active = sexo === opt
+                  return (
+                    <button
+                      key={opt}
+                      type="button"
+                      onClick={() => setSexo(opt)}
+                      style={{
+                        padding: '14px 10px', borderRadius: '12px', cursor: 'pointer',
+                        border: `1.5px solid ${active ? '#22c55e' : 'rgba(255,255,255,0.1)'}`,
+                        background: active ? 'rgba(34,197,94,0.1)' : 'rgba(255,255,255,0.04)',
+                        color: active ? '#22c55e' : 'rgba(255,255,255,0.5)',
+                        fontWeight: 700, fontSize: '14px',
+                        transition: 'all 0.2s', fontFamily: 'system-ui, sans-serif',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                      }}
+                    >
+                      {opt === 'Masculino' ? '♂' : '♀'} {opt}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
 
             <div>
