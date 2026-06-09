@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { AtributosMap, AtletaCardProps } from './AtletaCard'
 
 // ── Tier ──────────────────────────────────────────────────────────────────────
@@ -62,18 +62,40 @@ export default function AtletaCardLanding({
   const [imgErr, setImgErr] = useState(false)
   const showPhoto = !!foto && !imgErr
 
+  // Busca posição + atributos + categoria do próprio card, sem depender da seção
+  const athleteUuid = href ? href.split('/').pop() ?? null : null
+  const [extraData, setExtraData] = useState<{
+    posicao: string | null
+    atributos: AtributosMap | null
+    categoria: string | null
+  } | null>(null)
+
+  useEffect(() => {
+    if (!athleteUuid) return
+    // Só busca se a seção não passou os dados
+    if (posicao || atributos || categoria) return
+    fetch(`/api/atleta/card-data?id=${athleteUuid}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data) setExtraData(data) })
+      .catch(() => {/* silencioso */})
+  }, [athleteUuid, posicao, atributos, categoria])
+
+  const resolvedPosicao   = posicao   ?? extraData?.posicao   ?? null
+  const resolvedAtributos = atributos ?? extraData?.atributos ?? null
+  const resolvedCategoria = categoria ?? extraData?.categoria ?? null
+
   const parts     = nome.trim().split(' ')
   const lastName  = (parts.length > 1 ? parts[parts.length - 1] : nome).toUpperCase()
   // Só o PRIMEIRO nome (não todo o resto) — evita quebra de linha em nomes longos
   const firstName = (parts.length > 1 ? parts[0] : '').toUpperCase()
 
   const fifaStats = [
-    { label: 'VEL', val: toFifa(atributos?.vel) },
-    { label: 'TEC', val: toFifa(atributos?.tec) },
-    { label: 'DRI', val: toFifa(atributos?.dri) },
-    { label: 'FIS', val: toFifa(atributos?.fis) },
-    { label: 'TAT', val: toFifa(atributos?.tat) },
-    { label: 'POS', val: toFifa(atributos?.pos) },
+    { label: 'VEL', val: toFifa(resolvedAtributos?.vel) },
+    { label: 'TEC', val: toFifa(resolvedAtributos?.tec) },
+    { label: 'DRI', val: toFifa(resolvedAtributos?.dri) },
+    { label: 'FIS', val: toFifa(resolvedAtributos?.fis) },
+    { label: 'TAT', val: toFifa(resolvedAtributos?.tat) },
+    { label: 'POS', val: toFifa(resolvedAtributos?.pos) },
   ]
   const hasAttrData = fifaStats.some(s => s.val !== '—')
 
@@ -138,7 +160,7 @@ export default function AtletaCardLanding({
           fontSize: '9px', fontWeight: 800, color: tier.color,
           letterSpacing: '0.10em',
         }}>
-          {posAbrev(posicao)}
+          {posAbrev(resolvedPosicao)}
         </div>
       </div>
 
@@ -233,8 +255,8 @@ export default function AtletaCardLanding({
       <div style={{ height: '1px', background: `linear-gradient(to right, transparent, ${tier.color}25, transparent)`, margin: '0 12px' }} />
       <div style={{ display: 'flex', padding: '5px 8px' }}>
         {[
-          { icon: '⚽', label: 'POSIÇÃO', val: posicao ? posicao.toUpperCase().slice(0, 10) : '—' },
-          { icon: '📅', label: 'CATEG.',  val: categoria ? categoria.toUpperCase() : '—' },
+          { icon: '⚽', label: 'POSIÇÃO', val: resolvedPosicao ? resolvedPosicao.toUpperCase().slice(0, 10) : '—' },
+          { icon: '🏷️', label: 'CATEG.',  val: resolvedCategoria ? resolvedCategoria.toUpperCase() : '—' },
         ].map((col, i) => (
           <div key={col.label} style={{
             flex: 1, textAlign: 'center',
@@ -256,7 +278,7 @@ export default function AtletaCardLanding({
         color: `${tier.color}55`, letterSpacing: '0.08em',
         textAlign: 'center', textTransform: 'uppercase',
       }}>
-        {tagline(posicao)}
+        {tagline(resolvedPosicao)}
       </div>
 
     </div>
