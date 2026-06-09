@@ -9,6 +9,20 @@ export const revalidate = 120
 
 const LIMIT = 8
 
+function calcCategoria(dataNasc: string | null): string | null {
+  if (!dataNasc) return null
+  const hoje = new Date()
+  const nasc = new Date(dataNasc)
+  let idade = hoje.getFullYear() - nasc.getFullYear()
+  const m = hoje.getMonth() - nasc.getMonth()
+  if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--
+  if (idade <= 13) return 'Sub-13'
+  if (idade <= 15) return 'Sub-15'
+  if (idade <= 17) return 'Sub-17'
+  if (idade <= 20) return 'Sub-20'
+  return 'Adulto'
+}
+
 export default async function MaisVisitadosSection() {
   const admin = createAdminClient()
 
@@ -32,7 +46,7 @@ export default async function MaisVisitadosSection() {
   const hasMore = sortedIds.length > LIMIT
 
   const [profilesRes, ovrByUuid, avalRes] = await Promise.all([
-    admin.from('profiles').select('id, nome, posicao, athlete_id, avatar_url, fotos').in('id', topIds),
+    admin.from('profiles').select('id, nome, posicao, athlete_id, avatar_url, fotos, data_nascimento').in('id', topIds),
     fetchOvrMapByUuid(admin),
     admin.from('avaliacoes').select('aluno_id, velocidade, tecnica, finalizacao, forca, visao_jogo, posicionamento').in('aluno_id', topIds).order('created_at', { ascending: false }),
   ])
@@ -57,7 +71,7 @@ export default async function MaisVisitadosSection() {
       athlete_id: p.athlete_id,
       foto: fotos[0] ?? p.avatar_url ?? null,
       ovr: ovrByUuid.get(p.id) ?? null,
-      categoria: null,
+      categoria: calcCategoria((p as Record<string,unknown>).data_nascimento as string | null ?? null),
       atributos: atributosMap.get(p.id) ?? null,
     }
     return [card]

@@ -9,6 +9,20 @@ export const revalidate = 30
 
 const LIMIT = 12
 
+function calcCategoria(dataNasc: string | null): string | null {
+  if (!dataNasc) return null
+  const hoje = new Date()
+  const nasc = new Date(dataNasc)
+  let idade = hoje.getFullYear() - nasc.getFullYear()
+  const m = hoje.getMonth() - nasc.getMonth()
+  if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--
+  if (idade <= 13) return 'Sub-13'
+  if (idade <= 15) return 'Sub-15'
+  if (idade <= 17) return 'Sub-17'
+  if (idade <= 20) return 'Sub-20'
+  return 'Adulto'
+}
+
 export default async function RankingNacionalSection() {
   const admin = createAdminClient()
 
@@ -16,7 +30,7 @@ export default async function RankingNacionalSection() {
     fetchOvrMapByUuid(admin),
     admin
       .from('profiles')
-      .select('id, nome, posicao, athlete_id, avatar_url, fotos, criado_em')
+      .select('id, nome, posicao, athlete_id, avatar_url, fotos, criado_em, data_nascimento')
       .like('athlete_id', 'MC-%')
       .order('criado_em', { ascending: false })
       .limit(LIMIT),
@@ -54,7 +68,7 @@ export default async function RankingNacionalSection() {
       athlete_id: p.athlete_id,
       foto: fotos[0] ?? p.avatar_url ?? null,
       ovr: ovrByUuid.get(p.id) ?? null,
-      categoria: null,
+      categoria: calcCategoria((p as Record<string,unknown>).data_nascimento as string | null ?? null),
       atributos: atributosMap.get(p.id) ?? null,
     }
   })
