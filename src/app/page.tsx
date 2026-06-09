@@ -13,7 +13,7 @@ import CardExemplo from './components/CardExemplo'
 
 export default async function LandingPage() {
   return (
-    <div style={{ background: '#080808', color: 'white', fontFamily: 'system-ui, sans-serif' }}>
+    <div data-page="landing" style={{ background: '#080808', color: 'white', fontFamily: 'system-ui, sans-serif' }}>
 
       {/* ── 1. Header ── */}
       <NavBar />

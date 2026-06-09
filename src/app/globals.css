@@ -18,6 +18,20 @@ html, body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* ── iOS Safari: bloqueia rubber-band (espaço preto abaixo do footer) ──
+   overscroll-behavior-y: none impede o iOS de mostrar o fundo
+   do body além do conteúdo da página.
+   Na landing (data-page="landing"), re-habilitamos o auto para que
+   pull-to-refresh continue funcionando — o fundo da landing é #080808
+   igual ao body, então o rubber-band fica invisível mesmo com auto.
+────────────────────────────────────────────────────────────────────── */
+body {
+  overscroll-behavior-y: none;
+}
+body:has([data-page="landing"]) {
+  overscroll-behavior-y: auto;
+}
+
 /* ─────────────────────────────────────────────────────────────
    Mobile polish — applies globally to all MeuCraque pages
 ───────────────────────────────────────────────────────────── */
