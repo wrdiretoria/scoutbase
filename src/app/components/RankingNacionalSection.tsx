@@ -26,15 +26,6 @@ export default async function RankingNacionalSection() {
       .like('athlete_id', 'MC-%'),
   ])
 
-  const profileIds = profiles.map(p => p.id)
-  const avalRes = profileIds.length
-    ? await admin.from('avaliacoes').select('aluno_id, velocidade, tecnica, finalizacao, forca, visao_jogo, posicionamento').in('aluno_id', profileIds).order('created_at', { ascending: false })
-    : { data: [] }
-  const atributosMap = new Map<string, { vel:number|null; tec:number|null; dri:number|null; fis:number|null; tat:number|null; pos:number|null }>()
-  for (const row of (avalRes.data ?? []) as { aluno_id:string; velocidade:number|null; tecnica:number|null; finalizacao:number|null; forca:number|null; visao_jogo:number|null; posicionamento:number|null }[]) {
-    if (!atributosMap.has(row.aluno_id)) atributosMap.set(row.aluno_id, { vel: row.velocidade??null, tec: row.tecnica??null, dri: row.finalizacao??null, fis: row.forca??null, tat: row.visao_jogo??null, pos: row.posicionamento??null })
-  }
-
   const profiles = (profilesRes.data ?? []) as {
     id: string; nome: string | null; athlete_id: string | null
     avatar_url: string | null; fotos: (string | null)[] | null
@@ -44,6 +35,15 @@ export default async function RankingNacionalSection() {
   if (profiles.length === 0) return null
 
   const hasMore = (countRes.count ?? 0) > LIMIT
+
+  const profileIds = profiles.map(p => p.id)
+  const avalRes = profileIds.length
+    ? await admin.from('avaliacoes').select('aluno_id, velocidade, tecnica, finalizacao, forca, visao_jogo, posicionamento').in('aluno_id', profileIds).order('created_at', { ascending: false })
+    : { data: [] }
+  const atributosMap = new Map<string, { vel:number|null; tec:number|null; dri:number|null; fis:number|null; tat:number|null; pos:number|null }>()
+  for (const row of (avalRes.data ?? []) as { aluno_id:string; velocidade:number|null; tecnica:number|null; finalizacao:number|null; forca:number|null; visao_jogo:number|null; posicionamento:number|null }[]) {
+    if (!atributosMap.has(row.aluno_id)) atributosMap.set(row.aluno_id, { vel: row.velocidade??null, tec: row.tecnica??null, dri: row.finalizacao??null, fis: row.forca??null, tat: row.visao_jogo??null, pos: row.posicionamento??null })
+  }
 
   const initial: MaisCard[] = profiles.map(p => {
     const fotos = (p.fotos ?? []).filter((f): f is string => !!f)
