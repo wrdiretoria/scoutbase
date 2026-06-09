@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
-import html2canvas from 'html2canvas'
 import { getInitials } from '@/lib/cardUtils'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -47,7 +46,7 @@ export default function TreinadorCompartilharPage() {
   const [stats,     setStats]     = useState<Stats>({ av: 0, at: 0, dest: 0 })
   const [loading,   setLoading]   = useState(true)
 
-  const cardRef = useRef<HTMLDivElement>(null)
+  const cardRef = useRef<HTMLDivElement>(null) // mantido para referência visual
   const [sharing,     setSharing]     = useState(false)
   const [downloading, setDownloading] = useState(false)
   const [copied,      setCopied]      = useState(false)
@@ -106,42 +105,14 @@ export default function TreinadorCompartilharPage() {
     setSharing(false)
   }
 
-  // ── Download: html2canvas + limpeza total de side-effects de layout ──────
+  // ── Download: imagem gerada no servidor (sem html2canvas) ────────────────
   async function handleDownload() {
-    if (!cardRef.current) return
+    if (!treinador?.userId) return
     setDownloading(true)
-
-    // Salva estado do documento antes do html2canvas
-    const prevBodyHeight  = document.body.style.height
-    const prevBodyOverflow = document.body.style.overflow
-    const prevHtmlHeight  = document.documentElement.style.height
-    const prevHtmlOverflow = document.documentElement.style.overflow
-
     try {
-      const canvas = await html2canvas(cardRef.current, {
-        useCORS: true, allowTaint: false,
-        backgroundColor: '#0d0600',
-        scale: 2, logging: false, imageTimeout: 8000,
-        windowWidth: cardRef.current.offsetWidth,
-        windowHeight: cardRef.current.offsetHeight,
-      })
-
-      const blob: Blob = await new Promise(res => canvas.toBlob(b => res(b!), 'image/png'))
-
-      // Limpa canvas completamente
-      canvas.width = 0; canvas.height = 0
-      if (canvas.parentNode) canvas.parentNode.removeChild(canvas)
-
-      // Remove TODOS os canvas e iframes que html2canvas possa ter injetado
-      document.querySelectorAll('body > canvas, body > iframe[class*="html2canvas"]').forEach(el => el.remove())
-
-      // Restaura estilos do documento alterados pelo html2canvas
-      document.body.style.height   = prevBodyHeight
-      document.body.style.overflow = prevBodyOverflow
-      document.documentElement.style.height   = prevHtmlHeight
-      document.documentElement.style.overflow = prevHtmlOverflow
-
-      // Baixa o arquivo
+      const res = await fetch(`/api/treinador/card-image?id=${treinador.userId}`)
+      if (!res.ok) throw new Error('Erro ao gerar imagem')
+      const blob = await res.blob()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
@@ -149,7 +120,6 @@ export default function TreinadorCompartilharPage() {
       a.click()
       URL.revokeObjectURL(url)
     } catch { /* ignorar */ }
-
     setDownloading(false)
   }
 
