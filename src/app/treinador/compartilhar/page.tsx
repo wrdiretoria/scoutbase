@@ -9,7 +9,7 @@ import { getInitials } from '@/lib/cardUtils'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type Treinador = { nome: string; avatar_url?: string; especialidade?: string; cidade?: string; treinadorId?: string }
+type Treinador = { nome: string; avatar_url?: string; especialidade?: string; cidade?: string; treinadorId?: string; userId?: string }
 type Stats     = { av: number; at: number; dest: number }
 
 function calcularOVR(av: number, dest: number, temFoto: boolean, temEspecialidade: boolean): number {
@@ -67,6 +67,7 @@ export default function TreinadorCompartilharPage() {
         especialidade: (p?.especialidade as string) ?? user.user_metadata?.especialidade,
         cidade:        p?.cidade as string | undefined,
         treinadorId:   p?.athlete_id as string | undefined,
+        userId:        user.id,
       })
 
       try {
@@ -93,9 +94,8 @@ export default function TreinadorCompartilharPage() {
     setSharing(true)
     try {
       const nome  = treinador?.nome ?? 'Treinador'
-      const id    = treinador?.treinadorId ? treinador.treinadorId.replace(/^TR-/, '') : ''
-      const url   = `${window.location.origin}/treinador/${treinador?.treinadorId ?? ''}`
-      const texto = `⚽ ${nome} — Treinador OVR ${ovr} no Meu Craque!`
+      const url   = `${window.location.origin}/treinador/${treinador?.userId ?? ''}`
+      const texto = `⚽ ${nome} — Treinador no Meu Craque!\n`
       if (navigator.share) {
         await navigator.share({ title: `${nome} · Meu Craque`, text: texto, url })
       } else {
@@ -106,28 +106,50 @@ export default function TreinadorCompartilharPage() {
     setSharing(false)
   }
 
-  // ── Download: html2canvas + limpeza explícita do canvas ──────────────────
+  // ── Download: html2canvas + limpeza total de side-effects de layout ──────
   async function handleDownload() {
     if (!cardRef.current) return
     setDownloading(true)
+
+    // Salva estado do documento antes do html2canvas
+    const prevBodyHeight  = document.body.style.height
+    const prevBodyOverflow = document.body.style.overflow
+    const prevHtmlHeight  = document.documentElement.style.height
+    const prevHtmlOverflow = document.documentElement.style.overflow
+
     try {
       const canvas = await html2canvas(cardRef.current, {
         useCORS: true, allowTaint: false,
         backgroundColor: '#0d0600',
         scale: 2, logging: false, imageTimeout: 8000,
+        windowWidth: cardRef.current.offsetWidth,
+        windowHeight: cardRef.current.offsetHeight,
       })
-      const blob: Blob = await new Promise(res => canvas.toBlob(b => res(b!), 'image/png'))
-      // Limpa canvas para evitar que fique no DOM
-      canvas.width = 0; canvas.height = 0
 
+      const blob: Blob = await new Promise(res => canvas.toBlob(b => res(b!), 'image/png'))
+
+      // Limpa canvas completamente
+      canvas.width = 0; canvas.height = 0
+      if (canvas.parentNode) canvas.parentNode.removeChild(canvas)
+
+      // Remove TODOS os canvas e iframes que html2canvas possa ter injetado
+      document.querySelectorAll('body > canvas, body > iframe[class*="html2canvas"]').forEach(el => el.remove())
+
+      // Restaura estilos do documento alterados pelo html2canvas
+      document.body.style.height   = prevBodyHeight
+      document.body.style.overflow = prevBodyOverflow
+      document.documentElement.style.height   = prevHtmlHeight
+      document.documentElement.style.overflow = prevHtmlOverflow
+
+      // Baixa o arquivo
       const url = URL.createObjectURL(blob)
-      const a = Object.assign(document.createElement('a'), {
-        href: url,
-        download: `${(treinador?.nome ?? 'Treinador').replace(/\s+/g, '_')}_MeuCraque.png`,
-      })
-      document.body.appendChild(a); a.click()
-      setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url) }, 100)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${(treinador?.nome ?? 'Treinador').replace(/\s+/g, '_')}_MeuCraque.png`
+      a.click()
+      URL.revokeObjectURL(url)
     } catch { /* ignorar */ }
+
     setDownloading(false)
   }
 
@@ -160,6 +182,8 @@ export default function TreinadorCompartilharPage() {
       paddingTop: 'max(28px, env(safe-area-inset-top))',
       paddingBottom: 'max(40px, env(safe-area-inset-bottom))',
       fontFamily: 'system-ui, sans-serif',
+      overflowX: 'hidden',
+      overflowY: 'auto',
     }}>
 
       <style>{`
