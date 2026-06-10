@@ -27,13 +27,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Dados ausentes.' }, { status: 400 })
     }
 
-    // Validação de idade — atleta deve ter menos de 18 anos
+    // Validação de idade — atleta deve ter até 20 anos (Sub-20)
     const nasc  = new Date(dataNascimento)
     const hoje  = new Date()
     const idade = hoje.getFullYear() - nasc.getFullYear()
       - (hoje < new Date(hoje.getFullYear(), nasc.getMonth(), nasc.getDate()) ? 1 : 0)
-    if (idade >= 18) {
-      return NextResponse.json({ error: 'O Meu Craque é exclusivo para atletas do futebol de base (abaixo de 18 anos).' }, { status: 400 })
+    if (idade > 20) {
+      return NextResponse.json({ error: 'O Meu Craque é exclusivo para atletas do futebol de base (até Sub-20). Se você é treinador ou profissional, crie um perfil de treinador.' }, { status: 400 })
     }
 
     const admin = createAdminClient()

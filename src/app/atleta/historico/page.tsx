@@ -24,15 +24,15 @@ type DadosPerfil = {
 type AvaliacaoCompleta = {
   id:                  string
   velocidade:          number
-  visao:               number
+  visao_jogo:          number
   forca:               number
   finalizacao:         number
-  inteligencia_tatica: number
+  posicionamento:      number
   tecnica:             number
   nota_geral:          number
   observacao:          string | null
   created_at:          string
-  treinador_id:        string
+  professor_id:        string
   treinador_nome:      string
 }
 
@@ -185,11 +185,11 @@ export default function AtletaHistoricoPage() {
         const { data: avs } = await supabase
           .from('avaliacoes')
           .select('*')
-          .eq('profile_id', user.id)
+          .eq('aluno_id', user.id)
           .order('created_at', { ascending: true })
 
         if (avs && avs.length > 0) {
-          const trIds = [...new Set(avs.map(a => a.treinador_id))]
+          const trIds = [...new Set(avs.map(a => a.professor_id))]
           const { data: treinadores } = await supabase
             .from('profiles')
             .select('id, nome')
@@ -198,7 +198,7 @@ export default function AtletaHistoricoPage() {
           const trMap = new Map((treinadores ?? []).map(t => [t.id, t.nome as string]))
           setAvaliacoes(avs.map(av => ({
             ...(av as AvaliacaoCompleta),
-            treinador_nome: trMap.get(av.treinador_id) ?? 'Treinador',
+            treinador_nome: trMap.get(av.professor_id) ?? 'Treinador',
           })))
         }
       } catch { /* tabela ainda não criada */ }
@@ -597,10 +597,10 @@ export default function AtletaHistoricoPage() {
 
                 const ATTRS = [
                   { icon:'⚡', label:'Velocidade',   v: av.velocidade },
-                  { icon:'👁', label:'Visão',         v: av.visao },
+                  { icon:'👁', label:'Visão',         v: av.visao_jogo },
                   { icon:'💪', label:'Força',         v: av.forca },
                   { icon:'🎯', label:'Finalização',   v: av.finalizacao },
-                  { icon:'🧠', label:'Int. Tática',   v: av.inteligencia_tatica },
+                  { icon:'🧠', label:'Int. Tática',   v: av.posicionamento },
                   { icon:'⚽', label:'Técnica',       v: av.tecnica },
                 ]
 

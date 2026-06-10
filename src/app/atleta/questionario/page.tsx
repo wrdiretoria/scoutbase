@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
@@ -121,6 +121,14 @@ export default function QuestionarioPage() {
   const [respostas, setRespostas]   = useState<Respostas>({})
   const [saving, setSaving]         = useState(false)
   const [selected, setSelected]     = useState<string | null>(null)
+
+  // Auth guard — redireciona para login se não houver sessão
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) router.replace('/login')
+    })
+  }, [router])
 
   const total    = PERGUNTAS.length
   const pergunta = PERGUNTAS[step]
