@@ -124,7 +124,7 @@ export default function TreinadorCompartilharPage() {
   }
 
   async function handleCopy() {
-    try { await navigator.clipboard.writeText(window.location.origin); setCopied(true); setTimeout(() => setCopied(false), 3000) } catch { /* sem permissão */ }
+    try { await navigator.clipboard.writeText(`${window.location.origin}/treinador/${treinador?.userId ?? ''}`); setCopied(true); setTimeout(() => setCopied(false), 3000) } catch { /* sem permissão */ }
   }
 
   // ── Skeleton ──────────────────────────────────────────────────────────────

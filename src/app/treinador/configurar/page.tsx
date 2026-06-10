@@ -166,14 +166,15 @@ export default function TreinadorConfigurarPage() {
         body: JSON.stringify({
           userId,
           avatarUrl,
-          especialidade: especialidade || null,
-          cidade:        cidade        || null,
-          pais:          pais.trim()   || null,
-          bio:           bio           || null,
-          instagram:     instagram.replace(/^@/, '').trim() || null,
-          tiktok:        tiktok.replace(/^@/, '').trim()    || null,
-          youtube:       youtube.replace(/^@/, '').trim()   || null,
-          outras:        outras.trim()                       || null,
+          especialidade:  especialidade        || null,
+          cidade:         cidade               || null,
+          pais:           pais.trim()          || null,
+          bio:            bio                  || null,
+          anos_exp:       anosExp              || null,
+          instagram:      instagram.replace(/^@/, '').trim() || null,
+          tiktok:         tiktok.replace(/^@/, '').trim()    || null,
+          youtube:        youtube.replace(/^@/, '').trim()   || null,
+          outras:         outras.trim()                       || null,
         }),
       })
 

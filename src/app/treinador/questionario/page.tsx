@@ -135,11 +135,17 @@ export default function TreinadorQuestionarioPage() {
       setStep(s => s + 1)
     } else {
       setSaving(true)
-      const supabase = createClient()
-      await supabase.auth.updateUser({
-        data: { questionario_treinador: novas, questionario_treinador_completo: true },
-      })
-      router.push('/treinador/curriculo?questionario=ok')
+      try {
+        const supabase = createClient()
+        const { error } = await supabase.auth.updateUser({
+          data: { questionario_treinador: novas, questionario_treinador_completo: true },
+        })
+        if (error) throw error
+        router.push('/treinador/curriculo?questionario=ok')
+      } catch (err) {
+        console.error('[questionario-treinador]', err)
+        setSaving(false)
+      }
     }
   }
 

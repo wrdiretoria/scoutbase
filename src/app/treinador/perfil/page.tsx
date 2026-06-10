@@ -131,17 +131,17 @@ export default function TreinadorPerfilPage() {
         const { count: av } = await supabase
           .from('avaliacoes')
           .select('*', { count: 'exact', head: true })
-          .eq('treinador_id', user.id)
+          .eq('professor_id', user.id)
 
         const { count: at } = await supabase
           .from('avaliacoes')
-          .select('atleta_id', { count: 'exact', head: true })
-          .eq('treinador_id', user.id)
+          .select('aluno_id', { count: 'exact', head: true })
+          .eq('professor_id', user.id)
 
         const { count: de } = await supabase
           .from('avaliacoes')
           .select('*', { count: 'exact', head: true })
-          .eq('treinador_id', user.id)
+          .eq('professor_id', user.id)
           .gte('nota_geral', 70)
 
         setMetricas({ avaliacoes: av ?? 0, atletas: at ?? 0, destaques: de ?? 0 })

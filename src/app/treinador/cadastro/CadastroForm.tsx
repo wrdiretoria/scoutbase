@@ -183,6 +183,7 @@ export default function CadastroForm({ isEscola }: { isEscola: boolean }) {
         })
       } catch (e) { console.warn('[aceite-termos]', e) }
 
+      setLoading(false)
       router.push('/treinador/bem-vindo')
 
     } catch (err) {
