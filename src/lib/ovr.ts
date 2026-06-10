@@ -46,15 +46,12 @@ function calcProfileScore(p: ProfileRow, meta: UserMeta): number {
   return score  // 0–100
 }
 
-function calcOvr(profileScore: number, trainerAvg: number | null): number {
-  // Perfil vale até 50 OVR (0–100 pts × 0.5)
-  const profileOvr = Math.round(profileScore * 0.5)
+function calcOvr(profileScore: number, trainerAvg: number | null): number | null {
+  // Sem avaliação oficial: OVR não existe
+  if (trainerAvg === null) return null
 
-  if (trainerAvg === null) {
-    // Sem avaliação: máx 50 OVR
-    return profileOvr
-  }
   // Com avaliação: perfil (0–50) + avaliação (0–50) = max 100 OVR
+  const profileOvr = Math.round(profileScore * 0.5)
   const trainerOvr = Math.round(trainerAvg * 0.5)
   return profileOvr + trainerOvr
 }
@@ -113,7 +110,7 @@ export async function fetchOvrMap(admin: SupabaseClient): Promise<Map<string, nu
       : null
 
     const ovr = calcOvr(profileScore, trainerAvg)
-    map.set(profile.athlete_id, ovr)
+    if (ovr !== null) map.set(profile.athlete_id, ovr)
   }
 
   return map
@@ -169,7 +166,8 @@ export async function fetchOvrMapByUuid(admin: SupabaseClient): Promise<Map<stri
         const trainerAvg   = scores && scores.length > 0
           ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
           : null
-        result[profile.id] = calcOvr(profileScore, trainerAvg)
+        const ovr = calcOvr(profileScore, trainerAvg)
+        if (ovr !== null) result[profile.id] = ovr
       }
 
       return result

@@ -88,17 +88,6 @@ function getInitials(nome: string) {
   return nome.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase()
 }
 
-function calcularOVRPerfil(t: {
-  temFoto: boolean; temBio: boolean; temFisico: boolean; temClube: boolean
-}): number {
-  let s = 0.50
-  if (t.temFoto)   s += 0.15
-  if (t.temBio)    s += 0.15
-  if (t.temFisico) s += 0.10
-  if (t.temClube)  s += 0.10
-  return Math.round(Math.min(s, 1.0) * 50)
-}
-
 function notaColor(n: number): string {
   if (n >= 80) return '#00FF88'
   if (n >= 65) return '#22c55e'
@@ -219,13 +208,11 @@ export default function AtletaHistoricoPage() {
   }, [router])
 
   // ── Derived values ────────────────────────────────────────────────────────
-  const ovrPerfil    = dados ? calcularOVRPerfil(dados) : 0
-  const ovrAvaliacao = avaliacoes.length > 0
-    ? Math.round((avaliacoes[avaliacoes.length - 1].nota_geral / 100) * 50)
-    : 0
-  const ovrTotal     = ovrPerfil + ovrAvaliacao
+  const ovrAtual = avaliacoes.length > 0
+    ? avaliacoes[avaliacoes.length - 1].nota_geral
+    : null
 
-  const animOvr = useCounter(ovrTotal, 400, 1000)
+  const animOvr = useCounter(ovrAtual ?? 0, 400, 1000)
 
   // ── Loading — skeleton ───────────────────────────────────────────────────
   if (loading) {
@@ -279,8 +266,8 @@ export default function AtletaHistoricoPage() {
       tipo:        'avaliacao',
       date:        av.created_at,
       av,
-      ovrAvAntes:  idx === 0 ? 0 : Math.round((avaliacoes[idx - 1].nota_geral / 100) * 50),
-      ovrAvDepois: Math.round((av.nota_geral / 100) * 50),
+      ovrAvAntes:  idx === 0 ? 0 : avaliacoes[idx - 1].nota_geral,
+      ovrAvDepois: av.nota_geral,
       isFirst:     idx === 0,
     })
   })
@@ -440,42 +427,35 @@ export default function AtletaHistoricoPage() {
           <div style={{
             display:'inline-flex', flexDirection:'column', alignItems:'center',
             padding:'22px 44px 18px',
-            background:'rgba(0,255,136,0.06)',
-            border:'1px solid rgba(0,255,136,0.2)',
+            background: ovrAtual !== null ? 'rgba(0,255,136,0.06)' : 'rgba(255,255,255,0.03)',
+            border: ovrAtual !== null ? '1px solid rgba(0,255,136,0.2)' : '1px solid rgba(255,255,255,0.08)',
             borderRadius:'22px',
             animation:'ovrIn .55s ease forwards .35s', opacity:0,
           }}>
-            <span style={{
-              fontSize:'64px', fontWeight:900, lineHeight:1,
-              letterSpacing:'-0.05em', color:'#00FF88',
-              textShadow:'0 0 48px rgba(0,255,136,0.55)',
-              fontVariantNumeric:'tabular-nums',
-            }}>
-              {animOvr}
-            </span>
-            <span style={{ fontSize:'9px', fontWeight:800, letterSpacing:'0.18em', color:'rgba(0,255,136,0.5)', textTransform:'uppercase', marginTop:'6px' }}>
-              OVR atual
-            </span>
-
-            {/* Breakdown */}
-            {ovrTotal > 0 && (
-              <div style={{ display:'flex', alignItems:'center', gap:'10px', marginTop:'14px' }}>
-                <div style={{ textAlign:'center' }}>
-                  <span style={{ display:'block', fontSize:'13px', fontWeight:800, color:'rgba(255,255,255,0.5)', fontVariantNumeric:'tabular-nums' }}>
-                    {ovrPerfil}
-                  </span>
-                  <span style={{ fontSize:'8px', color:'rgba(255,255,255,0.22)', textTransform:'uppercase', letterSpacing:'0.06em', fontWeight:700 }}>Perfil</span>
-                </div>
-                <span style={{ color:'rgba(255,255,255,0.2)', fontSize:'14px' }}>+</span>
-                <div style={{ textAlign:'center' }}>
-                  <span style={{ display:'block', fontSize:'13px', fontWeight:800, color: ovrAvaliacao > 0 ? '#00FF88' : 'rgba(255,255,255,0.2)', fontVariantNumeric:'tabular-nums' }}>
-                    {ovrAvaliacao}
-                  </span>
-                  <span style={{ fontSize:'8px', color: ovrAvaliacao > 0 ? 'rgba(0,255,136,0.4)' : 'rgba(255,255,255,0.15)', textTransform:'uppercase', letterSpacing:'0.06em', fontWeight:700 }}>
-                    Avaliação
-                  </span>
-                </div>
-              </div>
+            {ovrAtual !== null ? (
+              <>
+                <span style={{
+                  fontSize:'64px', fontWeight:900, lineHeight:1,
+                  letterSpacing:'-0.05em', color:'#00FF88',
+                  textShadow:'0 0 48px rgba(0,255,136,0.55)',
+                  fontVariantNumeric:'tabular-nums',
+                }}>
+                  {animOvr}
+                </span>
+                <span style={{ fontSize:'9px', fontWeight:800, letterSpacing:'0.18em', color:'rgba(0,255,136,0.5)', textTransform:'uppercase', marginTop:'6px' }}>
+                  OVR atual
+                </span>
+              </>
+            ) : (
+              <>
+                <span style={{ fontSize:'28px', lineHeight:1 }}>⏳</span>
+                <span style={{ fontSize:'12px', fontWeight:800, color:'rgba(255,255,255,0.4)', marginTop:'10px', letterSpacing:'0.04em' }}>
+                  AGUARDANDO AVALIAÇÃO
+                </span>
+                <span style={{ fontSize:'10px', color:'rgba(255,255,255,0.2)', marginTop:'6px', lineHeight:1.5, textAlign:'center', maxWidth:'160px' }}>
+                  Receba uma avaliação oficial para desbloquear seu OVR.
+                </span>
+              </>
             )}
           </div>
         </div>
@@ -592,8 +572,8 @@ export default function AtletaHistoricoPage() {
                 const cor   = notaColor(av.nota_geral)
                 const label = notaLabel(av.nota_geral)
                 const delta = ovrAvDepois - ovrAvAntes
-                const ovrAntes  = ovrPerfil + ovrAvAntes
-                const ovrDepois = ovrPerfil + ovrAvDepois
+                const ovrAntes  = ovrAvAntes
+                const ovrDepois = ovrAvDepois
 
                 const ATTRS = [
                   { icon:'⚡', label:'Velocidade',   v: av.velocidade },

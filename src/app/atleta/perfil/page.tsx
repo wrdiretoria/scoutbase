@@ -36,36 +36,6 @@ async function compressImage(file: File, maxPx = 900, quality = 0.82): Promise<B
 
 // calcularCategoria, getInitials, posAbrev, calcularIdade → importados de @/lib/cardUtils
 
-/**
- * OVR do perfil — pesos (soma = 100 → escala 0–50):
- *   Base (nome+pos+cidade+dob): 15 pts  sempre preenchidos
- *   Foto:            20 pts
- *   Questionário:    20 pts
- *   Clubes ant.:     15 pts
- *   Campeonatos:     10 pts
- *   Títulos:         10 pts
- *   Premiações:       5 pts
- *   Telefone:         5 pts
- */
-function calcularOVRPerfil(dados: {
-  temFoto:         boolean
-  temQuestionario: boolean
-  temClubes:       boolean
-  temCampeonatos:  boolean
-  temTitulos:      boolean
-  temPremiacoes:   boolean
-  temTelefone:     boolean
-}): number {
-  let pts = 15  // base sempre preenchida (nome + posição + data de nascimento)
-  if (dados.temFoto)         pts += 20
-  if (dados.temQuestionario) pts += 20
-  if (dados.temClubes)       pts += 15
-  if (dados.temCampeonatos)  pts += 10
-  if (dados.temTitulos)      pts += 10
-  if (dados.temPremiacoes)   pts += 5
-  if (dados.temTelefone)     pts += 5
-  return pts  // 0–100
-}
 
 function notaColor(n: number): string {
   if (n >= 80) return '#00FF88'
@@ -633,16 +603,8 @@ function AtletaPerfilContent() {
   const temPremiacoes   = curriculo.premiacoes.trim().length > 0
   const temTelefone     = curriculo.telefone.trim().length > 0
 
-  const ovrPerfil    = calcularOVRPerfil({
-    temFoto, temQuestionario, temClubes, temCampeonatos, temTitulos, temPremiacoes, temTelefone,
-  })
-  const ovrAvaliacao = avaliacao ? avaliacao.scout_score : null
-  // Perfil: 0–100 pts → 0–50 OVR | Avaliação: 0–100 pts → 0–50 OVR | Total: 0–100
-  const ovrPerfilOvr   = Math.round(ovrPerfil * 0.5)
-  const ovrAvaliacaoOvr = ovrAvaliacao !== null ? Math.round(ovrAvaliacao * 0.5) : null
-  const ovrTotal = ovrAvaliacaoOvr !== null
-    ? ovrPerfilOvr + ovrAvaliacaoOvr
-    : ovrPerfilOvr
+  // OVR existe apenas se houver avaliação oficial
+  const ovrTotal: number | null = avaliacao ? avaliacao.scout_score : null
 
   // ── Próximo Passo — sugestões baseadas no estado do perfil ────
   const passos: { icon: string; titulo: string; sub: string; href: string }[] = []
@@ -653,14 +615,14 @@ function AtletaPerfilContent() {
   if (!avaliacao)              passos.push({ icon: '📋', titulo: 'Receba uma avaliação oficial',  sub: 'Compartilhe seu ID com um treinador', href: '#solicitar' })
   if (highlights.length === 0) passos.push({ icon: '🎬', titulo: 'Adicione um highlight',         sub: 'Cole o link de um vídeo seu no YouTube, TikTok ou Instagram', href: '#highlights' })
   if (!temFoto)                passos.push({ icon: '📸', titulo: 'Adicione uma foto ao perfil',   sub: 'Perfis com foto têm muito mais visibilidade', href: '#foto' })
-  if (!temQuestionario)        passos.push({ icon: '⚡', titulo: 'Responda o questionário',        sub: 'Ganhe +12 pontos no seu OVR', href: '/atleta/questionario' })
+  if (!temQuestionario)        passos.push({ icon: '⚡', titulo: 'Responda o questionário',        sub: 'Mostre seu estilo de jogo para os scouts', href: '/atleta/questionario' })
   if (!temBio)                 passos.push({ icon: '📝', titulo: 'Escreva sua apresentação',       sub: 'Conte quem você é como atleta', href: '#curriculo' })
   if (!temFisico)              passos.push({ icon: '💪', titulo: 'Complete seus dados físicos',    sub: 'Altura, peso e pé dominante', href: '#curriculo' })
   if (!temClube)               passos.push({ icon: '⚽', titulo: 'Onde você treina agora?',         sub: 'Clube, escolinha, projeto ou nenhum lugar', href: '#curriculo' })
-  if (!temClubes)              passos.push({ icon: '🏟', titulo: 'Adicione clubes anteriores',     sub: '+15 OVR ao preencher', href: '#curriculo' })
-  if (!temCampeonatos)         passos.push({ icon: '🏆', titulo: 'Liste seus campeonatos',          sub: '+10 OVR ao preencher', href: '#curriculo' })
-  if (!temTitulos)             passos.push({ icon: '🥇', titulo: 'Adicione seus títulos',           sub: '+10 OVR ao preencher', href: '#curriculo' })
-  if (!temPremiacoes)          passos.push({ icon: '🏅', titulo: 'Premiações individuais',          sub: '+5 OVR — artilheiro, melhor goleiro...', href: '#curriculo' })
+  if (!temClubes)              passos.push({ icon: '🏟', titulo: 'Adicione clubes anteriores',     sub: 'Scouts querem ver sua trajetória', href: '#curriculo' })
+  if (!temCampeonatos)         passos.push({ icon: '🏆', titulo: 'Liste seus campeonatos',          sub: 'Mostre sua experiência competitiva', href: '#curriculo' })
+  if (!temTitulos)             passos.push({ icon: '🥇', titulo: 'Adicione seus títulos',           sub: 'Conquistas que contam sua história', href: '#curriculo' })
+  if (!temPremiacoes)          passos.push({ icon: '🏅', titulo: 'Premiações individuais',          sub: 'Artilheiro, melhor goleiro e outros...', href: '#curriculo' })
   const passosPrioritarios = passos.slice(0, 2)
 
   // ── Upload de foto ───────────────────────────────────────────
@@ -1044,7 +1006,7 @@ function AtletaPerfilContent() {
               display:'flex', flexDirection:'column', alignItems:'flex-start', gap:'4px',
               pointerEvents:'none',
             }}>
-              {ovrTotal > 0 && (
+              {ovrTotal !== null ? (
                 <>
                   <div style={{ display:'flex', alignItems:'center', gap:'6px' }}>
                     <span style={{
@@ -1053,7 +1015,6 @@ function AtletaPerfilContent() {
                     }}>
                       {ovrTotal}
                     </span>
-                    {/* Medalha por OVR */}
                     {ovrTotal >= 80 && (
                       <span style={{ fontSize:'22px', lineHeight:1, filter:'drop-shadow(0 0 6px #ffd70099)' }} title="Ouro — OVR ≥ 80">🥇</span>
                     )}
@@ -1068,16 +1029,14 @@ function AtletaPerfilContent() {
                     OVR
                   </span>
                 </>
-              )}
-              {/* Sem avaliação ou OVR < 40 — incentivo */}
-              {ovrTotal < 40 && (
+              ) : (
                 <div style={{
-                  marginTop:'4px', padding:'4px 8px', borderRadius:'8px',
+                  padding:'4px 8px', borderRadius:'8px',
                   background:'rgba(0,0,0,0.55)', border:'1px solid rgba(255,255,255,0.12)',
-                  fontSize:'9px', fontWeight:700, color:'rgba(255,255,255,0.6)',
-                  letterSpacing:'0.04em', maxWidth:'120px', lineHeight:1.4,
+                  fontSize:'9px', fontWeight:700, color:'rgba(255,255,255,0.55)',
+                  letterSpacing:'0.04em', maxWidth:'130px', lineHeight:1.4,
                 }}>
-                  Complete o perfil para ganhar medalha
+                  ⏳ Aguardando avaliação
                 </div>
               )}
             </div>
@@ -1208,49 +1167,29 @@ function AtletaPerfilContent() {
               </div>
             )}
 
-            {/* OVR breakdown */}
-            <div style={{ display:'flex', flexDirection:'column', gap:'8px' }}>
+            {/* OVR — avaliação oficial */}
+            {ovrTotal !== null ? (
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
                 <span style={{ fontSize:'10px', fontWeight:700, letterSpacing:'0.10em', color:'rgba(255,255,255,0.35)', textTransform:'uppercase' }}>
-                  Progresso do perfil
+                  OVR oficial
                 </span>
-                <span style={{ fontSize:'14px', fontWeight:900, color:'#00FF88', fontVariantNumeric:'tabular-nums' }}>
+                <span style={{ fontSize:'20px', fontWeight:900, color:'#00FF88', fontVariantNumeric:'tabular-nums', textShadow:'0 0 12px rgba(0,255,136,0.5)' }}>
                   {ovrTotal}<span style={{ fontSize:'9px', fontWeight:600, color:'rgba(255,255,255,0.25)', marginLeft:'2px' }}>/100</span>
                 </span>
               </div>
-              {/* Barra Perfil */}
-              <div style={{ display:'flex', flexDirection:'column', gap:'4px' }}>
-                <div style={{ display:'flex', justifyContent:'space-between' }}>
-                  <span style={{ fontSize:'9px', fontWeight:700, letterSpacing:'0.08em', color:'rgba(255,255,255,0.35)', textTransform:'uppercase' }}>Perfil</span>
-                  <span style={{ fontSize:'10px', fontWeight:800, color:'#22c55e', fontVariantNumeric:'tabular-nums' }}>{ovrPerfilOvr}/50</span>
+            ) : (
+              <div style={{ display:'flex', flexDirection:'column', gap:'6px' }}>
+                <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+                  <span style={{ fontSize:'16px', lineHeight:1 }}>⏳</span>
+                  <span style={{ fontSize:'11px', fontWeight:800, color:'rgba(255,255,255,0.6)', letterSpacing:'0.04em' }}>
+                    AGUARDANDO AVALIAÇÃO
+                  </span>
                 </div>
-                <div style={{ height:'4px', background:'rgba(255,255,255,0.08)', borderRadius:'3px', overflow:'hidden' }}>
-                  <div style={{
-                    height:'100%', borderRadius:'3px',
-                    background:'linear-gradient(90deg,#16a34a,#4ade80)',
-                    width:`${ovrPerfil}%`,
-                    transition:'width 1s ease',
-                    boxShadow:'0 0 6px rgba(0,255,136,0.5)',
-                  }} />
-                </div>
+                <p style={{ margin:0, fontSize:'10px', color:'rgba(255,255,255,0.3)', lineHeight:1.5 }}>
+                  Receba uma avaliação oficial para desbloquear seu OVR.
+                </p>
               </div>
-              {/* Barra Avaliação */}
-              <div style={{ display:'flex', flexDirection:'column', gap:'4px' }}>
-                <div style={{ display:'flex', justifyContent:'space-between' }}>
-                  <span style={{ fontSize:'9px', fontWeight:700, letterSpacing:'0.08em', color: ovrAvaliacao !== null ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.18)', textTransform:'uppercase' }}>Avaliação</span>
-                  <span style={{ fontSize:'10px', fontWeight:800, color: ovrAvaliacaoOvr !== null ? '#22c55e' : 'rgba(255,255,255,0.18)', fontVariantNumeric:'tabular-nums' }}>{ovrAvaliacaoOvr !== null ? `${ovrAvaliacaoOvr}/50` : '—/50'}</span>
-                </div>
-                <div style={{ height:'4px', background:'rgba(255,255,255,0.06)', borderRadius:'3px', overflow:'hidden' }}>
-                  <div style={{
-                    height:'100%', borderRadius:'3px',
-                    background:'linear-gradient(90deg,#16a34a,#00FF88)',
-                    width:`${ovrAvaliacao ?? 0}%`,
-                    transition:'width 1.2s ease',
-                    boxShadow:'0 0 6px rgba(0,255,136,0.5)',
-                  }} />
-                </div>
-              </div>
-            </div>
+            )}
 
             {/* ── ID no rodapé do card ── */}
             {athleteId && (
@@ -1860,9 +1799,6 @@ function AtletaPerfilContent() {
                 placeholder="(11) 99999-9999"
                 style={inputStyle}
               />
-              <p style={{ margin:'5px 0 0', fontSize:'11px', color:'rgba(0,255,136,0.4)' }}>
-                +5 OVR ao preencher
-              </p>
             </div>
 
             {/* ── Clubes anteriores ── */}
@@ -1875,9 +1811,6 @@ function AtletaPerfilContent() {
                 rows={2}
                 style={{ ...inputStyle, lineHeight:1.55 }}
               />
-              <p style={{ margin:'5px 0 0', fontSize:'11px', color:'rgba(0,255,136,0.4)' }}>
-                +15 OVR ao preencher
-              </p>
             </div>
 
             {/* ── Campeonatos ── */}
@@ -1890,9 +1823,6 @@ function AtletaPerfilContent() {
                 rows={2}
                 style={{ ...inputStyle, lineHeight:1.55 }}
               />
-              <p style={{ margin:'5px 0 0', fontSize:'11px', color:'rgba(0,255,136,0.4)' }}>
-                +10 OVR ao preencher
-              </p>
             </div>
 
             {/* ── Títulos ── */}
@@ -1905,9 +1835,6 @@ function AtletaPerfilContent() {
                 rows={2}
                 style={{ ...inputStyle, lineHeight:1.55 }}
               />
-              <p style={{ margin:'5px 0 0', fontSize:'11px', color:'rgba(0,255,136,0.4)' }}>
-                +10 OVR ao preencher
-              </p>
             </div>
 
             {/* ── Premiações individuais ── */}
@@ -1930,9 +1857,6 @@ function AtletaPerfilContent() {
                 rows={2}
                 style={{ ...inputStyle, lineHeight:1.55 }}
               />
-              <p style={{ margin:'5px 0 0', fontSize:'11px', color:'rgba(0,255,136,0.4)' }}>
-                +5 OVR ao preencher
-              </p>
             </div>
           </div>
 
@@ -2217,7 +2141,7 @@ function AtletaPerfilContent() {
 
                 {/* Linha 2: subtexto */}
                 <p style={{ margin:'0 0 14px', fontSize:'12px', color:'rgba(255,255,255,0.6)', lineHeight:1.65, paddingLeft:'36px' }}>
-                  Cada foto sobe seu OVR. Com 3 fotos você aparece no{' '}
+                  Mais fotos aumentam sua visibilidade. Com 3 fotos você aparece no{' '}
                   <span style={{ color:'rgba(34,197,94,0.85)', fontWeight:700 }}>feed ao vivo</span>{' '}
                   da home e fica visível para scouts.
                 </p>
@@ -2328,8 +2252,8 @@ function AtletaPerfilContent() {
                           <span style={{ fontSize:'9px', color:'rgba(255,255,255,0.25)', fontWeight:600, letterSpacing:'0.02em' }}>
                             Foto {slot + 1}
                           </span>
-                          <span style={{ fontSize:'9px', color:'#22c55e', fontWeight:800, letterSpacing:'0.04em' }}>
-                            +5 OVR
+                          <span style={{ fontSize:'9px', color:'rgba(255,255,255,0.3)', fontWeight:700, letterSpacing:'0.04em' }}>
+                            + Foto
                           </span>
                         </>
                       )}
@@ -2535,7 +2459,7 @@ function AtletaPerfilContent() {
               Questionário concluído!
             </p>
             <p style={{ margin: 0, fontSize: 12, color: 'rgba(0,0,0,0.6)', fontWeight: 600 }}>
-              Seu OVR foi atualizado com os novos pontos
+              Questionário salvo no seu perfil
             </p>
           </div>
         </div>

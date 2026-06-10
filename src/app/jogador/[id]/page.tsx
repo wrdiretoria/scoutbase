@@ -536,7 +536,10 @@ export default async function JogadorPublicoPage({ params }: Props) {
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
               }}>
                 <span style={{ fontSize: '8px', fontWeight: 800, color: 'rgba(0,255,136,0.75)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>OVR</span>
-                <span style={{ fontSize: '22px', fontWeight: 900, color: 'white', lineHeight: 1, letterSpacing: '-0.03em' }}>{ovr ?? '—'}</span>
+                {ovr !== null
+                  ? <span style={{ fontSize: '22px', fontWeight: 900, color: 'white', lineHeight: 1, letterSpacing: '-0.03em' }}>{ovr}</span>
+                  : <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.35)', lineHeight: 1.3, textAlign: 'center' }}>⏳ Aguardando{'\n'}avaliação</span>
+                }
               </div>
               {categoria ? (
                 <div style={{
@@ -776,9 +779,10 @@ export default async function JogadorPublicoPage({ params }: Props) {
                 background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
                 borderRadius: '14px', padding: '14px', textAlign: 'center',
               }}>
-                <p style={{ margin: '0 0 2px', fontSize: '18px', fontWeight: 900, color: ovr ? '#22c55e' : 'rgba(255,255,255,0.18)' }}>
-                  {ovr ?? '—'}
-                </p>
+                {ovr !== null
+                  ? <p style={{ margin: '0 0 2px', fontSize: '18px', fontWeight: 900, color: '#22c55e' }}>{ovr}</p>
+                  : <p style={{ margin: '0 0 2px', fontSize: '12px', fontWeight: 700, color: 'rgba(255,255,255,0.25)' }}>⏳ Aguardando</p>
+                }
                 <p style={{ margin: 0, fontSize: '10px', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Overall</p>
               </div>
             </div>
@@ -1027,7 +1031,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
         {/* ── Compartilhar ── */}
         <div style={{ marginTop: '10px', display: 'flex', gap: '10px' }}>
           <a
-            href={`https://wa.me/?text=${encodeURIComponent(`⚽ ${nome} – OVR ${ovr ?? '?'} no Meu Craque!\nConfira o perfil completo:\n${SERVER_BASE_URL}/jogador/${id}`)}`}
+            href={`https://wa.me/?text=${encodeURIComponent(`⚽ ${nome} no Meu Craque!\nConfira o perfil completo:\n${SERVER_BASE_URL}/jogador/${id}`)}`}
             target="_blank"
             rel="noopener noreferrer"
             style={{

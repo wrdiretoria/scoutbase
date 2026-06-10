@@ -49,29 +49,6 @@ function getInitials(nome: string) {
  *   ───────────────────────
  *   Total:        100 pts  → × 0.5 = 50 OVR máximo
  */
-function calcularOVRPerfil(
-  temFoto: boolean,
-  temQuestionario = false,
-  temClubes = false,
-  temCampeonatos = false,
-  temTitulos = false,
-  temTelefone = false,
-): number {
-  let pontos = 15  // base sempre preenchida
-  if (temFoto)          pontos += 20
-  if (temQuestionario)  pontos += 25
-  if (temClubes)        pontos += 15
-  if (temCampeonatos)   pontos += 10
-  if (temTitulos)       pontos += 10
-  if (temTelefone)      pontos += 5
-  return Math.round((pontos / 100) * 50)
-}
-
-function getStatus(ovrPerfil: number): string {
-  if (ovrPerfil >= 28) return 'Perfil em destaque'
-  if (ovrPerfil >= 18) return 'Atleta em evolução'
-  return 'Perfil em desenvolvimento'
-}
 
 // ── Canvas helpers ────────────────────────────────────────────────────────────
 
@@ -87,7 +64,7 @@ function rrect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h
 
 async function gerarCardCanvas(opts: {
   nome: string; posicao: string; cidade: string; categoria: string
-  ovr: number; athleteId: string; avatarUrl: string
+  ovr: number | null; athleteId: string; avatarUrl: string
 }): Promise<HTMLCanvasElement> {
   const { nome, posicao, cidade, categoria, ovr, athleteId, avatarUrl } = opts
   const W = 600, H = 800
@@ -138,7 +115,7 @@ async function gerarCardCanvas(opts: {
   ctx.save()
   ctx.font = '900 104px system-ui'; ctx.fillStyle = 'white'
   ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 20
-  ctx.fillText(String(ovr), 32, 116)
+  ctx.fillText(ovr !== null ? String(ovr) : '—', 32, 116)
   ctx.font = '900 20px system-ui'; ctx.fillStyle = '#00FF88'
   ctx.shadowColor = 'rgba(0,255,136,0.7)'; ctx.shadowBlur = 12
   ctx.fillText('OVR', 34, 142); ctx.restore()
@@ -305,14 +282,6 @@ function BemVindoContent() {
   const categoria  = dataNasc ? calcularCategoria(dataNasc) : ''
   const initials   = getInitials(nome)
   const posAbrev   = posLabel(posicao)
-  const ovrPerfil  = calcularOVRPerfil(!!avatarUrl)
-  const ovr        = ovrPerfil   // total = perfil + avaliação; avaliação=0 agora
-  // Quantos pontos de OVR o questionário ainda pode dar nesta sessão
-  const ovrGainQuest     = Math.round((25 / 100) * 50) // = 12
-  // Currículo: clubes(15) + campeonatos(10) + títulos(10) + telefone(5) = 40 pts → 20 OVR
-  const ovrGainCurriculo = Math.round((40 / 100) * 50) // = 20
-  const status     = getStatus(ovrPerfil)
-  const ovrAnim    = useCounter(ovr, 700, 900)
   const cardUrl    = uid ? `${window.location.origin}/jogador/${uid}` : window.location.origin
 
   const primeiroNome = nome.split(' ')[0]
@@ -636,61 +605,17 @@ function BemVindoContent() {
                   )}
                 </div>
 
-                {/* ── Progresso do perfil — cabeçalho + OVR total ── */}
-                <div style={{ marginTop:'16px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-                  <span style={{
-                    fontSize:'9px', fontWeight:800, letterSpacing:'0.16em',
-                    color:'rgba(255,255,255,0.25)', textTransform:'uppercase',
-                  }}>
-                    Progresso do perfil
-                  </span>
-                  <span style={{
-                    fontSize:'14px', fontWeight:900,
-                    color:'#00FF88', fontVariantNumeric:'tabular-nums',
-                    textShadow:'0 0 14px rgba(0,255,136,0.55)',
-                  }}>
-                    {ovrAnim}<span style={{ fontSize:'9px', fontWeight:700, color:'rgba(255,255,255,0.2)', marginLeft:'2px' }}>/100</span>
-                  </span>
-                </div>
-
-                {/* ── OVR Breakdown bars ── */}
-                <div style={{ marginTop:'10px', display:'flex', flexDirection:'column', gap:'9px' }}>
-
-                  {/* Perfil */}
-                  <div style={{ display:'flex', flexDirection:'column', gap:'5px' }}>
-                    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                      <span style={{ fontSize:'9px', fontWeight:700, letterSpacing:'0.10em', color:'rgba(255,255,255,0.42)', textTransform:'uppercase' }}>
-                        Perfil
-                      </span>
-                      <span style={{ fontSize:'10px', fontWeight:900, color:'#00FF88', fontVariantNumeric:'tabular-nums' }}>
-                        {ovrPerfil}/50
-                      </span>
-                    </div>
-                    <div style={{ height:'4px', background:'rgba(255,255,255,0.06)', borderRadius:'4px', overflow:'hidden' }}>
-                      <div style={{
-                        height:'100%', borderRadius:'4px',
-                        background:'linear-gradient(90deg,#00c864,#00FF88)',
-                        width:`${(ovrPerfil / 50) * 100}%`,
-                        transition:'width 1.2s cubic-bezier(.22,1,.36,1)',
-                        boxShadow:'0 0 8px rgba(0,255,136,0.6)',
-                      }} />
-                    </div>
+                {/* ── OVR — aguardando avaliação oficial ── */}
+                <div style={{ marginTop:'16px', display:'flex', flexDirection:'column', gap:'6px' }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
+                    <span style={{ fontSize:'14px', lineHeight:1 }}>⏳</span>
+                    <span style={{ fontSize:'10px', fontWeight:800, letterSpacing:'0.12em', color:'rgba(255,255,255,0.5)', textTransform:'uppercase' }}>
+                      Aguardando avaliação
+                    </span>
                   </div>
-
-                  {/* Avaliação */}
-                  <div style={{ display:'flex', flexDirection:'column', gap:'5px' }}>
-                    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-                      <span style={{ fontSize:'9px', fontWeight:700, letterSpacing:'0.10em', color:'rgba(255,255,255,0.18)', textTransform:'uppercase' }}>
-                        Avaliação
-                      </span>
-                      <span style={{ fontSize:'10px', fontWeight:900, color:'rgba(255,255,255,0.18)', fontVariantNumeric:'tabular-nums' }}>
-                        0/50
-                      </span>
-                    </div>
-                    <div style={{ height:'4px', background:'rgba(255,255,255,0.05)', borderRadius:'4px', overflow:'hidden' }}>
-                      <div style={{ height:'100%', width:'0%', borderRadius:'4px' }} />
-                    </div>
-                  </div>
+                  <p style={{ margin:0, fontSize:'10px', color:'rgba(255,255,255,0.25)', lineHeight:1.5 }}>
+                    Receba uma avaliação oficial para desbloquear seu OVR.
+                  </p>
                 </div>
 
                 {/* Watermark — Meu Craque + ID */}
@@ -765,7 +690,7 @@ function BemVindoContent() {
           margin:0, fontSize:'12px', color:'rgba(255,255,255,0.28)',
           textAlign:'center', lineHeight:1.7,
         }}>
-          Complete seu perfil e suba seu OVR.<br />Avaliação de treinador desbloqueia atributos.
+          Complete seu perfil para ser visto pelos scouts.<br />Uma avaliação oficial desbloqueia seu OVR.
         </p>
 
         {/* ── Status ── */}
@@ -782,7 +707,7 @@ function BemVindoContent() {
             animation:'dotPulse 2.2s ease-in-out infinite',
           }} />
           <p style={{ margin:0, fontSize:'13px', fontWeight:700, color:'rgba(255,255,255,0.7)' }}>
-            {status}
+            Perfil criado com sucesso
           </p>
         </div>
 
@@ -821,11 +746,7 @@ function BemVindoContent() {
                 margin: 0, fontSize: '12px',
                 color: 'rgba(255,255,255,0.42)', lineHeight: 1.5,
               }}>
-                Responda 10 perguntas rápidas e ganhe{' '}
-                <span style={{ color: 'rgba(0,255,136,0.75)', fontWeight: 700 }}>
-                  +{ovrGainQuest} pontos
-                </span>{' '}
-                no seu perfil
+                Mostre seu estilo de jogo para os scouts
               </p>
             </div>
 
@@ -871,11 +792,7 @@ function BemVindoContent() {
                 margin: 0, fontSize: '12px',
                 color: 'rgba(255,255,255,0.42)', lineHeight: 1.5,
               }}>
-                Clube, histórico e contato valem{' '}
-                <span style={{ color: 'rgba(96,165,250,0.85)', fontWeight: 700 }}>
-                  +{ovrGainCurriculo} pontos
-                </span>{' '}
-                — scouts precisam dessas info
+                Scouts precisam dessas informações para te encontrar
               </p>
             </div>
 
@@ -949,7 +866,7 @@ function BemVindoContent() {
                 const canvas = await gerarCardCanvas({
                   nome, posicao, cidade,
                   categoria: dataNasc ? calcularCategoria(dataNasc) : '',
-                  ovr, athleteId, avatarUrl: imgSrc,
+                  ovr: null, athleteId, avatarUrl: imgSrc,
                 })
                 setCardModal(canvas.toDataURL('image/png'))
               } catch {
