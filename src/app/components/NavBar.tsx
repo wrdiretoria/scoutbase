@@ -178,6 +178,23 @@ export default function NavBar() {
             overflowY: 'auto',
           }}
         >
+          {/* Campo de busca mobile */}
+          <form onSubmit={handleSearch} style={{ marginBottom: '8px' }}>
+            <input
+              className="nav-search-input"
+              type="search"
+              placeholder="Buscar atleta, posição, cidade ou ID"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              aria-label="Buscar atleta"
+              style={{
+                width: '100%', padding: '14px 18px', borderRadius: '14px', boxSizing: 'border-box',
+                background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)',
+                color: 'white', fontSize: '16px', outline: 'none',
+              }}
+            />
+          </form>
+
           {/* Nav links */}
           {navLinks.map((l, i) => (
             <Link

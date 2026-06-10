@@ -181,9 +181,9 @@ export default function RecuperarSenhaPage() {
               <div>
                 <label style={labelStyle}>Nova senha</label>
                 <input
-                  type="password" required minLength={6}
+                  type="password" required minLength={8}
                   value={novaSenha} onChange={e => setNovaSenha(e.target.value)}
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder="Mínimo 8 caracteres"
                   style={inputStyle}
                 />
               </div>
@@ -191,7 +191,7 @@ export default function RecuperarSenhaPage() {
               <div>
                 <label style={labelStyle}>Confirmar senha</label>
                 <input
-                  type="password" required minLength={6}
+                  type="password" required minLength={8}
                   value={confirmar} onChange={e => setConfirmar(e.target.value)}
                   placeholder="Repita a senha"
                   style={inputStyle}

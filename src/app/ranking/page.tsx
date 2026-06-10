@@ -53,10 +53,10 @@ const AVATAR_TIER: Record<number, { bg: string; color: string }> = {
 
 // ── Page ────────────────────────────────────────────────────────────────────
 
-type Props = { searchParams: Promise<{ categoria?: string; posicao?: string; cidade?: string; estado?: string; pais?: string }> }
+type Props = { searchParams: Promise<{ categoria?: string; posicao?: string; cidade?: string; estado?: string; pais?: string; q?: string }> }
 
 export default async function RankingPage({ searchParams }: Props) {
-  const { categoria: categoriaFiltro, posicao: posicaoFiltro, cidade: cidadeFiltro, estado: estadoFiltro, pais: paisFiltro } = await searchParams
+  const { categoria: categoriaFiltro, posicao: posicaoFiltro, cidade: cidadeFiltro, estado: estadoFiltro, pais: paisFiltro, q: buscaFiltro } = await searchParams
 
   const admin = createAdminClient()
 
@@ -115,12 +115,20 @@ export default async function RankingPage({ searchParams }: Props) {
     .sort((a, b) => b.ovr - a.ovr)
 
   // 5. Aplica filtros
+  const buscaLower = buscaFiltro?.toLowerCase().trim() ?? ''
   const filtered = ranking.filter(a => {
     if (categoriaFiltro && a.categoria !== categoriaFiltro) return false
     if (posicaoFiltro   && a.posicao   !== posicaoFiltro)   return false
     if (paisFiltro      && a.pais.toLowerCase() !== paisFiltro.toLowerCase()) return false
     if (estadoFiltro    && a.estado.toUpperCase() !== estadoFiltro.toUpperCase()) return false
     if (cidadeFiltro    && !a.cidade.toLowerCase().includes(cidadeFiltro.toLowerCase())) return false
+    if (buscaLower) {
+      const matchNome    = a.nome.toLowerCase().includes(buscaLower)
+      const matchPosicao = a.posicao.toLowerCase().includes(buscaLower)
+      const matchCidade  = a.cidade.toLowerCase().includes(buscaLower)
+      const matchId      = (a.athleteId ?? '').toLowerCase().includes(buscaLower)
+      if (!matchNome && !matchPosicao && !matchCidade && !matchId) return false
+    }
     return true
   })
 
@@ -164,11 +172,12 @@ export default async function RankingPage({ searchParams }: Props) {
           </h1>
           <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.4)' }}>
             {filtered.length} atleta{filtered.length !== 1 ? 's' : ''}
+            {buscaFiltro     ? ` · "${buscaFiltro}"`   : ''}
             {categoriaFiltro ? ` · ${categoriaFiltro}` : ''}
             {posicaoFiltro   ? ` · ${posicaoFiltro}`   : ''}
             {estadoFiltro    ? ` · ${estadoFiltro}`     : ''}
             {cidadeFiltro    ? ` · ${cidadeFiltro}`     : ''}
-            {!categoriaFiltro && !posicaoFiltro && !estadoFiltro && !cidadeFiltro ? ' · ranking geral' : ''}
+            {!buscaFiltro && !categoriaFiltro && !posicaoFiltro && !estadoFiltro && !cidadeFiltro ? ' · ranking geral' : ''}
           </p>
         </div>
 
@@ -247,7 +256,7 @@ export default async function RankingPage({ searchParams }: Props) {
             return (
               <Link
                 key={atleta.id}
-                href={`/atleta/${atleta.athleteId?.replace('MC-', '') ?? atleta.id}`}
+                href={`/jogador/${atleta.id}`}
                 className="rank-card"
                 style={{
                   display: 'flex', alignItems: 'center', gap: '14px',

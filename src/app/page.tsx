@@ -1,6 +1,24 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 
 export const revalidate = 60
+
+export const metadata: Metadata = {
+  title: 'MeuCraque — Plataforma de Futebol de Base',
+  description: 'Crie seu perfil de atleta, seja avaliado por treinadores e apareça no ranking nacional. A plataforma do futebol de base brasileiro.',
+  openGraph: {
+    title: 'MeuCraque — Plataforma de Futebol de Base',
+    description: 'Crie seu perfil de atleta, seja avaliado por treinadores e apareça no ranking nacional.',
+    url: 'https://meucraque.com',
+    siteName: 'MeuCraque',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'MeuCraque — Plataforma de Futebol de Base',
+    description: 'Crie seu perfil de atleta, seja avaliado por treinadores e apareça no ranking nacional.',
+  },
+}
 
 import NavBar from './components/NavBar'
 import CategoryNav from './components/CategoryNav'

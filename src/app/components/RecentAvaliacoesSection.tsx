@@ -65,7 +65,7 @@ export default function RecentAvaliacoesSection() {
                   ovr={e.ovr}
                   foto={e.fotos[0] ?? null}
                   posicao={e.posicao || null}
-                  categoria={e.cidade?.split(',')[0] || null}
+                  categoria={null}
                   atributos={e.atributos}
                   href={`/jogador/${e.atletaId}`}
                   athleteId={e.mcId}
