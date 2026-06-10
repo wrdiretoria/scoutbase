@@ -73,7 +73,7 @@ export default function NavBar() {
 
       {/* ─── MAIN NAV BAR ─── */}
       <nav style={{
-        position: 'fixed', top: '44px', left: 0, right: 0, zIndex: 200,
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200,
         height: '64px',
         background: 'rgba(6,16,10,0.92)',
         backdropFilter: 'blur(20px)',

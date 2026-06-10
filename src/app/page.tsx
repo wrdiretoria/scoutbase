@@ -34,16 +34,16 @@ export default async function LandingPage() {
   return (
     <div data-page="landing" style={{ background: '#080808', color: 'white', fontFamily: 'system-ui, sans-serif' }}>
 
-      {/* ── 0. Faixa superior ── */}
-      <TopBanner />
-
       {/* ── 1. Header ── */}
       <NavBar />
 
-      {/* Espaço abaixo do header fixo (44px faixa + 64px nav) */}
-      <div style={{ height: '108px' }} />
+      {/* Espaço abaixo do header fixo */}
+      <div style={{ height: '64px' }} />
 
-      {/* ── 2. Categorias horizontais ── */}
+      {/* ── 2. Faixa institucional ── */}
+      <TopBanner />
+
+      {/* ── 3. Categorias horizontais ── */}
       <CategoryNav />
 
       {/* ── 3. Atletas em Destaque ── */}
