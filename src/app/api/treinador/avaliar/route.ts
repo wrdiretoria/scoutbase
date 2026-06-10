@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
   // ── Verifica idade do atleta (bloqueia 18+) ──
   const { data: profileData } = await admin
     .from('profiles')
-    .select('data_nascimento, posicao')
+    .select('data_nascimento')
     .eq('id', profileId)
     .maybeSingle()
 
@@ -93,7 +93,8 @@ export async function POST(req: NextRequest) {
   }
 
   // ── Calcula os 6 atributos FIFA-style via calcAtributos ──
-  const posicaoAtleta = (profileData?.posicao as string | null) ?? 'Atacante'
+  // posicao está em user_metadata (não na tabela profiles)
+  const posicaoAtleta = (atletaUser?.user_metadata?.posicao as string | null) ?? 'Atacante'
   const atrs = calcAtributos(respostas, posicaoAtleta)
 
   // Mapeia VEL/TEC/DRI/FIS/TAT/POS para as colunas legadas do DB

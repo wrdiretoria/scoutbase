@@ -69,7 +69,7 @@ interface Pagamento {
   valor: number
   status: string
   created_at: string
-  link_pix: string | null
+  asaas_link: string | null
 }
 
 interface Observacao {

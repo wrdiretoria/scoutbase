@@ -60,6 +60,8 @@ const PUBLIC_API_PREFIXES = [
   '/api/atleta/recuperar-senha',
   '/api/atleta/gerar-id',
   '/api/atleta/card-data',
+  '/api/atleta/ovr',
+  '/api/atleta/visita',
   '/api/treinador/recuperar-id',
   '/api/pais/',
   '/api/cron/',

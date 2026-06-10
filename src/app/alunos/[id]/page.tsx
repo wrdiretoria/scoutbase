@@ -77,12 +77,12 @@ export default async function AlunoPerfilPage({ params }: Props) {
     valor: number
     status: string
     created_at: string
-    link_pix: string | null
+    asaas_link: string | null
   }[] = []
   try {
     const { data } = await supabase
       .from('pagamentos')
-      .select('id, valor, status, created_at, link_pix')
+      .select('id, valor, status, created_at, asaas_link')
       .eq('aluno_id', id)
       .order('created_at', { ascending: false })
     pagamentos = data ?? []
