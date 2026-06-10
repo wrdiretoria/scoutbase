@@ -20,6 +20,7 @@ export const metadata: Metadata = {
   },
 }
 
+import TopBanner from './components/TopBanner'
 import NavBar from './components/NavBar'
 import CategoryNav from './components/CategoryNav'
 import DestaquesSection from './components/DestaquesSection'
@@ -33,11 +34,14 @@ export default async function LandingPage() {
   return (
     <div data-page="landing" style={{ background: '#080808', color: 'white', fontFamily: 'system-ui, sans-serif' }}>
 
+      {/* ── 0. Faixa superior ── */}
+      <TopBanner />
+
       {/* ── 1. Header ── */}
       <NavBar />
 
-      {/* Espaço abaixo do header fixo */}
-      <div style={{ height: '64px' }} />
+      {/* Espaço abaixo do header fixo (44px faixa + 64px nav) */}
+      <div style={{ height: '108px' }} />
 
       {/* ── 2. Categorias horizontais ── */}
       <CategoryNav />
