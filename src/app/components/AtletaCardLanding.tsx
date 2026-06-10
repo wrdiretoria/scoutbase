@@ -30,6 +30,12 @@ function posAbrev(posicao: string | null | undefined): string {
   return posicao.slice(0, 3).toUpperCase()
 }
 
+function formatViews(v: number | null | undefined): string {
+  if (v == null || v === 0) return '0'
+  if (v >= 1000) return `${(v / 1000).toFixed(1).replace('.0', '')}k`
+  return String(v)
+}
+
 function toFifa(v: number | null | undefined): string {
   if (v == null) return '—'
   return String(Math.min(99, Math.max(0, Math.round(v))))
@@ -68,6 +74,7 @@ export default function AtletaCardLanding({
     posicao: string | null
     atributos: AtributosMap | null
     categoria: string | null
+    views: number | null
   } | null>(null)
 
   useEffect(() => {
@@ -83,6 +90,7 @@ export default function AtletaCardLanding({
   const resolvedPosicao   = posicao   ?? extraData?.posicao   ?? null
   const resolvedAtributos = atributos ?? extraData?.atributos ?? null
   const resolvedCategoria = categoria ?? extraData?.categoria ?? null
+  const resolvedViews     = extraData?.views ?? null
 
   const parts     = nome.trim().split(' ')
   const lastName  = (parts.length > 1 ? parts[parts.length - 1] : nome).toUpperCase()
@@ -216,9 +224,14 @@ export default function AtletaCardLanding({
             {mcIdNum ?? '—'}
           </div>
         </div>
-        {/* Bandeira + OVR */}
+        {/* Bandeira + views + OVR */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span style={{ fontSize: '13px' }}>🇧🇷</span>
+          {resolvedViews != null && (
+            <span style={{ fontSize: '9px', fontWeight: 600, color: 'rgba(255,255,255,0.38)', letterSpacing: '0.02em', whiteSpace: 'nowrap' }}>
+              👁 {formatViews(resolvedViews)}
+            </span>
+          )}
           <div style={{
             display: 'flex', alignItems: 'center', gap: '4px',
             padding: '3px 8px', borderRadius: '20px',

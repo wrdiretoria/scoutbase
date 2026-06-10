@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
   try {
     const admin = createAdminClient()
 
-    const [userRes, profileRes, avRes] = await Promise.all([
+    const [userRes, profileRes, avRes, viewsRes] = await Promise.all([
       admin.auth.admin.getUserById(id),
       admin.from('profiles').select('data_nascimento').eq('id', id).single(),
       admin
@@ -35,6 +35,7 @@ export async function GET(req: NextRequest) {
         .order('created_at', { ascending: false })
         .limit(1)
         .single(),
+      admin.from('visitas').select('*', { count: 'exact', head: true }).eq('atleta_id', id),
     ])
 
     const meta     = userRes.data?.user?.user_metadata as { posicao?: string } | undefined
@@ -55,6 +56,7 @@ export async function GET(req: NextRequest) {
       posicao,
       atributos,
       categoria: calcCategoria(dataNasc),
+      views: viewsRes.count ?? 0,
     }, {
       headers: { 'Cache-Control': 's-maxage=60, stale-while-revalidate=300' },
     })
