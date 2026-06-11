@@ -46,17 +46,17 @@ export default async function LandingPage() {
       {/* ── 3. Categorias horizontais ── */}
       <CategoryNav />
 
-      {/* ── 3. Atletas em Destaque ── */}
-      <DestaquesSection />
+      {/* ── 3. Novos Craques ── */}
+      <RankingNacionalSection />
 
       {/* ── 4. Mais Visitados ── */}
       <MaisVisitadosSection />
 
-      {/* ── 5. Recém Avaliados ── */}
-      <RecentAvaliacoesSection />
+      {/* ── 5. Atletas em Destaque ── */}
+      <DestaquesSection />
 
-      {/* ── 6. Ranking Nacional ── */}
-      <RankingNacionalSection />
+      {/* ── 6. Recém Avaliados ── */}
+      <RecentAvaliacoesSection />
 
       {/* ── 7. Treinadores na Plataforma ── */}
       <TreinadoresSection />
