@@ -46,11 +46,11 @@ export default async function LandingPage() {
       {/* ── 3. Categorias horizontais ── */}
       <CategoryNav />
 
-      {/* ── 3. Atletas em Destaque ── */}
-      <DestaquesSection />
-
-      {/* ── 4. Mais Visitados ── */}
+      {/* ── 3. Mais Visitados ── */}
       <MaisVisitadosSection />
+
+      {/* ── 4. Atletas em Destaque ── */}
+      <DestaquesSection />
 
       {/* ── 5. Recém Avaliados ── */}
       <RecentAvaliacoesSection />
