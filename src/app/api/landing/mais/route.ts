@@ -43,12 +43,12 @@ export async function GET(req: NextRequest) {
         fetchOvrMapByUuid(admin),
         admin
           .from('profiles')
-          .select('id, nome, posicao, athlete_id, avatar_url, fotos, data_nascimento')
+          .select('id, nome, athlete_id, avatar_url, fotos, data_nascimento')
           .like('athlete_id', 'MC-%')
           .limit(200),
       ])
       const profiles = (profilesRes.data ?? []) as {
-        id: string; nome: string | null; posicao: string | null
+        id: string; nome: string | null
         athlete_id: string | null; avatar_url: string | null
         fotos: (string | null)[] | null; data_nascimento: string | null
       }[]
@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
         return {
           id: p.id,
           nome: p.nome ?? 'Atleta',
-          posicao: p.posicao ?? null,
+          posicao: null,
           athlete_id: p.athlete_id,
           foto: fotos[0] ?? p.avatar_url ?? null,
           ovr: p.ovr,
@@ -96,12 +96,12 @@ export async function GET(req: NextRequest) {
       if (pageIds.length === 0) return NextResponse.json({ items: [], hasMore: false })
 
       const [profilesRes, ovrByUuid] = await Promise.all([
-        admin.from('profiles').select('id, nome, posicao, athlete_id, avatar_url, fotos').in('id', pageIds),
+        admin.from('profiles').select('id, nome, athlete_id, avatar_url, fotos').in('id', pageIds),
         fetchOvrMapByUuid(admin),
       ])
 
       const profileMap = new Map(
-        ((profilesRes.data ?? []) as { id: string; nome: string | null; posicao: string | null; athlete_id: string | null; avatar_url: string | null; fotos: (string | null)[] | null }[])
+        ((profilesRes.data ?? []) as { id: string; nome: string | null; athlete_id: string | null; avatar_url: string | null; fotos: (string | null)[] | null }[])
           .map(p => [p.id, p])
       )
 
@@ -113,7 +113,7 @@ export async function GET(req: NextRequest) {
           const card: MaisCard = {
             id: p.id,
             nome: p.nome ?? 'Atleta',
-            posicao: p.posicao ?? null,
+            posicao: null,
             athlete_id: p.athlete_id,
             foto: fotos[0] ?? p.avatar_url ?? null,
             ovr: ovrByUuid.get(p.id) ?? null,
@@ -131,14 +131,14 @@ export async function GET(req: NextRequest) {
         fetchOvrMapByUuid(admin),
         admin
           .from('profiles')
-          .select('id, nome, posicao, athlete_id, avatar_url, fotos, criado_em')
+          .select('id, nome, athlete_id, avatar_url, fotos, criado_em')
           .like('athlete_id', 'MC-%')
           .order('criado_em', { ascending: false })
           .range(offset, offset + limit - 1),
       ])
 
       const profiles = (profilesRes.data ?? []) as {
-        id: string; nome: string | null; posicao: string | null
+        id: string; nome: string | null
         athlete_id: string | null; avatar_url: string | null
         fotos: (string | null)[] | null; criado_em: string | null
       }[]
@@ -156,7 +156,7 @@ export async function GET(req: NextRequest) {
         return {
           id: p.id,
           nome: p.nome ?? 'Atleta',
-          posicao: p.posicao ?? null,
+          posicao: null,
           athlete_id: p.athlete_id,
           foto: fotos[0] ?? p.avatar_url ?? null,
           ovr: ovrByUuid.get(p.id) ?? null,
