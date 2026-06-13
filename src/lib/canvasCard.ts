@@ -1,7 +1,6 @@
 /**
- * canvasCard.ts — Card premium Meu Craque.
- * Inspirado em cartas lendárias EA FC / FIFA Ultimate Team.
- * 400 × 700 px, Canvas 2D.
+ * canvasCard.ts — Card Meu Craque, fiel ao design do AtletaCardLanding.
+ * 400 × 640 px, Canvas 2D, DPR 2x.
  */
 
 export type CanvasCardProps = {
@@ -25,7 +24,43 @@ export type CanvasCardProps = {
   statPhy?:      number | null
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────────
+// ── Tier — espelho de AtletaCardLanding ────────────────────────────────────────
+
+function getTier(ovr: number | null) {
+  if (ovr !== null && ovr >= 85) return { color: '#F5C518', bg: '#0e0b00', border: '#F5C51840', medal: '🥇' }
+  if (ovr !== null && ovr >= 70) return { color: '#bdbdbd', bg: '#0d0d0d', border: '#9e9e9e30', medal: '🥈' }
+  if (ovr !== null && ovr >= 50) return { color: '#cd7f32', bg: '#0c0800', border: '#cd7f3235', medal: '🥉' }
+  return                               { color: '#6b7280', bg: '#0a0a0a', border: '#6b728025', medal: null }
+}
+
+function hexToRgb(hex: string) {
+  const h = hex.replace('#', '')
+  const r = parseInt(h.slice(0,2), 16)
+  const g = parseInt(h.slice(2,4), 16)
+  const b = parseInt(h.slice(4,6), 16)
+  return { r, g, b }
+}
+
+function tagline(posicao: string | null | undefined): string {
+  const p = (posicao ?? '').toLowerCase()
+  if (p.includes('atacante') || p.includes('avante')) return 'NASCIDO PARA FAZER HISTÓRIA'
+  if (p.includes('meia') || p.includes('volante'))    return 'O JOGO PASSA PELOS SEUS PÉS'
+  if (p.includes('zagueiro') || p.includes('lateral')) return 'A MURALHA QUE NINGUÉM PASSA'
+  if (p.includes('goleiro'))                           return 'A ÚLTIMA BARREIRA'
+  return 'SEU TALENTO, SUA IDENTIDADE'
+}
+
+function posAbrev(posicao: string | null | undefined): string {
+  if (!posicao) return '—'
+  const p = posicao.toLowerCase()
+  if (p.includes('goleiro'))                              return 'GOL'
+  if (p.includes('lateral'))                             return 'LAT'
+  if (p.includes('zagueiro'))                            return 'ZAG'
+  if (p.includes('volante'))                             return 'VOL'
+  if (p.includes('meia') || p.includes('armador'))       return 'MEI'
+  if (p.includes('atacante') || p.includes('avante') || p.includes('ponta') || p.includes('centro')) return 'ATA'
+  return posicao.slice(0, 3).toUpperCase()
+}
 
 function loadImage(src: string): Promise<HTMLImageElement | null> {
   return new Promise(res => {
@@ -37,53 +72,18 @@ function loadImage(src: string): Promise<HTMLImageElement | null> {
   })
 }
 
-function hexPath(ctx: CanvasRenderingContext2D, cx: number, cy: number, r: number) {
+function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath()
-  for (let i = 0; i < 6; i++) {
-    const a = (Math.PI / 180) * (60 * i - 30)
-    i === 0 ? ctx.moveTo(cx + r * Math.cos(a), cy + r * Math.sin(a))
-            : ctx.lineTo(cx + r * Math.cos(a), cy + r * Math.sin(a))
-  }
+  ctx.moveTo(x + r, y)
+  ctx.lineTo(x + w - r, y)
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r)
+  ctx.lineTo(x + w, y + h - r)
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h)
+  ctx.lineTo(x + r, y + h)
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r)
+  ctx.lineTo(x, y + r)
+  ctx.quadraticCurveTo(x, y, x + r, y)
   ctx.closePath()
-}
-
-function octPath(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, c: number) {
-  ctx.beginPath()
-  ctx.moveTo(x + c, y);         ctx.lineTo(x + w - c, y)
-  ctx.lineTo(x + w, y + c);     ctx.lineTo(x + w, y + h - c)
-  ctx.lineTo(x + w - c, y + h); ctx.lineTo(x + c, y + h)
-  ctx.lineTo(x, y + h - c);     ctx.lineTo(x, y + c)
-  ctx.closePath()
-}
-
-function drawQRPattern(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, color: string) {
-  const cell = size / 9
-  ctx.fillStyle = '#050505'
-  ctx.beginPath(); ctx.rect(x, y, size, size); ctx.fill()
-  ctx.fillStyle = color
-  function b(cx: number, cy: number, w = 1, h = 1) {
-    ctx.fillRect(x + cx * cell + 0.5, y + cy * cell + 0.5, w * cell - 1, h * cell - 1)
-  }
-  b(0,0,3,1);b(0,1,1);b(2,1);b(0,2,3)
-  b(6,0,3,1);b(6,1);b(8,1);b(6,2,3)
-  b(0,6,3,1);b(0,7);b(2,7);b(0,8,3)
-  b(1,1);b(7,1);b(1,7)
-  const d:[number,number][] = [[4,1],[4,2],[3,3],[5,3],[4,4],[1,4],[3,4],[6,4],[8,4],[1,5],[3,5],[5,5],[7,5],[4,6],[6,6],[3,7],[5,7],[4,8],[6,8]]
-  for (const [cx,cy] of d) b(cx,cy)
-}
-
-function drawBrazilFlag(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number) {
-  ctx.save()
-  ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip()
-  ctx.fillStyle = '#009c3b'; ctx.fillRect(x, y, w, h)
-  ctx.fillStyle = '#ffdf00'
-  ctx.beginPath()
-  ctx.moveTo(x + w * 0.5, y + h * 0.08); ctx.lineTo(x + w * 0.96, y + h * 0.5)
-  ctx.lineTo(x + w * 0.5, y + h * 0.92); ctx.lineTo(x + w * 0.04, y + h * 0.5)
-  ctx.closePath(); ctx.fill()
-  ctx.fillStyle = '#002776'
-  ctx.beginPath(); ctx.arc(x + w * 0.5, y + h * 0.5, h * 0.28, 0, Math.PI * 2); ctx.fill()
-  ctx.restore()
 }
 
 // ── generateCard ───────────────────────────────────────────────────────────────
@@ -91,552 +91,277 @@ function drawBrazilFlag(ctx: CanvasRenderingContext2D, x: number, y: number, w: 
 export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardProps): Promise<void> {
   const ctx = canvas.getContext('2d')!
 
-  // Renderiza em 2x para nitidez — HiDPI / Retina
   const DPR = 2
-  const W = 400, H = 700
+  const W = 400, H = 640
   canvas.width  = W * DPR
   canvas.height = H * DPR
   ctx.scale(DPR, DPR)
 
-  const GOLD  = '#c8960c'
-  const GOLDF = '#ffd700'
-  const GREEN = '#00FF88'
-  const BG    = '#050505'
+  const tier = getTier(opts.ovr)
+  const { r: cr, g: cg, b: cb } = hexToRgb(tier.color)
 
-  // Tier
-  const ovr = opts.ovr ?? 0
-  let TC: string, TG: string, TL: string, OVR_COLOR: string
-  if      (ovr >= 80) { TC = GOLDF; TG = '#fff5c0'; TL = 'CARD OURO';   OVR_COLOR = GOLDF   }
-  else if (ovr >= 50) { TC = '#c0c8d0'; TG = '#eceff1'; TL = 'CARD PRATA';  OVR_COLOR = '#dce3ec' }
-  else                { TC = '#cd7f32'; TG = '#e8a060'; TL = 'CARD BRONZE'; OVR_COLOR = '#e8a060' }
+  const PAD = 24    // padding lateral do card
+  const RAD = 28    // border-radius externo
 
-  // ── 1. FUNDO PRETO ────────────────────────────────────────────────────────
-  ctx.fillStyle = BG
-  ctx.fillRect(0, 0, W, H)
+  // ── 1. FUNDO ────────────────────────────────────────────────────────────────
+  roundRect(ctx, 0, 0, W, H, RAD)
+  ctx.fillStyle = tier.bg
+  ctx.fill()
 
-  // ── 2. FUNDO TECNOLÓGICO ──────────────────────────────────────────────────
-
-  // Grade de pontos verdes (profundidade)
-  ctx.save()
-  ctx.globalAlpha = 0.04
-  for (let xi = 20; xi < W; xi += 28) {
-    for (let yi = 20; yi < H; yi += 28) {
-      ctx.fillStyle = GREEN
-      ctx.beginPath(); ctx.arc(xi, yi, 0.8, 0, Math.PI * 2); ctx.fill()
-    }
-  }
-  ctx.restore()
-
-  // Linhas energéticas diagonais
-  ctx.save()
-  ctx.globalAlpha = 0.06
-  ctx.strokeStyle = GREEN; ctx.lineWidth = 0.5
-  for (let i = -H; i < W + H; i += 44) {
-    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i + H * 0.7, H); ctx.stroke()
-  }
-  ctx.restore()
-
-  // Glow radial no centro (profundidade 3D)
-  ctx.save()
-  const radBg = ctx.createRadialGradient(W / 2, H * 0.38, 0, W / 2, H * 0.38, 260)
-  radBg.addColorStop(0,   `${GREEN}0a`)
-  radBg.addColorStop(0.5, `${GREEN}04`)
-  radBg.addColorStop(1,   'transparent')
-  ctx.fillStyle = radBg; ctx.fillRect(0, 0, W, H)
-  ctx.restore()
-
-  // ── 3. CRISTAIS DE CANTO ──────────────────────────────────────────────────
-
-  function drawCrystal(bx: number, by: number, angle: number, len: number, wid: number, alpha: number) {
-    ctx.save()
-    ctx.globalAlpha = alpha
-    ctx.translate(bx, by); ctx.rotate(angle)
-    ctx.shadowColor = GREEN; ctx.shadowBlur = 18
-    const g = ctx.createLinearGradient(0, 0, 0, len)
-    g.addColorStop(0,    GREEN + 'ee')
-    g.addColorStop(0.4,  GREEN + '88')
-    g.addColorStop(0.75, GREEN + '22')
-    g.addColorStop(1,    'transparent')
-    ctx.fillStyle = g
-    ctx.beginPath()
-    ctx.moveTo(0, 0); ctx.lineTo(-wid / 2, len * 0.3)
-    ctx.lineTo(0, len); ctx.lineTo(wid / 2, len * 0.3)
-    ctx.closePath(); ctx.fill()
-    ctx.restore()
-  }
-
-  // Cristais no canto superior direito
-  const CX = W - 30, CY = 60
-  ;[[-0.3,130,16,0.55],[0.15,155,20,0.65],[0.65,110,13,0.45],[-0.85,95,11,0.38],[1.2,80,9,0.30]].forEach(([a,l,w,al]) => drawCrystal(CX,CY,a,l,w,al))
-
-  // Cristais no canto inferior direito (menores)
-  const CX2 = W - 20, CY2 = H - 80
-  ;[[0.3,90,11,0.30],[-0.2,75,9,0.25],[0.8,65,8,0.20]].forEach(([a,l,w,al]) => drawCrystal(CX2,CY2,a,l,w,al))
-
-  // Partículas luminosas verdes
-  ctx.save()
-  const ptPositions = [
-    [W*0.85,H*0.06,2.2],[W*0.92,H*0.12,1.8],[W*0.78,H*0.04,1.5],
-    [W*0.97,H*0.20,1.6],[W*0.88,H*0.28,1.4],[W*0.93,H*0.08,2.0],
-    [W*0.75,H*0.16,1.3],[W*0.82,H*0.22,1.5],[W*0.96,H*0.35,1.2],
-  ]
-  for (const [px,py,pr] of ptPositions) {
-    ctx.globalAlpha = 0.7
-    ctx.shadowColor = GREEN; ctx.shadowBlur = 10
-    ctx.fillStyle = 'rgba(255,255,255,0.9)'
-    ctx.beginPath(); ctx.arc(px, py, pr, 0, Math.PI * 2); ctx.fill()
-  }
-  ctx.restore()
-
-  // ── 4. MOLDURA PREMIUM ────────────────────────────────────────────────────
-
-  // Borda exterior — glow tier
-  ctx.save()
-  octPath(ctx, 5, 5, W - 10, H - 10, 26)
-  ctx.shadowColor = TC; ctx.shadowBlur = 28
-  ctx.strokeStyle = TC; ctx.lineWidth = 2.5; ctx.stroke()
-  ctx.restore()
-
-  // Borda interior — linha fina tier (sem verde, uniforme)
-  ctx.save()
-  octPath(ctx, 12, 12, W - 24, H - 24, 20)
-  ctx.strokeStyle = TC + '30'; ctx.lineWidth = 1; ctx.stroke()
-  ctx.restore()
-
-  // Losangos apenas nas laterais (esquerda e direita) — sem topo/base
-  ctx.save()
-  const sidePts = [[W - 5, H / 2], [5, H / 2]]
-  for (const [cx, cy] of sidePts) {
-    ctx.save()
-    ctx.translate(cx, cy); ctx.rotate(Math.PI / 4)
-    ctx.shadowColor = TG; ctx.shadowBlur = 10
-    ctx.strokeStyle = TC + 'cc'; ctx.lineWidth = 1.5
-    ctx.strokeRect(-4, -4, 8, 8)
-    ctx.fillStyle = BG; ctx.fillRect(-3, -3, 6, 6)
-    ctx.restore()
-  }
-  // Linha fina na base
-  const baseGrad = ctx.createLinearGradient(40, 0, W - 40, 0)
-  baseGrad.addColorStop(0, 'transparent')
-  baseGrad.addColorStop(0.3, TC + '50')
-  baseGrad.addColorStop(0.7, TC + '50')
-  baseGrad.addColorStop(1, 'transparent')
-  ctx.strokeStyle = baseGrad; ctx.lineWidth = 1; ctx.shadowBlur = 0
-  ctx.beginPath(); ctx.moveTo(40, H - 16); ctx.lineTo(W - 40, H - 16); ctx.stroke()
-  ctx.restore()
-
-  // ── 5. BADGE — plaquinha limpa no topo ───────────────────────────────────
-  ctx.save()
-
-  const BH = 28, BY = 0
-  const BADGE_TEXT = `◇  ${TL}  ◇`
-
-  // Mede o texto para dimensionar o badge
-  ctx.font = 'bold 11px system-ui, sans-serif'
-  ctx.letterSpacing = '0.14em'
-  const BW = Math.max(160, ctx.measureText(BADGE_TEXT).width + 40)
-  const BX = (W - BW) / 2
-
-  // Fundo
-  const bBg = ctx.createLinearGradient(0, BY, 0, BY + BH)
-  bBg.addColorStop(0, '#1c1200'); bBg.addColorStop(1, '#100b00')
-
-  // Shape: trapézio — topo colado na moldura, base levemente mais larga
-  const TAPER = 8
-  ctx.beginPath()
-  ctx.moveTo(BX + TAPER, BY)           // top-left
-  ctx.lineTo(BX + BW - TAPER, BY)      // top-right
-  ctx.lineTo(BX + BW, BY + BH)         // base-right
-  ctx.lineTo(BX, BY + BH)              // base-left
-  ctx.closePath()
-
-  ctx.shadowColor = TG; ctx.shadowBlur = 20
-  ctx.fillStyle = bBg; ctx.fill()
-
-  // Borda principal — apenas os 3 lados (sem o topo)
-  ctx.beginPath()
-  ctx.moveTo(BX + TAPER, BY)
-  ctx.lineTo(BX, BY + BH)
-  ctx.lineTo(BX + BW, BY + BH)
-  ctx.lineTo(BX + BW - TAPER, BY)
-  ctx.shadowColor = TG; ctx.shadowBlur = 14
-  ctx.strokeStyle = TC; ctx.lineWidth = 1.5
+  // Borda
+  roundRect(ctx, 0, 0, W, H, RAD)
+  ctx.strokeStyle = tier.border
+  ctx.lineWidth = 2
   ctx.stroke()
 
-  // Linha fina de brilho interna no topo
-  ctx.shadowBlur = 0
-  ctx.strokeStyle = TG + '70'; ctx.lineWidth = 1
-  ctx.beginPath()
-  ctx.moveTo(BX + TAPER + 2, BY + 2)
-  ctx.lineTo(BX + BW - TAPER - 2, BY + 2)
+  // ── 2. TOPO: MC | medalha | posição ─────────────────────────────────────────
+  const TOP_Y = 20
+  const TOP_H = 52
+
+  // Bolinha MC
+  const MC_CX = PAD + 20, MC_CY = TOP_Y + TOP_H / 2
+  ctx.beginPath(); ctx.arc(MC_CX, MC_CY, 20, 0, Math.PI * 2)
+  ctx.fillStyle = `rgba(${cr},${cg},${cb},0.12)`
+  ctx.fill()
+  ctx.strokeStyle = `rgba(${cr},${cg},${cb},0.6)`
+  ctx.lineWidth = 1.5
   ctx.stroke()
-
-  // Linhas laterais estendidas (saem do badge para os lados)
-  const midY = BY + BH * 0.6
-  const lineGradL = ctx.createLinearGradient(14, 0, BX - 2, 0)
-  lineGradL.addColorStop(0, 'transparent'); lineGradL.addColorStop(1, TC + '70')
-  ctx.strokeStyle = lineGradL; ctx.lineWidth = 1
-  ctx.beginPath(); ctx.moveTo(14, midY); ctx.lineTo(BX - 2, midY); ctx.stroke()
-
-  const lineGradR = ctx.createLinearGradient(BX + BW + 2, 0, W - 14, 0)
-  lineGradR.addColorStop(0, TC + '70'); lineGradR.addColorStop(1, 'transparent')
-  ctx.strokeStyle = lineGradR
-  ctx.beginPath(); ctx.moveTo(BX + BW + 2, midY); ctx.lineTo(W - 14, midY); ctx.stroke()
-
-  // Texto — gradiente dourado
-  const tGrad = ctx.createLinearGradient(0, BY + 2, 0, BY + BH - 2)
-  tGrad.addColorStop(0, TG); tGrad.addColorStop(0.5, TC); tGrad.addColorStop(1, TG)
-  ctx.fillStyle = tGrad
-  ctx.shadowColor = TG; ctx.shadowBlur = 8
-  ctx.font = 'bold 11px system-ui, sans-serif'
-  ctx.letterSpacing = '0.14em'
+  ctx.fillStyle = tier.color
+  ctx.font = 'bold 13px system-ui, sans-serif'
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-  ctx.fillText(BADGE_TEXT, W / 2, BY + BH / 2 + 1)
+  ctx.fillText('MC', MC_CX, MC_CY)
 
-  ctx.restore()
+  // Medalha ou sem nada
+  if (tier.medal) {
+    ctx.font = '26px system-ui, sans-serif'
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+    ctx.fillText(tier.medal, W / 2, MC_CY)
+  }
 
-  // ── 6. FOTO ────────────────────────────────────────────────────────────────
+  // Pill posição
+  const POS_TEXT = posAbrev(opts.posicao || opts.pos)
+  ctx.font = 'bold 13px system-ui, sans-serif'
+  const pw = ctx.measureText(POS_TEXT).width + 24
+  const POS_X = W - PAD - pw, POS_Y = MC_CY - 15, POS_H = 30
+  roundRect(ctx, POS_X, POS_Y, pw, POS_H, 10)
+  ctx.fillStyle = `rgba(${cr},${cg},${cb},0.18)`
+  ctx.fill()
+  ctx.fillStyle = tier.color
+  ctx.font = 'bold 13px system-ui, sans-serif'
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+  ctx.fillText(POS_TEXT, POS_X + pw / 2, MC_CY)
+
+  // ── 3. FOTO ──────────────────────────────────────────────────────────────────
+  const PHOTO_X = PAD, PHOTO_Y = TOP_Y + TOP_H + 8
+  const PHOTO_W = W - PAD * 2, PHOTO_H = 210
+  const PHOTO_R = 18
+
+  roundRect(ctx, PHOTO_X, PHOTO_Y, PHOTO_W, PHOTO_H, PHOTO_R)
+  ctx.fillStyle = '#111'
+  ctx.fill()
+
   let img: HTMLImageElement | null = null
   if (opts.fotoUrl) img = await loadImage(opts.fotoUrl)
 
-  const PHOTO_TOP = 55, PHOTO_H = 400
-
   if (img) {
     ctx.save()
-    // Clip à zona da foto
-    octPath(ctx, 14, PHOTO_TOP, W - 28, PHOTO_H, 8)
+    roundRect(ctx, PHOTO_X, PHOTO_Y, PHOTO_W, PHOTO_H, PHOTO_R)
     ctx.clip()
-    const scale = Math.max((W - 28) / img.width, PHOTO_H / img.height)
+    const scale = Math.max(PHOTO_W / img.width, PHOTO_H / img.height)
     const dw = img.width * scale, dh = img.height * scale
-    const dx = (W - dw) / 2, dy = PHOTO_TOP + (PHOTO_H - dh) * 0.08
+    const dx = PHOTO_X + (PHOTO_W - dw) / 2
+    const dy = PHOTO_Y + (PHOTO_H - dh) * 0.1
     ctx.drawImage(img, dx, dy, dw, dh)
 
-    // Overlay cinema: escurece topo e base, abre centro
-    const cinTop = ctx.createLinearGradient(0, PHOTO_TOP, 0, PHOTO_TOP + 130)
-    cinTop.addColorStop(0, 'rgba(5,5,5,0.92)'); cinTop.addColorStop(1, 'rgba(5,5,5,0)')
-    ctx.fillStyle = cinTop; ctx.fillRect(0, PHOTO_TOP, W, 130)
-
-    const cinLeft = ctx.createLinearGradient(0, 0, 200, 0)
-    cinLeft.addColorStop(0, 'rgba(5,5,5,0.72)'); cinLeft.addColorStop(1, 'rgba(5,5,5,0)')
-    ctx.fillStyle = cinLeft; ctx.fillRect(0, PHOTO_TOP, 200, PHOTO_H)
-
-    const cinBot = ctx.createLinearGradient(0, PHOTO_TOP + PHOTO_H - 220, 0, PHOTO_TOP + PHOTO_H)
-    cinBot.addColorStop(0, 'rgba(5,5,5,0)')
-    cinBot.addColorStop(0.5, 'rgba(5,5,5,0.7)')
-    cinBot.addColorStop(1, 'rgba(5,5,5,1)')
-    ctx.fillStyle = cinBot; ctx.fillRect(0, PHOTO_TOP + PHOTO_H - 220, W, 220)
+    // Gradiente inferior sobre a foto
+    const grad = ctx.createLinearGradient(0, PHOTO_Y + PHOTO_H - 80, 0, PHOTO_Y + PHOTO_H)
+    grad.addColorStop(0, 'transparent')
+    grad.addColorStop(1, tier.bg)
+    ctx.fillStyle = grad
+    ctx.fillRect(PHOTO_X, PHOTO_Y, PHOTO_W, PHOTO_H)
     ctx.restore()
-
-    // Contorno luminoso verde ao redor do atleta (glow na borda da foto)
-    ctx.save()
-    octPath(ctx, 14, PHOTO_TOP, W - 28, PHOTO_H, 8)
-    ctx.shadowColor = GREEN; ctx.shadowBlur = 22
-    ctx.strokeStyle = GREEN + '33'; ctx.lineWidth = 2; ctx.stroke()
-    ctx.restore()
-
   } else {
-    // Sem foto — iniciais
+    // Iniciais
     ctx.save()
-    const iRad = ctx.createRadialGradient(W/2, PHOTO_TOP + PHOTO_H/2, 0, W/2, PHOTO_TOP + PHOTO_H/2, 130)
-    iRad.addColorStop(0, GREEN + '18'); iRad.addColorStop(1, 'transparent')
-    ctx.fillStyle = iRad; ctx.fillRect(0, PHOTO_TOP, W, PHOTO_H)
-    ctx.shadowColor = GREEN; ctx.shadowBlur = 40
-    ctx.fillStyle = GREEN + '88'
-    ctx.font = `bold 90px system-ui, sans-serif`
+    roundRect(ctx, PHOTO_X, PHOTO_Y, PHOTO_W, PHOTO_H, PHOTO_R)
+    ctx.clip()
+    const rad = ctx.createRadialGradient(W/2, PHOTO_Y + PHOTO_H/2, 0, W/2, PHOTO_Y + PHOTO_H/2, 120)
+    rad.addColorStop(0, `rgba(${cr},${cg},${cb},0.18)`)
+    rad.addColorStop(1, 'transparent')
+    ctx.fillStyle = rad
+    ctx.fillRect(PHOTO_X, PHOTO_Y, PHOTO_W, PHOTO_H)
+    ctx.font = `bold 72px system-ui, sans-serif`
+    ctx.fillStyle = `rgba(${cr},${cg},${cb},0.55)`
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-    ctx.fillText(opts.initials, W / 2, PHOTO_TOP + PHOTO_H / 2)
+    ctx.fillText(opts.initials, W/2, PHOTO_Y + PHOTO_H/2)
     ctx.restore()
   }
 
-  // ── 7. GRADIENTE DE LEITURA — canto superior esquerdo ────────────────────
-  ctx.save()
-  const readGrad = ctx.createRadialGradient(0, PHOTO_TOP, 0, 170, PHOTO_TOP + 160, 200)
-  readGrad.addColorStop(0,   'rgba(0,0,0,0.78)')
-  readGrad.addColorStop(0.5, 'rgba(0,0,0,0.42)')
-  readGrad.addColorStop(1,   'rgba(0,0,0,0)')
-  ctx.fillStyle = readGrad
-  ctx.fillRect(0, PHOTO_TOP, 200, 180)
-  ctx.restore()
-
-  // ── 8. BLOCO SUPERIOR ESQUERDO — hierarquia limpa ────────────────────────
-  //
-  //  [OVR]          ← label 10px, muted
-  //  [  4 0  ]      ← número dominante, tier color
-  //  [○MC  MEU CRAQUE] ← logo pequeno abaixo
-
-  const INFO_X = 16
-  const INFO_Y = PHOTO_TOP + 14
-
-  // Linha "OVR"
-  ctx.save()
-  ctx.textAlign = 'left'; ctx.textBaseline = 'top'
-  ctx.fillStyle = 'rgba(255,255,255,0.50)'
-  ctx.font = '600 10px system-ui, sans-serif'
-  ctx.letterSpacing = '0.18em'
-  ctx.fillText('OVR', INFO_X, INFO_Y)
-  ctx.restore()
-
-  // Número OVR — elemento dominante
-  ctx.save()
-  ctx.textAlign = 'left'; ctx.textBaseline = 'top'
-  ctx.shadowColor = OVR_COLOR; ctx.shadowBlur = 32
-  ctx.fillStyle = OVR_COLOR
-  ctx.font = 'bold 84px system-ui, -apple-system, sans-serif'
-  ctx.fillText(opts.ovr ? String(opts.ovr) : '—', INFO_X - 2, INFO_Y + 12)
-  ctx.restore()
-
-  // Logo MC + MEU CRAQUE — abaixo do número
-  const MC_Y = INFO_Y + 104
-  ctx.save()
-  // Círculo MC
-  ctx.shadowColor = GREEN; ctx.shadowBlur = 10
-  ctx.fillStyle = 'rgba(0,255,136,0.12)'
-  ctx.strokeStyle = GREEN + '90'; ctx.lineWidth = 1.5
-  ctx.beginPath(); ctx.arc(INFO_X + 10, MC_Y + 10, 10, 0, Math.PI * 2); ctx.fill(); ctx.stroke()
-  ctx.shadowBlur = 0
-  ctx.fillStyle = GREEN
-  ctx.font = 'bold 8px system-ui, sans-serif'
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-  ctx.fillText('MC', INFO_X + 10, MC_Y + 10)
-  // Texto MEU CRAQUE
-  ctx.textAlign = 'left'; ctx.textBaseline = 'middle'
-  ctx.fillStyle = 'rgba(255,255,255,0.75)'
-  ctx.font = 'bold 9px system-ui, sans-serif'
-  ctx.fillText('MEU CRAQUE', INFO_X + 26, MC_Y + 10)
-  ctx.restore()
-
-  // ── 9. GRADIENTE INFERIOR — leitura do nome ──────────────────────────────
-  const PHOTO_END = PHOTO_TOP + PHOTO_H
-  ctx.save()
-  const nameGrad = ctx.createLinearGradient(0, PHOTO_END - 120, 0, PHOTO_END)
-  nameGrad.addColorStop(0,   'rgba(0,0,0,0)')
-  nameGrad.addColorStop(0.4, 'rgba(0,0,0,0.55)')
-  nameGrad.addColorStop(1,   'rgba(0,0,0,0.88)')
-  ctx.fillStyle = nameGrad
-  ctx.fillRect(0, PHOTO_END - 120, W, 120)
-  ctx.restore()
-
-  // ── 10. NOME DO ATLETA ────────────────────────────────────────────────────
-  const NAME_LAST_BASE  = PHOTO_END - 14
-  const NAME_FIRST_BASE = NAME_LAST_BASE - 50
-
+  // ── 4. NOME ──────────────────────────────────────────────────────────────────
+  const NAME_Y = PHOTO_Y + PHOTO_H + 10
   const parts    = opts.nome.trim().split(' ')
   const lastName  = (parts.length > 1 ? parts[parts.length - 1] : opts.nome).toUpperCase()
-  const firstName = (parts.length > 1 ? parts.slice(0, -1).join(' ') : '').toUpperCase()
+  const firstName = (parts.length > 1 ? parts[0] : '').toUpperCase()
 
-  ctx.save()
-  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'
-
-  if (firstName) {
-    ctx.fillStyle = '#ffffff'
-    ctx.font = 'bold 26px system-ui, sans-serif'
-    ctx.shadowColor = 'rgba(0,0,0,0.95)'; ctx.shadowBlur = 6
-    ctx.fillText(firstName, 18, NAME_FIRST_BASE)
-  }
-
-  // Sobrenome — cor do tier, com glow
-  ctx.shadowColor = TC; ctx.shadowBlur = 20
-  ctx.fillStyle = TC
-  ctx.font = 'bold 54px system-ui, -apple-system, sans-serif'
-  let ln = lastName
-  ctx.font = 'bold 54px system-ui, -apple-system, sans-serif'
-  while (ctx.measureText(ln).width > W - 28 && ln.length > 3) ln = ln.slice(0, -1)
-  if (ln !== lastName) ln += '…'
-  ctx.fillText(ln, 16, NAME_LAST_BASE)
-  ctx.restore()
-
-  // ── helper: painel com gradiente premium ─────────────────────────────────
-  function drawPanel(y: number, h: number) {
-    ctx.save()
-    const bg = ctx.createLinearGradient(0, y, 0, y + h)
-    bg.addColorStop(0, '#121212'); bg.addColorStop(1, '#090909')
-    octPath(ctx, 14, y, W - 28, h, 7)
-    ctx.fillStyle = bg; ctx.fill()
-    // borda tier
-    ctx.shadowColor = TC; ctx.shadowBlur = 6
-    ctx.strokeStyle = TC + '38'; ctx.lineWidth = 1
-    ctx.stroke()
-    // linha de brilho superior
-    ctx.shadowColor = TC; ctx.shadowBlur = 4
-    ctx.strokeStyle = TC + '65'; ctx.lineWidth = 1
-    ctx.beginPath(); ctx.moveTo(28, y + 1); ctx.lineTo(W - 28, y + 1); ctx.stroke()
-    ctx.restore()
-  }
-
-  // ── 10. BLOCO IDENTIFICAÇÃO ───────────────────────────────────────────────
-  const ID_Y = PHOTO_END + 8, ID_H = 52
-  const QR_SIZE = 46, QR_X = W - 14 - QR_SIZE
-
-  drawPanel(ID_Y, ID_H)
-
-  ctx.save()
   ctx.textAlign = 'left'; ctx.textBaseline = 'top'
-  ctx.fillStyle = 'rgba(255,255,255,0.32)'
-  ctx.font = '700 9px system-ui, sans-serif'
-  ctx.letterSpacing = '0.12em'
-  ctx.fillText('ID ÚNICO', 24, ID_Y + 9)
-  ctx.shadowColor = GREEN; ctx.shadowBlur = 14
-  ctx.fillStyle = GREEN
-  ctx.font = 'bold 22px system-ui, sans-serif'
-  ctx.fillText((opts.athleteId ?? '—').replace(/^[A-Z]+-/, ''), 24, ID_Y + 22)
 
-  // Divisor vertical
-  ctx.shadowBlur = 0; ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1
-  ctx.beginPath(); ctx.moveTo(100, ID_Y + 10); ctx.lineTo(100, ID_Y + ID_H - 10); ctx.stroke()
-
-  // Bandeira + país
-  drawBrazilFlag(ctx, 110, ID_Y + ID_H / 2 - 10, 28, 20)
-  ctx.fillStyle = 'rgba(255,255,255,0.78)'
-  ctx.font = 'bold 12px system-ui, sans-serif'
-  ctx.textAlign = 'left'; ctx.textBaseline = 'middle'
-  ctx.fillText('BRASIL', 145, ID_Y + ID_H / 2)
-  ctx.restore()
-
-  // QR code — maior e mais nítido
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=128x128&data=${encodeURIComponent(opts.profileUrl)}&color=00FF88&bgcolor=121212&margin=1`
-  const qrImg = await loadImage(qrUrl)
-  if (qrImg) {
-    ctx.save()
-    ctx.beginPath(); ctx.rect(QR_X, ID_Y + 3, QR_SIZE, ID_H - 6); ctx.clip()
-    ctx.drawImage(qrImg, QR_X, ID_Y + 3, QR_SIZE, ID_H - 6)
-    ctx.restore()
-  } else {
-    drawQRPattern(ctx, QR_X, ID_Y + 3, QR_SIZE - 2, GREEN + 'cc')
-  }
-
-  // ── 11. ATRIBUTOS ─────────────────────────────────────────────────────────
-  const STATS_Y = ID_Y + ID_H + 5, STATS_H = 56
-
-  drawPanel(STATS_Y, STATS_H)
-
-  const toStat = (v: number | null | undefined) => v != null ? Math.min(99, Math.max(0, Math.round(v))) : null
-  const statCols = [
-    { label:'VEL', val: toStat(opts.statPac) },
-    { label:'TEC', val: toStat(opts.statSho) },
-    { label:'DRI', val: toStat(opts.statPas) },
-    { label:'FIS', val: toStat(opts.statDri) },
-    { label:'TAT', val: toStat(opts.statDef) },
-    { label:'POS', val: toStat(opts.statPhy) },
-  ]
-  const hasStats = statCols.some(s => s.val !== null)
-  const colW = (W - 28) / 6
-
-  ctx.save()
-  if (hasStats) {
-    statCols.forEach((s, i) => {
-      const cx = 14 + i * colW + colW / 2
-      if (i > 0) {
-        ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.lineWidth = 1
-        ctx.beginPath(); ctx.moveTo(14 + i * colW, STATS_Y + 8); ctx.lineTo(14 + i * colW, STATS_Y + STATS_H - 8); ctx.stroke()
-      }
-      ctx.textAlign = 'center'; ctx.textBaseline = 'top'
-      ctx.fillStyle = 'rgba(255,255,255,0.40)'
-      ctx.font = '700 9px system-ui, sans-serif'
-      ctx.fillText(s.label, cx, STATS_Y + 8)
-      ctx.shadowColor = GREEN; ctx.shadowBlur = 16
-      ctx.fillStyle = GREEN
-      ctx.font = 'bold 24px system-ui, sans-serif'
-      ctx.fillText(s.val !== null ? String(s.val) : '—', cx, STATS_Y + 20)
-      ctx.shadowBlur = 0
-    })
-  } else {
-    ctx.fillStyle = 'rgba(255,255,255,0.22)'
-    ctx.font = '500 11px system-ui, sans-serif'
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-    ctx.fillText('Aguardando avaliação de treinador', W / 2, STATS_Y + STATS_H / 2)
-  }
-  ctx.restore()
-
-  // ── 12. DADOS DO ATLETA ────────────────────────────────────────────────────
-  const FOOT_Y = STATS_Y + STATS_H + 5, FOOT_H = 52
-
-  drawPanel(FOOT_Y, FOOT_H)
-
-  const footCols = [
-    { icon: '⚽', label: 'POSIÇÃO', val: (opts.posicao || opts.pos).toUpperCase() },
-    { icon: '📅', label: 'IDADE',   val: opts.idade ? `${opts.idade} ANOS` : (opts.categoria ?? '—').toUpperCase() },
-    { icon: '📍', label: 'CIDADE',  val: ((opts.cidade ?? '').split(',')[0] || '—').toUpperCase() },
-  ]
-  const fColW = (W - 28) / 3
-
-  ctx.save()
-  footCols.forEach((s, i) => {
-    const cx = 14 + i * fColW + fColW / 2
-    if (i > 0) {
-      ctx.strokeStyle = TC + '28'; ctx.lineWidth = 1
-      ctx.beginPath(); ctx.moveTo(14 + i * fColW, FOOT_Y + 8); ctx.lineTo(14 + i * fColW, FOOT_Y + FOOT_H - 8); ctx.stroke()
-    }
-    ctx.textAlign = 'center'; ctx.textBaseline = 'top'
-    ctx.font = '13px system-ui, sans-serif'
-    ctx.fillStyle = 'rgba(255,255,255,0.60)'
-    ctx.fillText(s.icon, cx, FOOT_Y + 7)
-    ctx.fillStyle = 'rgba(255,255,255,0.32)'
-    ctx.font = '600 8px system-ui, sans-serif'
-    ctx.letterSpacing = '0.1em'
-    ctx.fillText(s.label, cx, FOOT_Y + 23)
-    ctx.fillStyle = 'rgba(255,255,255,0.92)'
-    ctx.font = 'bold 12px system-ui, sans-serif'
-    ctx.letterSpacing = '0.03em'
-    let v = s.val
-    ctx.font = 'bold 12px system-ui, sans-serif'
-    while (ctx.measureText(v).width > fColW - 10 && v.length > 2) v = v.slice(0, -1)
-    if (v !== s.val) v += '.'
-    ctx.fillText(v, cx, FOOT_Y + 35)
-  })
-  ctx.restore()
-
-  // ── 13. RODAPÉ TAGLINE ────────────────────────────────────────────────────
-  const TAG_Y = FOOT_Y + FOOT_H + 8
-
-  ctx.save()
-  // Linhas decorativas com gradiente
-  const tgl1 = ctx.createLinearGradient(16, 0, 120, 0)
-  tgl1.addColorStop(0, 'transparent'); tgl1.addColorStop(1, TC + '70')
-  ctx.strokeStyle = tgl1; ctx.lineWidth = 1
-  ctx.beginPath(); ctx.moveTo(16, TAG_Y + 9); ctx.lineTo(120, TAG_Y + 9); ctx.stroke()
-
-  const tgl2 = ctx.createLinearGradient(W - 120, 0, W - 16, 0)
-  tgl2.addColorStop(0, TC + '70'); tgl2.addColorStop(1, 'transparent')
-  ctx.strokeStyle = tgl2; ctx.lineWidth = 1
-  ctx.beginPath(); ctx.moveTo(W - 120, TAG_Y + 9); ctx.lineTo(W - 16, TAG_Y + 9); ctx.stroke()
-
-  // Tagline dinâmica
-  function getTagline(pos: string | null | undefined): [string, string] {
-    const p = (pos ?? '').toLowerCase()
-    if (p.includes('atacante') || p.includes('avante')) return ['NASCIDA PARA FAZER ', 'HISTÓRIA']
-    if (p.includes('meia') || p.includes('volante'))    return ['O JOGO PASSA PELOS ', 'SEUS PÉS']
-    if (p.includes('zagueiro') || p.includes('lateral')) return ['A MURALHA QUE ', 'NINGUÉM PASSA']
-    if (p.includes('goleiro'))                           return ['A ÚLTIMA ', 'BARREIRA']
-    return ['SEU TALENTO, ', 'SUA IDENTIDADE']
-  }
-  const [tag1, tag2] = getTagline(opts.posicao || opts.pos)
-  ctx.font = 'italic bold 11px system-ui, sans-serif'
-  const tw1 = ctx.measureText(tag1).width, tw2 = ctx.measureText(tag2).width
-  const tagX = W / 2 - (tw1 + tw2) / 2
-  ctx.textAlign = 'left'; ctx.textBaseline = 'middle'
+  // firstName — pequeno, faded
   ctx.fillStyle = 'rgba(255,255,255,0.45)'
+  ctx.font = '600 16px system-ui, sans-serif'
+  ctx.fillText(firstName || ' ', PAD, NAME_Y)
+
+  // lastName — grande, tier color
+  ctx.fillStyle = tier.color
+  ctx.shadowColor = tier.color
+  ctx.shadowBlur = 24
+  ctx.font = `bold 56px system-ui, -apple-system, sans-serif`
+  let ln = lastName
+  while (ctx.measureText(ln).width > PHOTO_W - 4 && ln.length > 2) ln = ln.slice(0, -1)
+  if (ln !== lastName) ln += '…'
+  ctx.fillText(ln, PAD, NAME_Y + 18)
   ctx.shadowBlur = 0
-  ctx.fillText(tag1, tagX, TAG_Y + 9)
-  ctx.shadowColor = TC; ctx.shadowBlur = 12
-  ctx.fillStyle = TC
-  ctx.fillText(tag2, tagX + tw1, TAG_Y + 9)
-  ctx.restore()
 
-  // ── 14. REFLEXO METÁLICO PREMIUM ─────────────────────────────────────────
-  ctx.save()
-  const shine = ctx.createLinearGradient(0, 0, W * 0.55, H * 0.38)
-  shine.addColorStop(0,   'rgba(255,255,255,0.04)')
-  shine.addColorStop(0.35,'rgba(255,255,255,0.07)')
-  shine.addColorStop(0.5, 'rgba(255,255,255,0.02)')
-  shine.addColorStop(1,   'rgba(255,255,255,0)')
-  ctx.fillStyle = shine; ctx.fillRect(0, 0, W, H)
-  ctx.restore()
+  // ── 5. DIVISOR ───────────────────────────────────────────────────────────────
+  const DIV1_Y = NAME_Y + 18 + 56 + 8
+  const divGrad = ctx.createLinearGradient(PAD, 0, W - PAD, 0)
+  divGrad.addColorStop(0, 'transparent')
+  divGrad.addColorStop(0.3, `rgba(${cr},${cg},${cb},0.4)`)
+  divGrad.addColorStop(0.7, `rgba(${cr},${cg},${cb},0.4)`)
+  divGrad.addColorStop(1, 'transparent')
+  ctx.strokeStyle = divGrad; ctx.lineWidth = 1
+  ctx.beginPath(); ctx.moveTo(PAD, DIV1_Y); ctx.lineTo(W - PAD, DIV1_Y); ctx.stroke()
 
-  // ── 15. WATERMARK ─────────────────────────────────────────────────────────
-  ctx.save()
+  // ── 6. ID | BANDEIRA | OVR ───────────────────────────────────────────────────
+  const ROW1_Y = DIV1_Y + 10
+  const ROW1_H = 44
+
+  // ID
+  const mcIdNum = opts.athleteId ? opts.athleteId.replace(/^MC-/, '') : '—'
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top'
+  ctx.fillStyle = 'rgba(255,255,255,0.28)'
+  ctx.font = '700 11px system-ui, sans-serif'
+  ctx.fillText('ID ÚNICO', PAD, ROW1_Y)
+  ctx.fillStyle = tier.color
+  ctx.font = 'bold 19px system-ui, sans-serif'
+  ctx.fillText(mcIdNum, PAD, ROW1_Y + 14)
+
+  // Bandeira + OVR pill — lado direito
+  const OVR_TEXT = opts.ovr != null ? String(opts.ovr) : '—'
+  const FLAG = '🇧🇷'
+
+  // Flag
+  ctx.font = '20px system-ui, sans-serif'
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle'
+  const OVR_PILL_W = 72, OVR_PILL_H = 30
+  const OVR_X = W - PAD - OVR_PILL_W - 8
+  const FLAG_X = OVR_X - 10
+  ctx.fillText(FLAG, FLAG_X, ROW1_Y + ROW1_H / 2)
+
+  // OVR pill
+  roundRect(ctx, OVR_X, ROW1_Y + (ROW1_H - OVR_PILL_H) / 2, OVR_PILL_W, OVR_PILL_H, 20)
+  ctx.fillStyle = `rgba(${cr},${cg},${cb},0.18)`
+  ctx.fill()
+  roundRect(ctx, OVR_X, ROW1_Y + (ROW1_H - OVR_PILL_H) / 2, OVR_PILL_W, OVR_PILL_H, 20)
+  ctx.strokeStyle = `rgba(${cr},${cg},${cb},0.35)`
+  ctx.lineWidth = 1
+  ctx.stroke()
+
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
+  ctx.fillStyle = 'rgba(255,255,255,0.40)'
+  ctx.font = '700 10px system-ui, sans-serif'
+  ctx.fillText('OVR', OVR_X + 22, ROW1_Y + ROW1_H / 2)
+  ctx.fillStyle = tier.color
+  ctx.font = 'bold 20px system-ui, sans-serif'
+  ctx.fillText(OVR_TEXT, OVR_X + 52, ROW1_Y + ROW1_H / 2)
+
+  // ── 7. DIVISOR ───────────────────────────────────────────────────────────────
+  const DIV2_Y = ROW1_Y + ROW1_H + 6
+  ctx.strokeStyle = `rgba(${cr},${cg},${cb},0.30)`
+  ctx.lineWidth = 1
+  ctx.beginPath(); ctx.moveTo(PAD, DIV2_Y); ctx.lineTo(W - PAD, DIV2_Y); ctx.stroke()
+
+  // ── 8. 6 ATRIBUTOS ───────────────────────────────────────────────────────────
+  const ATTRS_Y = DIV2_Y + 6
+  const ATTRS_H = 52
+  const toFifa = (v: number | null | undefined) => v != null ? String(Math.min(99, Math.max(0, Math.round(v)))) : '—'
+  const stats = [
+    { label: 'VEL', val: toFifa(opts.statPac) },
+    { label: 'TEC', val: toFifa(opts.statSho) },
+    { label: 'DRI', val: toFifa(opts.statPas) },
+    { label: 'FIS', val: toFifa(opts.statDri) },
+    { label: 'TAT', val: toFifa(opts.statDef) },
+    { label: 'POS', val: toFifa(opts.statPhy) },
+  ]
+  const hasAttr = stats.some(s => s.val !== '—')
+  const colW = PHOTO_W / 6
+
+  stats.forEach((s, i) => {
+    const cx = PAD + i * colW + colW / 2
+    const cy = ATTRS_Y
+
+    if (i > 0) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1
+      ctx.beginPath(); ctx.moveTo(PAD + i * colW, cy + 4); ctx.lineTo(PAD + i * colW, cy + ATTRS_H - 4); ctx.stroke()
+    }
+
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top'
+    ctx.fillStyle = hasAttr ? tier.color : 'rgba(255,255,255,0.12)'
+    ctx.font = `bold 22px system-ui, sans-serif`
+    if (hasAttr) { ctx.shadowColor = tier.color; ctx.shadowBlur = 12 }
+    ctx.fillText(s.val, cx, cy + 4)
+    ctx.shadowBlur = 0
+
+    ctx.fillStyle = 'rgba(255,255,255,0.30)'
+    ctx.font = '700 9px system-ui, sans-serif'
+    ctx.fillText(s.label, cx, cy + 30)
+  })
+
+  // ── 9. DIVISOR ───────────────────────────────────────────────────────────────
+  const DIV3_Y = ATTRS_Y + ATTRS_H + 4
+  ctx.strokeStyle = `rgba(${cr},${cg},${cb},0.25)`
+  ctx.lineWidth = 1
+  ctx.beginPath(); ctx.moveTo(PAD, DIV3_Y); ctx.lineTo(W - PAD, DIV3_Y); ctx.stroke()
+
+  // ── 10. POSIÇÃO | CATEGORIA ──────────────────────────────────────────────────
+  const FOOT_Y = DIV3_Y + 6
+  const FOOT_H = 44
+  const footCols = [
+    { icon: '⚽', label: 'POSIÇÃO', val: (opts.posicao || opts.pos || '—').toUpperCase().slice(0, 12) },
+    { icon: '🏷️', label: 'CATEG.',  val: (opts.categoria ?? '—').toUpperCase() },
+  ]
+  const fColW = PHOTO_W / 2
+
+  footCols.forEach((fc, i) => {
+    const cx = PAD + i * fColW + fColW / 2
+    if (i > 0) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1
+      ctx.beginPath(); ctx.moveTo(PAD + i * fColW, FOOT_Y + 4); ctx.lineTo(PAD + i * fColW, FOOT_Y + FOOT_H - 4); ctx.stroke()
+    }
+    ctx.textAlign = 'center'
+    ctx.font = '14px system-ui, sans-serif'
+    ctx.fillStyle = 'rgba(255,255,255,0.6)'
+    ctx.textBaseline = 'top'
+    ctx.fillText(fc.icon, cx, FOOT_Y + 2)
+
+    ctx.fillStyle = 'rgba(255,255,255,0.28)'
+    ctx.font = '700 9px system-ui, sans-serif'
+    ctx.fillText(fc.label, cx, FOOT_Y + 20)
+
+    ctx.fillStyle = fc.val === '—' ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.75)'
+    ctx.font = 'bold 13px system-ui, sans-serif'
+    ctx.fillText(fc.val, cx, FOOT_Y + 31)
+  })
+
+  // ── 11. TAGLINE ──────────────────────────────────────────────────────────────
+  const TAG_Y = FOOT_Y + FOOT_H + 6
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top'
+  ctx.fillStyle = `rgba(${cr},${cg},${cb},0.55)`
+  ctx.font = 'italic bold 11px system-ui, sans-serif'
+  ctx.fillText(tagline(opts.posicao), W / 2, TAG_Y)
+
+  // ── 12. WATERMARK ────────────────────────────────────────────────────────────
   ctx.fillStyle = 'rgba(255,255,255,0.07)'
-  ctx.font = '8px system-ui, sans-serif'
+  ctx.font = '9px system-ui, sans-serif'
   ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'
-  ctx.fillText('meucraque.com', W / 2, H - 4)
-  ctx.restore()
+  ctx.fillText('meucraque.com', W / 2, H - 6)
 }
