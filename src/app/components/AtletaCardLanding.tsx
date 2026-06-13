@@ -42,6 +42,22 @@ function toFifa(v: number | null | undefined): string {
   return String(Math.min(99, Math.max(0, Math.round(v))))
 }
 
+function flagEmoji(nac: string | null | undefined): string {
+  const n = (nac ?? '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+  if (n.includes('paraguai') || n.includes('paraguay')) return '🇵🇾'
+  if (n.includes('argentina')) return '🇦🇷'
+  if (n.includes('uruguai') || n.includes('uruguay')) return '🇺🇾'
+  if (n.includes('colombia')) return '🇨🇴'
+  if (n.includes('chile')) return '🇨🇱'
+  if (n.includes('peru')) return '🇵🇪'
+  if (n.includes('bolivia')) return '🇧🇴'
+  if (n.includes('venezuela')) return '🇻🇪'
+  if (n.includes('equador') || n.includes('ecuador')) return '🇪🇨'
+  if (n.includes('portugal')) return '🇵🇹'
+  if (n.includes('espanha') || n.includes('spain') || n.includes('espana')) return '🇪🇸'
+  return '🇧🇷'
+}
+
 function tagline(posicao: string | null | undefined): string {
   const p = (posicao ?? '').toLowerCase()
   if (p.includes('atacante') || p.includes('avante')) return 'NASCIDO PARA FAZER HISTÓRIA'
@@ -76,6 +92,7 @@ export default function AtletaCardLanding({
     atributos: AtributosMap | null
     categoria: string | null
     views: number | null
+    nacionalidade: string | null
   } | null>(null)
 
   useEffect(() => {
@@ -91,7 +108,8 @@ export default function AtletaCardLanding({
   const resolvedPosicao   = posicao   ?? extraData?.posicao   ?? null
   const resolvedAtributos = atributos ?? extraData?.atributos ?? null
   const resolvedCategoria = categoria ?? extraData?.categoria ?? null
-  const resolvedViews     = extraData?.views ?? null
+  const resolvedViews        = extraData?.views ?? null
+  const resolvedNacionalidade = extraData?.nacionalidade ?? null
 
   const parts     = nome.trim().split(' ')
   const lastName  = (parts.length > 1 ? parts[parts.length - 1] : nome).toUpperCase()
@@ -224,7 +242,7 @@ export default function AtletaCardLanding({
         </div>
         {/* Bandeira + views + OVR */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '13px' }}>🇧🇷</span>
+          <span style={{ fontSize: '13px' }}>{flagEmoji(resolvedNacionalidade)}</span>
           {resolvedViews != null && (
             <span style={{ fontSize: '9px', fontWeight: 600, color: 'rgba(255,255,255,0.38)', letterSpacing: '0.02em', whiteSpace: 'nowrap' }}>
               👁 {formatViews(resolvedViews)}

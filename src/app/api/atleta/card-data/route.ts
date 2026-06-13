@@ -38,8 +38,9 @@ export async function GET(req: NextRequest) {
       admin.from('visitas').select('*', { count: 'exact', head: true }).eq('atleta_id', id),
     ])
 
-    const meta     = userRes.data?.user?.user_metadata as { posicao?: string } | undefined
-    const posicao  = meta?.posicao ?? null
+    const meta        = userRes.data?.user?.user_metadata as { posicao?: string; nacionalidade?: string } | undefined
+    const posicao     = meta?.posicao ?? null
+    const nacionalidade = meta?.nacionalidade ?? null
     const dataNasc = (profileRes.data?.data_nascimento as string | null) ?? null
     const av       = avRes.data
 
@@ -57,6 +58,7 @@ export async function GET(req: NextRequest) {
       atributos,
       categoria: calcCategoria(dataNasc),
       views: viewsRes.count ?? 0,
+      nacionalidade,
     }, {
       headers: { 'Cache-Control': 's-maxage=60, stale-while-revalidate=300' },
     })
