@@ -9,7 +9,7 @@ export default async function AdminPage() {
   const supabase = await createServerClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user || user.email !== ADMIN_EMAIL) redirect('/login')
+  if (!ADMIN_EMAIL || !user || user.email !== ADMIN_EMAIL) redirect('/login')
 
   const admin = createAdminClient()
 
