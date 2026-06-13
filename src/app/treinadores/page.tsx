@@ -8,6 +8,8 @@ import type { Metadata } from 'next'
 import { createAdminClient } from '@/lib/supabase'
 import { listAllUsers } from '@/lib/auth'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'Treinadores — Meu Craque',
   description: 'Conheça os treinadores cadastrados na plataforma Meu Craque.',
