@@ -26,10 +26,11 @@ function proximoPasso(meta: Record<string, unknown>, temAvaliacao: boolean): str
 }
 
 export async function GET(req: NextRequest) {
-  // ── Segurança: valida o secret do Vercel Cron ──
-  const authHeader = req.headers.get('authorization')
-  const cronSecret = process.env.CRON_SECRET
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  // ── Segurança: valida o secret do Vercel Cron e o header de origem ──
+  const authHeader  = req.headers.get('authorization')
+  const cronSecret  = process.env.CRON_SECRET
+  const isVercelCron = req.headers.get('x-vercel-cron') === '1'
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}` || !isVercelCron) {
     return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 })
   }
 

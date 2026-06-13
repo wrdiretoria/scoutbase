@@ -1,3 +1,4 @@
+import { randomBytes } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient, createServerClient } from '@/lib/supabase'
 
@@ -31,15 +32,16 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  // 3. Reset to temporary password = Scout ID
+  // 3. Reset to a random temporary password
+  const senhaTemp = randomBytes(5).toString('hex') // 10 chars hex, unpredictable
   const admin = createAdminClient()
   const { error: updateErr } = await admin.auth.admin.updateUserById(aluno.pai_auth_id, {
-    password: aluno.scout_id,
+    password: senhaTemp,
   })
 
   if (updateErr) {
     return NextResponse.json({ error: 'Erro ao resetar a senha.' }, { status: 500 })
   }
 
-  return NextResponse.json({ senhaTemp: aluno.scout_id })
+  return NextResponse.json({ senhaTemp })
 }

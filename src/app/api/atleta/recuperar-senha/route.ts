@@ -9,26 +9,12 @@
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
-
-const byIp      = new Map<string, { count: number; resetAt: number }>()
-const byAthleteId = new Map<string, { count: number; resetAt: number }>()
-
-function checkLimit(map: Map<string, { count: number; resetAt: number }>, key: string, max: number): boolean {
-  const now   = Date.now()
-  const entry = map.get(key)
-  if (!entry || now > entry.resetAt) {
-    map.set(key, { count: 1, resetAt: now + 3_600_000 })
-    return true
-  }
-  if (entry.count >= max) return false
-  entry.count++
-  return true
-}
+import { checkRateLimit } from '@/lib/rate-limit'
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
 
-  if (!checkLimit(byIp, ip, 5)) {
+  if (!await checkRateLimit(`recuperar-senha:ip:${ip}`, 5)) {
     return NextResponse.json({ error: 'Muitas tentativas. Tente novamente em 1 hora.' }, { status: 429 })
   }
 
@@ -47,7 +33,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'ID inválido.' }, { status: 400 })
   }
 
-  if (!checkLimit(byAthleteId, idFormatado, 3)) {
+  if (!await checkRateLimit(`recuperar-senha:id:${idFormatado}`, 3)) {
     return NextResponse.json({ error: 'Muitas tentativas para este ID. Tente novamente em 1 hora.' }, { status: 429 })
   }
 

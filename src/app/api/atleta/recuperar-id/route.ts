@@ -9,8 +9,15 @@
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+  if (!await checkRateLimit(`recuperar-id:ip:${ip}`, 5)) {
+    return NextResponse.json({ error: 'Muitas tentativas. Tente novamente em 1 hora.' }, { status: 429 })
+  }
+
+
   const body = await req.json() as {
     email?: string
     nome?: string
@@ -42,16 +49,17 @@ export async function POST(req: NextRequest) {
   // ── Modo 2: por nome + data de nascimento ────────────────────
   if (body.nome && body.dataNascimento) {
     const nomeLimpo = body.nome.trim()
-    if (nomeLimpo.length < 3) {
-      return NextResponse.json({ error: 'Nome muito curto.' }, { status: 400 })
+    if (nomeLimpo.length < 5) {
+      return NextResponse.json({ error: 'Nome muito curto. Digite pelo menos 5 caracteres.' }, { status: 400 })
     }
 
     const { data, error } = await admin
       .from('profiles')
       .select('athlete_id, nome')
-      .ilike('nome', `%${nomeLimpo}%`)
+      .ilike('nome', `${nomeLimpo}%`)
       .eq('data_nascimento', body.dataNascimento)
       .not('athlete_id', 'is', null)
+      .limit(3)
 
     if (error) return NextResponse.json({ error: 'Erro ao buscar.' }, { status: 500 })
 

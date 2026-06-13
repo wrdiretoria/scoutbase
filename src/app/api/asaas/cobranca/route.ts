@@ -99,7 +99,6 @@ export async function POST(req: NextRequest) {
     })
   } catch (err) {
     console.error('Erro ao gerar cobrança:', err)
-    const msg = err instanceof Error ? err.message : 'Erro desconhecido'
-    return NextResponse.json({ error: msg }, { status: 500 })
+    return NextResponse.json({ error: 'Erro ao gerar cobrança. Tente novamente.' }, { status: 500 })
   }
 }

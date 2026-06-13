@@ -1,7 +1,13 @@
 import { createAdminClient } from '@/lib/supabase'
-import { NextResponse } from 'next/server'
+import { checkRateLimit } from '@/lib/rate-limit'
+import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+  if (!await checkRateLimit(`buscar-id:ip:${ip}`, 30)) {
+    return NextResponse.json({ error: 'Muitas tentativas. Tente novamente em 1 hora.' }, { status: 429 })
+  }
+
   const { searchParams } = new URL(req.url)
   const q = (searchParams.get('q') ?? '').trim().toUpperCase()
 

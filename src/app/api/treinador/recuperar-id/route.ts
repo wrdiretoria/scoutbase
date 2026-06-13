@@ -7,25 +7,12 @@
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
-
-const byIp = new Map<string, { count: number; resetAt: number }>()
-
-function checkLimit(ip: string): boolean {
-  const now   = Date.now()
-  const entry = byIp.get(ip)
-  if (!entry || now > entry.resetAt) {
-    byIp.set(ip, { count: 1, resetAt: now + 3_600_000 })
-    return true
-  }
-  if (entry.count >= 5) return false
-  entry.count++
-  return true
-}
+import { checkRateLimit } from '@/lib/rate-limit'
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
 
-  if (!checkLimit(ip)) {
+  if (!await checkRateLimit(`treinador-recuperar-id:ip:${ip}`, 5)) {
     return NextResponse.json({ error: 'Muitas tentativas. Tente novamente em 1 hora.' }, { status: 429 })
   }
 

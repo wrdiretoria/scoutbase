@@ -3,6 +3,8 @@ import { createAdminClient } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 function calcCategoria(dataNasc: string | null): string | null {
   if (!dataNasc) return null
   const hoje = new Date()
@@ -19,7 +21,7 @@ function calcCategoria(dataNasc: string | null): string | null {
 
 export async function GET(req: NextRequest) {
   const id = req.nextUrl.searchParams.get('id')
-  if (!id) return NextResponse.json({ posicao: null, atributos: null, categoria: null })
+  if (!id || !UUID_RE.test(id)) return NextResponse.json({ posicao: null, atributos: null, categoria: null })
 
   try {
     const admin = createAdminClient()

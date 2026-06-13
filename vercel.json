@@ -4,5 +4,19 @@
       "path": "/api/cron/email-semanal",
       "schedule": "0 13 * * 0"
     }
+  ],
+  "headers": [
+    {
+      "source": "/api/admin/(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
+      ]
+    },
+    {
+      "source": "/api/cron/(.*)",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" }
+      ]
+    }
   ]
 }

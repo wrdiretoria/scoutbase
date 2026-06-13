@@ -1,13 +1,10 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient, createAdminClient } from '@/lib/supabase'
+import { NextRequest, NextResponse } from 'next/server'
+import { createAdminClient } from '@/lib/supabase'
+import { verifyAdmin } from '@/lib/admin-check'
 
 export async function POST(req: NextRequest) {
-  const ADMIN_EMAIL = process.env.ADMIN_EMAIL
-  const supabase = await createServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user || !ADMIN_EMAIL || user.email !== ADMIN_EMAIL) {
-    return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
-  }
+  const check = await verifyAdmin()
+  if (!check.ok) return check.response
 
   const { atletaId } = await req.json()
   if (!atletaId) return NextResponse.json({ error: 'atletaId obrigatório' }, { status: 400 })
@@ -15,6 +12,6 @@ export async function POST(req: NextRequest) {
   const admin = createAdminClient()
   const { error } = await admin.from('alunos').delete().eq('id', atletaId)
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'Erro ao deletar atleta.' }, { status: 500 })
   return NextResponse.json({ ok: true })
 }

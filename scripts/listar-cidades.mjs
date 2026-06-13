@@ -1,7 +1,29 @@
+import { readFileSync, existsSync } from 'fs'
+import { resolve, dirname } from 'path'
+import { fileURLToPath } from 'url'
 import { createClient } from '@supabase/supabase-js'
 
-const SUPABASE_URL = 'https://gmlmmhdiuzumdjhnppha.supabase.co'
-const SERVICE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtbG1taGRpdXp1bWRqaG5wcGhhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3Njk3ODEyMiwiZXhwIjoyMDkyNTU0MTIyfQ.W5T3XASDe_b3RnIjIjMU-FW0WzeLJuE_Xp9xvLvccnc'
+const __dir = dirname(fileURLToPath(import.meta.url))
+const envPath = resolve(__dir, '..', '.env.local')
+if (existsSync(envPath)) {
+  for (const line of readFileSync(envPath, 'utf-8').split('\n')) {
+    const t = line.trim()
+    if (!t || t.startsWith('#')) continue
+    const eq = t.indexOf('=')
+    if (eq === -1) continue
+    const k = t.slice(0, eq).trim()
+    const v = t.slice(eq + 1).trim().replace(/^["']|["']$/g, '')
+    if (k) process.env[k] = v
+  }
+}
+
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+if (!SUPABASE_URL || !SERVICE_KEY) {
+  console.error('❌  Defina NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY no .env.local')
+  process.exit(1)
+}
 
 const admin = createClient(SUPABASE_URL, SERVICE_KEY)
 

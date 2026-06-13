@@ -1,16 +1,18 @@
-/**
- * POST /api/atleta/visita
- * Registra uma visita ao perfil público do atleta na tabela `visitas`.
- * Não requer autenticação — visitante pode ser scout sem login.
- * Body: { athleteUserId: string }   ← auth UUID (não o MC-ID)
- */
 import { createAdminClient } from '@/lib/supabase'
-import { NextResponse } from 'next/server'
+import { checkRateLimit } from '@/lib/rate-limit'
+import { NextRequest, NextResponse } from 'next/server'
 
-export async function POST(req: Request) {
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+export async function POST(req: NextRequest) {
   try {
     const { athleteUserId } = await req.json() as { athleteUserId?: string }
-    if (!athleteUserId) return NextResponse.json({ ok: false })
+    if (!athleteUserId || !UUID_RE.test(athleteUserId)) return NextResponse.json({ ok: false })
+
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+    if (!await checkRateLimit(`visita:${ip}:${athleteUserId}`, 3, 300_000)) {
+      return NextResponse.json({ ok: false })
+    }
 
     const admin = createAdminClient()
     await admin.from('visitas').insert({ atleta_id: athleteUserId })
@@ -18,7 +20,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true })
   } catch (err) {
     console.error('[visita]', err)
-    // silencioso — visita nunca deve quebrar a página do atleta
     return NextResponse.json({ ok: false })
   }
 }

@@ -13,6 +13,7 @@
  */
 
 import { readFileSync, existsSync } from 'fs'
+import { randomBytes } from 'crypto'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { createClient } from '@supabase/supabase-js'
@@ -288,7 +289,7 @@ async function main() {
     } else {
       const { data, error } = await admin.auth.admin.createUser({
         email,
-        password: 'SeedTreinador2024!',
+        password: randomBytes(16).toString('hex'),
         email_confirm: true,
         // cidade em user_metadata (não na tabela profiles)
         user_metadata: { tipo: 'treinador', nome: t.nome, cidade: t.cidade },
@@ -352,7 +353,7 @@ async function main() {
     } else {
       const { data, error } = await admin.auth.admin.createUser({
         email,
-        password: 'SeedAtleta2024!',
+        password: randomBytes(16).toString('hex'),
         email_confirm: true,
         user_metadata: {
           tipo:              'atleta',

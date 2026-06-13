@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
   const admin = createAdminClient()
   const { data: aluno, error } = await admin
     .from('alunos')
-    .select('id, nome, telefone')
+    .select('id, nome')
     .eq('scout_id', scout_id.toUpperCase())
     .single()
 
@@ -25,5 +25,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Não encontrado' }, { status: 404 })
   }
 
-  return NextResponse.json({ id: aluno.id, nome: aluno.nome, telefone: aluno.telefone ?? null })
+  return NextResponse.json({ id: aluno.id, nome: aluno.nome })
 }
