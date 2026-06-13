@@ -65,7 +65,7 @@ export default async function DestaquesSection() {
 
   return (
     <section style={{ background: '#080808', padding: '16px 0 20px' }}>
-      <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 clamp(16px,4vw,24px)' }}>
+      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 clamp(16px,4vw,24px)' }}>
 
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '28px' }}>
           <div>
