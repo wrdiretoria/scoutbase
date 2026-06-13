@@ -7,9 +7,10 @@ import type { AtributosMap, AtletaCardProps } from './AtletaCard'
 // ── Tier ──────────────────────────────────────────────────────────────────────
 
 function getTier(ovr: number | null) {
-  if (ovr !== null && ovr >= 80) return { color: '#F5C518', bg: '#0e0b00', border: '#F5C51840' }
-  if (ovr !== null && ovr >= 50) return { color: '#bdbdbd', bg: '#0d0d0d', border: '#9e9e9e30' }
-  return                               { color: '#cd7f32', bg: '#0c0800', border: '#cd7f3235' }
+  if (ovr !== null && ovr >= 85) return { color: '#F5C518', bg: '#0e0b00', border: '#F5C51840', medal: '🥇' }
+  if (ovr !== null && ovr >= 70) return { color: '#bdbdbd', bg: '#0d0d0d', border: '#9e9e9e30', medal: '🥈' }
+  if (ovr !== null && ovr >= 50) return { color: '#cd7f32', bg: '#0c0800', border: '#cd7f3235', medal: '🥉' }
+  return                               { color: '#6b7280', bg: '#0a0a0a', border: '#6b728025', medal: null }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -150,17 +151,14 @@ export default function AtletaCardLanding({
         }}>
           MC
         </div>
-        {/* Rank badge se existir */}
-        {rank != null && rank <= 3 && (
-          <span style={{ fontSize: '14px' }}>
-            {rank === 1 ? '🥇' : rank === 2 ? '🥈' : '🥉'}
-          </span>
-        )}
-        {rank != null && rank > 3 && (
+        {/* Medalha por OVR (prioridade) ou rank numérico */}
+        {tier.medal ? (
+          <span style={{ fontSize: '16px', lineHeight: 1 }}>{tier.medal}</span>
+        ) : rank != null && rank > 3 ? (
           <span style={{ fontSize: '9px', fontWeight: 800, color: 'rgba(255,255,255,0.25)' }}>
             #{rank}
           </span>
-        )}
+        ) : null}
         {/* Posição abreviada */}
         <div style={{
           padding: '3px 8px', borderRadius: '6px',
