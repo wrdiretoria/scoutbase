@@ -37,24 +37,42 @@ export async function GET(req: NextRequest) {
   try {
     const admin = createAdminClient()
 
-    // ── DESTAQUES: top OVR ─────────────────────────────────────────────────────
+    // ── DESTAQUES: top OVR (sem getUserById — usa scout_score do banco) ──────────
     if (tipo === 'destaques') {
-      const [ovrByUuid, profilesRes] = await Promise.all([
-        fetchOvrMapByUuid(admin),
+      const [profilesRes, avsRes] = await Promise.all([
         admin
           .from('profiles')
           .select('id, nome, athlete_id, avatar_url, fotos, data_nascimento')
           .like('athlete_id', 'MC-%')
-          .limit(200),
+          .limit(500),
+        admin
+          .from('avaliacoes')
+          .select('aluno_id, scout_score')
+          .not('scout_score', 'is', null),
       ])
+
       const profiles = (profilesRes.data ?? []) as {
         id: string; nome: string | null
         athlete_id: string | null; avatar_url: string | null
         fotos: (string | null)[] | null; data_nascimento: string | null
       }[]
 
+      // Média dos scout_scores por atleta (escala 0-100)
+      const scoreMap = new Map<string, number[]>()
+      for (const av of (avsRes.data ?? []) as { aluno_id: string; scout_score: number }[]) {
+        if (!av.aluno_id) continue
+        if (!scoreMap.has(av.aluno_id)) scoreMap.set(av.aluno_id, [])
+        scoreMap.get(av.aluno_id)!.push(av.scout_score)
+      }
+
       const sorted = profiles
-        .map(p => ({ ...p, ovr: ovrByUuid.get(p.id) ?? null }))
+        .map(p => {
+          const scores = scoreMap.get(p.id)
+          const ovr = scores && scores.length > 0
+            ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+            : null
+          return { ...p, ovr }
+        })
         .filter(p => p.ovr !== null)
         .sort((a, b) => (b.ovr ?? 0) - (a.ovr ?? 0))
 
