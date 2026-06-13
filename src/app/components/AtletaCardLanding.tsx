@@ -83,8 +83,7 @@ export default function AtletaCardLanding({
 }: AtletaCardProps) {
   const tier = getTier(ovr)
   const [imgErr, setImgErr] = useState(false)
-  const [imgOk, setImgOk] = useState(false)
-  const showPhoto = !!foto && !imgErr && imgOk
+  const showPhoto = !!foto && !imgErr
 
   // Busca posição + atributos + categoria do próprio card, sem depender da seção
   const athleteUuid = href ? href.split('/').pop() ?? null : null
@@ -191,18 +190,15 @@ export default function AtletaCardLanding({
 
       {/* ── FOTO ── */}
       <div style={{ position: 'relative', height: '130px', margin: '0 12px', borderRadius: '10px', overflow: 'hidden', background: '#111' }}>
-        {/* Imagem — oculta até onLoad confirmar que carregou */}
-        {foto && !imgErr && (
+        {showPhoto && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={foto}
+            src={foto!}
             alt={nome}
-            onLoad={() => setImgOk(true)}
-            onError={() => { setImgErr(true); setImgOk(false) }}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 10%', display: imgOk ? 'block' : 'none' }}
+            onError={() => setImgErr(true)}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 10%' }}
           />
         )}
-        {/* Fallback com iniciais — mostra se foto não carregou */}
         {!showPhoto && (
           <div style={{
             width: '100%', height: '100%',
