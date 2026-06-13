@@ -341,6 +341,22 @@ function CompartilharContent() {
           <button className="btn-primary" onClick={handleShare} disabled={shareStatus === 'sharing'} style={{ opacity: shareStatus === 'sharing' ? .7 : 1 }}>
             {shareStatus === 'sharing' ? 'Gerando card…' : '📲 Compartilhar card'}
           </button>
+          <button className="btn-glass" onClick={async () => {
+            const canvas = canvasRef.current
+            if (!canvas) return
+            const blob: Blob = await new Promise((res, rej) =>
+              canvas.toBlob(b => b ? res(b) : rej(), 'image/png')
+            )
+            const url = URL.createObjectURL(blob)
+            const a = Object.assign(document.createElement('a'), {
+              href: url,
+              download: `${nome.replace(/\s+/g, '_')}_MeuCraque.png`,
+            })
+            document.body.appendChild(a); a.click(); document.body.removeChild(a)
+            URL.revokeObjectURL(url)
+          }}>
+            ⬇️ Baixar card (para WhatsApp)
+          </button>
           <button className="btn-ghost" onClick={handleCopy}>
             {copied ? '✓ Link copiado!' : '🔗 Copiar link do perfil'}
           </button>
