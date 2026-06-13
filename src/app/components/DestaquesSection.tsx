@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase'
 import { fetchOvrMapByUuid } from '@/lib/ovr'
 import { formatNome } from '@/lib/formatNome'
-import LoadMoreCards from './LoadMoreCards'
+import LoadMoreCardsRow from './LoadMoreCardsRow'
 import type { MaisCard } from '@/app/api/landing/mais/route'
 
 export const revalidate = 60
@@ -81,21 +81,13 @@ export default async function DestaquesSection() {
           </Link>
         </div>
 
-        <div className="landing-cards" style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, 180px)',
-          gap: '16px',
-          alignItems: 'start',
-        }}>
-          <LoadMoreCards
-            tipo="destaques"
-            initialItems={initial}
-            initialOffset={LIMIT}
-            limit={LIMIT}
-            hasMoreInit={hasMore}
-            showRank={true}
-          />
-        </div>
+        <LoadMoreCardsRow
+          tipo="destaques"
+          initialItems={initial}
+          initialOffset={LIMIT}
+          limit={LIMIT}
+          hasMoreInit={hasMore}
+        />
 
       </div>
     </section>
