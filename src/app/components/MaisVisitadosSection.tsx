@@ -12,40 +12,42 @@ const LIMIT = 8
 export default async function MaisVisitadosSection() {
   const admin = createAdminClient()
 
-  const { data: visitasData, error } = await admin.from('visitas').select('atleta_id')
-
-  if (error || !visitasData || visitasData.length === 0) return null
+  const [visitasRes, profilesRes, ovrByUuid] = await Promise.all([
+    admin.from('visitas').select('atleta_id'),
+    admin.from('profiles').select('id, nome, athlete_id, avatar_url, fotos, criado_em').like('athlete_id', 'MC-%').order('criado_em', { ascending: false }),
+    fetchOvrMapByUuid(admin),
+  ])
 
   const countMap = new Map<string, number>()
-  for (const row of visitasData as { atleta_id: string }[]) {
+  for (const row of (visitasRes.data ?? []) as { atleta_id: string }[]) {
     if (!row.atleta_id) continue
     countMap.set(row.atleta_id, (countMap.get(row.atleta_id) ?? 0) + 1)
   }
 
-  if (countMap.size === 0) return null
+  const allProfiles = (profilesRes.data ?? []) as {
+    id: string; nome: string | null; athlete_id: string | null
+    avatar_url: string | null; fotos: (string | null)[] | null
+  }[]
 
-  const sortedIds = [...countMap.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .map(([id]) => id)
+  if (allProfiles.length === 0) return null
 
-  const topIds = sortedIds.slice(0, LIMIT)
-  const hasMore = sortedIds.length > LIMIT
+  // Ordena: mais visitados primeiro, depois os sem visita por ordem de cadastro
+  const sorted = [...allProfiles].sort((a, b) => {
+    const va = countMap.get(a.id) ?? 0
+    const vb = countMap.get(b.id) ?? 0
+    return vb - va
+  })
 
-  const [profilesRes, ovrByUuid] = await Promise.all([
-    admin.from('profiles').select('id, nome, athlete_id, avatar_url, fotos').in('id', topIds),
-    fetchOvrMapByUuid(admin),
-  ])
+  const topIds = sorted.slice(0, LIMIT).map(p => p.id)
+  const hasMore = sorted.length > LIMIT
 
-  const profileMap = new Map(
-    ((profilesRes.data ?? []) as { id: string; nome: string | null; athlete_id: string | null; avatar_url: string | null; fotos: (string | null)[] | null }[])
-      .map(p => [p.id, p])
-  )
+  const profileMap = new Map(allProfiles.map(p => [p.id, p]))
 
   const initial: MaisCard[] = topIds.flatMap(id => {
     const p = profileMap.get(id)
     if (!p) return []
     const fotos = (p.fotos ?? []).filter((f): f is string => !!f)
-    const card: MaisCard = {
+    return [{
       id: p.id,
       nome: formatNome(p.nome ?? 'Atleta'),
       posicao: null,
@@ -53,8 +55,7 @@ export default async function MaisVisitadosSection() {
       foto: fotos[0] ?? p.avatar_url ?? null,
       ovr: ovrByUuid.get(p.id) ?? null,
       categoria: null,
-    }
-    return [card]
+    }]
   })
 
   if (initial.length === 0) return null

@@ -77,50 +77,41 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ items, hasMore })
     }
 
-    // ── VISITADOS: mais visitas ────────────────────────────────────────────────
+    // ── VISITADOS: todos ordenados por visitas desc ───────────────────────────
     if (tipo === 'visitados') {
-      const { data: visitasData } = await admin.from('visitas').select('atleta_id')
+      const [visitasRes, profilesRes, ovrByUuid] = await Promise.all([
+        admin.from('visitas').select('atleta_id'),
+        admin.from('profiles').select('id, nome, athlete_id, avatar_url, fotos, criado_em').like('athlete_id', 'MC-%').order('criado_em', { ascending: false }),
+        fetchOvrMapByUuid(admin),
+      ])
+
       const countMap = new Map<string, number>()
-      for (const row of (visitasData ?? []) as { atleta_id: string }[]) {
+      for (const row of (visitasRes.data ?? []) as { atleta_id: string }[]) {
         if (!row.atleta_id) continue
         countMap.set(row.atleta_id, (countMap.get(row.atleta_id) ?? 0) + 1)
       }
 
-      const sortedIds = [...countMap.entries()]
-        .sort((a, b) => b[1] - a[1])
-        .map(([id]) => id)
+      const allProfiles = (profilesRes.data ?? []) as {
+        id: string; nome: string | null; athlete_id: string | null
+        avatar_url: string | null; fotos: (string | null)[] | null
+      }[]
 
-      const pageIds = sortedIds.slice(offset, offset + limit)
-      const hasMore = sortedIds.length > offset + limit
+      const sorted = [...allProfiles].sort((a, b) => (countMap.get(b.id) ?? 0) - (countMap.get(a.id) ?? 0))
+      const page = sorted.slice(offset, offset + limit)
+      const hasMore = sorted.length > offset + limit
 
-      if (pageIds.length === 0) return NextResponse.json({ items: [], hasMore: false })
-
-      const [profilesRes, ovrByUuid] = await Promise.all([
-        admin.from('profiles').select('id, nome, athlete_id, avatar_url, fotos').in('id', pageIds),
-        fetchOvrMapByUuid(admin),
-      ])
-
-      const profileMap = new Map(
-        ((profilesRes.data ?? []) as { id: string; nome: string | null; athlete_id: string | null; avatar_url: string | null; fotos: (string | null)[] | null }[])
-          .map(p => [p.id, p])
-      )
-
-      const items: MaisCard[] = pageIds
-        .flatMap(id => {
-          const p = profileMap.get(id)
-          if (!p) return []
-          const fotos = (p.fotos ?? []).filter((f): f is string => !!f)
-          const card: MaisCard = {
-            id: p.id,
-            nome: p.nome ?? 'Atleta',
-            posicao: null,
-            athlete_id: p.athlete_id,
-            foto: fotos[0] ?? p.avatar_url ?? null,
-            ovr: ovrByUuid.get(p.id) ?? null,
-            categoria: null,
-          }
-          return [card]
-        })
+      const items: MaisCard[] = page.map(p => {
+        const fotos = (p.fotos ?? []).filter((f): f is string => !!f)
+        return {
+          id: p.id,
+          nome: p.nome ?? 'Atleta',
+          posicao: null,
+          athlete_id: p.athlete_id,
+          foto: fotos[0] ?? p.avatar_url ?? null,
+          ovr: ovrByUuid.get(p.id) ?? null,
+          categoria: null,
+        }
+      })
 
       return NextResponse.json({ items, hasMore })
     }
