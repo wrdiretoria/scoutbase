@@ -18,15 +18,6 @@ const PERGUNTAS = [
     ],
   },
   {
-    key: 'pe_dominante',
-    pergunta: 'Qual seu pé dominante?',
-    opcoes: [
-      { valor: 'direito',      label: 'Pé Direito',   desc: 'Uso principalmente o pé direito' },
-      { valor: 'esquerdo',     label: 'Pé Esquerdo',  desc: 'Uso principalmente o pé esquerdo' },
-      { valor: 'ambidestro',   label: 'Ambidestro',   desc: 'Jogo bem com os dois pés' },
-    ],
-  },
-  {
     key: 'caracteristica',
     pergunta: 'Qual sua característica mais forte?',
     opcoes: [
