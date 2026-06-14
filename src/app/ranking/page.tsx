@@ -81,15 +81,17 @@ export default async function RankingPage({ searchParams }: Props) {
     (profilesRes.data ?? []).map(p => [p.id, p])
   )
 
-  // 4. Monta ranking — só atletas com avaliação
+  // 4. Monta lista de atletas
   type RankingItem = {
     id: string; nome: string; posicao: string; cidade: string; estado: string; pais: string
-    dataNasc: string | null; ovr: number; categoria: string | null
+    dataNasc: string | null; ovr: number | null; categoria: string | null
     initials: string; pos: string; avatarUrl: string | null; athleteId: string | null
     criadoEm: string | null
   }
 
   const profilesComCriacao = (profilesRes.data ?? []) as { id: string; nome: string | null; athlete_id: string | null; data_nascimento: string | null; avatar_url: string | null; criado_em?: string | null }[]
+
+  const modoNovos = ordemFiltro === 'novos'
 
   const ranking: RankingItem[] = atletas
     .map(u => {
@@ -99,7 +101,7 @@ export default async function RankingPage({ searchParams }: Props) {
       const dataNasc  = (profile?.data_nascimento as string | null) ?? null
       const athleteId = (profile?.athlete_id as string | null) ?? null
       const ovr       = athleteId ? (ovrMap.get(athleteId) ?? null) : null
-      if (ovr === null) return null   // apenas atletas avaliados
+      if (!modoNovos && ovr === null) return null   // ranking por OVR: só avaliados
       const criadoEm  = (profilesComCriacao.find(p => p.id === u.id) as { criado_em?: string | null } | undefined)?.criado_em ?? u.created_at ?? null
       return {
         id: u.id, nome,
@@ -117,9 +119,9 @@ export default async function RankingPage({ searchParams }: Props) {
       }
     })
     .filter((a): a is RankingItem => a !== null)
-    .sort((a, b) => ordemFiltro === 'novos'
+    .sort((a, b) => modoNovos
       ? (b.criadoEm ?? '').localeCompare(a.criadoEm ?? '')
-      : b.ovr - a.ovr
+      : (b.ovr ?? 0) - (a.ovr ?? 0)
     )
 
   // 5. Aplica filtros
