@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase'
-import { fetchOvrMapByUuid } from '@/lib/ovr'
 import { formatNome } from '@/lib/formatNome'
 import LoadMoreCardsRow from './LoadMoreCardsRow'
 import type { MaisCard } from '@/app/api/landing/mais/route'
@@ -12,14 +11,17 @@ const LIMIT = 12
 export default async function RankingNacionalSection() {
   const admin = createAdminClient()
 
-  const [ovrByUuid, profilesRes, countRes] = await Promise.all([
-    fetchOvrMapByUuid(admin),
+  const [profilesRes, avsRes, countRes] = await Promise.all([
     admin
       .from('profiles')
       .select('id, nome, athlete_id, avatar_url, fotos, criado_em')
       .like('athlete_id', 'MC-%')
       .order('criado_em', { ascending: false })
       .limit(LIMIT),
+    admin
+      .from('avaliacoes')
+      .select('aluno_id, scout_score')
+      .not('scout_score', 'is', null),
     admin
       .from('profiles')
       .select('id', { count: 'exact', head: true })
@@ -33,6 +35,19 @@ export default async function RankingNacionalSection() {
   }[]
 
   if (profiles.length === 0) return null
+
+  // Calcula OVR por aluno_id a partir de scout_score
+  const scoresByAluno = new Map<string, number[]>()
+  for (const av of (avsRes.data ?? []) as { aluno_id: string; scout_score: number }[]) {
+    const arr = scoresByAluno.get(av.aluno_id) ?? []
+    arr.push(av.scout_score)
+    scoresByAluno.set(av.aluno_id, arr)
+  }
+  const ovrByUuid = new Map<string, number>()
+  for (const [uid, scores] of scoresByAluno) {
+    const avg = scores.reduce((a, b) => a + b, 0) / scores.length
+    ovrByUuid.set(uid, Math.round(avg))
+  }
 
   const hasMore = (countRes.count ?? 0) > LIMIT
 
