@@ -157,7 +157,7 @@ export default async function RankingPage({ searchParams }: Props) {
   return (
     <main style={{
       background: '#06100a', minHeight: '100vh',
-      fontFamily: 'system-ui, sans-serif', color: 'white',
+      fontFamily: 'system-ui, sans-serif', color: 'white', overflowX: 'hidden',
     }}>
       <style>{`
         .rank-card { transition: background 0.2s, border-color 0.2s; }
@@ -204,7 +204,7 @@ export default async function RankingPage({ searchParams }: Props) {
         </div>
 
         {/* Filtros de categoria (pills) */}
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'nowrap', overflowX: 'auto', marginBottom: '12px', paddingBottom: '4px', scrollbarWidth: 'none' }}>
           {(() => {
             const extra = new URLSearchParams()
             if (posicaoFiltro) extra.set('posicao', posicaoFiltro)
