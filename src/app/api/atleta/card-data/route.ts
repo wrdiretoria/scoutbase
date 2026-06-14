@@ -40,9 +40,9 @@ export async function GET(req: NextRequest) {
       admin.from('visitas').select('*', { count: 'exact', head: true }).eq('atleta_id', id),
     ])
 
-    const meta        = userRes.data?.user?.user_metadata as { posicao?: string; nacionalidade?: string } | undefined
+    const meta        = userRes.data?.user?.user_metadata as { posicao?: string; pais?: string; nacionalidade?: string } | undefined
     const posicao     = meta?.posicao ?? null
-    const nacionalidade = meta?.nacionalidade ?? null
+    const nacionalidade = meta?.pais ?? meta?.nacionalidade ?? null
     const dataNasc = (profileRes.data?.data_nascimento as string | null) ?? null
     const av       = avRes.data
 
