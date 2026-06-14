@@ -91,7 +91,18 @@ export default async function RankingPage({ searchParams }: Props) {
 
   const profilesComCriacao = (profilesRes.data ?? []) as { id: string; nome: string | null; athlete_id: string | null; data_nascimento: string | null; avatar_url: string | null; criado_em?: string | null }[]
 
-  const modoNovos = ordemFiltro === 'novos'
+  const modoNovos      = ordemFiltro === 'novos'
+  const modoVisitados  = ordemFiltro === 'visitados'
+
+  // Para modo visitados: busca contagem de visitas por atleta
+  let visitasMap = new Map<string, number>()
+  if (modoVisitados) {
+    const visitasRes = await admin.from('visitas').select('atleta_id')
+    for (const row of visitasRes.data ?? []) {
+      const id = (row as { atleta_id: string }).atleta_id
+      visitasMap.set(id, (visitasMap.get(id) ?? 0) + 1)
+    }
+  }
 
   const ranking: RankingItem[] = atletas
     .map(u => {
@@ -101,7 +112,7 @@ export default async function RankingPage({ searchParams }: Props) {
       const dataNasc  = (profile?.data_nascimento as string | null) ?? null
       const athleteId = (profile?.athlete_id as string | null) ?? null
       const ovr       = athleteId ? (ovrMap.get(athleteId) ?? null) : null
-      if (!modoNovos && ovr === null) return null   // ranking por OVR: só avaliados
+      if (!modoNovos && !modoVisitados && ovr === null) return null   // ranking por OVR: só avaliados
       const criadoEm  = (profilesComCriacao.find(p => p.id === u.id) as { criado_em?: string | null } | undefined)?.criado_em ?? u.created_at ?? null
       return {
         id: u.id, nome,
@@ -119,10 +130,11 @@ export default async function RankingPage({ searchParams }: Props) {
       }
     })
     .filter((a): a is RankingItem => a !== null)
-    .sort((a, b) => modoNovos
-      ? (b.criadoEm ?? '').localeCompare(a.criadoEm ?? '')
-      : (b.ovr ?? 0) - (a.ovr ?? 0)
-    )
+    .sort((a, b) => {
+      if (modoNovos)     return (b.criadoEm ?? '').localeCompare(a.criadoEm ?? '')
+      if (modoVisitados) return (visitasMap.get(b.id) ?? 0) - (visitasMap.get(a.id) ?? 0)
+      return (b.ovr ?? 0) - (a.ovr ?? 0)
+    })
 
   // 5. Aplica filtros
   const buscaLower = buscaFiltro?.toLowerCase().trim() ?? ''

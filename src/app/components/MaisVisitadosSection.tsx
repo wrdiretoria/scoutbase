@@ -83,7 +83,7 @@ export default async function MaisVisitadosSection() {
         />
 
         <div style={{ textAlign: 'center', marginTop: '24px' }}>
-          <Link href="/ranking" style={{
+          <Link href="/ranking?ordem=visitados" style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
             padding: '12px 32px', borderRadius: '100px',
             border: '1.5px solid rgba(0,230,118,0.40)',
