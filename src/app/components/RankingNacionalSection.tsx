@@ -63,7 +63,7 @@ export default async function RankingNacionalSection() {
               Novos <span style={{ color: '#00e676' }}>Craques</span>
             </h2>
           </div>
-          <Link href="/ranking" style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(0,255,136,0.70)', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+          <Link href="/ranking?ordem=novos" style={{ fontSize: '13px', fontWeight: 600, color: 'rgba(0,255,136,0.70)', textDecoration: 'none', whiteSpace: 'nowrap' }}>
             Ver todos →
           </Link>
         </div>

@@ -53,10 +53,10 @@ const AVATAR_TIER: Record<number, { bg: string; color: string }> = {
 
 // ── Page ────────────────────────────────────────────────────────────────────
 
-type Props = { searchParams: Promise<{ categoria?: string; posicao?: string; cidade?: string; estado?: string; pais?: string; q?: string }> }
+type Props = { searchParams: Promise<{ categoria?: string; posicao?: string; cidade?: string; estado?: string; pais?: string; q?: string; ordem?: string }> }
 
 export default async function RankingPage({ searchParams }: Props) {
-  const { categoria: categoriaFiltro, posicao: posicaoFiltro, cidade: cidadeFiltro, estado: estadoFiltro, pais: paisFiltro, q: buscaFiltro } = await searchParams
+  const { categoria: categoriaFiltro, posicao: posicaoFiltro, cidade: cidadeFiltro, estado: estadoFiltro, pais: paisFiltro, q: buscaFiltro, ordem: ordemFiltro } = await searchParams
 
   const admin = createAdminClient()
 
@@ -72,7 +72,7 @@ export default async function RankingPage({ searchParams }: Props) {
   const [profilesRes, ovrMap] = await Promise.all([
     admin
       .from('profiles')
-      .select('id, nome, athlete_id, data_nascimento, bio, altura, peso, clube_atual, avatar_url')
+      .select('id, nome, athlete_id, data_nascimento, bio, altura, peso, clube_atual, avatar_url, criado_em')
       .in('id', ids),
     fetchOvrMap(admin),
   ])
@@ -81,12 +81,15 @@ export default async function RankingPage({ searchParams }: Props) {
     (profilesRes.data ?? []).map(p => [p.id, p])
   )
 
-  // 4. Monta ranking — só atletas com avaliação, ordenados por OVR real
+  // 4. Monta ranking — só atletas com avaliação
   type RankingItem = {
     id: string; nome: string; posicao: string; cidade: string; estado: string; pais: string
     dataNasc: string | null; ovr: number; categoria: string | null
     initials: string; pos: string; avatarUrl: string | null; athleteId: string | null
+    criadoEm: string | null
   }
+
+  const profilesComCriacao = (profilesRes.data ?? []) as { id: string; nome: string | null; athlete_id: string | null; data_nascimento: string | null; avatar_url: string | null; criado_em?: string | null }[]
 
   const ranking: RankingItem[] = atletas
     .map(u => {
@@ -97,6 +100,7 @@ export default async function RankingPage({ searchParams }: Props) {
       const athleteId = (profile?.athlete_id as string | null) ?? null
       const ovr       = athleteId ? (ovrMap.get(athleteId) ?? null) : null
       if (ovr === null) return null   // apenas atletas avaliados
+      const criadoEm  = (profilesComCriacao.find(p => p.id === u.id) as { criado_em?: string | null } | undefined)?.criado_em ?? u.created_at ?? null
       return {
         id: u.id, nome,
         posicao:   meta.posicao ?? '',
@@ -109,10 +113,14 @@ export default async function RankingPage({ searchParams }: Props) {
         pos:       posAbrev(meta.posicao ?? ''),
         avatarUrl: (profile?.avatar_url as string | null) ?? null,
         athleteId,
+        criadoEm,
       }
     })
     .filter((a): a is RankingItem => a !== null)
-    .sort((a, b) => b.ovr - a.ovr)
+    .sort((a, b) => ordemFiltro === 'novos'
+      ? (b.criadoEm ?? '').localeCompare(a.criadoEm ?? '')
+      : b.ovr - a.ovr
+    )
 
   // 5. Aplica filtros
   const buscaLower = buscaFiltro?.toLowerCase().trim() ?? ''
