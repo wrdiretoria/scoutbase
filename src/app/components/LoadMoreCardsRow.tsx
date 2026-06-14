@@ -38,6 +38,11 @@ export default function LoadMoreCardsRow({
 
   return (
     <>
+      <style>{`
+        @media (max-width: 640px) {
+          .landing-cards { justify-content: center; flex-wrap: wrap; overflow-x: visible !important; }
+        }
+      `}</style>
       {/* Scroll horizontal de cards */}
       <div className="mais-visitados-scroll landing-cards" style={{
         display: 'flex', gap: '16px',
