@@ -187,10 +187,10 @@ export default async function RankingPage({ searchParams }: Props) {
         {/* Header */}
         <div style={{ marginBottom: '24px' }}>
           <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-            🏆 Ranking Oficial
+            {modoVisitados ? '👁 Mais Visitados' : modoNovos ? '🆕 Recém chegados' : '🏆 Ranking Oficial'}
           </p>
           <h1 style={{ margin: '0 0 4px', fontSize: '28px', fontWeight: 900, letterSpacing: '-0.02em' }}>
-            Os melhores do futebol
+            {modoVisitados ? 'Mais visitados' : modoNovos ? 'Novos Craques' : 'Os melhores do futebol'}
           </h1>
           <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.4)' }}>
             {filtered.length} atleta{filtered.length !== 1 ? 's' : ''}
