@@ -137,28 +137,18 @@ function CompartilharContent() {
   async function handleShare() {
     setShareStatus('sharing')
     setShareErr(null)
+    const link = `${window.location.origin}/jogador/${uid}`
+    const text = `⚽ ${nome}${ovr ? ` · OVR ${ovr}` : ''}${posicao ? ` · ${posicao}` : ''}${cidade ? ` · ${cidade}` : ''}\nVeja meu card no MeuCraque.com 👇`
     try {
-      const canvas = canvasRef.current
-      if (!canvas) return
-      const blob: Blob = await new Promise((res, rej) =>
-        canvas.toBlob(b => b ? res(b) : rej(new Error('toBlob falhou')), 'image/png')
-      )
-      const fileName = `${nome.replace(/\s+/g, '_')}_MeuCraque.png`
-      const file = new File([blob], fileName, { type: 'image/png' })
-
-      if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file], title: `${nome} · Meu Craque`, text: `⚽ OVR ${ovr ?? '?'} · ${posicao}${cidade ? ` · ${cidade}` : ''}` })
-      } else if (navigator.share) {
-        await navigator.share({ title: `${nome} · Meu Craque`, url: `${window.location.origin}/jogador/${uid}` })
+      if (navigator.share) {
+        await navigator.share({ title: `${nome} · Meu Craque`, text, url: link })
       } else {
-        const url = URL.createObjectURL(blob)
-        const a = Object.assign(document.createElement('a'), { href: url, download: fileName })
-        document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url)
+        await navigator.clipboard.writeText(`${text}\n${link}`)
+        setShareErr('Link copiado! Cole no WhatsApp.')
       }
     } catch (err) {
       if (err instanceof Error && err.name !== 'AbortError') {
-        setShareErr('Erro ao compartilhar. Tente "Copiar link do perfil" abaixo.')
-        console.error('[compartilhar/handleShare]', err)
+        setShareErr('Erro ao compartilhar. Use "Copiar link" abaixo.')
       }
     } finally {
       setShareStatus('idle')
