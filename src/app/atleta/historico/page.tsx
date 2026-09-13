@@ -67,6 +67,12 @@ type EventoHighlight = {
 }
 type Evento = EventoCriacao | EventoAvaliacao | EventoHighlight
 
+type Frequencia = {
+  total:     number
+  presentes: number
+  turmas:    number
+}
+
 function getPlatformInfo(p: Plataforma): { label: string; bg: string } {
   return {
     youtube:   { label: 'YouTube',   bg: '#FF0000' },
@@ -102,6 +108,20 @@ function notaLabel(n: number): string {
   return 'Regular'
 }
 
+function frequenciaColor(pct: number): string {
+  if (pct >= 90) return '#00FF88'
+  if (pct >= 75) return '#84cc16'
+  if (pct >= 50) return '#eab308'
+  return '#ef4444'
+}
+
+function frequenciaLabel(pct: number): string {
+  if (pct >= 90) return 'Exemplar'
+  if (pct >= 75) return 'Boa'
+  if (pct >= 50) return 'Regular'
+  return 'Baixa'
+}
+
 function formatarData(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('pt-BR', {
     day: 'numeric', month: 'long', year: 'numeric',
@@ -135,6 +155,7 @@ export default function AtletaHistoricoPage() {
   const [dados,      setDados]      = useState<DadosPerfil | null>(null)
   const [avaliacoes, setAvaliacoes] = useState<AvaliacaoCompleta[]>([])
   const [highlights, setHighlights] = useState<Highlight[]>([])
+  const [frequencia, setFrequencia] = useState<Frequencia | null>(null)
   const [loading,    setLoading]    = useState(true)
 
   useEffect(() => {
@@ -201,6 +222,27 @@ export default function AtletaHistoricoPage() {
           setHighlights((json.highlights ?? []).reverse())
         }
       } catch { /* tabela highlights não criada ainda */ }
+
+      // ── Frequência (presença em turmas de escolinha) ──
+      try {
+        const { data: turmaIdsRows } = await supabase
+          .from('turma_atletas')
+          .select('turma_id')
+          .eq('profile_id', user.id)
+
+        const turmaIds = [...new Set((turmaIdsRows ?? []).map(r => r.turma_id))]
+
+        if (turmaIds.length > 0) {
+          const { data: registros } = await supabase
+            .from('presencas_turma')
+            .select('status')
+            .eq('profile_id', user.id)
+
+          const total = registros?.length ?? 0
+          const presentes = (registros ?? []).filter(r => r.status === 'presente').length
+          setFrequencia({ total, presentes, turmas: turmaIds.length })
+        }
+      } catch { /* tabela presencas_turma ainda não existe */ }
 
       setLoading(false)
     }
@@ -459,6 +501,44 @@ export default function AtletaHistoricoPage() {
             )}
           </div>
         </div>
+
+        {/* ══════════════════════════════════════
+            FREQUÊNCIA — presença nas turmas
+        ══════════════════════════════════════ */}
+        {frequencia && frequencia.total > 0 && (() => {
+          const pct = Math.round((frequencia.presentes / frequencia.total) * 100)
+          const cor = frequenciaColor(pct)
+          return (
+            <div style={{
+              marginBottom: '44px',
+              padding: '18px 22px',
+              background: `${cor}0a`,
+              border: `1px solid ${cor}30`,
+              borderRadius: '20px',
+              animation: 'ovrIn .55s ease forwards .45s', opacity: 0,
+              display: 'flex', alignItems: 'center', gap: '18px',
+            }}>
+              <div style={{
+                flexShrink: 0, width: '64px', height: '64px', borderRadius: '50%',
+                background: `${cor}14`, border: `2px solid ${cor}45`,
+                display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <span style={{ fontSize: '18px', fontWeight: 900, color: cor, lineHeight: 1, textShadow: `0 0 12px ${cor}55` }}>
+                  {pct}%
+                </span>
+              </div>
+              <div style={{ flex: 1 }}>
+                <p style={{ margin: '0 0 3px', fontSize: '9px', fontWeight: 800, letterSpacing: '0.14em', color: `${cor}bb`, textTransform: 'uppercase' }}>
+                  Frequência · {frequenciaLabel(pct)}
+                </p>
+                <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>
+                  {frequencia.presentes} de {frequencia.total} treino{frequencia.total !== 1 ? 's' : ''} registrado{frequencia.total !== 1 ? 's' : ''}
+                  {frequencia.turmas > 1 ? ` · ${frequencia.turmas} turmas` : ''}
+                </p>
+              </div>
+            </div>
+          )
+        })()}
 
         {/* ── Divisor timeline ── */}
         <div style={{

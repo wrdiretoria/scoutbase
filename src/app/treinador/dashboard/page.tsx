@@ -279,6 +279,8 @@ export default function TreinadorDashboardPage() {
   const [loading,       setLoading]       = useState(true)
   const [solicitacoes,  setSolicitacoes]  = useState<{ atletaId: string; atletaNome: string; atletaMcId: string; ts: string }[]>([])
   const [uploadingFoto, setUploadingFoto] = useState(false)
+  const [totalEscolinhas, setTotalEscolinhas] = useState<number | null>(null)
+  const [escolinhas, setEscolinhas] = useState<{ id: string; nome: string }[]>([])
   const fotoInputRef = useRef<HTMLInputElement>(null)
 
   async function handleFotoChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -319,6 +321,27 @@ export default function TreinadorDashboardPage() {
         treinadorId:   p?.athlete_id as string | undefined,
         created_at:    user.created_at,
       })
+
+      try {
+        const { data: vinculos } = await supabase
+          .from('escolinha_treinadores')
+          .select('escolinha_id')
+          .eq('profile_id', user.id)
+          .eq('status', 'aceito')
+
+        const escolinhaIds = (vinculos ?? []).map(v => v.escolinha_id)
+        if (escolinhaIds.length === 0) {
+          setTotalEscolinhas(0)
+          setEscolinhas([])
+        } else {
+          const { data: escolinhasRows } = await supabase
+            .from('escolinhas')
+            .select('id, nome')
+            .in('id', escolinhaIds)
+          setEscolinhas(escolinhasRows ?? [])
+          setTotalEscolinhas(escolinhasRows?.length ?? 0)
+        }
+      } catch { setTotalEscolinhas(0); setEscolinhas([]) }
 
       try {
         const semanaPast = new Date(Date.now() - 7 * 86_400_000).toISOString()
@@ -552,6 +575,45 @@ export default function TreinadorDashboardPage() {
             <span>Compartilhar meu card</span>
           </Link>
         </div>
+
+        {/* ── Escolinha nudge / atalho ── */}
+        {totalEscolinhas === 0 ? (
+          <div className="a4" style={{ marginBottom: '20px' }}>
+            <Link href="/treinador/escolinha/cadastro" style={{
+              display: 'flex', alignItems: 'center', gap: '12px',
+              padding: '14px 18px',
+              background: 'rgba(0,255,68,0.06)', border: '1px solid rgba(0,255,68,0.22)',
+              borderRadius: '16px', textDecoration: 'none',
+              transition: 'background .2s',
+            }}>
+              <span style={{ fontSize: '20px', flexShrink: 0 }}>🏟️</span>
+              <div style={{ flex: 1 }}>
+                <p style={{ margin: '0 0 2px', fontSize: '13px', fontWeight: 700, color: '#00ff44' }}>Crie sua escolinha</p>
+                <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.25)' }}>Organize suas turmas e atletas em um só lugar</p>
+              </div>
+              <span style={{ color: 'rgba(0,255,68,0.4)', fontSize: '18px', flexShrink: 0 }}>›</span>
+            </Link>
+          </div>
+        ) : (
+          <div className="a4" style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {escolinhas.map(esc => (
+              <Link key={esc.id} href={`/treinador/escolinha/${esc.id}`} style={{
+                display: 'flex', alignItems: 'center', gap: '12px',
+                padding: '14px 18px',
+                background: 'rgba(0,255,68,0.06)', border: '1px solid rgba(0,255,68,0.22)',
+                borderRadius: '16px', textDecoration: 'none',
+                transition: 'background .2s',
+              }}>
+                <span style={{ fontSize: '20px', flexShrink: 0 }}>🏟️</span>
+                <div style={{ flex: 1 }}>
+                  <p style={{ margin: '0 0 2px', fontSize: '13px', fontWeight: 700, color: '#00ff44' }}>{esc.nome}</p>
+                  <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.25)' }}>Ver turmas e atletas</p>
+                </div>
+                <span style={{ color: 'rgba(0,255,68,0.4)', fontSize: '18px', flexShrink: 0 }}>›</span>
+              </Link>
+            ))}
+          </div>
+        )}
 
         {/* ── Complete profile nudge ── */}
         {!profileComplete && (

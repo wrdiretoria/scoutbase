@@ -29,6 +29,7 @@ const PRIVATE_PREFIXES = [
   '/atleta/bem-vindo',
   '/treinador/dashboard',
   '/treinador/avaliar',
+  '/treinador/escolinha',
   '/treinador/perfil',
   '/treinador/compartilhar',
   '/treinador/configurar',

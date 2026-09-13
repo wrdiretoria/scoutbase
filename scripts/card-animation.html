@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 1080px; height: 1920px;
+    background: #000;
+    overflow: hidden;
+    font-family: 'Barlow Condensed', 'Arial Black', sans-serif;
+  }
+
+  /* ── FUNDO ── */
+  #bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 40%, #0a1a08 0%, #030603 60%, #000 100%);
+    opacity: 0;
+    animation: fadeIn .6s ease forwards;
+  }
+  /* Grade sutil */
+  #bg::after {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size: 80px 80px;
+  }
+
+  /* ── HOLOFOTE ── */
+  #spotlight {
+    position: absolute;
+    top: -200px; left: 50%;
+    transform: translateX(-50%);
+    width: 800px; height: 1600px;
+    background: radial-gradient(ellipse at 50% 0%, var(--accent-dim) 0%, transparent 55%);
+    opacity: 0;
+    animation: fadeIn .8s .3s ease forwards;
+    pointer-events: none;
+  }
+
+  /* ── CARD WRAPPER ── */
+  #card-wrap {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(.7);
+    opacity: 0;
+    animation: cardIn .5s .4s cubic-bezier(.22,1,.36,1) forwards;
+  }
+
+  /* ── CARD ── */
+  #card {
+    position: relative;
+    width: 840px;
+    height: 1360px;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow:
+      0 0 80px var(--glow-dim),
+      0 0 200px var(--glow-dim),
+      0 40px 120px rgba(0,0,0,.9);
+  }
+
+  /* Template PNG base */
+  #card .template {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: 1;
+  }
+
+  /* Foto atleta */
+  #card .foto {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 75%;
+    object-fit: cover;
+    object-position: center 30%;
+    z-index: 2;
+    filter: brightness(1.4) contrast(1.1);
+    opacity: 0;
+    animation: photoIn .5s .85s ease forwards;
+  }
+
+  /* Fade foto → preto */
+  #card .foto-fade {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 65%;
+    z-index: 3;
+    background: linear-gradient(to bottom,
+      transparent 0%,
+      rgba(0,0,0,.45) 35%,
+      rgba(0,0,0,.92) 65%,
+      rgba(0,0,0,.99) 100%
+    );
+  }
+
+  /* Dados overlay */
+  #card .dados {
+    position: absolute; inset: 0;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* MC + OVR block */
+  .mc-block {
+    padding: 28px 0 0 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 280px;
+    opacity: 0;
+    animation: slideUp .4s .5s ease forwards;
+  }
+  .mc-row { display: flex; align-items: center; gap: 14px; }
+  .mc-ring {
+    width: 70px; height: 70px; border-radius: 50%;
+    border: 3px solid var(--accent);
+    background: rgba(255,255,255,.06);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 20px var(--glow-dim);
+    flex-shrink: 0;
+  }
+  .mc-ring span { font-weight: 900; font-size: 22px; color: var(--accent); letter-spacing: 1px; }
+  .mc-nome { display: flex; flex-direction: column; line-height: 1.15; }
+  .mc-nome span { font-weight: 700; font-size: 22px; color: rgba(255,255,255,.9); letter-spacing: 3px; text-shadow: 0 1px 8px #000; }
+  .ovr-lbl { font-weight: 600; font-size: 22px; letter-spacing: 8px; color: rgba(255,255,255,.5); text-shadow: 0 0 10px #000; }
+  .ovr-num {
+    font-weight: 900; font-size: 200px; line-height: .8;
+    letter-spacing: -8px;
+    color: var(--accent);
+    text-shadow: 0 0 40px var(--glow), 0 0 100px var(--glow-dim), 0 6px 20px rgba(0,0,0,.95);
+  }
+
+  .spacer { flex: 1; }
+
+  /* Nome */
+  .nome-block {
+    padding: 0 36px 14px;
+    opacity: 0;
+    animation: slideUp .4s 1s ease forwards;
+  }
+  .n-first {
+    display: block; font-weight: 700; font-size: 60px;
+    color: #fff; letter-spacing: 6px;
+    text-shadow: 0 2px 20px rgba(0,0,0,.98);
+  }
+  .n-last {
+    display: block; font-weight: 900; font-size: 130px; line-height: .86;
+    color: var(--accent); letter-spacing: 2px;
+    text-shadow: 0 0 40px var(--glow), 0 0 90px var(--glow-dim), 0 6px 20px rgba(0,0,0,.98);
+  }
+
+  /* Painéis de stats */
+  .panels {
+    padding: 0 24px 14px;
+    display: flex; flex-direction: column; gap: 10px;
+    opacity: 0;
+    animation: slideUp .4s 1.15s ease forwards;
+  }
+  .panel {
+    background: rgba(0,0,0,.82);
+    border: 1.5px solid rgba(var(--accent-rgb),.5);
+    border-radius: 12px;
+    padding: 14px 20px;
+  }
+
+  /* Stats row */
+  .p-stats { display: grid; grid-template-columns: repeat(6,1fr); }
+  .st { display: flex; flex-direction: column; align-items: center; gap: 4px; position: relative; }
+  .st+.st::before { content: ''; position: absolute; left: 0; top: 4px; bottom: 4px; width: 1px; background: rgba(var(--accent-rgb),.3); }
+  .st-l { font-weight: 600; font-size: 20px; letter-spacing: 2px; color: rgba(255,255,255,.45); }
+  .st-v { font-weight: 900; font-size: 52px; line-height: 1; color: var(--accent); text-shadow: 0 0 20px var(--glow); }
+
+  /* ID row */
+  .p-id { display: flex; align-items: center; gap: 0; }
+  .id-col { display: flex; flex-direction: column; gap: 2px; min-width: 120px; }
+  .lbl { font-size: 16px; font-weight: 700; letter-spacing: 2px; color: rgba(255,255,255,.38); text-transform: uppercase; }
+  .id-val { font-weight: 800; font-size: 38px; color: #fff; letter-spacing: 2px; line-height: 1; }
+  .vbar { width: 1px; height: 54px; background: rgba(var(--accent-rgb),.35); margin: 0 20px; flex-shrink: 0; }
+  .country { display: flex; align-items: center; gap: 14px; flex: 1; }
+  .flag { font-size: 36px; }
+  .country span { font-weight: 700; font-size: 28px; color: rgba(255,255,255,.85); letter-spacing: 3px; }
+
+  /* Tagline */
+  .tagline {
+    display: flex; align-items: center; gap: 14px;
+    padding: 0 24px 18px;
+    opacity: 0;
+    animation: slideUp .4s 1.3s ease forwards;
+  }
+  .tg-l { flex: 1; height: 1.5px; background: linear-gradient(to right, transparent, var(--accent)); opacity: .7; }
+  .tg-r { flex: 1; height: 1.5px; background: linear-gradient(to left, transparent, var(--accent)); opacity: .7; }
+  .tg-t { font-weight: 600; font-size: 20px; letter-spacing: 5px; color: rgba(255,255,255,.5); text-transform: uppercase; white-space: nowrap; }
+  .tg-t b { color: var(--accent); font-weight: 800; }
+
+  /* Tier CSS vars */
+  #card[data-tier="bronze"] { --accent: #cd7f32; --glow: #a06020; --glow-dim: rgba(160,96,32,.4); --accent-rgb: 205,127,50; --accent-dim: rgba(160,96,32,.15); }
+  #card[data-tier="prata"]  { --accent: #c0c8d0; --glow: #7a8a94; --glow-dim: rgba(122,138,148,.4); --accent-rgb: 192,200,208; --accent-dim: rgba(122,138,148,.15); }
+  #card[data-tier="ouro"]   { --accent: #ffd700; --glow: #c8960c; --glow-dim: rgba(200,150,12,.4); --accent-rgb: 255,215,0; --accent-dim: rgba(200,150,12,.15); }
+  #card[data-tier="elite"]  { --accent: #00ff55; --glow: #00cc44; --glow-dim: rgba(0,204,68,.4); --accent-rgb: 0,255,85; --accent-dim: rgba(0,204,68,.15); }
+
+  /* ── ANIMAÇÕES ── */
+  @keyframes fadeIn   { to { opacity: 1; } }
+  @keyframes cardIn   { to { transform: translate(-50%,-50%) scale(1); opacity: 1; } }
+  @keyframes slideUp  { to { opacity: 1; transform: translateY(0); } }
+  @keyframes photoIn  { to { opacity: 1; } }
+  .mc-block   { transform: translateY(20px); }
+  .nome-block { transform: translateY(20px); }
+  .panels     { transform: translateY(20px); }
+  .tagline    { transform: translateY(20px); }
+
+  /* ── PARTÍCULAS ── */
+  .spark {
+    position: fixed; border-radius: 50%;
+    background: var(--accent, #ffd700);
+    pointer-events: none;
+    opacity: 0;
+    animation: sparkAnim var(--d, 1.2s) var(--delay, 0s) ease-out forwards;
+  }
+  @keyframes sparkAnim {
+    0%   { transform: translateY(0) scale(1); opacity: .9; }
+    100% { transform: translateY(var(--ty, -200px)) scale(0); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div id="bg"></div>
+<div id="spotlight"></div>
+
+<div id="card-wrap">
+  <div id="card" data-tier="ouro">
+
+    <img class="template" id="img-template" src="" alt="">
+    <img class="foto" id="img-foto" src="" alt="">
+    <div class="foto-fade"></div>
+
+    <div class="dados">
+      <div class="mc-block">
+        <div class="mc-row">
+          <div class="mc-ring"><span>MC</span></div>
+          <div class="mc-nome"><span>MEU</span><span>CRAQUE</span></div>
+        </div>
+        <div class="ovr-lbl">OVR</div>
+        <div class="ovr-num" id="d-ovr">78</div>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="nome-block">
+        <span class="n-first" id="d-nome">GABRIEL</span>
+        <span class="n-last" id="d-sobre">SILVA</span>
+      </div>
+
+      <div class="panels">
+        <div class="panel p-stats">
+          <div class="st"><span class="st-l">PAC</span><span class="st-v" id="d-pac">85</span></div>
+          <div class="st"><span class="st-l">SHO</span><span class="st-v" id="d-sho">80</span></div>
+          <div class="st"><span class="st-l">PAS</span><span class="st-v" id="d-pas">72</span></div>
+          <div class="st"><span class="st-l">DRI</span><span class="st-v" id="d-dri">83</span></div>
+          <div class="st"><span class="st-l">DEF</span><span class="st-v" id="d-def">35</span></div>
+          <div class="st"><span class="st-l">PHY</span><span class="st-v" id="d-phy">74</span></div>
+        </div>
+
+        <div class="panel p-id">
+          <div class="id-col">
+            <span class="lbl">Posição</span>
+            <span class="id-val" id="d-pos">ATA</span>
+          </div>
+          <div class="vbar"></div>
+          <div class="country">
+            <span class="flag">🇧🇷</span>
+            <span id="d-pais">BRASIL</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="tagline">
+        <div class="tg-l"></div>
+        <span class="tg-t">DESCUBRA SEU <b>CRAQUE</b></span>
+        <div class="tg-r"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Recebe dados via query string ou postMessage
+  function applyData(d) {
+    const card = document.getElementById('card');
+    const tier = d.tier || 'ouro';
+    card.dataset.tier = tier;
+
+    document.getElementById('img-template').src = d.templateSrc || '';
+    if (d.fotoSrc) {
+      const f = document.getElementById('img-foto');
+      f.src = d.fotoSrc;
+      f.style.display = 'block';
+    }
+    if (d.ovr)   document.getElementById('d-ovr').textContent   = d.ovr;
+    if (d.nome)  document.getElementById('d-nome').textContent  = d.nome;
+    if (d.sobre) document.getElementById('d-sobre').textContent = d.sobre;
+    if (d.pos)   document.getElementById('d-pos').textContent   = d.pos;
+    if (d.pais)  document.getElementById('d-pais').textContent  = d.pais;
+    if (d.pac)   document.getElementById('d-pac').textContent   = d.pac;
+    if (d.sho)   document.getElementById('d-sho').textContent   = d.sho;
+    if (d.pas)   document.getElementById('d-pas').textContent   = d.pas;
+    if (d.dri)   document.getElementById('d-dri').textContent   = d.dri;
+    if (d.def)   document.getElementById('d-def').textContent   = d.def;
+    if (d.phy)   document.getElementById('d-phy').textContent   = d.phy;
+
+    // Partículas
+    spawnParticles();
+  }
+
+  function spawnParticles() {
+    const card = document.querySelector('#card-wrap');
+    const accent = getComputedStyle(document.getElementById('card')).getPropertyValue('--accent').trim();
+    const positions = [
+      [200,900],[800,850],[100,1100],[900,1000],[400,1300],[700,1200],[300,800],[600,1100]
+    ];
+    positions.forEach(([x,y], i) => {
+      const s = document.createElement('div');
+      s.className = 'spark';
+      s.style.cssText = `
+        left:${x}px; top:${y}px;
+        width:${6+Math.random()*8}px; height:${6+Math.random()*8}px;
+        --d:${0.8+Math.random()*0.8}s;
+        --delay:${0.4+i*0.12}s;
+        --ty:${-150-Math.random()*200}px;
+        background:${i%3===0?'#00ff44':accent};
+        filter:blur(1px);
+      `;
+      document.body.appendChild(s);
+    });
+  }
+
+  // Params via query string (para Puppeteer)
+  const p = new URLSearchParams(location.search);
+  if (p.get('tier')) {
+    applyData({
+      tier:        p.get('tier'),
+      templateSrc: p.get('templateSrc'),
+      fotoSrc:     p.get('fotoSrc'),
+      ovr:         p.get('ovr'),
+      nome:        p.get('nome'),
+      sobre:       p.get('sobre'),
+      pos:         p.get('pos'),
+      pais:        p.get('pais'),
+      pac:         p.get('pac'),
+      sho:         p.get('sho'),
+      pas:         p.get('pas'),
+      dri:         p.get('dri'),
+      def:         p.get('def'),
+      phy:         p.get('phy'),
+    });
+  } else {
+    // Defaults para preview direto no browser
+    applyData({
+      tier: 'ouro',
+      templateSrc: '/belaja/public/card-template-ouro.png',
+      fotoSrc: '/belaja/public/meucraque-player.png',
+      ovr: '78', nome: 'GABRIEL', sobre: 'SILVA',
+      pos: 'ATA', pais: 'BRASIL',
+      pac:'85', sho:'80', pas:'72', dri:'83', def:'35', phy:'74',
+    });
+  }
+</script>
+</body>
+</html>
