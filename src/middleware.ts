@@ -17,6 +17,7 @@ const ALWAYS_PUBLIC = [
   '/planos',
   '/termos',
   '/p',
+  '/vagas',
 ]
 
 const PRIVATE_PREFIXES = [
@@ -50,6 +51,7 @@ const PRIVATE_PREFIXES = [
   '/turmas',
   '/feed',
   '/mensagens',
+  '/clube/vagas',
 ]
 
 const AUTH_ROUTES = ['/login']

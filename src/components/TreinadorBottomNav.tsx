@@ -114,6 +114,19 @@ export default function TreinadorBottomNav() {
             </span>
           </Link>
 
+          {/* Vagas */}
+          <Link
+            href="/clube/vagas"
+            className={`tc-nav-item${isActive('/clube/vagas') ? ' active' : ''}`}
+          >
+            <span className="tc-nav-icon" style={{ color: isActive('/clube/vagas') ? '#00FF88' : 'rgba(255,255,255,0.38)' }}>
+              💼
+            </span>
+            <span className="tc-nav-label" style={{ color: isActive('/clube/vagas') ? '#00FF88' : 'rgba(255,255,255,0.35)' }}>
+              Vagas
+            </span>
+          </Link>
+
           {/* Perfil */}
           <Link
             href="/treinador/perfil"
