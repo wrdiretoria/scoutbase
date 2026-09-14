@@ -23,6 +23,7 @@ import FotoSlideshow from './FotoSlideshow'
 import CardShare from './CardShare'
 import ConectarButton from './ConectarButton'
 import SeguirButton from './SeguirButton'
+import MensagemButton from './MensagemButton'
 import RecomendacoesSection from './RecomendacoesSection'
 import { SERVER_BASE_URL } from '@/lib/base-url'
 
@@ -804,20 +805,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
         {!isOwner && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
             <ConectarButton subjectId={id} />
-            <button
-              disabled
-              title="Mensagens chegam em breve"
-              style={{
-                flex: 1, padding: '13px', borderRadius: '12px',
-                border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)',
-                color: 'rgba(255,255,255,0.25)', fontWeight: 800, fontSize: '13px',
-                cursor: 'not-allowed', fontFamily: 'system-ui, sans-serif',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-              }}
-            >
-              Mensagem
-              <span style={{ fontSize: '9px', fontWeight: 700, opacity: 0.8 }}>em breve</span>
-            </button>
+            <MensagemButton subjectId={id} />
             <SeguirButton subjectId={id} />
             <CopiarLink url={`${SERVER_BASE_URL}/jogador/${id}`} />
           </div>
