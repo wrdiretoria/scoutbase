@@ -48,6 +48,7 @@ const PRIVATE_PREFIXES = [
   '/presencas',
   '/relatorios',
   '/turmas',
+  '/feed',
 ]
 
 const AUTH_ROUTES = ['/login']

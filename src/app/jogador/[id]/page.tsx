@@ -110,7 +110,7 @@ function getPlataformaCor(p: string): string {
 
 function formatarDataRelativa(dateStr: string) {
   const dias = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86_400_000)
-  if (dias === 0) return 'Hoje'
+  if (dias <= 0) return 'Hoje'
   if (dias === 1) return 'Ontem'
   if (dias < 7)  return `${dias}d atrás`
   return new Date(dateStr).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
