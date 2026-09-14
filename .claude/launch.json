@@ -9,6 +9,13 @@
       "cwd": "C:/Users/was25/OneDrive/Desktop/Saas/belaja"
     },
     {
+      "name": "scoutbase-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 3000,
+      "cwd": "C:/Users/was25/OneDrive/Desktop/scoutbase"
+    },
+    {
       "name": "mockup",
       "runtimeExecutable": "node",
       "runtimeArgs": [
