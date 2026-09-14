@@ -67,6 +67,8 @@ const PUBLIC_API_PREFIXES = [
   '/api/pais/',
   '/api/cron/',
   '/api/asaas/webhook',
+  '/api/recommendations',
+  '/api/network-stats/',
 ]
 
 function isAlwaysPublic(pathname: string) {

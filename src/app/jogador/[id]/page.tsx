@@ -11,6 +11,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { createAdminClient, createServerClient } from '@/lib/supabase'
 import { fetchOvrSingle } from '@/lib/ovr'
+import { getNetworkStats, type NetworkStats } from '@/lib/network-stats'
 import {
   VARIANTES, BLOCO_PERFIL as Q_BPERF,
   type VarianteKey, type QuestionDef,
@@ -20,6 +21,9 @@ import CopiarLink from './CopiarLink'
 import FavoritoButton from './FavoritoButton'
 import FotoSlideshow from './FotoSlideshow'
 import CardShare from './CardShare'
+import ConectarButton from './ConectarButton'
+import SeguirButton from './SeguirButton'
+import RecomendacoesSection from './RecomendacoesSection'
 import { SERVER_BASE_URL } from '@/lib/base-url'
 
 function isUuid(s: string) {
@@ -100,6 +104,95 @@ function getPlataformaLabel(p: string): string {
 
 function getPlataformaCor(p: string): string {
   return { youtube: '#FF0000', tiktok: '#010101', instagram: '#E1306C', vimeo: '#1AB7EA' }[p] ?? '#555'
+}
+
+// ── Rede: stats bar + atividade recente ────────────────────────────────────
+
+function formatarDataRelativa(dateStr: string) {
+  const dias = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86_400_000)
+  if (dias === 0) return 'Hoje'
+  if (dias === 1) return 'Ontem'
+  if (dias < 7)  return `${dias}d atrás`
+  return new Date(dateStr).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
+}
+
+function StatCard({ label, value }: { label: string; value: number | null }) {
+  return (
+    <div style={{
+      background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
+      borderRadius: '14px', padding: '12px', textAlign: 'center',
+    }}>
+      <p style={{ margin: '0 0 2px', fontSize: '18px', fontWeight: 900, color: value !== null ? '#22c55e' : 'rgba(255,255,255,0.2)' }}>
+        {value !== null ? value.toLocaleString('pt-BR') : '—'}
+      </p>
+      <p style={{ margin: 0, fontSize: '9px', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+        {label}
+      </p>
+    </div>
+  )
+}
+
+function NetworkStatsBar({ stats }: { stats: NetworkStats }) {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '16px' }}>
+      <StatCard label="Conexões"      value={stats.connections} />
+      <StatCard label="Seguidores"    value={stats.followers} />
+      <StatCard label="Recomendações" value={stats.recommendations} />
+      <StatCard label="Views (30d)"   value={stats.viewsLast30Days} />
+    </div>
+  )
+}
+
+type FeedPostComContagens = {
+  id: string
+  type: 'update' | 'achievement' | 'opportunity' | 'recommendation_share'
+  body: string
+  media_url: string | null
+  created_at: string
+  reactionCount: number
+  commentCount: number
+}
+
+const FEED_TIPO_ICON: Record<string, string> = {
+  update: '📝', achievement: '🏆', opportunity: '💼', recommendation_share: '💬',
+}
+
+function AtividadeRecenteSection({ posts }: { posts: FeedPostComContagens[] }) {
+  return (
+    <div style={{ marginTop: '16px' }}>
+      <p style={{ margin: '0 0 12px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+        🕓 Atividade recente
+      </p>
+      {posts.length === 0 ? (
+        <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255,255,255,0.3)' }}>
+          Nenhuma atividade publicada ainda.
+        </p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {posts.map(post => (
+            <div key={post.id} style={{
+              background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
+              borderRadius: '14px', padding: '14px',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                <span style={{ fontSize: '15px' }}>{FEED_TIPO_ICON[post.type] ?? '📝'}</span>
+                <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.3)', flex: 1 }}>
+                  {formatarDataRelativa(post.created_at)}
+                </span>
+              </div>
+              <p style={{ margin: '0 0 8px', fontSize: '13px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.6 }}>
+                {post.body}
+              </p>
+              <div style={{ display: 'flex', gap: '12px', fontSize: '11px', color: 'rgba(255,255,255,0.3)', fontWeight: 600 }}>
+                <span>👍 {post.reactionCount}</span>
+                <span>💬 {post.commentCount}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
 }
 
 function posAbrev(pos: string): string {
@@ -255,10 +348,12 @@ export default async function JogadorPublicoPage({ params }: Props) {
 
   // Verifica se o visitante é o dono do perfil
   let isOwner = false
+  let visitorId: string | null = null
   try {
     const supabase = await createServerClient()
     const { data: { user: visitor } } = await supabase.auth.getUser()
-    isOwner = visitor?.id === id
+    visitorId = visitor?.id ?? null
+    isOwner = visitorId === id
   } catch { /* visitante anônimo — isOwner fica false */ }
 
   const meta = user.user_metadata as {
@@ -333,7 +428,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
     video_id: string; titulo: string | null; thumbnail_url: string | null
   }
 
-  const [categoria, ovr, ultimaAv, highlights] = await Promise.all([
+  const [categoria, ovr, ultimaAv, highlights, networkStats, atividadeRecente] = await Promise.all([
     Promise.resolve(dataNasc ? calcularCategoria(dataNasc) : null),
     athleteId ? fetchOvrSingle(admin, athleteId) : Promise.resolve(null),
     // Última avaliação com atributos detalhados (via auth UUID direto)
@@ -357,6 +452,41 @@ export default async function JogadorPublicoPage({ params }: Props) {
           .order('created_at', { ascending: false })
         return (r.data ?? []) as HighlightPublico[]
       } catch { return [] as HighlightPublico[] }
+    })(),
+    // Estatísticas de rede (conexões, seguidores, recomendações, views)
+    getNetworkStats(admin, id, visitorId).catch(() => ({
+      connections: 0, followers: 0, recommendations: 0, viewsLast30Days: null,
+    } satisfies NetworkStats)),
+    // Atividade recente (feed_posts do atleta, com contagem de reações/comentários)
+    (async () => {
+      try {
+        const r = await admin.from('feed_posts')
+          .select('id, type, body, media_url, created_at')
+          .eq('author_id', id)
+          .order('created_at', { ascending: false })
+          .limit(10)
+        const posts = (r.data ?? []) as Omit<FeedPostComContagens, 'reactionCount' | 'commentCount'>[]
+        if (posts.length === 0) return [] as FeedPostComContagens[]
+
+        const postIds = posts.map(p => p.id)
+        const [{ data: reacoes }, { data: comentarios }] = await Promise.all([
+          admin.from('feed_reactions').select('post_id').in('post_id', postIds),
+          admin.from('feed_comments').select('post_id').in('post_id', postIds),
+        ])
+        const contarPorPost = (rows: { post_id: string }[] | null) => {
+          const mapa = new Map<string, number>()
+          for (const r2 of rows ?? []) mapa.set(r2.post_id, (mapa.get(r2.post_id) ?? 0) + 1)
+          return mapa
+        }
+        const reacoesPorPost = contarPorPost(reacoes)
+        const comentariosPorPost = contarPorPost(comentarios)
+
+        return posts.map(p => ({
+          ...p,
+          reactionCount: reacoesPorPost.get(p.id) ?? 0,
+          commentCount:  comentariosPorPost.get(p.id) ?? 0,
+        })) as FeedPostComContagens[]
+      } catch { return [] as FeedPostComContagens[] }
     })(),
   ])
 
@@ -667,6 +797,42 @@ export default async function JogadorPublicoPage({ params }: Props) {
             )}
           </div>
         </div>
+
+        {/* ── Rede: stats + ações ── */}
+        <NetworkStatsBar stats={networkStats} />
+
+        {!isOwner && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
+            <ConectarButton subjectId={id} />
+            <button
+              disabled
+              title="Mensagens chegam em breve"
+              style={{
+                flex: 1, padding: '13px', borderRadius: '12px',
+                border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.02)',
+                color: 'rgba(255,255,255,0.25)', fontWeight: 800, fontSize: '13px',
+                cursor: 'not-allowed', fontFamily: 'system-ui, sans-serif',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+              }}
+            >
+              Mensagem
+              <span style={{ fontSize: '9px', fontWeight: 700, opacity: 0.8 }}>em breve</span>
+            </button>
+            <SeguirButton subjectId={id} />
+            <CopiarLink url={`${SERVER_BASE_URL}/jogador/${id}`} />
+          </div>
+        )}
+
+        {/* ── Recomendações ── */}
+        <div style={{
+          background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
+          borderRadius: '18px', padding: '18px', marginBottom: '16px',
+        }}>
+          <RecomendacoesSection subjectId={id} isOwner={isOwner} limit={3} showViewAllLink />
+        </div>
+
+        {/* ── Atividade recente ── */}
+        <AtividadeRecenteSection posts={atividadeRecente} />
 
         {/* ── Avaliação + Currículo — âncora para o CTA ── */}
         {ultimaAv && (
