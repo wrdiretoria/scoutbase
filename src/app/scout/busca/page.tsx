@@ -7,6 +7,8 @@ import Link from 'next/link'
 import { createAdminClient, createServerClient } from '@/lib/supabase'
 import { listAllUsers } from '@/lib/auth'
 import { fetchOvrMap } from '@/lib/ovr'
+import { getBoostedProfileIds } from '@/lib/boosts'
+import { buscasRestantesNoMes, registrarBusca } from '@/lib/entitlements'
 import ScoutFiltros from './ScoutFiltros'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -59,17 +61,33 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
   const { data: { user: visitor } } = await supabase.auth.getUser()
   const isScoutLogado = visitor?.user_metadata?.tipo === 'scout'
 
+  // Plano free de scout: 5 buscas/mês. Cada carregamento desta página por um
+  // scout logado conta como 1 busca — bloqueia a lista (não a página) quando
+  // esgotar, e nem consulta/loga nada se ele já tiver o plano Pro (unlimited).
+  let buscasRestantes: number | null = null
+  let buscaBloqueada = false
+  if (isScoutLogado && visitor) {
+    buscasRestantes = await buscasRestantesNoMes(admin, visitor.id)
+    if (buscasRestantes === 0) {
+      buscaBloqueada = true
+    } else if (buscasRestantes !== null) {
+      await registrarBusca(admin, visitor.id)
+      buscasRestantes -= 1
+    }
+  }
+
   const users = await listAllUsers(admin)
   const agora = new Date()
   const atletaUsers = users.filter(u => u.user_metadata?.tipo === 'atleta')
 
   const ids = atletaUsers.map(u => u.id)
-  const [profilesRes, ovrMap] = await Promise.all([
+  const [profilesRes, ovrMap, boostedIds] = await Promise.all([
     admin
       .from('profiles')
       .select('id, athlete_id, data_nascimento, bio, altura, peso, pe_dominante, clube_atual, avatar_url')
       .in('id', ids),
     fetchOvrMap(admin),
+    getBoostedProfileIds(admin),
   ])
 
   const profileMap = new Map((profilesRes.data ?? []).map(p => [p.id, p]))
@@ -82,7 +100,7 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
       const dataNasc   = (p?.data_nascimento as string | null) ?? null
       const athleteId  = (p?.athlete_id as string | null) ?? null
       const ovr        = athleteId ? (ovrMap.get(athleteId) ?? null) : null
-      const promovido  = meta.promovido_ate ? new Date(meta.promovido_ate) > agora : false
+      const promovido  = (meta.promovido_ate ? new Date(meta.promovido_ate) > agora : false) || boostedIds.has(u.id)
       return {
         id: u.id,
         nome,
@@ -185,6 +203,12 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
             {filtered.length} atleta{filtered.length !== 1 ? 's' : ''} encontrado{filtered.length !== 1 ? 's' : ''}
             {temFiltro ? ' com os filtros aplicados' : ' na base'}
           </p>
+          {isScoutLogado && buscasRestantes !== null && (
+            <p style={{ margin: '4px 0 0', fontSize: '11px', color: 'rgba(251,191,36,0.7)' }}>
+              {buscasRestantes} busca{buscasRestantes !== 1 ? 's' : ''} grátis restante{buscasRestantes !== 1 ? 's' : ''} este mês ·{' '}
+              <Link href="/planos" style={{ color: '#fbbf24', fontWeight: 700 }}>assine o Pro →</Link>
+            </p>
+          )}
         </div>
 
         {/* ── Filtros (client component — event handlers) ── */}
@@ -194,8 +218,27 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
           cidadeFiltro={cidadeFiltro}
         />
 
-        {/* ── Resultados ── */}
-        {filtered.length === 0 ? (
+        {/* ── Limite do plano free atingido ── */}
+        {buscaBloqueada ? (
+          <div style={{
+            textAlign: 'center', padding: '48px 24px', borderRadius: '18px',
+            background: 'linear-gradient(135deg,#052e16,#0b1a10)', border: '1px solid rgba(34,197,94,0.25)',
+          }}>
+            <p style={{ fontSize: '32px', margin: '0 0 10px' }}>🔒</p>
+            <p style={{ margin: '0 0 6px', fontSize: '16px', fontWeight: 800, color: 'white' }}>
+              Você usou suas 5 buscas grátis deste mês
+            </p>
+            <p style={{ margin: '0 0 20px', fontSize: '13px', color: 'rgba(255,255,255,0.45)', maxWidth: '380px', marginLeft: 'auto', marginRight: 'auto' }}>
+              Assine o Treinador/Scout Pro pra ter busca ilimitada com filtros avançados, mensagens diretas ilimitadas e alerta de novo talento.
+            </p>
+            <Link href="/planos" style={{
+              display: 'inline-block', padding: '13px 28px', borderRadius: '12px',
+              background: '#22c55e', color: 'black', fontWeight: 800, fontSize: '14px', textDecoration: 'none',
+            }}>
+              Ver plano Pro →
+            </Link>
+          </div>
+        ) : filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 0', color: 'rgba(255,255,255,0.25)' }}>
             <p style={{ fontSize: '32px', margin: '0 0 10px' }}>🔍</p>
             <p style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: 'rgba(255,255,255,0.4)' }}>Nenhum atleta encontrado</p>

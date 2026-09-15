@@ -9,9 +9,11 @@ export const revalidate = 60
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import type { CSSProperties } from 'react'
 import { createAdminClient, createServerClient } from '@/lib/supabase'
 import { fetchOvrSingle } from '@/lib/ovr'
 import { getNetworkStats, type NetworkStats } from '@/lib/network-stats'
+import { canViewProfileViewers } from '@/lib/entitlements'
 import {
   VARIANTES, BLOCO_PERFIL as Q_BPERF,
   type VarianteKey, type QuestionDef,
@@ -117,29 +119,37 @@ function formatarDataRelativa(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
 }
 
-function StatCard({ label, value }: { label: string; value: number | null }) {
-  return (
-    <div style={{
-      background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
-      borderRadius: '14px', padding: '12px', textAlign: 'center',
-    }}>
-      <p style={{ margin: '0 0 2px', fontSize: '18px', fontWeight: 900, color: value !== null ? '#22c55e' : 'rgba(255,255,255,0.2)' }}>
-        {value !== null ? value.toLocaleString('pt-BR') : '—'}
+function StatCard({ label, value, locked }: { label: string; value: number | null; locked?: boolean }) {
+  const conteudo = (
+    <>
+      <p style={{ margin: '0 0 2px', fontSize: '18px', fontWeight: 900, color: locked ? '#fbbf24' : value !== null ? '#22c55e' : 'rgba(255,255,255,0.2)' }}>
+        {locked ? '🔒' : value !== null ? value.toLocaleString('pt-BR') : '—'}
       </p>
-      <p style={{ margin: 0, fontSize: '9px', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-        {label}
+      <p style={{ margin: 0, fontSize: '9px', color: locked ? 'rgba(251,191,36,0.6)' : 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+        {locked ? 'Assine pra ver' : label}
       </p>
-    </div>
+    </>
   )
+
+  const cardStyle: CSSProperties = {
+    display: 'block', textDecoration: 'none',
+    background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
+    borderRadius: '14px', padding: '12px', textAlign: 'center',
+  }
+
+  if (locked) {
+    return <Link href="/planos" style={{ ...cardStyle, cursor: 'pointer' }}>{conteudo}</Link>
+  }
+  return <div style={cardStyle}>{conteudo}</div>
 }
 
-function NetworkStatsBar({ stats }: { stats: NetworkStats }) {
+function NetworkStatsBar({ stats, viewsLocked }: { stats: NetworkStats; viewsLocked: boolean }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '16px' }}>
       <StatCard label="Conexões"      value={stats.connections} />
       <StatCard label="Seguidores"    value={stats.followers} />
       <StatCard label="Recomendações" value={stats.recommendations} />
-      <StatCard label="Views (30d)"   value={stats.viewsLast30Days} />
+      <StatCard label="Views (30d)"   value={stats.viewsLast30Days} locked={viewsLocked} />
     </div>
   )
 }
@@ -491,6 +501,15 @@ export default async function JogadorPublicoPage({ params }: Props) {
     })(),
   ])
 
+  // Gate do Atleta Pro: "quem visualizou meu perfil" — o dono só vê o número
+  // se tiver o plano ativo; senão a estatística já vem calculada mas é
+  // escondida na renderização (nunca chega pro HTML quando bloqueada).
+  const podeVerVisualizacoes = isOwner && networkStats.viewsLast30Days !== null
+    ? await canViewProfileViewers(admin, id).catch(() => false)
+    : true
+  const viewsLocked = isOwner && networkStats.viewsLast30Days !== null && !podeVerVisualizacoes
+  if (viewsLocked) networkStats.viewsLast30Days = null
+
   // Nome do treinador que fez a avaliação
   let treinadorNome: string | null = null
   if (ultimaAv?.professor_id) {
@@ -800,7 +819,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
         </div>
 
         {/* ── Rede: stats + ações ── */}
-        <NetworkStatsBar stats={networkStats} />
+        <NetworkStatsBar stats={networkStats} viewsLocked={viewsLocked} />
 
         {!isOwner && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>

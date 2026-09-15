@@ -8,6 +8,7 @@
 import { NextResponse } from 'next/server'
 import { createServerClient, createAdminClient } from '@/lib/supabase'
 import { getNetworkStats } from '@/lib/network-stats'
+import { canViewProfileViewers } from '@/lib/entitlements'
 
 export async function GET(
   _req: Request,
@@ -22,6 +23,12 @@ export async function GET(
 
     const admin = createAdminClient()
     const stats = await getNetworkStats(admin, id, user?.id ?? null)
+
+    // Gate do Atleta Pro: mesmo sendo o dono, só vê o número com o plano ativo.
+    if (user?.id === id && stats.viewsLast30Days !== null) {
+      const pode = await canViewProfileViewers(admin, id).catch(() => false)
+      if (!pode) stats.viewsLast30Days = null
+    }
 
     return NextResponse.json(stats)
   } catch (err) {
