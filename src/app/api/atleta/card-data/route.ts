@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
+import { atributosDaAvaliacao } from '@/lib/escala'
 
 export const dynamic = 'force-dynamic'
 
@@ -46,22 +47,7 @@ export async function GET(req: NextRequest) {
     const dataNasc = (profileRes.data?.data_nascimento as string | null) ?? null
     const av       = avRes.data
 
-    const raw = av ? {
-      vel: av.velocidade     as number | null,
-      tec: av.tecnica        as number | null,
-      dri: av.finalizacao    as number | null,
-      fis: av.forca          as number | null,
-      tat: av.visao_jogo     as number | null,
-      pos: av.posicionamento as number | null,
-    } : null
-
-    // Avaliações antigas gravaram os atributos em 0-10; as novas (calcAtributos) em 0-99.
-    // Se todos os valores cabem em 0-10, é escala legada → converte para 0-99.
-    const vals = raw ? Object.values(raw).filter((v): v is number => v != null) : []
-    const legacyScale = vals.length > 0 && vals.every(v => v <= 10)
-    const atributos = raw && legacyScale
-      ? Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, v == null ? null : Math.min(99, Math.round(v * 10))]))
-      : raw
+    const atributos = atributosDaAvaliacao(av)
 
     return NextResponse.json({
       posicao,

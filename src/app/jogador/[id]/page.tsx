@@ -11,6 +11,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { createAdminClient, createServerClient } from '@/lib/supabase'
 import { fetchOvrSingle } from '@/lib/ovr'
+import { atributosDaAvaliacao } from '@/lib/escala'
 import {
   VARIANTES, BLOCO_PERFIL as Q_BPERF,
   type VarianteKey, type QuestionDef,
@@ -360,6 +361,9 @@ export default async function JogadorPublicoPage({ params }: Props) {
     })(),
   ])
 
+  // Atributos na escala única 0-99 (normaliza avaliações legadas 0-10)
+  const atrs = atributosDaAvaliacao(ultimaAv)
+
   // Nome do treinador que fez a avaliação
   let treinadorNome: string | null = null
   if (ultimaAv?.professor_id) {
@@ -688,7 +692,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
                 <div style={{ fontSize: '28px', fontWeight: 900, color: '#22c55e', lineHeight: 1, letterSpacing: '-0.04em', textShadow: '0 0 16px rgba(34,197,94,0.5)' }}>
                   {ultimaAv.scout_score}
                 </div>
-                <div style={{ fontSize: '8px', fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.14em' }}>OVR</div>
+                <div style={{ fontSize: '8px', fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.14em' }}>NOTA</div>
               </div>
             </div>
             {/* Atributos */}
@@ -697,12 +701,12 @@ export default async function JogadorPublicoPage({ params }: Props) {
               : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {[
-                    { label: 'VEL — Velocidade',  val: ultimaAv.velocidade    },
-                    { label: 'TEC — Técnica',      val: ultimaAv.tecnica       },
-                    { label: 'DRI — Drible',       val: ultimaAv.finalizacao   },
-                    { label: 'FIS — Físico',       val: ultimaAv.forca         },
-                    { label: 'TAT — Tática',       val: ultimaAv.visao_jogo   },
-                    { label: 'POS — Postura',      val: ultimaAv.posicionamento },
+                    { label: 'VEL — Velocidade',  val: atrs?.vel ?? 0 },
+                    { label: 'TEC — Técnica',      val: atrs?.tec ?? 0 },
+                    { label: 'DRI — Drible',       val: atrs?.dri ?? 0 },
+                    { label: 'FIS — Físico',       val: atrs?.fis ?? 0 },
+                    { label: 'TAT — Tática',       val: atrs?.tat ?? 0 },
+                    { label: 'POS — Postura',      val: atrs?.pos ?? 0 },
                   ].map(attr => {
                     const pct = Math.min(100, attr.val)
                     const cor = attr.val >= 70 ? '#22c55e' : attr.val >= 50 ? '#f59e0b' : '#94a3b8'
@@ -1018,12 +1022,12 @@ export default async function JogadorPublicoPage({ params }: Props) {
                 return a
               })() : null}
               profileUrl={`${SERVER_BASE_URL}/jogador/${id}`}
-              statPac={ultimaAv?.velocidade    ?? null}   /* VEL */
-              statSho={ultimaAv?.tecnica       ?? null}   /* TEC */
-              statPas={ultimaAv?.finalizacao   ?? null}   /* DRI */
-              statDri={ultimaAv?.forca         ?? null}   /* FIS */
-              statDef={ultimaAv?.visao_jogo    ?? null}   /* TAT */
-              statPhy={ultimaAv?.posicionamento ?? null}  /* POS */
+              statPac={atrs?.vel ?? null}   /* VEL */
+              statSho={atrs?.tec ?? null}   /* TEC */
+              statPas={atrs?.dri ?? null}   /* DRI */
+              statDri={atrs?.fis ?? null}   /* FIS */
+              statDef={atrs?.tat ?? null}   /* TAT */
+              statPhy={atrs?.pos ?? null}   /* POS */
             />
           </div>
         )}

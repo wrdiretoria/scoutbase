@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { posAbrev, calcularCategoria } from '@/lib/cardUtils'
+import { atributosDaAvaliacao, ovrDoAtleta, type OvrUserMeta } from '@/lib/escala'
 
 type Atributo = { label: string; value: number; icon: string }
 
@@ -70,27 +71,31 @@ export default function CartaPage() {
       if (profile?.data_nascimento) setDataNasc(profile.data_nascimento as string)
       if (profile?.avatar_url)      setAvatarUrl(profile.avatar_url as string)
 
-      // Avaliação mais recente
+      // Avaliações — a mais recente dá os atributos; todas entram no OVR oficial
       try {
-        const { data: av } = await supabase
+        const { data: avs } = await supabase
           .from('avaliacoes')
           .select('scout_score, velocidade, tecnica, forca, finalizacao, visao_jogo, posicionamento')
           .eq('aluno_id', user.id)
           .not('scout_score', 'is', null)
           .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle()
 
+        const av = avs?.[0]
         if (av) {
           setTemAvaliacao(true)
-          setOvr(av.scout_score as number)
+          setOvr(ovrDoAtleta(
+            (profile?.avatar_url as string | null) ?? null,
+            user.user_metadata as OvrUserMeta,
+            avs.map(a => a.scout_score as number),
+          ))
+          const atrs = atributosDaAvaliacao(av)
           setAtributos([
-            { label: 'Vel',  icon: '⚡', value: (av.velocidade     as number) * 10 },
-            { label: 'Tec',  icon: '🎯', value: (av.tecnica        as number) * 10 },
-            { label: 'For',  icon: '💪', value: (av.forca          as number) * 10 },
-            { label: 'Fin',  icon: '🥅', value: (av.finalizacao    as number) * 10 },
-            { label: 'Vis',  icon: '👁', value: (av.visao_jogo     as number) * 10 },
-            { label: 'Pos',  icon: '🧭', value: (av.posicionamento as number) * 10 },
+            { label: 'Vel',  icon: '⚡', value: atrs?.vel ?? 0 },
+            { label: 'Tec',  icon: '🎯', value: atrs?.tec ?? 0 },
+            { label: 'For',  icon: '💪', value: atrs?.fis ?? 0 },
+            { label: 'Fin',  icon: '🥅', value: atrs?.dri ?? 0 },
+            { label: 'Vis',  icon: '👁', value: atrs?.tat ?? 0 },
+            { label: 'Pos',  icon: '🧭', value: atrs?.pos ?? 0 },
           ])
         }
       } catch { /* sem avaliação */ }

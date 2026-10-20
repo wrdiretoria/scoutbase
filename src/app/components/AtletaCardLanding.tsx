@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import type { AtributosMap, AtletaCardProps } from './AtletaCard'
+import { fmtAtributo } from '@/lib/escala'
 
 // ── Tier ──────────────────────────────────────────────────────────────────────
 
@@ -35,11 +36,6 @@ function formatViews(v: number | null | undefined): string {
   if (v == null || v === 0) return '0'
   if (v >= 1000) return `${(v / 1000).toFixed(1).replace('.0', '')}k`
   return String(v)
-}
-
-function toFifa(v: number | null | undefined): string {
-  if (v == null) return '—'
-  return String(Math.min(99, Math.max(0, Math.round(v))))
 }
 
 function flagEmoji(nac: string | null | undefined): string {
@@ -118,12 +114,12 @@ export default function AtletaCardLanding({
   const firstName = (parts.length > 1 ? parts[0] : '').toUpperCase()
 
   const fifaStats = [
-    { label: 'VEL', val: toFifa(resolvedAtributos?.vel) },
-    { label: 'TEC', val: toFifa(resolvedAtributos?.tec) },
-    { label: 'DRI', val: toFifa(resolvedAtributos?.dri) },
-    { label: 'FIS', val: toFifa(resolvedAtributos?.fis) },
-    { label: 'TAT', val: toFifa(resolvedAtributos?.tat) },
-    { label: 'POS', val: toFifa(resolvedAtributos?.pos) },
+    { label: 'VEL', val: fmtAtributo(resolvedAtributos?.vel) },
+    { label: 'TEC', val: fmtAtributo(resolvedAtributos?.tec) },
+    { label: 'DRI', val: fmtAtributo(resolvedAtributos?.dri) },
+    { label: 'FIS', val: fmtAtributo(resolvedAtributos?.fis) },
+    { label: 'TAT', val: fmtAtributo(resolvedAtributos?.tat) },
+    { label: 'POS', val: fmtAtributo(resolvedAtributos?.pos) },
   ]
   const hasAttrData = fifaStats.some(s => s.val !== '—')
 

@@ -10,6 +10,7 @@ import {
   type VarianteKey, type QuestionDef,
 } from '@/lib/questionnaire'
 import { generateCard } from '@/lib/canvasCard'
+import { atributosDaAvaliacao, ovrDoAtleta, type OvrUserMeta } from '@/lib/escala'
 import { posAbrev, getInitials, calcularCategoria, calcularIdade } from '@/lib/cardUtils'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -450,6 +451,7 @@ function AtletaPerfilContent() {
   const [questionarioConcluido, setQuestionarioConcluido] = useState(false)
 
   const [avaliacao,          setAvaliacao]          = useState<Avaliacao | null>(null)
+  const [ovrOficial,         setOvrOficial]         = useState<number | null>(null)
   const [treinadorNome,      setTreinadorNome]      = useState<string>('')
   const [visitCount,         setVisitCount]         = useState<number>(0)
   const [favoritoCount,      setFavoritoCount]      = useState<number>(0)
@@ -562,6 +564,19 @@ function AtletaPerfilContent() {
       const av = (avRes as { data: unknown }).data
       if (av) {
         setAvaliacao(av as Avaliacao)
+        // OVR oficial (mesma fórmula do perfil público e dos cards)
+        try {
+          const { data: scores } = await supabase
+            .from('avaliacoes')
+            .select('scout_score')
+            .eq('aluno_id', user.id)
+            .not('scout_score', 'is', null)
+          setOvrOficial(ovrDoAtleta(
+            (profile?.avatar_url as string | null) ?? null,
+            um as OvrUserMeta,
+            (scores ?? []).map(s => s.scout_score as number),
+          ))
+        } catch { /* ignorar */ }
         try {
           const { data: treinador } = await supabase
             .from('profiles')
@@ -604,7 +619,9 @@ function AtletaPerfilContent() {
   const temTelefone     = curriculo.telefone.trim().length > 0
 
   // OVR existe apenas se houver avaliação oficial
-  const ovrTotal: number | null = avaliacao ? avaliacao.scout_score : null
+  const ovrTotal: number | null = avaliacao ? ovrOficial : null
+  // Atributos do formato legado na escala única 0-99
+  const atrsLegado = atributosDaAvaliacao(avaliacao)
 
   // ── Próximo Passo — sugestões baseadas no estado do perfil ────
   const passos: { icon: string; titulo: string; sub: string; href: string }[] = []
@@ -1534,12 +1551,12 @@ function AtletaPerfilContent() {
               ) : (
                 // ── Formato legado: 6 atributos ─────────────────────
                 <div style={{ display:'flex', flexDirection:'column', gap:'13px' }}>
-                  <AtributoBar icon="⚡" label="Velocidade"    value={avaliacao.velocidade * 10} />
-                  <AtributoBar icon="👁" label="Visão de Jogo" value={avaliacao.visao_jogo * 10} />
-                  <AtributoBar icon="💪" label="Força Física"  value={avaliacao.forca * 10} />
-                  <AtributoBar icon="🎯" label="Finalização"   value={avaliacao.finalizacao * 10} />
-                  <AtributoBar icon="🧠" label="Int. Tática"   value={avaliacao.posicionamento * 10} />
-                  <AtributoBar icon="⚽" label="Técnica"       value={avaliacao.tecnica * 10} />
+                  <AtributoBar icon="⚡" label="Velocidade"    value={atrsLegado?.vel ?? 0} />
+                  <AtributoBar icon="👁" label="Visão de Jogo" value={atrsLegado?.tat ?? 0} />
+                  <AtributoBar icon="💪" label="Força Física"  value={atrsLegado?.fis ?? 0} />
+                  <AtributoBar icon="🎯" label="Finalização"   value={atrsLegado?.dri ?? 0} />
+                  <AtributoBar icon="🧠" label="Int. Tática"   value={atrsLegado?.pos ?? 0} />
+                  <AtributoBar icon="⚽" label="Técnica"       value={atrsLegado?.tec ?? 0} />
                 </div>
               )}
 

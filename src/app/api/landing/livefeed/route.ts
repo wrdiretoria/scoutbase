@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { atributosDaAvaliacao } from '@/lib/escala'
 import { createAdminClient } from '@/lib/supabase'
 import { fetchOvrMapByUuid } from '@/lib/ovr'
 
@@ -128,14 +129,7 @@ export async function GET(req: Request) {
         posicao:       '',
         cidade:        '',
         ovr:           ovrByUuid.get(av.aluno_id as string) ?? null,
-        atributos:     {
-          vel: (av.velocidade     as number | null) ?? null,
-          tec: (av.tecnica        as number | null) ?? null,
-          dri: (av.finalizacao    as number | null) ?? null,
-          fis: (av.forca          as number | null) ?? null,
-          tat: (av.visao_jogo     as number | null) ?? null,
-          pos: (av.posicionamento as number | null) ?? null,
-        },
+        atributos:     atributosDaAvaliacao(av),
         treinadorNome: treinador?.nome ?? null,
         fotos:         atleta?.fotos  ?? [],
         ts:            av.created_at  as string,

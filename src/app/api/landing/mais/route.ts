@@ -37,18 +37,15 @@ export async function GET(req: NextRequest) {
   try {
     const admin = createAdminClient()
 
-    // ── DESTAQUES: top OVR (sem getUserById — usa scout_score do banco) ──────────
+    // ── DESTAQUES: top OVR (OVR oficial, cacheado 60s) ───────────────────────────
     if (tipo === 'destaques') {
-      const [profilesRes, avsRes] = await Promise.all([
+      const [profilesRes, ovrByUuid] = await Promise.all([
         admin
           .from('profiles')
           .select('id, nome, athlete_id, avatar_url, fotos, data_nascimento')
           .like('athlete_id', 'MC-%')
           .limit(500),
-        admin
-          .from('avaliacoes')
-          .select('aluno_id, scout_score')
-          .not('scout_score', 'is', null),
+        fetchOvrMapByUuid(admin),
       ])
 
       const profiles = (profilesRes.data ?? []) as {
@@ -57,22 +54,8 @@ export async function GET(req: NextRequest) {
         fotos: (string | null)[] | null; data_nascimento: string | null
       }[]
 
-      // Média dos scout_scores por atleta (escala 0-100)
-      const scoreMap = new Map<string, number[]>()
-      for (const av of (avsRes.data ?? []) as { aluno_id: string; scout_score: number }[]) {
-        if (!av.aluno_id) continue
-        if (!scoreMap.has(av.aluno_id)) scoreMap.set(av.aluno_id, [])
-        scoreMap.get(av.aluno_id)!.push(av.scout_score)
-      }
-
       const sorted = profiles
-        .map(p => {
-          const scores = scoreMap.get(p.id)
-          const ovr = scores && scores.length > 0
-            ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-            : null
-          return { ...p, ovr }
-        })
+        .map(p => ({ ...p, ovr: ovrByUuid.get(p.id) ?? null }))
         .filter(p => p.ovr !== null)
         .sort((a, b) => (b.ovr ?? 0) - (a.ovr ?? 0))
 
@@ -97,23 +80,16 @@ export async function GET(req: NextRequest) {
 
     // ── VISITADOS: todos ordenados por visitas desc ───────────────────────────
     if (tipo === 'visitados') {
-      const [visitasRes, profilesRes, avsRes] = await Promise.all([
+      const [visitasRes, profilesRes, ovrByUuid] = await Promise.all([
         admin.from('visitas').select('atleta_id'),
         admin.from('profiles').select('id, nome, athlete_id, avatar_url, fotos, criado_em').like('athlete_id', 'MC-%').order('criado_em', { ascending: false }),
-        admin.from('avaliacoes').select('aluno_id, scout_score').not('scout_score', 'is', null),
+        fetchOvrMapByUuid(admin),
       ])
 
       const countMap = new Map<string, number>()
       for (const row of (visitasRes.data ?? []) as { atleta_id: string }[]) {
         if (!row.atleta_id) continue
         countMap.set(row.atleta_id, (countMap.get(row.atleta_id) ?? 0) + 1)
-      }
-
-      const scoreMap = new Map<string, number[]>()
-      for (const av of (avsRes.data ?? []) as { aluno_id: string; scout_score: number }[]) {
-        if (!av.aluno_id) continue
-        if (!scoreMap.has(av.aluno_id)) scoreMap.set(av.aluno_id, [])
-        scoreMap.get(av.aluno_id)!.push(av.scout_score)
       }
 
       const allProfiles = (profilesRes.data ?? []) as {
@@ -127,10 +103,7 @@ export async function GET(req: NextRequest) {
 
       const items: MaisCard[] = page.map(p => {
         const fotos = (p.fotos ?? []).filter((f): f is string => !!f)
-        const scores = scoreMap.get(p.id)
-        const ovr = scores && scores.length > 0
-          ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-          : null
+        const ovr = ovrByUuid.get(p.id) ?? null
         return {
           id: p.id,
           nome: p.nome ?? 'Atleta',
@@ -147,14 +120,14 @@ export async function GET(req: NextRequest) {
 
     // ── NOVOS: mais recentes ───────────────────────────────────────────────────
     if (tipo === 'novos') {
-      const [profilesRes, avsRes, countRes] = await Promise.all([
+      const [profilesRes, ovrByUuid, countRes] = await Promise.all([
         admin
           .from('profiles')
           .select('id, nome, athlete_id, avatar_url, fotos, criado_em')
           .like('athlete_id', 'MC-%')
           .order('criado_em', { ascending: false })
           .range(offset, offset + limit - 1),
-        admin.from('avaliacoes').select('aluno_id, scout_score').not('scout_score', 'is', null),
+        fetchOvrMapByUuid(admin),
         admin.from('profiles').select('id', { count: 'exact', head: true }).like('athlete_id', 'MC-%'),
       ])
 
@@ -164,21 +137,11 @@ export async function GET(req: NextRequest) {
         fotos: (string | null)[] | null; criado_em: string | null
       }[]
 
-      const scoreMap = new Map<string, number[]>()
-      for (const av of (avsRes.data ?? []) as { aluno_id: string; scout_score: number }[]) {
-        if (!av.aluno_id) continue
-        if (!scoreMap.has(av.aluno_id)) scoreMap.set(av.aluno_id, [])
-        scoreMap.get(av.aluno_id)!.push(av.scout_score)
-      }
-
       const hasMore = (countRes.count ?? 0) > offset + limit
 
       const items: MaisCard[] = profiles.map(p => {
         const fotos = (p.fotos ?? []).filter((f): f is string => !!f)
-        const scores = scoreMap.get(p.id)
-        const ovr = scores && scores.length > 0
-          ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-          : null
+        const ovr = ovrByUuid.get(p.id) ?? null
         return {
           id: p.id,
           nome: p.nome ?? 'Atleta',

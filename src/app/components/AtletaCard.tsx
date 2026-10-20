@@ -7,6 +7,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import { fmtAtributo } from '@/lib/escala'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -47,12 +48,6 @@ function getTier(ovr: number | null) {
 
 function initials(nome: string) {
   return nome.trim().split(' ').slice(0, 2).map(w => w[0] ?? '').join('').toUpperCase()
-}
-
-function toFifa(v: number | null | undefined): string {
-  if (v == null) return '—'
-  // Valores já calculados em escala 0-99 (calcAtributos)
-  return String(Math.min(99, Math.max(0, Math.round(v))))
 }
 
 function tagline(posicao: string | null | undefined): [string, string] {
@@ -96,12 +91,12 @@ export default function AtletaCard({
   const GREEN = '#00ff44'
 
   const fifaStats = [
-    { label: 'VEL', val: toFifa(atributos?.vel) },
-    { label: 'TEC', val: toFifa(atributos?.tec) },
-    { label: 'DRI', val: toFifa(atributos?.dri) },
-    { label: 'FIS', val: toFifa(atributos?.fis) },
-    { label: 'TAT', val: toFifa(atributos?.tat) },
-    { label: 'POS', val: toFifa(atributos?.pos) },
+    { label: 'VEL', val: fmtAtributo(atributos?.vel) },
+    { label: 'TEC', val: fmtAtributo(atributos?.tec) },
+    { label: 'DRI', val: fmtAtributo(atributos?.dri) },
+    { label: 'FIS', val: fmtAtributo(atributos?.fis) },
+    { label: 'TAT', val: fmtAtributo(atributos?.tat) },
+    { label: 'POS', val: fmtAtributo(atributos?.pos) },
   ]
 
   const uid = athleteId ? `ac-${athleteId.replace(/[^a-z0-9]/gi, '')}` : `ac-${Math.random().toString(36).slice(2)}`

@@ -1,5 +1,5 @@
 /**
- * OVR real — fórmula 50/50:
+ * OVR real — fórmula 50/50 (implementada em lib/escala.ts):
  *   • 50% perfil (cadastro + currículo preenchido)
  *   • 50% avaliação de treinadores (média dos scout_score)
  *
@@ -18,6 +18,7 @@
  */
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { unstable_cache } from 'next/cache'
+import { calcOvr, calcProfileScore as calcProfileScoreBase, type OvrUserMeta } from './escala'
 
 type ProfileRow = {
   id:         string
@@ -25,36 +26,10 @@ type ProfileRow = {
   avatar_url: string | null
 }
 
-type UserMeta = {
-  questionario_completo?: boolean | string | null
-  clubes_anteriores?:     string | null
-  campeonatos?:           string | null
-  titulos?:               string | null
-  premiacoes?:            string | null
-  telefone?:              string | null
-}
+type UserMeta = OvrUserMeta
 
-function calcProfileScore(p: ProfileRow, meta: UserMeta): number {
-  let score = 15  // base — nome + posicao + dob são obrigatórios no cadastro
-  if (p.avatar_url)                         score += 20
-  if (meta.questionario_completo)           score += 20
-  if (meta.clubes_anteriores?.trim())       score += 15
-  if (meta.campeonatos?.trim())             score += 10
-  if (meta.titulos?.trim())                 score += 10
-  if (meta.premiacoes?.trim())              score += 5
-  if (meta.telefone?.trim())                score += 5
-  return score  // 0–100
-}
-
-function calcOvr(profileScore: number, trainerAvg: number | null): number | null {
-  // Sem avaliação oficial: OVR não existe
-  if (trainerAvg === null) return null
-
-  // Com avaliação: perfil (0–50) + avaliação (0–50) = max 100 OVR
-  const profileOvr = Math.round(profileScore * 0.5)
-  const trainerOvr = Math.round(trainerAvg * 0.5)
-  return profileOvr + trainerOvr
-}
+// Wrappers sobre a escala única (lib/escala.ts)
+const calcProfileScore = (p: ProfileRow, meta: UserMeta) => calcProfileScoreBase(p.avatar_url, meta)
 
 // ── fetchOvrMap ────────────────────────────────────────────────────────────────
 
