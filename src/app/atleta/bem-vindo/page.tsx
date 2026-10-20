@@ -4,22 +4,10 @@ import { useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { categoriaDoAtleta } from '@/lib/categoria'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function calcularCategoria(dataNasc: string): string {
-  const hoje = new Date()
-  const nasc = new Date(dataNasc)
-  let idade = hoje.getFullYear() - nasc.getFullYear()
-  const m = hoje.getMonth() - nasc.getMonth()
-  if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--
-  if (idade <= 11) return 'Sub-11'
-  if (idade <= 13) return 'Sub-13'
-  if (idade <= 15) return 'Sub-15'
-  if (idade <= 17) return 'Sub-17'
-  if (idade <= 20) return 'Sub-20'
-  return 'Adulto'
-}
 
 function posLabel(pos: string): string {
   const map: Record<string, string> = {
@@ -279,7 +267,7 @@ function BemVindoContent() {
   const athleteId = params.get('athleteId') ?? ''
   const avatarUrl = params.get('avatarUrl') ?? ''
 
-  const categoria  = dataNasc ? calcularCategoria(dataNasc) : ''
+  const categoria  = dataNasc ? (categoriaDoAtleta(dataNasc) ?? '') : ''
   const initials   = getInitials(nome)
   const posAbrev   = posLabel(posicao)
   const cardUrl    = uid ? `${window.location.origin}/jogador/${uid}` : window.location.origin
@@ -865,7 +853,7 @@ function BemVindoContent() {
                 }
                 const canvas = await gerarCardCanvas({
                   nome, posicao, cidade,
-                  categoria: dataNasc ? calcularCategoria(dataNasc) : '',
+                  categoria: dataNasc ? (categoriaDoAtleta(dataNasc) ?? '') : '',
                   ovr: null, athleteId, avatarUrl: imgSrc,
                 })
                 setCardModal(canvas.toDataURL('image/png'))

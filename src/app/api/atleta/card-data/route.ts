@@ -1,24 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
 import { atributosDaAvaliacao } from '@/lib/escala'
+import { categoriaDoAtleta } from '@/lib/categoria'
 
 export const dynamic = 'force-dynamic'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-function calcCategoria(dataNasc: string | null): string | null {
-  if (!dataNasc) return null
-  const hoje = new Date()
-  const nasc = new Date(dataNasc)
-  let idade = hoje.getFullYear() - nasc.getFullYear()
-  const m = hoje.getMonth() - nasc.getMonth()
-  if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--
-  if (idade <= 13) return 'Sub-13'
-  if (idade <= 15) return 'Sub-15'
-  if (idade <= 17) return 'Sub-17'
-  if (idade <= 20) return 'Sub-20'
-  return 'Adulto'
-}
 
 export async function GET(req: NextRequest) {
   const id = req.nextUrl.searchParams.get('id')
@@ -52,7 +40,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       posicao,
       atributos,
-      categoria: calcCategoria(dataNasc),
+      categoria: categoriaDoAtleta(dataNasc),
       views: viewsRes.count ?? 0,
       nacionalidade,
     }, {

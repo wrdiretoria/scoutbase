@@ -10,6 +10,7 @@ import { fetchOvrMap } from '@/lib/ovr'
 import { getBoostedProfileIds } from '@/lib/boosts'
 import { buscasRestantesNoMes, registrarBusca } from '@/lib/entitlements'
 import ScoutFiltros from './ScoutFiltros'
+import { categoriaDoAtleta } from '@/lib/categoria'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -22,15 +23,6 @@ function calcularIdade(dataNasc: string): number {
   return idade
 }
 
-function calcularCategoria(dataNasc: string): string {
-  const idade = calcularIdade(dataNasc)
-  if (idade <= 11) return 'Sub-11'
-  if (idade <= 13) return 'Sub-13'
-  if (idade <= 15) return 'Sub-15'
-  if (idade <= 17) return 'Sub-17'
-  if (idade <= 20) return 'Sub-20'
-  return 'Adulto'
-}
 
 
 function getInitials(nome: string) {
@@ -109,7 +101,7 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
         ovr,
         promovido,
         pos:         posAbrev(meta.posicao ?? ''),
-        categoria:   dataNasc ? calcularCategoria(dataNasc) : null,
+        categoria:   dataNasc ? categoriaDoAtleta(dataNasc) : null,
         idade:       dataNasc ? calcularIdade(dataNasc) : null,
         bio:         (p?.bio as string | null) ?? null,
         altura:      (p?.altura as number | null) ?? null,

@@ -10,18 +10,10 @@ import { listAllUsers } from '@/lib/auth'
 import { fetchOvrMap } from '@/lib/ovr'
 import { getBoostedProfileIds } from '@/lib/boosts'
 import RankingFiltros from './RankingFiltros'
+import { categoriaDoAtleta } from '@/lib/categoria'
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
-function calcularCategoria(dataNasc: string): string {
-  const hoje = new Date()
-  const nasc = new Date(dataNasc)
-  let idade = hoje.getFullYear() - nasc.getFullYear()
-  const m = hoje.getMonth() - nasc.getMonth()
-  if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--
-  if (idade <= 20) return `Sub-${idade}`
-  return 'Adulto'
-}
 
 function getInitials(nome: string) {
   return nome.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase()
@@ -125,7 +117,7 @@ export default async function RankingPage({ searchParams }: Props) {
         estado:    meta.estado  ?? '',
         pais:      meta.pais    ?? 'Brasil',
         dataNasc,  ovr,
-        categoria: dataNasc ? calcularCategoria(dataNasc) : null,
+        categoria: dataNasc ? categoriaDoAtleta(dataNasc) : null,
         initials:  getInitials(nome),
         pos:       posAbrev(meta.posicao ?? ''),
         avatarUrl: (profile?.avatar_url as string | null) ?? null,

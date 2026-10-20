@@ -10,6 +10,7 @@ import {
   getVariante, getTodasPerguntas, calcScoutScore,
   type VarianteKey, type QuestionDef,
 } from '@/lib/questionnaire'
+import { categoriaDoAtleta } from '@/lib/categoria'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -37,25 +38,6 @@ function getIdadeExata(dataNasc?: string): number {
   return idade
 }
 
-function calcularCategoria(dataNasc?: string): string {
-  if (!dataNasc) return ''
-  const i = getIdadeExata(dataNasc)
-  if (i <= 7)  return 'Sub-7'
-  if (i <= 8)  return 'Sub-8'
-  if (i <= 9)  return 'Sub-9'
-  if (i <= 10) return 'Sub-10'
-  if (i <= 11) return 'Sub-11'
-  if (i <= 12) return 'Sub-12'
-  if (i <= 13) return 'Sub-13'
-  if (i <= 14) return 'Sub-14'
-  if (i <= 15) return 'Sub-15'
-  if (i <= 16) return 'Sub-16'
-  if (i <= 17) return 'Sub-17'
-  if (i <= 18) return 'Sub-18'
-  if (i <= 19) return 'Sub-19'
-  if (i <= 20) return 'Sub-20'
-  return 'Sub-20+'
-}
 
 // Fase descritiva para exibição
 function getFaseLabel(dataNasc?: string): { fase: string; cor: string; bg: string; borda: string } {
@@ -289,7 +271,7 @@ function AvaliarPageInner() {
   const notaGeral = calcGeral(notas)
 
   const hoje       = new Date().toLocaleDateString('pt-BR')
-  const categoria  = atleta ? calcularCategoria(atleta.dataNasc) : ''
+  const categoria  = atleta ? (categoriaDoAtleta(atleta.dataNasc) ?? '') : ''
   const initials   = atleta ? getInitials(atleta.nome) : ''
 
   useEffect(() => {

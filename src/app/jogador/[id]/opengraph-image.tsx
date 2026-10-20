@@ -7,25 +7,13 @@
 import { ImageResponse } from 'next/og'
 import { createAdminClient } from '@/lib/supabase'
 import { fetchOvrSingle } from '@/lib/ovr'
+import { categoriaDoAtleta } from '@/lib/categoria'
 
 export const runtime = 'nodejs'
 export const alt = 'Meu Craque — Perfil do Atleta'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
-function calcularCategoria(dataNasc: string): string {
-  const hoje = new Date()
-  const nasc = new Date(dataNasc)
-  let idade = hoje.getFullYear() - nasc.getFullYear()
-  const m = hoje.getMonth() - nasc.getMonth()
-  if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--
-  if (idade <= 11) return 'Sub-11'
-  if (idade <= 13) return 'Sub-13'
-  if (idade <= 15) return 'Sub-15'
-  if (idade <= 17) return 'Sub-17'
-  if (idade <= 20) return 'Sub-20'
-  return 'Adulto'
-}
 
 function posAbrev(pos: string): string {
   const map: Record<string, string> = {
@@ -72,7 +60,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
   const athleteId = (profile?.athlete_id as string | null) ?? null
   const dataNasc  = (profile?.data_nascimento as string | null) ?? null
   const avatarUrl = (profile?.avatar_url as string | null) ?? null
-  const categoria = dataNasc ? calcularCategoria(dataNasc) : null
+  const categoria = dataNasc ? categoriaDoAtleta(dataNasc) : null
   const pos       = posAbrev(posicao)
   const initials  = getInitials(nome)
   const ovr       = athleteId ? await fetchOvrSingle(admin, athleteId) : null

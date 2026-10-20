@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
 import { fetchOvrMapByUuid } from '@/lib/ovr'
+import { categoriaDoAtleta } from '@/lib/categoria'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,19 +15,6 @@ export type MaisCard = {
   categoria:  string | null
 }
 
-function calcCategoria(dataNasc: string | null): string | null {
-  if (!dataNasc) return null
-  const hoje = new Date()
-  const nasc = new Date(dataNasc)
-  let idade = hoje.getFullYear() - nasc.getFullYear()
-  const m = hoje.getMonth() - nasc.getMonth()
-  if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--
-  if (idade <= 13) return 'Sub-13'
-  if (idade <= 15) return 'Sub-15'
-  if (idade <= 17) return 'Sub-17'
-  if (idade <= 20) return 'Sub-20'
-  return 'Adulto'
-}
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
@@ -71,7 +59,7 @@ export async function GET(req: NextRequest) {
           athlete_id: p.athlete_id,
           foto: fotos[0] ?? p.avatar_url ?? null,
           ovr: p.ovr,
-          categoria: calcCategoria(p.data_nascimento),
+          categoria: categoriaDoAtleta(p.data_nascimento),
         }
       })
 

@@ -3,6 +3,8 @@
  * Centraliza funções duplicadas em compartilhar, carta, CardShare e pages.
  */
 
+import { categoriaDoAtleta } from './categoria'
+
 /** Iniciais do nome (até 2 palavras). */
 export function getInitials(nome: string): string {
   return nome.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase()
@@ -33,19 +35,9 @@ export function calcularIdade(dataNasc: string): number {
 }
 
 /**
- * Categoria por data de nascimento.
- * Retorna "Sub-11" … "Sub-20" ou "Adulto".
+ * Categoria pela regra única (lib/categoria.ts): ano atual − ano de nascimento.
+ * Retorna "Sub-N" ou "Adulto" ('' sem data válida).
  */
 export function calcularCategoria(dataNasc: string): string {
-  const hoje = new Date()
-  const nasc = new Date(dataNasc)
-  let idade = hoje.getFullYear() - nasc.getFullYear()
-  const m = hoje.getMonth() - nasc.getMonth()
-  if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--
-  if (idade <= 11) return 'Sub-11'
-  if (idade <= 13) return 'Sub-13'
-  if (idade <= 15) return 'Sub-15'
-  if (idade <= 17) return 'Sub-17'
-  if (idade <= 20) return 'Sub-20'
-  return 'Adulto'
+  return categoriaDoAtleta(dataNasc) ?? ''
 }

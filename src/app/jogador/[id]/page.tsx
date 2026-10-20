@@ -29,6 +29,7 @@ import SeguirButton from './SeguirButton'
 import MensagemButton from './MensagemButton'
 import RecomendacoesSection from './RecomendacoesSection'
 import { SERVER_BASE_URL } from '@/lib/base-url'
+import { categoriaDoAtleta } from '@/lib/categoria'
 
 function isUuid(s: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s)
@@ -77,19 +78,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-function calcularCategoria(dataNasc: string): string {
-  const hoje = new Date()
-  const nasc = new Date(dataNasc)
-  let idade = hoje.getFullYear() - nasc.getFullYear()
-  const m = hoje.getMonth() - nasc.getMonth()
-  if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--
-  if (idade <= 11) return 'Sub-11'
-  if (idade <= 13) return 'Sub-13'
-  if (idade <= 15) return 'Sub-15'
-  if (idade <= 17) return 'Sub-17'
-  if (idade <= 20) return 'Sub-20'
-  return 'Adulto'
-}
 
 
 function getInitials(nome: string) {
@@ -441,7 +429,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
   }
 
   const [categoria, ovr, ultimaAv, highlights, networkStats, atividadeRecente] = await Promise.all([
-    Promise.resolve(dataNasc ? calcularCategoria(dataNasc) : null),
+    Promise.resolve(dataNasc ? categoriaDoAtleta(dataNasc) : null),
     athleteId ? fetchOvrSingle(admin, athleteId) : Promise.resolve(null),
     // Última avaliação com atributos detalhados (via auth UUID direto)
     (async () => {

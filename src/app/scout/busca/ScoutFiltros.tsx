@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { CATEGORIAS_FILTRO } from '@/lib/categoria'
 
 const POSICOES = [
   'Goleiro', 'Lateral Direito', 'Lateral Esquerdo', 'Zagueiro',
@@ -8,7 +9,8 @@ const POSICOES = [
   'Ponta Direita', 'Ponta Esquerda', 'Atacante', 'Centro-Avante',
 ]
 
-const CATEGORIAS = ['Sub-11', 'Sub-13', 'Sub-15', 'Sub-17', 'Sub-20', 'Adulto']
+// Categorias pela regra única (lib/categoria.ts) — mesmas da home e do ranking
+const CATEGORIAS = CATEGORIAS_FILTRO
 
 interface Props {
   posicaoFiltro?: string

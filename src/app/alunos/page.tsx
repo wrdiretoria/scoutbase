@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { createClient } from '@/lib/supabase'
 import EmptyState from '@/components/EmptyState'
+import { categoriaDoAtleta } from '@/lib/categoria'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -51,17 +52,6 @@ function calcularIdade(dataNasc: string): number | null {
   return idade >= 0 ? idade : null
 }
 
-function categoriaParaIdade(idade: number): string {
-  if (idade <= 5) return 'Sub-5'
-  if (idade <= 7) return 'Sub-7'
-  if (idade <= 9) return 'Sub-9'
-  if (idade <= 11) return 'Sub-11'
-  if (idade <= 13) return 'Sub-13'
-  if (idade <= 15) return 'Sub-15'
-  if (idade <= 17) return 'Sub-17'
-  if (idade <= 20) return 'Sub-20'
-  return 'Adulto'
-}
 
 function getInitials(nome: string) {
   return nome.split(' ').slice(0, 2).map((n) => n[0] ?? '').join('').toUpperCase()
@@ -112,7 +102,7 @@ export default function AlunosPage() {
   const [salvandoAdd,      setSalvandoAdd]      = useState(false)
 
   const idadeCalculada  = calcularIdade(form.data_nascimento)
-  const categoriaSugerida = idadeCalculada !== null ? categoriaParaIdade(idadeCalculada) : null
+  const categoriaSugerida = categoriaDoAtleta(form.data_nascimento)
 
   // ── Fetch ──────────────────────────────────────────────────────────────────
 
