@@ -230,16 +230,17 @@ export default function AtletaCardLanding({
       <div style={{ height: '1px', background: `linear-gradient(to right, transparent, ${tier.color}40, transparent)`, margin: '0 12px' }} />
 
       {/* ── ID + BANDEIRA + OVR pill ── */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 12px' }}>
+      {/* Linha única mesmo em cards estreitos (~160px): rótulo sem quebra e espaçamentos enxutos */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px', padding: '7px 10px' }}>
         {/* ID */}
-        <div>
-          <div style={{ fontSize: '7px', fontWeight: 700, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>ID ÚNICO</div>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontSize: '7px', fontWeight: 700, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.12em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>ID ÚNICO</div>
           <div style={{ fontSize: '12px', fontWeight: 800, color: tier.color, letterSpacing: '0.04em', lineHeight: 1 }}>
             {mcIdNum ?? '—'}
           </div>
         </div>
         {/* Bandeira + views + OVR */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
           <span style={{ fontSize: '13px' }}>{flagEmoji(resolvedNacionalidade)}</span>
           {resolvedViews != null && (
             <span style={{ fontSize: '9px', fontWeight: 600, color: 'rgba(255,255,255,0.38)', letterSpacing: '0.02em', whiteSpace: 'nowrap' }}>
@@ -247,8 +248,8 @@ export default function AtletaCardLanding({
             </span>
           )}
           <div style={{
-            display: 'flex', alignItems: 'center', gap: '4px',
-            padding: '3px 8px', borderRadius: '20px',
+            display: 'flex', alignItems: 'center', gap: '3px',
+            padding: '3px 6px', borderRadius: '20px', whiteSpace: 'nowrap',
             background: `${tier.color}18`, border: `1px solid ${tier.color}35`,
           }}>
             <span style={{ fontSize: '7px', fontWeight: 700, color: 'rgba(255,255,255,0.40)', letterSpacing: '0.10em' }}>OVR</span>
