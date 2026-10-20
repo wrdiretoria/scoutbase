@@ -109,6 +109,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
   const [posicao, setPosicao] = useState('')
   const [cidade, setCidade] = useState('')
   const [estado, setEstado] = useState('')
+  const [bairro, setBairro] = useState('')   // opcional — usado no ranking por bairro
   const [pais,   setPais]   = useState('Brasil')
   const [dataNasc, setDataNasc] = useState('')
   const [sexo, setSexo] = useState<'Masculino' | 'Feminino' | ''>('')
@@ -186,7 +187,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
         email: internalEmail,
         password,
         options: {
-          data: { nome, posicao, sexo, cidade, estado: estado || undefined, pais, tipo: 'atleta' },
+          data: { nome, posicao, sexo, cidade, bairro: bairro.trim() || undefined, estado: estado || undefined, pais, tipo: 'atleta' },
         },
       })
 
@@ -665,6 +666,17 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
                   placeholder="Sua cidade" style={inputStyle}
                 />
               )}
+            </div>
+
+            <div>
+              <label style={labelStyle}>Bairro <span style={{ opacity: 0.5, fontWeight: 400 }}>(opcional)</span></label>
+              <input
+                type="text" value={bairro} onChange={e => setBairro(e.target.value)}
+                maxLength={60} placeholder="Ex: Jacarepaguá" style={inputStyle}
+              />
+              <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.25)' }}>
+                Para você aparecer no ranking do seu bairro
+              </p>
             </div>
 
             <div>
