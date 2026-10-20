@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 import AtletaBottomNav from '@/components/AtletaBottomNav'
+import { atributosDaAvaliacao, ovrDoAtleta, type OvrUserMeta } from '@/lib/escala'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -29,7 +30,8 @@ type AvaliacaoCompleta = {
   finalizacao:         number
   posicionamento:      number
   tecnica:             number
-  nota_geral:          number
+  nota_geral:          number | null
+  scout_score:         number | null
   observacao:          string | null
   created_at:          string
   professor_id:        string
@@ -156,6 +158,7 @@ export default function AtletaHistoricoPage() {
   const [avaliacoes, setAvaliacoes] = useState<AvaliacaoCompleta[]>([])
   const [highlights, setHighlights] = useState<Highlight[]>([])
   const [frequencia, setFrequencia] = useState<Frequencia | null>(null)
+  const [ovrBase,    setOvrBase]    = useState<{ avatarUrl: string | null; meta: OvrUserMeta } | null>(null)
   const [loading,    setLoading]    = useState(true)
 
   useEffect(() => {
@@ -189,6 +192,7 @@ export default function AtletaHistoricoPage() {
         temFoto, temBio, temFisico, temClube,
         criadoEm:  user.created_at,
       })
+      setOvrBase({ avatarUrl: (p?.avatar_url as string | null) ?? null, meta: m as OvrUserMeta })
 
       // ── Avaliações (todas, ordem cronológica) ──
       try {
@@ -250,9 +254,12 @@ export default function AtletaHistoricoPage() {
   }, [router])
 
   // ── Derived values ────────────────────────────────────────────────────────
-  const ovrAtual = avaliacoes.length > 0
-    ? avaliacoes[avaliacoes.length - 1].nota_geral
-    : null
+  // Nota do treinador em cada avaliação (scout_score; nota_geral é legado)
+  const notaDe = (av: AvaliacaoCompleta) => av.scout_score ?? av.nota_geral ?? 0
+  // OVR oficial (lib/escala) considerando as avaliações até o índice idx
+  const ovrAte = (idx: number): number =>
+    ovrBase ? (ovrDoAtleta(ovrBase.avatarUrl, ovrBase.meta, avaliacoes.slice(0, idx + 1).map(notaDe)) ?? 0) : 0
+  const ovrAtual = avaliacoes.length > 0 ? ovrAte(avaliacoes.length - 1) : null
 
   const animOvr = useCounter(ovrAtual ?? 0, 400, 1000)
 
@@ -308,8 +315,8 @@ export default function AtletaHistoricoPage() {
       tipo:        'avaliacao',
       date:        av.created_at,
       av,
-      ovrAvAntes:  idx === 0 ? 0 : avaliacoes[idx - 1].nota_geral,
-      ovrAvDepois: av.nota_geral,
+      ovrAvAntes:  idx === 0 ? 0 : ovrAte(idx - 1),
+      ovrAvDepois: ovrAte(idx),
       isFirst:     idx === 0,
     })
   })
@@ -649,19 +656,22 @@ export default function AtletaHistoricoPage() {
               /* ── AVALIAÇÃO ── */
               if (ev.tipo === 'avaliacao') {
                 const { av, ovrAvAntes, ovrAvDepois, isFirst } = ev
-                const cor   = notaColor(av.nota_geral)
-                const label = notaLabel(av.nota_geral)
+                const nota  = notaDe(av)
+                const cor   = notaColor(nota)
+                const label = notaLabel(nota)
                 const delta = ovrAvDepois - ovrAvAntes
                 const ovrAntes  = ovrAvAntes
                 const ovrDepois = ovrAvDepois
 
+                // Atributos na escala única 0-99 (normaliza avaliações legadas 0-10)
+                const atrs = atributosDaAvaliacao(av)
                 const ATTRS = [
-                  { icon:'⚡', label:'Velocidade',   v: av.velocidade },
-                  { icon:'👁', label:'Visão',         v: av.visao_jogo },
-                  { icon:'💪', label:'Força',         v: av.forca },
-                  { icon:'🎯', label:'Finalização',   v: av.finalizacao },
-                  { icon:'🧠', label:'Int. Tática',   v: av.posicionamento },
-                  { icon:'⚽', label:'Técnica',       v: av.tecnica },
+                  { icon:'⚡', label:'Velocidade',   v: atrs?.vel ?? 0 },
+                  { icon:'👁', label:'Visão',         v: atrs?.tat ?? 0 },
+                  { icon:'💪', label:'Força',         v: atrs?.fis ?? 0 },
+                  { icon:'🎯', label:'Finalização',   v: atrs?.dri ?? 0 },
+                  { icon:'🧠', label:'Int. Tática',   v: atrs?.pos ?? 0 },
+                  { icon:'⚽', label:'Técnica',       v: atrs?.tec ?? 0 },
                 ]
 
                 return (
@@ -725,7 +735,7 @@ export default function AtletaHistoricoPage() {
                             display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:'2px',
                           }}>
                             <span style={{ fontSize:'20px', fontWeight:900, color:cor, lineHeight:1, letterSpacing:'-0.03em', textShadow:`0 0 16px ${cor}66` }}>
-                              {av.nota_geral}
+                              {nota}
                             </span>
                             <span style={{ fontSize:'7px', fontWeight:800, color:`${cor}99`, textTransform:'uppercase', letterSpacing:'0.06em' }}>
                               {label}
