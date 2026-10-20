@@ -31,6 +31,30 @@ function posAbrev(pos: string): string {
 
 const CATEGORIAS = [6,7,8,9,10,11,12,13,14,15,16,17,18,19,20].map(n => `Sub-${n}`)
 
+/** Comparação de bairro/cidade sem acento e sem caixa. */
+function norm(s: string) {
+  return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim()
+}
+
+/** "de Jacarepaguá", mas "do Rio de Janeiro" / "da Tijuca" — nomes que levam artigo. */
+const COM_ARTIGO: Record<string, 'do' | 'da' | 'dos' | 'das'> = {
+  'rio de janeiro': 'do', 'recife': 'do', 'porto': 'do', 'cairo': 'do', 'meier': 'do', 'flamengo': 'do',
+  'leblon': 'do', 'recreio dos bandeirantes': 'do', 'recreio': 'do', 'grajau': 'do', 'humaita': 'do',
+  'tijuca': 'da', 'barra da tijuca': 'da', 'penha': 'da', 'gavea': 'da', 'urca': 'da', 'mooca': 'da',
+  'lapa': 'da', 'bahia': 'da', 'paraiba': 'da', 'freguesia': 'da', 'pavuna': 'da', 'vila mariana': 'da',
+}
+function comPreposicao(local: string) {
+  return `${COM_ARTIGO[norm(local)] ?? 'de'} ${local}`
+}
+
+type Aba = 'ranking' | 'semana' | 'novos' | 'visitados'
+const ABAS: { id: Exclude<Aba, 'visitados'>; label: string }[] = [
+  { id: 'ranking', label: '🏆 Ranking' },
+  { id: 'semana',  label: '🔥 Top da Semana' },
+  { id: 'novos',   label: '🆕 Novos Craques' },
+]
+const SETE_DIAS_MS = 7 * 24 * 60 * 60 * 1000
+
 const RANK_COLORS: Record<number, { bg: string; text: string; border: string }> = {
   1: { bg: 'rgba(245,158,11,0.15)', text: '#f59e0b', border: 'rgba(245,158,11,0.4)' },
   2: { bg: 'rgba(148,163,184,0.12)', text: '#94a3b8', border: 'rgba(148,163,184,0.35)' },
@@ -46,10 +70,25 @@ const AVATAR_TIER: Record<number, { bg: string; color: string }> = {
 
 // ── Page ────────────────────────────────────────────────────────────────────
 
-type Props = { searchParams: Promise<{ categoria?: string; posicao?: string; cidade?: string; estado?: string; pais?: string; q?: string; ordem?: string }> }
+type Filtros = { categoria?: string; posicao?: string; cidade?: string; bairro?: string; estado?: string; pais?: string; q?: string; ordem?: string }
+type Props = { searchParams: Promise<Filtros> }
+
+/** URL do ranking mantendo os filtros atuais, com alterações pontuais. */
+function urlRanking(atual: Filtros, mudar: Partial<Filtros>) {
+  const f = { ...atual, ...mudar }
+  const q = new URLSearchParams()
+  for (const k of ['ordem', 'categoria', 'posicao', 'pais', 'estado', 'cidade', 'bairro', 'q'] as const) {
+    const v = f[k]
+    if (v && !(k === 'ordem' && v === 'ranking')) q.set(k, v)
+  }
+  const s = q.toString()
+  return `/ranking${s ? `?${s}` : ''}`
+}
 
 export default async function RankingPage({ searchParams }: Props) {
-  const { categoria: categoriaFiltro, posicao: posicaoFiltro, cidade: cidadeFiltro, estado: estadoFiltro, pais: paisFiltro, q: buscaFiltro, ordem: ordemFiltro } = await searchParams
+  const params = await searchParams
+  const { categoria: categoriaFiltro, posicao: posicaoFiltro, cidade: cidadeFiltro, bairro: bairroFiltro, estado: estadoFiltro, pais: paisFiltro, q: buscaFiltro, ordem: ordemFiltro } = params
+  const aba: Aba = ordemFiltro === 'semana' || ordemFiltro === 'novos' || ordemFiltro === 'visitados' ? ordemFiltro : 'ranking'
 
   const admin = createAdminClient()
 
@@ -78,21 +117,24 @@ export default async function RankingPage({ searchParams }: Props) {
 
   // 4. Monta lista de atletas
   type RankingItem = {
-    id: string; nome: string; posicao: string; cidade: string; estado: string; pais: string
+    id: string; nome: string; posicao: string; cidade: string; bairro: string; estado: string; pais: string
     dataNasc: string | null; ovr: number | null; categoria: string | null
     initials: string; pos: string; avatarUrl: string | null; athleteId: string | null
-    criadoEm: string | null; boosted: boolean
+    criadoEm: string | null; boosted: boolean; visitas: number
   }
 
   const profilesComCriacao = (profilesRes.data ?? []) as { id: string; nome: string | null; athlete_id: string | null; data_nascimento: string | null; avatar_url: string | null; criado_em?: string | null }[]
 
-  const modoNovos      = ordemFiltro === 'novos'
-  const modoVisitados  = ordemFiltro === 'visitados'
+  const modoNovos      = aba === 'novos'        // atletas SEM avaliação (aguardando)
+  const modoVisitados  = aba === 'visitados'    // legado: visitas de todos os tempos
+  const modoSemana     = aba === 'semana'       // visitas dos últimos 7 dias
 
-  // Para modo visitados: busca contagem de visitas por atleta
+  // Contagem de visitas por atleta (semana ou todos os tempos)
   const visitasMap = new Map<string, number>()
-  if (modoVisitados) {
-    const visitasRes = await admin.from('visitas').select('atleta_id')
+  if (modoVisitados || modoSemana) {
+    let consulta = admin.from('visitas').select('atleta_id')
+    if (modoSemana) consulta = consulta.gte('created_at', new Date(agora.getTime() - SETE_DIAS_MS).toISOString())
+    const visitasRes = await consulta
     for (const row of visitasRes.data ?? []) {
       const id = (row as { atleta_id: string }).atleta_id
       visitasMap.set(id, (visitasMap.get(id) ?? 0) + 1)
@@ -101,19 +143,23 @@ export default async function RankingPage({ searchParams }: Props) {
 
   const ranking: RankingItem[] = atletas
     .map((u): RankingItem | null => {
-      const meta = u.user_metadata as { nome?: string; posicao?: string; cidade?: string; estado?: string; pais?: string; promovido_ate?: string }
+      const meta = u.user_metadata as { nome?: string; posicao?: string; cidade?: string; bairro?: string; estado?: string; pais?: string; promovido_ate?: string }
       const profile   = profileMap.get(u.id)
       const nome      = (profile?.nome as string | null) ?? meta.nome ?? 'Atleta'
       const dataNasc  = (profile?.data_nascimento as string | null) ?? null
       const athleteId = (profile?.athlete_id as string | null) ?? null
       const ovr       = athleteId ? (ovrMap.get(athleteId) ?? null) : null
-      if (!modoNovos && !modoVisitados && ovr === null) return null   // ranking por OVR: só avaliados
+      if (aba === 'ranking' && ovr === null) return null   // ranking por OVR: só avaliados
+      if (modoNovos && ovr !== null) return null            // Novos Craques: só quem aguarda avaliação
+      const visitas = visitasMap.get(u.id) ?? 0
+      if (modoSemana && visitas === 0) return null          // Top da Semana: só quem foi visitado
       const criadoEm  = (profilesComCriacao.find(p => p.id === u.id) as { criado_em?: string | null } | undefined)?.criado_em ?? u.created_at ?? null
       const boostLegado = meta.promovido_ate ? new Date(meta.promovido_ate) > agora : false
       return {
         id: u.id, nome,
         posicao:   meta.posicao ?? '',
         cidade:    meta.cidade  ?? '',
+        bairro:    meta.bairro  ?? '',
         estado:    meta.estado  ?? '',
         pais:      meta.pais    ?? 'Brasil',
         dataNasc,  ovr,
@@ -124,12 +170,13 @@ export default async function RankingPage({ searchParams }: Props) {
         athleteId,
         criadoEm,
         boosted: boostLegado || boostedIds.has(u.id),
+        visitas,
       }
     })
     .filter((a): a is RankingItem => a !== null)
     .sort((a, b) => {
       if (modoNovos)     return (b.criadoEm ?? '').localeCompare(a.criadoEm ?? '')
-      if (modoVisitados) return (visitasMap.get(b.id) ?? 0) - (visitasMap.get(a.id) ?? 0)
+      if (modoVisitados || modoSemana) return (b.visitas - a.visitas) || ((b.ovr ?? 0) - (a.ovr ?? 0))
       if (a.boosted && !b.boosted) return -1
       if (!a.boosted && b.boosted) return 1
       return (b.ovr ?? 0) - (a.ovr ?? 0)
@@ -137,7 +184,19 @@ export default async function RankingPage({ searchParams }: Props) {
 
   // 5. Aplica filtros
   const buscaLower = buscaFiltro?.toLowerCase().trim() ?? ''
+  const noLocal = (a: RankingItem) => {
+    if (paisFiltro   && a.pais.toLowerCase() !== paisFiltro.toLowerCase()) return false
+    if (estadoFiltro && a.estado.toUpperCase() !== estadoFiltro.toUpperCase()) return false
+    if (cidadeFiltro && !a.cidade.toLowerCase().includes(cidadeFiltro.toLowerCase())) return false
+    return true
+  }
+  // Bairros disponíveis na cidade escolhida (vindos do cadastro dos próprios atletas)
+  const bairrosDisponiveis = cidadeFiltro
+    ? [...new Map(ranking.filter(a => noLocal(a) && a.bairro.trim()).map(a => [norm(a.bairro), a.bairro.trim()])).values()]
+        .sort((x, y) => x.localeCompare(y, 'pt-BR'))
+    : []
   const filtered = ranking.filter(a => {
+    if (bairroFiltro    && norm(a.bairro) !== norm(bairroFiltro)) return false
     if (categoriaFiltro && a.categoria !== categoriaFiltro) return false
     if (posicaoFiltro   && a.posicao   !== posicaoFiltro)   return false
     if (paisFiltro      && a.pais.toLowerCase() !== paisFiltro.toLowerCase()) return false
@@ -152,6 +211,18 @@ export default async function RankingPage({ searchParams }: Props) {
     }
     return true
   })
+
+  // 6. Título dinâmico — ex.: "Top 10 Sub-13 de Jacarepaguá"
+  const local = bairroFiltro || cidadeFiltro || (paisFiltro && paisFiltro !== 'Brasil' ? paisFiltro : '')
+  const recorte = [categoriaFiltro, posicaoFiltro].filter(Boolean).join(' · ')
+  const sufixo = `${recorte ? ` ${recorte}` : ''}${local ? ` ${comPreposicao(local)}` : ''}${!local && estadoFiltro ? ` · ${estadoFiltro.toUpperCase()}` : ''}`
+  const topN = Math.min(filtered.length, 10)
+  const titulo =
+    aba === 'semana'    ? `Top da Semana${sufixo}` :
+    aba === 'novos'     ? `Novos Craques${sufixo}` :
+    aba === 'visitados' ? `Mais visitados${sufixo}` :
+    filtered.length >= 3 ? `Top ${topN}${sufixo}` :
+    (sufixo ? `Ranking${sufixo}` : 'Os melhores do futebol')
 
   return (
     <main style={{
@@ -186,10 +257,10 @@ export default async function RankingPage({ searchParams }: Props) {
         {/* Header */}
         <div style={{ marginBottom: '24px' }}>
           <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-            {modoVisitados ? '👁 Mais Visitados' : modoNovos ? '🆕 Recém chegados' : '🏆 Ranking Oficial'}
+            {modoVisitados ? '👁 Mais Visitados' : modoSemana ? '🔥 Visitas nos últimos 7 dias' : modoNovos ? '⏳ Aguardando avaliação' : '🏆 Ranking Oficial'}
           </p>
           <h1 style={{ margin: '0 0 4px', fontSize: '28px', fontWeight: 900, letterSpacing: '-0.02em' }}>
-            {modoVisitados ? 'Mais visitados' : modoNovos ? 'Novos Craques' : 'Os melhores do futebol'}
+            {titulo}
           </h1>
           <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.4)' }}>
             {filtered.length} atleta{filtered.length !== 1 ? 's' : ''}
@@ -198,21 +269,34 @@ export default async function RankingPage({ searchParams }: Props) {
             {posicaoFiltro   ? ` · ${posicaoFiltro}`   : ''}
             {estadoFiltro    ? ` · ${estadoFiltro}`     : ''}
             {cidadeFiltro    ? ` · ${cidadeFiltro}`     : ''}
-            {!buscaFiltro && !categoriaFiltro && !posicaoFiltro && !estadoFiltro && !cidadeFiltro ? ' · ranking geral' : ''}
+            {bairroFiltro    ? ` · ${bairroFiltro}`     : ''}
+            {!buscaFiltro && !categoriaFiltro && !posicaoFiltro && !estadoFiltro && !cidadeFiltro && !bairroFiltro ? (aba === 'ranking' ? ' · ranking geral' : ' · Brasil todo') : ''}
           </p>
+        </div>
+
+        {/* Abas */}
+        <div style={{ display: 'flex', gap: '6px', marginBottom: '14px', padding: '4px', borderRadius: '14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+          {ABAS.map(t => {
+            const ativa = aba === t.id
+            return (
+              <Link key={t.id} href={urlRanking(params, { ordem: t.id })} className="filter-pill" style={{
+                flex: 1, textAlign: 'center', padding: '9px 4px', borderRadius: '10px',
+                fontSize: '12px', fontWeight: 800, textDecoration: 'none', whiteSpace: 'nowrap',
+                background: ativa ? '#22c55e' : 'transparent',
+                color: ativa ? 'black' : 'rgba(255,255,255,0.55)',
+              }}>
+                {t.label}
+              </Link>
+            )
+          })}
         </div>
 
         {/* Filtros de categoria (pills) */}
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'nowrap', overflowX: 'auto', marginBottom: '12px', paddingBottom: '4px', scrollbarWidth: 'none' }}>
           {(() => {
-            const extra = new URLSearchParams()
-            if (posicaoFiltro) extra.set('posicao', posicaoFiltro)
-            if (estadoFiltro)  extra.set('estado',  estadoFiltro)
-            if (cidadeFiltro)  extra.set('cidade',  cidadeFiltro)
-            const extraStr = extra.toString()
             return (
               <Link
-                href={extraStr ? `/ranking?${extraStr}` : '/ranking'}
+                href={urlRanking(params, { categoria: undefined })}
                 className="filter-pill"
                 style={{
                   padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 700,
@@ -227,14 +311,10 @@ export default async function RankingPage({ searchParams }: Props) {
             )
           })()}
           {CATEGORIAS.map(cat => {
-            const q = new URLSearchParams({ categoria: cat })
-            if (posicaoFiltro) q.set('posicao', posicaoFiltro)
-            if (estadoFiltro)  q.set('estado',  estadoFiltro)
-            if (cidadeFiltro)  q.set('cidade',  cidadeFiltro)
             return (
             <Link
               key={cat}
-              href={`/ranking?${q.toString()}`}
+              href={urlRanking(params, { categoria: cat })}
               className="filter-pill"
               style={{
                 padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 700,
@@ -255,7 +335,10 @@ export default async function RankingPage({ searchParams }: Props) {
           posicaoFiltro={posicaoFiltro}
           estadoFiltro={estadoFiltro}
           cidadeFiltro={cidadeFiltro}
+          bairroFiltro={bairroFiltro}
+          bairrosDisponiveis={bairrosDisponiveis}
           paisFiltro={paisFiltro}
+          ordem={aba === 'ranking' ? undefined : aba}
         />
 
         {/* Lista de atletas */}
@@ -263,7 +346,9 @@ export default async function RankingPage({ searchParams }: Props) {
           {filtered.length === 0 && (
             <div style={{ textAlign: 'center', padding: '60px 0', color: 'rgba(255,255,255,0.25)' }}>
               <p style={{ fontSize: '32px', margin: '0 0 8px' }}>🏃</p>
-              <p style={{ margin: 0, fontSize: '14px' }}>Nenhum atleta nessa categoria ainda.</p>
+              <p style={{ margin: 0, fontSize: '14px' }}>
+                {modoSemana ? 'Nenhum perfil visitado nesse recorte nos últimos 7 dias.' : modoNovos ? 'Ninguém aguardando avaliação nesse recorte.' : 'Nenhum atleta nessa categoria ainda.'}
+              </p>
             </div>
           )}
 
@@ -275,13 +360,18 @@ export default async function RankingPage({ searchParams }: Props) {
             const avatarBg    = at?.bg    ?? 'linear-gradient(135deg,#15803d,#4ade80)'
             const avatarColor = at?.color ?? 'rgba(255,255,255,0.85)'
             return (
+              <div key={atleta.id} style={{ display: 'contents' }}>
+              {aba === 'ranking' && i === 10 && (
+                <p style={{ margin: '10px 0 2px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                  Demais atletas
+                </p>
+              )}
               <Link
-                key={atleta.id}
                 href={`/jogador/${atleta.id}`}
                 className="rank-card"
                 style={{
-                  display: 'flex', alignItems: 'center', gap: '14px',
-                  padding: '14px 16px', borderRadius: '16px',
+                  display: 'flex', alignItems: 'center', gap: '10px',
+                  padding: '14px 14px', borderRadius: '16px',
                   background: rc ? rc.bg : 'rgba(255,255,255,0.03)',
                   border: `1px solid ${rc ? rc.border : 'rgba(255,255,255,0.07)'}`,
                   textDecoration: 'none', color: 'white',
@@ -289,12 +379,12 @@ export default async function RankingPage({ searchParams }: Props) {
               >
                 {/* Rank */}
                 <div style={{
-                  width: '32px', flexShrink: 0, textAlign: 'center',
+                  width: '28px', flexShrink: 0, textAlign: 'center',
                   fontSize: rankNum <= 3 ? '18px' : '15px',
                   fontWeight: 900,
                   color: rc ? rc.text : 'rgba(255,255,255,0.3)',
                 }}>
-                  {rankNum === 1 ? '🥇' : rankNum === 2 ? '🥈' : rankNum === 3 ? '🥉' : `#${rankNum}`}
+                  {modoNovos ? '🆕' : rankNum === 1 ? '🥇' : rankNum === 2 ? '🥈' : rankNum === 3 ? '🥉' : `#${rankNum}`}
                 </div>
 
                 {/* Avatar */}
@@ -332,37 +422,39 @@ export default async function RankingPage({ searchParams }: Props) {
                     {atleta.nome}
                   </p>
                   <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>
-                    {atleta.pos}{atleta.cidade ? ` · ${atleta.cidade}` : ''}{atleta.categoria ? ` · ${atleta.categoria}` : ''}
+                    {atleta.pos}{atleta.bairro ? ` · ${atleta.bairro}` : ''}{atleta.cidade ? ` · ${atleta.cidade}` : ''}{atleta.categoria ? ` · ${atleta.categoria}` : ''}
+                    {(modoSemana || modoVisitados) && <span style={{ color: 'rgba(251,191,36,0.85)', fontWeight: 700 }}>{` · 👁 ${atleta.visitas}${modoSemana ? ' na semana' : ''}`}</span>}
                   </p>
                 </div>
 
-                {/* Categoria */}
-                {atleta.categoria && (
+                {/* OVR — ou selo "Aguardando avaliação" para quem ainda não foi avaliado.
+                    (categoria já aparece na linha de baixo — sem selo duplicado, sobra espaço no celular) */}
+                {atleta.ovr === null ? (
                   <span style={{
-                    padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700,
-                    background: 'rgba(34,197,94,0.1)', color: '#22c55e',
-                    border: '1px solid rgba(34,197,94,0.25)', flexShrink: 0,
+                    padding: '4px 6px', borderRadius: '8px', fontSize: '9px', fontWeight: 800, lineHeight: 1.25,
+                    background: 'rgba(251,191,36,0.1)', color: '#fbbf24',
+                    border: '1px solid rgba(251,191,36,0.3)', flexShrink: 0, textAlign: 'center', width: '62px',
                   }}>
-                    {atleta.categoria}
+                    ⏳ Aguardando<br />avaliação
                   </span>
+                ) : (
+                  <div style={{
+                    display: 'flex', flexDirection: 'column', alignItems: 'center',
+                    flexShrink: 0, minWidth: '40px',
+                  }}>
+                    <span style={{ fontSize: '18px', fontWeight: 900, color: '#22c55e', lineHeight: 1 }}>
+                      {atleta.ovr}
+                    </span>
+                    <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.28)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                      OVR
+                    </span>
+                  </div>
                 )}
-
-                {/* OVR */}
-                <div style={{
-                  display: 'flex', flexDirection: 'column', alignItems: 'center',
-                  flexShrink: 0, minWidth: '40px',
-                }}>
-                  <span style={{ fontSize: '18px', fontWeight: 900, color: '#22c55e', lineHeight: 1 }}>
-                    {atleta.ovr}
-                  </span>
-                  <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.28)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                    OVR
-                  </span>
-                </div>
 
                 {/* Seta */}
                 <div style={{ color: 'rgba(255,255,255,0.2)', fontSize: '16px', flexShrink: 0 }}>›</div>
               </Link>
+              </div>
             )
           })}
         </div>

@@ -1,7 +1,7 @@
 'use client'
 
 /**
- * RankingFiltros — filtros interativos do ranking (posição + cidade + estado).
+ * RankingFiltros — filtros interativos do ranking (posição + país + estado + cidade + bairro).
  * As categorias ficam no Server Component como pills (sem JS).
  */
 
@@ -87,25 +87,30 @@ const PAISES = [
 ]
 
 type Props = {
-  categoriaFiltro?: string
-  posicaoFiltro?:   string
-  cidadeFiltro?:    string
-  estadoFiltro?:    string
-  paisFiltro?:      string
+  categoriaFiltro?:    string
+  posicaoFiltro?:      string
+  cidadeFiltro?:       string
+  bairroFiltro?:       string
+  bairrosDisponiveis?: string[]   // bairros cadastrados pelos atletas da cidade escolhida
+  estadoFiltro?:       string
+  paisFiltro?:         string
+  ordem?:              string     // aba atual (semana | novos | visitados) — preservada nos filtros
 }
 
-function buildUrl(p: { categoria?: string; posicao?: string; cidade?: string; estado?: string; pais?: string }) {
+function buildUrl(p: { ordem?: string; categoria?: string; posicao?: string; cidade?: string; bairro?: string; estado?: string; pais?: string }) {
   const q = new URLSearchParams()
+  if (p.ordem)     q.set('ordem',     p.ordem)
   if (p.categoria) q.set('categoria', p.categoria)
   if (p.posicao)   q.set('posicao',   p.posicao)
   if (p.pais)      q.set('pais',      p.pais)
   if (p.estado)    q.set('estado',    p.estado)
   if (p.cidade)    q.set('cidade',    p.cidade)
+  if (p.bairro)    q.set('bairro',    p.bairro)
   const s = q.toString()
   return `/ranking${s ? `?${s}` : ''}`
 }
 
-export default function RankingFiltros({ categoriaFiltro, posicaoFiltro, cidadeFiltro, estadoFiltro, paisFiltro }: Props) {
+export default function RankingFiltros({ categoriaFiltro, posicaoFiltro, cidadeFiltro, bairroFiltro, bairrosDisponiveis = [], estadoFiltro, paisFiltro, ordem }: Props) {
   const router  = useRouter()
 
   const isBrasil = !paisFiltro || paisFiltro === 'Brasil'
@@ -116,22 +121,26 @@ export default function RankingFiltros({ categoriaFiltro, posicaoFiltro, cidadeF
     : (paisFiltro ? CIDADES_INTL[paisFiltro] ?? [] : [])
 
   function onPosicao(pos: string) {
-    router.push(buildUrl({ categoria: categoriaFiltro, posicao: pos || undefined, cidade: cidadeFiltro, estado: estadoFiltro, pais: paisFiltro }))
+    router.push(buildUrl({ ordem, categoria: categoriaFiltro, posicao: pos || undefined, cidade: cidadeFiltro, bairro: bairroFiltro, estado: estadoFiltro, pais: paisFiltro }))
   }
 
   function onPais(p: string) {
-    router.push(buildUrl({ categoria: categoriaFiltro, posicao: posicaoFiltro, pais: p || undefined }))
+    router.push(buildUrl({ ordem, categoria: categoriaFiltro, posicao: posicaoFiltro, pais: p || undefined }))
   }
 
   function onEstado(uf: string) {
-    router.push(buildUrl({ categoria: categoriaFiltro, posicao: posicaoFiltro, estado: uf || undefined, pais: paisFiltro }))
+    router.push(buildUrl({ ordem, categoria: categoriaFiltro, posicao: posicaoFiltro, estado: uf || undefined, pais: paisFiltro }))
   }
 
   function onCidade(c: string) {
-    router.push(buildUrl({ categoria: categoriaFiltro, posicao: posicaoFiltro, cidade: c || undefined, estado: estadoFiltro, pais: paisFiltro }))
+    router.push(buildUrl({ ordem, categoria: categoriaFiltro, posicao: posicaoFiltro, cidade: c || undefined, estado: estadoFiltro, pais: paisFiltro }))
   }
 
-  const temFiltro = posicaoFiltro || cidadeFiltro || estadoFiltro || paisFiltro
+  function onBairro(b: string) {
+    router.push(buildUrl({ ordem, categoria: categoriaFiltro, posicao: posicaoFiltro, cidade: cidadeFiltro, bairro: b || undefined, estado: estadoFiltro, pais: paisFiltro }))
+  }
+
+  const temFiltro = posicaoFiltro || cidadeFiltro || bairroFiltro || estadoFiltro || paisFiltro
 
   const selectBase: React.CSSProperties = {
     padding: '9px 14px', borderRadius: '10px', fontSize: '13px', fontWeight: 600,
@@ -187,10 +196,22 @@ export default function RankingFiltros({ categoriaFiltro, posicaoFiltro, cidadeF
           </select>
         )}
 
+        {/* Bairro — aparece com a cidade escolhida, se houver atletas com bairro cadastrado */}
+        {cidadeFiltro && (bairrosDisponiveis.length > 0 || bairroFiltro) && (
+          <select
+            value={bairroFiltro ?? ''}
+            onChange={e => onBairro(e.target.value)}
+            style={{ ...selectBase, flex: '1', minWidth: '140px' }}
+          >
+            <option value="">Todos os bairros</option>
+            {[...new Set([...(bairroFiltro ? [bairroFiltro] : []), ...bairrosDisponiveis])].map(b => <option key={b} value={b}>{b}</option>)}
+          </select>
+        )}
+
         {/* Limpar filtros extras */}
         {temFiltro && (
           <a
-            href={buildUrl({ categoria: categoriaFiltro })}
+            href={buildUrl({ ordem, categoria: categoriaFiltro })}
             style={{
               padding: '9px 14px', borderRadius: '10px', fontSize: '12px', fontWeight: 700,
               color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.1)',
@@ -240,6 +261,15 @@ export default function RankingFiltros({ categoriaFiltro, posicaoFiltro, cidadeF
               borderRadius: '20px', padding: '3px 10px',
             }}>
               📍 {cidadeFiltro}
+            </span>
+          )}
+          {bairroFiltro && (
+            <span style={{
+              fontSize: '11px', fontWeight: 700, color: '#f472b6',
+              background: 'rgba(244,114,182,0.1)', border: '1px solid rgba(244,114,182,0.2)',
+              borderRadius: '20px', padding: '3px 10px',
+            }}>
+              🏘️ {bairroFiltro}
             </span>
           )}
         </div>
