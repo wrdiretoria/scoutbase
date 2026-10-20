@@ -2,6 +2,7 @@
  * canvasCard.ts — Card Meu Craque, fiel ao design do AtletaCardLanding.
  * 400 × 640 px, Canvas 2D, DPR 2x.
  */
+import { bandeiraDoPais } from './bandeira'
 
 export type CanvasCardProps = {
   nome:          string
@@ -16,6 +17,7 @@ export type CanvasCardProps = {
   cidade:        string | null
   idade:         number | null
   profileUrl:    string
+  pais?:         string | null   // país do cadastro → bandeira (padrão Brasil)
   statPac?:      number | null
   statSho?:      number | null
   statPas?:      number | null
@@ -247,7 +249,7 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
 
   // Bandeira + OVR pill — lado direito
   const OVR_TEXT = opts.ovr != null ? String(opts.ovr) : '—'
-  const FLAG = '🇧🇷'
+  const FLAG = bandeiraDoPais(opts.pais)
 
   // Flag
   ctx.font = '20px system-ui, sans-serif'

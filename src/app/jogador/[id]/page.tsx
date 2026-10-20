@@ -358,6 +358,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
 
   const meta = user.user_metadata as {
     nome?: string; posicao?: string; cidade?: string; tipo?: string
+    pais?: string; nacionalidade?: string
     visit_count?: number; favorito_count?: number
     telefone?: string
     clubes_anteriores?: string
@@ -1182,6 +1183,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
                 return a
               })() : null}
               profileUrl={`${SERVER_BASE_URL}/jogador/${id}`}
+              pais={meta.pais ?? meta.nacionalidade ?? null}
               statPac={atrs?.vel ?? null}   /* VEL */
               statSho={atrs?.tec ?? null}   /* TEC */
               statPas={atrs?.dri ?? null}   /* DRI */
