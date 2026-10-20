@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase'
 import { NextResponse } from 'next/server'
+import { erroDataNascimento } from '@/lib/categoria'
 
 async function gerarAthleteId(admin: ReturnType<typeof createAdminClient>): Promise<string> {
   for (let tentativa = 0; tentativa < 10; tentativa++) {
@@ -23,8 +24,13 @@ export async function POST(req: Request) {
       avatarUrl?: string | null
     }
 
-    if (!userId || !dataNascimento) {
+    if (!userId) {
       return NextResponse.json({ error: 'Dados ausentes.' }, { status: 400 })
+    }
+    // Data de nascimento obrigatória e válida — sem ela o atleta fica sem categoria
+    const erroNasc = erroDataNascimento(dataNascimento)
+    if (erroNasc || !dataNascimento) {
+      return NextResponse.json({ error: erroNasc ?? 'Informe sua data de nascimento.' }, { status: 400 })
     }
 
     // Validação de idade — atleta deve ter até 20 anos (Sub-20)

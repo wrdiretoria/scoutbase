@@ -4,6 +4,7 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
+import { erroDataNascimento } from '@/lib/categoria'
 
 const posicoes = [
   'Goleiro', 'Lateral Direito', 'Lateral Esquerdo', 'Zagueiro',
@@ -149,6 +150,12 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
     e.preventDefault()
     if (!nome || !posicao || !cidade || !dataNasc || !sexo) {
       setError('Preencha todos os campos.')
+      return
+    }
+    // Data obrigatória e válida ANTES de criar a conta (sem ela o atleta fica sem categoria)
+    const erroNasc = erroDataNascimento(dataNasc)
+    if (erroNasc) {
+      setError(erroNasc)
       return
     }
 
@@ -661,9 +668,10 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
             </div>
 
             <div>
-              <label style={labelStyle}>Data de nascimento</label>
+              <label style={labelStyle}>Data de nascimento *</label>
               <input
                 type="date" required value={dataNasc} onChange={e => setDataNasc(e.target.value)}
+                min="1900-01-01" max={new Date().toISOString().slice(0, 10)}
                 style={inputStyle}
               />
               <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.25)' }}>
