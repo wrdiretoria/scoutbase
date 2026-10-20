@@ -262,24 +262,28 @@ export default function AtletaCardLanding({
         </div>
       </div>
 
-      {/* ── 6 ATRIBUTOS — sempre presente para altura uniforme ── */}
-      <div style={{ height: '1px', background: `linear-gradient(to right, transparent, ${tier.color}30, transparent)`, margin: '0 12px' }} />
-      <div style={{ display: 'flex', padding: '6px 8px' }}>
-        {fifaStats.map((s, i) => (
-          <div key={s.label} style={{
-            flex: 1, textAlign: 'center',
-            borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none',
-            padding: '3px 0',
-          }}>
-            <div style={{ fontSize: '13px', fontWeight: 800, lineHeight: 1, color: hasAttrData ? tier.color : 'rgba(255,255,255,0.12)' }}>
-              {s.val}
-            </div>
-            <div style={{ fontSize: '5.5px', fontWeight: 700, color: 'rgba(255,255,255,0.30)', letterSpacing: '0.06em', marginTop: '2px' }}>
-              {s.label}
-            </div>
+      {/* ── 6 ATRIBUTOS — só quando o atleta tem avaliação ── */}
+      {hasAttrData && (
+        <>
+          <div style={{ height: '1px', background: `linear-gradient(to right, transparent, ${tier.color}30, transparent)`, margin: '0 12px' }} />
+          <div style={{ display: 'flex', padding: '6px 8px' }}>
+            {fifaStats.map((s, i) => (
+              <div key={s.label} style={{
+                flex: 1, textAlign: 'center',
+                borderLeft: i > 0 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                padding: '3px 0',
+              }}>
+                <div style={{ fontSize: '13px', fontWeight: 800, lineHeight: 1, color: tier.color }}>
+                  {s.val}
+                </div>
+                <div style={{ fontSize: '5.5px', fontWeight: 700, color: 'rgba(255,255,255,0.30)', letterSpacing: '0.06em', marginTop: '2px' }}>
+                  {s.label}
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </>
+      )}
 
       {/* ── POSIÇÃO + CATEGORIA — sempre presente para altura uniforme ── */}
       <div style={{ height: '1px', background: `linear-gradient(to right, transparent, ${tier.color}25, transparent)`, margin: '0 12px' }} />
