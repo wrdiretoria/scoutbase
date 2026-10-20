@@ -41,3 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 .vercel
+
+# Backups locais de dados (não versionar)
+scripts/backup_*.json
