@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 import AtletaBottomNav from '@/components/AtletaBottomNav'
-import { atributosDaAvaliacao, ovrDoAtleta, type OvrUserMeta } from '@/lib/escala'
+import { atributosDaAvaliacao, notaDaAvaliacao, ovrDasAvaliacoes } from '@/lib/escala'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -32,6 +32,8 @@ type AvaliacaoCompleta = {
   tecnica:             number
   nota_geral:          number | null
   scout_score:         number | null
+  respostas:           Record<string, number> | null
+  variante:            string | null
   observacao:          string | null
   created_at:          string
   professor_id:        string
@@ -158,7 +160,6 @@ export default function AtletaHistoricoPage() {
   const [avaliacoes, setAvaliacoes] = useState<AvaliacaoCompleta[]>([])
   const [highlights, setHighlights] = useState<Highlight[]>([])
   const [frequencia, setFrequencia] = useState<Frequencia | null>(null)
-  const [ovrBase,    setOvrBase]    = useState<{ avatarUrl: string | null; meta: OvrUserMeta } | null>(null)
   const [loading,    setLoading]    = useState(true)
 
   useEffect(() => {
@@ -192,7 +193,6 @@ export default function AtletaHistoricoPage() {
         temFoto, temBio, temFisico, temClube,
         criadoEm:  user.created_at,
       })
-      setOvrBase({ avatarUrl: (p?.avatar_url as string | null) ?? null, meta: m as OvrUserMeta })
 
       // ── Avaliações (todas, ordem cronológica) ──
       try {
@@ -254,11 +254,10 @@ export default function AtletaHistoricoPage() {
   }, [router])
 
   // ── Derived values ────────────────────────────────────────────────────────
-  // Nota do treinador em cada avaliação (scout_score; nota_geral é legado)
-  const notaDe = (av: AvaliacaoCompleta) => av.scout_score ?? av.nota_geral ?? 0
+  // Nota de cada avaliação pela regra atual (pesos por bloco; nota_geral é legado)
+  const notaDe = (av: AvaliacaoCompleta) => notaDaAvaliacao(av) ?? av.nota_geral ?? 0
   // OVR oficial (lib/escala) considerando as avaliações até o índice idx
-  const ovrAte = (idx: number): number =>
-    ovrBase ? (ovrDoAtleta(ovrBase.avatarUrl, ovrBase.meta, avaliacoes.slice(0, idx + 1).map(notaDe)) ?? 0) : 0
+  const ovrAte = (idx: number): number => ovrDasAvaliacoes(avaliacoes.slice(0, idx + 1)) ?? 0
   const ovrAtual = avaliacoes.length > 0 ? ovrAte(avaliacoes.length - 1) : null
 
   const animOvr = useCounter(ovrAtual ?? 0, 400, 1000)

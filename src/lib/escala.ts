@@ -2,18 +2,53 @@
  * Escala única de OVR e atributos — fonte da verdade para TODAS as telas.
  * Módulo puro (sem Supabase/Next), pode ser usado em client e server components.
  *
- * OVR — fórmula 50/50:
- *   • 50% perfil (cadastro + currículo preenchido)
- *   • 50% avaliação de treinadores (média dos scout_score, 0-100)
+ * OVR — SÓ a avaliação do treinador:
+ *   • nota de cada avaliação = calcScoutScore (Técnico 35% · Físico 25% · Tático 25% ·
+ *     Comportamento 15%), recalculada a partir das respostas quando existem
+ *   • OVR do atleta = média das notas das suas avaliações
+ *   • sem avaliação → null (exibir "—" / NOVO CRAQUE)
+ *
+ * Perfil completo — barra separada (perfilCompleto), NÃO entra no OVR.
  *
  * Atributos (VEL/TEC/DRI/FIS/TAT/POS) — sempre exibidos em 0-99.
  *   Avaliações antigas gravaram em 0-10; as novas (calcAtributos) em 0-99,
  *   nas mesmas colunas. atributosDaAvaliacao() normaliza as duas.
  */
 
+import { calcScoutScore, VARIANTES, type VarianteKey } from './questionnaire'
+
 // ── OVR ───────────────────────────────────────────────────────────────────────
 
-export type OvrUserMeta = {
+export type AvaliacaoNota = {
+  scout_score?: number | null
+  respostas?:   Record<string, number> | null
+  variante?:    string | null
+}
+
+/** Colunas necessárias para calcular a nota de uma avaliação. */
+export const COLUNAS_NOTA = 'scout_score, respostas, variante'
+
+/**
+ * Nota (0-100) de uma avaliação pela regra atual. Com respostas, recalcula com os
+ * pesos por bloco; avaliações legadas (sem respostas) usam o scout_score gravado.
+ */
+export function notaDaAvaliacao(av: AvaliacaoNota | null | undefined): number | null {
+  if (!av) return null
+  if (av.respostas && av.variante && av.variante in VARIANTES) {
+    return calcScoutScore(av.respostas, av.variante as VarianteKey)
+  }
+  return typeof av.scout_score === 'number' ? Math.round(av.scout_score) : null
+}
+
+/** OVR do atleta: média das notas das avaliações; null se não houver avaliação. */
+export function ovrDasAvaliacoes(avs: (AvaliacaoNota | null | undefined)[]): number | null {
+  const notas = avs.map(notaDaAvaliacao).filter((n): n is number => n !== null)
+  return notas.length > 0 ? Math.round(notas.reduce((a, b) => a + b, 0) / notas.length) : null
+}
+
+// ── Perfil completo (barra separada, fora do OVR) ─────────────────────────────
+
+export type PerfilUserMeta = {
   questionario_completo?: boolean | string | null
   clubes_anteriores?:     string | null
   campeonatos?:           string | null
@@ -23,47 +58,29 @@ export type OvrUserMeta = {
 }
 
 /**
- * Pontuação do perfil (max 100 pts → × 0.5 = max 50 OVR):
- *   Base (nome + posicao + dob — obrigatórios no cadastro): 15 pts (sempre)
- *   Foto (avatar_url):                                      20 pts
- *   Questionário (questionario_completo em user_metadata):  20 pts
- *   Clubes anteriores:                                      15 pts
- *   Campeonatos:                                            10 pts
- *   Títulos:                                                10 pts
- *   Premiações:                                              5 pts
- *   Telefone:                                                5 pts
+ * Itens do perfil (somam 100%):
+ *   Cadastro (nome + posição + nascimento — obrigatórios): 15
+ *   Foto 20 · Questionário 20 · Clubes anteriores 15 · Campeonatos 10
+ *   Títulos 10 · Premiações 5 · Telefone 5
  */
-export function calcProfileScore(avatarUrl: string | null | undefined, meta: OvrUserMeta): number {
-  let score = 15
-  if (avatarUrl)                            score += 20
-  if (meta.questionario_completo)           score += 20
-  if (meta.clubes_anteriores?.trim())       score += 15
-  if (meta.campeonatos?.trim())             score += 10
-  if (meta.titulos?.trim())                 score += 10
-  if (meta.premiacoes?.trim())              score += 5
-  if (meta.telefone?.trim())                score += 5
-  return score  // 0–100
-}
-
-/** Média arredondada dos scout_score; null se não houver avaliação. */
-export function mediaScoutScore(scores: (number | null | undefined)[]): number | null {
-  const vals = scores.filter((s): s is number => typeof s === 'number')
-  return vals.length > 0 ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : null
-}
-
-export function calcOvr(profileScore: number, trainerAvg: number | null): number | null {
-  // Sem avaliação oficial: OVR não existe
-  if (trainerAvg === null) return null
-  return Math.round(profileScore * 0.5) + Math.round(trainerAvg * 0.5)
-}
-
-/** Atalho: OVR a partir dos dados crus do atleta. */
-export function ovrDoAtleta(
+export function perfilCompleto(
   avatarUrl: string | null | undefined,
-  meta: OvrUserMeta,
-  scoutScores: (number | null | undefined)[],
-): number | null {
-  return calcOvr(calcProfileScore(avatarUrl, meta), mediaScoutScore(scoutScores))
+  meta: PerfilUserMeta,
+): { pct: number; faltando: { item: string; pts: number }[] } {
+  const itens: { item: string; pts: number; ok: boolean }[] = [
+    { item: 'Cadastro básico',   pts: 15, ok: true },
+    { item: 'Foto de perfil',    pts: 20, ok: !!avatarUrl },
+    { item: 'Questionário',      pts: 20, ok: !!meta.questionario_completo },
+    { item: 'Clubes anteriores', pts: 15, ok: !!meta.clubes_anteriores?.trim() },
+    { item: 'Campeonatos',       pts: 10, ok: !!meta.campeonatos?.trim() },
+    { item: 'Títulos',           pts: 10, ok: !!meta.titulos?.trim() },
+    { item: 'Premiações',        pts: 5,  ok: !!meta.premiacoes?.trim() },
+    { item: 'Telefone',          pts: 5,  ok: !!meta.telefone?.trim() },
+  ]
+  return {
+    pct:      itens.filter(i => i.ok).reduce((a, i) => a + i.pts, 0),
+    faltando: itens.filter(i => !i.ok).map(({ item, pts }) => ({ item, pts })),
+  }
 }
 
 // ── Atributos ─────────────────────────────────────────────────────────────────

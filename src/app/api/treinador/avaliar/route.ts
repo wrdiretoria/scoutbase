@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // ── scout_score: média das 20 notas × 20 (resultado 20–100) ──
+  // ── scout_score: média ponderada por bloco (Técnico 35% · Físico 25% · Tático 25% · Comportamento 15%) ──
   const scout_score = calcScoutScore(respostas, variante)
 
   const admin = createAdminClient()

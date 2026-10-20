@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import { posAbrev, calcularCategoria } from '@/lib/cardUtils'
-import { atributosDaAvaliacao, ovrDoAtleta, type OvrUserMeta } from '@/lib/escala'
+import { atributosDaAvaliacao, ovrDasAvaliacoes, COLUNAS_NOTA, type AvaliacaoNota } from '@/lib/escala'
 
 type Atributo = { label: string; value: number; icon: string }
 
@@ -75,7 +75,7 @@ export default function CartaPage() {
       try {
         const { data: avs } = await supabase
           .from('avaliacoes')
-          .select('scout_score, velocidade, tecnica, forca, finalizacao, visao_jogo, posicionamento')
+          .select(`${COLUNAS_NOTA}, velocidade, tecnica, forca, finalizacao, visao_jogo, posicionamento`)
           .eq('aluno_id', user.id)
           .not('scout_score', 'is', null)
           .order('created_at', { ascending: false })
@@ -83,11 +83,7 @@ export default function CartaPage() {
         const av = avs?.[0]
         if (av) {
           setTemAvaliacao(true)
-          setOvr(ovrDoAtleta(
-            (profile?.avatar_url as string | null) ?? null,
-            user.user_metadata as OvrUserMeta,
-            avs.map(a => a.scout_score as number),
-          ))
+          setOvr(ovrDasAvaliacoes(avs as AvaliacaoNota[]))
           const atrs = atributosDaAvaliacao(av)
           setAtributos([
             { label: 'Vel',  icon: '⚡', value: atrs?.vel ?? 0 },

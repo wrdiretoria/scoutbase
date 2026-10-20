@@ -11,7 +11,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { createAdminClient, createServerClient } from '@/lib/supabase'
 import { fetchOvrSingle } from '@/lib/ovr'
-import { atributosDaAvaliacao } from '@/lib/escala'
+import { atributosDaAvaliacao, notaDaAvaliacao } from '@/lib/escala'
 import {
   VARIANTES, BLOCO_PERFIL as Q_BPERF,
   type VarianteKey, type QuestionDef,
@@ -690,7 +690,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: '28px', fontWeight: 900, color: '#22c55e', lineHeight: 1, letterSpacing: '-0.04em', textShadow: '0 0 16px rgba(34,197,94,0.5)' }}>
-                  {ultimaAv.scout_score}
+                  {notaDaAvaliacao(ultimaAv) ?? '—'}
                 </div>
                 <div style={{ fontSize: '8px', fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.14em' }}>NOTA</div>
               </div>

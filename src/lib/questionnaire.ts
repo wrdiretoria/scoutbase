@@ -15,9 +15,12 @@
  *   competicao_goleiro  | competicao_zagueiro  | competicao_lateral
  *   competicao_volante  | competicao_meia      | competicao_ponta   | competicao_centroavante
  *
- * Score: Math.round(((avg - 1) / 4) × 100)  →  0 a 100
+ * Score (OVR): média ponderada por bloco — Técnico 35% · Físico 25% · Tático 25% ·
+ *   Comportamento 15% (ver calcScoutScore / lib/blocosOvr.ts)  →  0 a 100
  *   Tudo 1 = 0  |  Tudo 3 = 50  |  Tudo 5 = 100
  */
+
+import { BLOCO_POR_PERGUNTA, type BlocoOvr } from './blocosOvr'
 
 export type QuestionDef = { key: string; label: string; icon: string }
 
@@ -882,17 +885,39 @@ export function getTodasPerguntas(variante: VarianteKey): QuestionDef[] {
   return [...v.blocoA, ...BLOCO_PERFIL, ...v.blocoC]
 }
 
+/** Pesos de cada bloco no OVR (somam 1). Mapa pergunta → bloco em lib/blocosOvr.ts. */
+export const PESOS_OVR: Record<BlocoOvr, number> = {
+  tecnico:       0.35,
+  fisico:        0.25,
+  tatico:        0.25,
+  comportamento: 0.15,
+}
+
 /**
- * Calcula o scout_score a partir das 20 respostas (escala 1-5).
- * Fórmula: Math.round(((avg - 1) / 4) × 100)  →  resultado 0–100.
+ * Calcula o scout_score (= OVR da avaliação) a partir das 20 respostas (escala 1-5).
+ * Cada bloco vira nota 0-100 pela média das suas respostas: ((avg - 1) / 4) × 100.
+ * OVR = soma ponderada dos blocos (PESOS_OVR). Bloco sem resposta é ignorado e
+ * os pesos restantes são redistribuídos proporcionalmente.
  * Tudo 1 = 0  |  Tudo 3 = 50  |  Tudo 5 = 100
  */
 export function calcScoutScore(respostas: Record<string, number>, variante: VarianteKey): number {
   const perguntas = getTodasPerguntas(variante)
-  const values = perguntas.map(q => respostas[q.key] ?? 0).filter(v => v > 0)
-  if (values.length === 0) return 0
-  const avg = values.reduce((a, b) => a + b, 0) / values.length
-  return Math.round(((avg - 1) / 4) * 100)
+  const porBloco: Record<BlocoOvr, number[]> = { tecnico: [], fisico: [], tatico: [], comportamento: [] }
+  for (const q of perguntas) {
+    const v = respostas[q.key] ?? 0
+    const bloco = BLOCO_POR_PERGUNTA[q.key]
+    if (v > 0 && bloco) porBloco[bloco].push(v)
+  }
+  let soma = 0
+  let pesoTotal = 0
+  for (const bloco of Object.keys(PESOS_OVR) as BlocoOvr[]) {
+    const vals = porBloco[bloco]
+    if (vals.length === 0) continue
+    const avg = vals.reduce((a, b) => a + b, 0) / vals.length
+    soma      += PESOS_OVR[bloco] * (((avg - 1) / 4) * 100)
+    pesoTotal += PESOS_OVR[bloco]
+  }
+  return pesoTotal > 0 ? Math.round(soma / pesoTotal) : 0
 }
 
 /** Pontos fortes: até top-N perguntas com nota ≥ 4 */

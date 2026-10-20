@@ -1,198 +1,101 @@
 /**
- * OVR real — fórmula 50/50 (implementada em lib/escala.ts):
- *   • 50% perfil (cadastro + currículo preenchido)
- *   • 50% avaliação de treinadores (média dos scout_score)
+ * OVR real — SÓ a avaliação de treinadores (regra em lib/escala.ts):
+ *   • nota de cada avaliação = Técnico 35% · Físico 25% · Tático 25% · Comportamento 15%
+ *   • OVR do atleta = média das notas; sem avaliação → sem OVR
+ *
+ * O perfil preenchido NÃO entra no OVR — vira a barra "Perfil X% completo".
  *
  * Bridge direto: profiles.id (auth UUID) = avaliacoes.aluno_id
  * profiles.athlete_id (MC-XXXXX) é usado para mapear no ranking/busca.
- *
- * Fórmula do perfil (max 100 pts → × 0.5 = max 50 OVR):
- *   Base (nome + posicao + dob — obrigatórios no cadastro): 15 pts (sempre)
- *   Foto (avatar_url):                                      20 pts
- *   Questionário (questionario_completo em user_metadata):  20 pts
- *   Clubes anteriores (clubes_anteriores em user_metadata): 15 pts
- *   Campeonatos (campeonatos em user_metadata):             10 pts
- *   Títulos (titulos em user_metadata):                     10 pts
- *   Premiações (premiacoes em user_metadata):                5 pts
- *   Telefone (telefone em user_metadata):                    5 pts
  */
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { unstable_cache } from 'next/cache'
-import { calcOvr, calcProfileScore as calcProfileScoreBase, type OvrUserMeta } from './escala'
+import { COLUNAS_NOTA, ovrDasAvaliacoes, type AvaliacaoNota } from './escala'
 
-type ProfileRow = {
-  id:         string
-  athlete_id: string | null
-  avatar_url: string | null
+type AvaliacaoRow = AvaliacaoNota & { aluno_id: string | null }
+
+/** Todas as avaliações com nota, agrupadas por UUID do atleta → OVR. */
+async function ovrPorUuid(admin: SupabaseClient): Promise<Map<string, number>> {
+  const { data: avs } = await admin
+    .from('avaliacoes')
+    .select(`aluno_id, ${COLUNAS_NOTA}`)
+    .not('scout_score', 'is', null)
+
+  const porAluno = new Map<string, AvaliacaoRow[]>()
+  for (const av of (avs ?? []) as AvaliacaoRow[]) {
+    if (!av.aluno_id) continue
+    if (!porAluno.has(av.aluno_id)) porAluno.set(av.aluno_id, [])
+    porAluno.get(av.aluno_id)!.push(av)
+  }
+
+  const map = new Map<string, number>()
+  for (const [uuid, lista] of porAluno) {
+    const ovr = ovrDasAvaliacoes(lista)
+    if (ovr !== null) map.set(uuid, ovr)
+  }
+  return map
 }
-
-type UserMeta = OvrUserMeta
-
-// Wrappers sobre a escala única (lib/escala.ts)
-const calcProfileScore = (p: ProfileRow, meta: UserMeta) => calcProfileScoreBase(p.avatar_url, meta)
 
 // ── fetchOvrMap ────────────────────────────────────────────────────────────────
 
 /**
- * Retorna Map<MC-ID, ovr> com todos os atletas que têm perfil cadastrado.
+ * Retorna Map<MC-ID, ovr> com todos os atletas avaliados.
  * Use com o admin client (bypass RLS).
  */
 export async function fetchOvrMap(admin: SupabaseClient): Promise<Map<string, number>> {
+  const [{ data: profiles }, byUuid] = await Promise.all([
+    admin.from('profiles').select('id, athlete_id').not('athlete_id', 'is', null),
+    ovrPorUuid(admin),
+  ])
+
   const map = new Map<string, number>()
-
-  // 1. Todos os perfis de atleta
-  const { data: profiles } = await admin
-    .from('profiles')
-    .select('id, athlete_id, avatar_url')
-    .not('athlete_id', 'is', null)
-
-  if (!profiles || profiles.length === 0) return map
-
-  // 2. user_metadata apenas dos atletas presentes nos profiles (evita N+1 e listAllUsers)
-  const profileIds = (profiles as ProfileRow[]).map(p => p.id)
-  const authResults = await Promise.all(
-    profileIds.map(id => admin.auth.admin.getUserById(id).then(r => r.data.user))
-  )
-  const metaByUuid = new Map<string, UserMeta>()
-  for (const u of authResults) {
-    if (u) metaByUuid.set(u.id, (u.user_metadata ?? {}) as UserMeta)
+  for (const p of (profiles ?? []) as { id: string; athlete_id: string | null }[]) {
+    const ovr = byUuid.get(p.id)
+    if (p.athlete_id && ovr !== undefined) map.set(p.athlete_id, ovr)
   }
-
-  // 3. Todas as avaliações com score
-  const { data: avs } = await admin
-    .from('avaliacoes')
-    .select('aluno_id, scout_score')
-    .not('scout_score', 'is', null)
-
-  // Agrupa scores por UUID do atleta
-  const scoresByUuid = new Map<string, number[]>()
-  for (const av of (avs ?? []) as { aluno_id: string; scout_score: number }[]) {
-    if (!av.aluno_id) continue
-    if (!scoresByUuid.has(av.aluno_id)) scoresByUuid.set(av.aluno_id, [])
-    scoresByUuid.get(av.aluno_id)!.push(av.scout_score)
-  }
-
-  // 4. Calcula OVR para cada atleta
-  for (const profile of profiles as ProfileRow[]) {
-    if (!profile.athlete_id) continue
-
-    const meta = metaByUuid.get(profile.id) ?? {}
-    const profileScore = calcProfileScore(profile, meta)
-
-    const scores = scoresByUuid.get(profile.id)
-    const trainerAvg = scores && scores.length > 0
-      ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-      : null
-
-    const ovr = calcOvr(profileScore, trainerAvg)
-    if (ovr !== null) map.set(profile.athlete_id, ovr)
-  }
-
   return map
 }
 
 // ── fetchOvrMapByUuid ──────────────────────────────────────────────────────────
 
 /**
- * Igual a fetchOvrMap, mas keyed por UUID.
- * Cacheado por 60s via unstable_cache para evitar listAllUsers() em toda requisição.
+ * Igual a fetchOvrMap, mas keyed por UUID. Cacheado por 60s via unstable_cache.
  */
 export async function fetchOvrMapByUuid(admin: SupabaseClient): Promise<Map<string, number>> {
   // Função interna cacheável — retorna objeto serializável (Record) em vez de Map
   const getCached = unstable_cache(
-    async (): Promise<Record<string, number>> => {
-      const result: Record<string, number> = {}
-
-      // Filtra apenas atletas reais (MC-) — evita listAllUsers para descobrir o tipo
-      const { data: profiles } = await admin
-        .from('profiles')
-        .select('id, athlete_id, avatar_url')
-        .like('athlete_id', 'MC-%')
-
-      if (!profiles || profiles.length === 0) return result
-
-      // Carrega user_metadata apenas dos IDs necessários
-      const profileIds = (profiles as ProfileRow[]).map(p => p.id)
-      const authResults = await Promise.all(
-        profileIds.map(id => admin.auth.admin.getUserById(id).then(r => r.data.user))
-      )
-
-      const metaByUuid = new Map<string, UserMeta>()
-      for (const u of authResults) {
-        if (u) metaByUuid.set(u.id, (u.user_metadata ?? {}) as UserMeta)
-      }
-
-      const { data: avs } = await admin
-        .from('avaliacoes')
-        .select('aluno_id, scout_score')
-        .not('scout_score', 'is', null)
-
-      const scoresByUuid = new Map<string, number[]>()
-      for (const av of (avs ?? []) as { aluno_id: string; scout_score: number }[]) {
-        if (!av.aluno_id) continue
-        if (!scoresByUuid.has(av.aluno_id)) scoresByUuid.set(av.aluno_id, [])
-        scoresByUuid.get(av.aluno_id)!.push(av.scout_score)
-      }
-
-      for (const profile of profiles as ProfileRow[]) {
-        const meta         = metaByUuid.get(profile.id) ?? {}
-        const profileScore = calcProfileScore(profile, meta)
-        const scores       = scoresByUuid.get(profile.id)
-        const trainerAvg   = scores && scores.length > 0
-          ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-          : null
-        const ovr = calcOvr(profileScore, trainerAvg)
-        if (ovr !== null) result[profile.id] = ovr
-      }
-
-      return result
-    },
-    ['ovr-map-by-uuid'],
+    async (): Promise<Record<string, number>> => Object.fromEntries(await ovrPorUuid(admin)),
+    ['ovr-map-by-uuid-v2'],   // v2: OVR só da avaliação (pesos por bloco)
     { revalidate: 60, tags: ['ovr'] }
   )
 
   const record = await getCached()
-  const map = new Map<string, number>()
-  for (const [k, v] of Object.entries(record)) map.set(k, v)
-  return map
+  return new Map(Object.entries(record))
 }
 
 // ── fetchOvrSingle ─────────────────────────────────────────────────────────────
 
 /**
  * OVR de um único atleta pelo MC-ID.
- * Retorna null se o perfil não existir.
+ * Retorna null se o perfil não existir ou não tiver avaliação.
  */
 export async function fetchOvrSingle(
   admin: SupabaseClient,
   mcId: string,
 ): Promise<number | null> {
-  // 1. Perfil do atleta
   const { data: profile } = await admin
     .from('profiles')
-    .select('id, athlete_id, avatar_url')
+    .select('id')
     .eq('athlete_id', mcId)
     .maybeSingle()
 
   if (!profile?.id) return null
 
-  // 2. User metadata (campos do currículo salvos fora do schema)
-  const { data: { user: authUser } } = await admin.auth.admin.getUserById(profile.id)
-  const meta = (authUser?.user_metadata ?? {}) as UserMeta
-
-  const profileScore = calcProfileScore(profile as ProfileRow, meta)
-
-  // 3. Avaliações do atleta
   const { data: avs } = await admin
     .from('avaliacoes')
-    .select('scout_score')
+    .select(COLUNAS_NOTA)
     .eq('aluno_id', profile.id)
     .not('scout_score', 'is', null)
 
-  const scores = (avs ?? []) as { scout_score: number }[]
-  const trainerAvg = scores.length > 0
-    ? Math.round(scores.map(a => a.scout_score).reduce((a, b) => a + b, 0) / scores.length)
-    : null
-
-  return calcOvr(profileScore, trainerAvg)
+  return ovrDasAvaliacoes((avs ?? []) as AvaliacaoNota[])
 }

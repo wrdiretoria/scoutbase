@@ -10,7 +10,10 @@ import {
   type VarianteKey, type QuestionDef,
 } from '@/lib/questionnaire'
 import { generateCard } from '@/lib/canvasCard'
-import { atributosDaAvaliacao, ovrDoAtleta, type OvrUserMeta } from '@/lib/escala'
+import {
+  atributosDaAvaliacao, notaDaAvaliacao, ovrDasAvaliacoes, perfilCompleto,
+  COLUNAS_NOTA, type AvaliacaoNota,
+} from '@/lib/escala'
 import { posAbrev, getInitials, calcularCategoria, calcularIdade } from '@/lib/cardUtils'
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -564,18 +567,14 @@ function AtletaPerfilContent() {
       const av = (avRes as { data: unknown }).data
       if (av) {
         setAvaliacao(av as Avaliacao)
-        // OVR oficial (mesma fórmula do perfil público e dos cards)
+        // OVR oficial (só avaliações — mesma regra do perfil público e dos cards)
         try {
-          const { data: scores } = await supabase
+          const { data: avsNota } = await supabase
             .from('avaliacoes')
-            .select('scout_score')
+            .select(COLUNAS_NOTA)
             .eq('aluno_id', user.id)
             .not('scout_score', 'is', null)
-          setOvrOficial(ovrDoAtleta(
-            (profile?.avatar_url as string | null) ?? null,
-            um as OvrUserMeta,
-            (scores ?? []).map(s => s.scout_score as number),
-          ))
+          setOvrOficial(ovrDasAvaliacoes((avsNota ?? []) as AvaliacaoNota[]))
         } catch { /* ignorar */ }
         try {
           const { data: treinador } = await supabase
@@ -618,10 +617,21 @@ function AtletaPerfilContent() {
   const temPremiacoes   = curriculo.premiacoes.trim().length > 0
   const temTelefone     = curriculo.telefone.trim().length > 0
 
-  // OVR existe apenas se houver avaliação oficial
+  // OVR existe apenas se houver avaliação oficial (perfil preenchido NÃO entra)
   const ovrTotal: number | null = avaliacao ? ovrOficial : null
+  // Nota da última avaliação pela regra atual (pesos por bloco)
+  const notaUltima = notaDaAvaliacao(avaliacao) ?? 0
   // Atributos do formato legado na escala única 0-99
   const atrsLegado = atributosDaAvaliacao(avaliacao)
+  // Barra separada "Perfil X% completo" — usa o estado atual do formulário
+  const perfil = perfilCompleto(avatarUrl, {
+    questionario_completo: questionarioConcluido,
+    clubes_anteriores:     curriculo.clubesAnteriores,
+    campeonatos:           curriculo.campeonatos,
+    titulos:               curriculo.titulos,
+    premiacoes:            curriculo.premiacoes,
+    telefone:              curriculo.telefone,
+  })
 
   // ── Próximo Passo — sugestões baseadas no estado do perfil ────
   const passos: { icon: string; titulo: string; sub: string; href: string }[] = []
@@ -1208,6 +1218,26 @@ function AtletaPerfilContent() {
               </div>
             )}
 
+            {/* Perfil completo — barra separada, não entra no OVR */}
+            <div style={{ marginTop:'14px', paddingTop:'12px', borderTop:'1px solid rgba(255,255,255,0.06)' }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline', marginBottom:'6px' }}>
+                <span style={{ fontSize:'10px', fontWeight:700, letterSpacing:'0.10em', color:'rgba(255,255,255,0.35)', textTransform:'uppercase' }}>
+                  Perfil {perfil.pct}% completo
+                </span>
+                {perfil.pct === 100 && (
+                  <span style={{ fontSize:'10px', fontWeight:800, color:'#00FF88' }}>✓ Completo</span>
+                )}
+              </div>
+              <div style={{ height:'5px', background:'rgba(255,255,255,0.07)', borderRadius:'3px', overflow:'hidden' }}>
+                <div style={{ height:'100%', width:`${perfil.pct}%`, background:'linear-gradient(90deg,#00c853,#00FF88)', borderRadius:'3px', transition:'width .4s ease' }} />
+              </div>
+              {perfil.faltando.length > 0 && (
+                <p style={{ margin:'8px 0 0', fontSize:'10px', color:'rgba(255,255,255,0.35)', lineHeight:1.6 }}>
+                  Falta: {perfil.faltando.map(f => `${f.item} (+${f.pts}%)`).join(' · ')}
+                </p>
+              )}
+            </div>
+
             {/* ── ID no rodapé do card ── */}
             {athleteId && (
               <div style={{
@@ -1343,10 +1373,10 @@ function AtletaPerfilContent() {
               <span style={{
                 display:'block', fontSize:'26px', fontWeight:900, lineHeight:1,
                 letterSpacing:'-0.03em', fontVariantNumeric:'tabular-nums',
-                color: notaColor(avaliacao.scout_score),
-                textShadow:`0 0 16px ${notaColor(avaliacao.scout_score)}55`,
+                color: notaColor(notaUltima),
+                textShadow:`0 0 16px ${notaColor(notaUltima)}55`,
               }}>
-                {avaliacao.scout_score}
+                {notaUltima}
               </span>
               <span style={{ fontSize:'8px', fontWeight:700, color:'rgba(255,255,255,0.28)', textTransform:'uppercase', letterSpacing:'0.08em' }}>
                 nota
@@ -1524,10 +1554,10 @@ function AtletaPerfilContent() {
                 </span>
                 <span style={{
                   fontSize:'26px', fontWeight:900, fontVariantNumeric:'tabular-nums',
-                  color: notaColor(avaliacao.scout_score),
-                  textShadow:`0 0 20px ${notaColor(avaliacao.scout_score)}55`,
+                  color: notaColor(notaUltima),
+                  textShadow:`0 0 20px ${notaColor(notaUltima)}55`,
                 }}>
-                  {avaliacao.scout_score}
+                  {notaUltima}
                 </span>
               </div>
             </div>
