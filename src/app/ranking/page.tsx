@@ -100,7 +100,7 @@ export default async function RankingPage({ searchParams }: Props) {
   }
 
   const ranking: RankingItem[] = atletas
-    .map(u => {
+    .map((u): RankingItem | null => {
       const meta = u.user_metadata as { nome?: string; posicao?: string; cidade?: string; estado?: string; pais?: string; promovido_ate?: string }
       const profile   = profileMap.get(u.id)
       const nome      = (profile?.nome as string | null) ?? meta.nome ?? 'Atleta'
