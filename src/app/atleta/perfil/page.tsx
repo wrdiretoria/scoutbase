@@ -15,6 +15,7 @@ import {
   COLUNAS_NOTA, type AvaliacaoNota,
 } from '@/lib/escala'
 import { posAbrev, getInitials, calcularCategoria, calcularIdade } from '@/lib/cardUtils'
+import { erroDataNascimento } from '@/lib/categoria'
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -480,6 +481,8 @@ function AtletaPerfilContent() {
   const [editPosicao,  setEditPosicao]  = useState('')
   const [editCidade,   setEditCidade]   = useState('')
   const [editPais,     setEditPais]     = useState('')
+  const [editDataNasc, setEditDataNasc] = useState('')   // só usado enquanto a data estiver vazia
+  const [erroId,       setErroId]       = useState<string | null>(null)
   const [savingId,     setSavingId]     = useState(false)
   const [savedId,      setSavedId]      = useState(false)
 
@@ -806,7 +809,27 @@ function AtletaPerfilContent() {
   async function handleSaveIdentidade(e: React.FormEvent) {
     e.preventDefault()
     if (!editNome.trim()) return
+    setErroId(null)
+    // Data de nascimento: só pode ser preenchida enquanto estiver vazia (mesma validação do cadastro)
+    if (!dataNasc && editDataNasc) {
+      const erroNasc = erroDataNascimento(editDataNasc)
+      if (erroNasc) { setErroId(erroNasc); return }
+    }
     setSavingId(true)
+    if (!dataNasc && editDataNasc) {
+      const res = await fetch('/api/atleta/data-nascimento', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dataNascimento: editDataNasc }),
+      })
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({})) as { error?: string }
+        setErroId(j.error ?? 'Erro ao salvar a data de nascimento.')
+        setSavingId(false)
+        return
+      }
+      setDataNasc(editDataNasc)
+    }
     const supabase = createClient()
     const { error } = await supabase.auth.updateUser({
       data: {
@@ -1161,6 +1184,32 @@ function AtletaPerfilContent() {
                     style={{ background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.15)', borderRadius:'10px', padding:'10px 14px', color:'white', fontSize:'14px', outline:'none' }}
                   />
                 </div>
+                {/* Data de nascimento — preenchível só enquanto vazia (define a categoria) */}
+                <div style={{ display:'flex', flexDirection:'column', gap:'4px' }}>
+                  <label style={{ fontSize:'10px', fontWeight:700, color:'rgba(255,255,255,0.4)', letterSpacing:'0.08em', textTransform:'uppercase' }}>Data de nascimento</label>
+                  {dataNasc ? (
+                    <p style={{ margin:0, fontSize:'13px', color:'rgba(255,255,255,0.6)', lineHeight:1.5 }}>
+                      {dataNasc.slice(8, 10)}/{dataNasc.slice(5, 7)}/{dataNasc.slice(0, 4)} · {categoria}
+                      <span style={{ display:'block', fontSize:'11px', color:'rgba(255,255,255,0.3)' }}>
+                        Para corrigir, fale com o suporte.
+                      </span>
+                    </p>
+                  ) : (
+                    <>
+                      <input
+                        type="date" value={editDataNasc} onChange={e => setEditDataNasc(e.target.value)}
+                        min="1900-01-01" max={new Date().toISOString().slice(0, 10)}
+                        style={{ background:'rgba(255,255,255,0.07)', border:'1px solid rgba(250,204,21,0.45)', borderRadius:'10px', padding:'10px 14px', color:'white', fontSize:'14px', outline:'none', colorScheme:'dark' }}
+                      />
+                      <span style={{ fontSize:'11px', color:'rgba(250,204,21,0.75)' }}>
+                        Sem ela você não aparece nos filtros de categoria do ranking.
+                      </span>
+                    </>
+                  )}
+                </div>
+                {erroId && (
+                  <p style={{ margin:0, fontSize:'12px', color:'#f87171' }}>{erroId}</p>
+                )}
                 {/* Ações */}
                 <div style={{ display:'flex', gap:'8px', marginTop:'2px' }}>
                   <button type="submit" disabled={savingId}
@@ -2401,6 +2450,7 @@ function AtletaPerfilContent() {
                     cidade:        meta.cidade || null,
                     idade:         dataNasc ? calcularIdade(dataNasc) : null,
                     profileUrl:    `https://www.meucraque.com/jogador/${uid}`,
+                    pais:          meta.pais || null,
                     statPac:       atrsLegado?.vel ?? null,
                     statSho:       atrsLegado?.tec ?? null,
                     statPas:       atrsLegado?.dri ?? null,
