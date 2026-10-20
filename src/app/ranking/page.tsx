@@ -299,7 +299,7 @@ export default async function RankingPage({ searchParams }: Props) {
                 href={urlRanking(params, { categoria: undefined })}
                 className="filter-pill"
                 style={{
-                  padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 700,
+                  padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0,
                   textDecoration: 'none', border: '1px solid',
                   background: !categoriaFiltro ? '#22c55e' : 'transparent',
                   color: !categoriaFiltro ? 'black' : 'rgba(255,255,255,0.45)',
@@ -317,7 +317,7 @@ export default async function RankingPage({ searchParams }: Props) {
               href={urlRanking(params, { categoria: cat })}
               className="filter-pill"
               style={{
-                padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 700,
+                padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0,
                 textDecoration: 'none', border: '1px solid',
                 background: categoriaFiltro === cat ? '#22c55e' : 'transparent',
                 color: categoriaFiltro === cat ? 'black' : 'rgba(255,255,255,0.45)',
