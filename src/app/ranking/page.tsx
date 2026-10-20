@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase'
 import { listAllUsers } from '@/lib/auth'
 import { fetchOvrMap } from '@/lib/ovr'
+import { getBoostedProfileIds } from '@/lib/boosts'
 import RankingFiltros from './RankingFiltros'
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -69,13 +70,15 @@ export default async function RankingPage({ searchParams }: Props) {
 
   // 3. Busca perfis + OVR real em paralelo
   const ids = atletas.map(u => u.id)
-  const [profilesRes, ovrMap] = await Promise.all([
+  const [profilesRes, ovrMap, boostedIds] = await Promise.all([
     admin
       .from('profiles')
       .select('id, nome, athlete_id, data_nascimento, bio, altura, peso, clube_atual, avatar_url, criado_em')
       .in('id', ids),
     fetchOvrMap(admin),
+    getBoostedProfileIds(admin),
   ])
+  const agora = new Date()
 
   const profileMap = new Map(
     (profilesRes.data ?? []).map(p => [p.id, p])
@@ -86,7 +89,7 @@ export default async function RankingPage({ searchParams }: Props) {
     id: string; nome: string; posicao: string; cidade: string; estado: string; pais: string
     dataNasc: string | null; ovr: number | null; categoria: string | null
     initials: string; pos: string; avatarUrl: string | null; athleteId: string | null
-    criadoEm: string | null
+    criadoEm: string | null; boosted: boolean
   }
 
   const profilesComCriacao = (profilesRes.data ?? []) as { id: string; nome: string | null; athlete_id: string | null; data_nascimento: string | null; avatar_url: string | null; criado_em?: string | null }[]
@@ -95,7 +98,7 @@ export default async function RankingPage({ searchParams }: Props) {
   const modoVisitados  = ordemFiltro === 'visitados'
 
   // Para modo visitados: busca contagem de visitas por atleta
-  let visitasMap = new Map<string, number>()
+  const visitasMap = new Map<string, number>()
   if (modoVisitados) {
     const visitasRes = await admin.from('visitas').select('atleta_id')
     for (const row of visitasRes.data ?? []) {
@@ -106,7 +109,7 @@ export default async function RankingPage({ searchParams }: Props) {
 
   const ranking: RankingItem[] = atletas
     .map(u => {
-      const meta = u.user_metadata as { nome?: string; posicao?: string; cidade?: string; estado?: string; pais?: string }
+      const meta = u.user_metadata as { nome?: string; posicao?: string; cidade?: string; estado?: string; pais?: string; promovido_ate?: string }
       const profile   = profileMap.get(u.id)
       const nome      = (profile?.nome as string | null) ?? meta.nome ?? 'Atleta'
       const dataNasc  = (profile?.data_nascimento as string | null) ?? null
@@ -114,6 +117,7 @@ export default async function RankingPage({ searchParams }: Props) {
       const ovr       = athleteId ? (ovrMap.get(athleteId) ?? null) : null
       if (!modoNovos && !modoVisitados && ovr === null) return null   // ranking por OVR: só avaliados
       const criadoEm  = (profilesComCriacao.find(p => p.id === u.id) as { criado_em?: string | null } | undefined)?.criado_em ?? u.created_at ?? null
+      const boostLegado = meta.promovido_ate ? new Date(meta.promovido_ate) > agora : false
       return {
         id: u.id, nome,
         posicao:   meta.posicao ?? '',
@@ -127,12 +131,15 @@ export default async function RankingPage({ searchParams }: Props) {
         avatarUrl: (profile?.avatar_url as string | null) ?? null,
         athleteId,
         criadoEm,
+        boosted: boostLegado || boostedIds.has(u.id),
       }
     })
     .filter((a): a is RankingItem => a !== null)
     .sort((a, b) => {
       if (modoNovos)     return (b.criadoEm ?? '').localeCompare(a.criadoEm ?? '')
       if (modoVisitados) return (visitasMap.get(b.id) ?? 0) - (visitasMap.get(a.id) ?? 0)
+      if (a.boosted && !b.boosted) return -1
+      if (!a.boosted && b.boosted) return 1
       return (b.ovr ?? 0) - (a.ovr ?? 0)
     })
 

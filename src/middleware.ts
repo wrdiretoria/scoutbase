@@ -17,6 +17,7 @@ const ALWAYS_PUBLIC = [
   '/planos',
   '/termos',
   '/p',
+  '/vagas',
 ]
 
 const PRIVATE_PREFIXES = [
@@ -49,6 +50,9 @@ const PRIVATE_PREFIXES = [
   '/presencas',
   '/relatorios',
   '/turmas',
+  '/feed',
+  '/mensagens',
+  '/clube/vagas',
 ]
 
 const AUTH_ROUTES = ['/login']
@@ -68,6 +72,8 @@ const PUBLIC_API_PREFIXES = [
   '/api/pais/',
   '/api/cron/',
   '/api/asaas/webhook',
+  '/api/recommendations',
+  '/api/network-stats/',
 ]
 
 function isAlwaysPublic(pathname: string) {

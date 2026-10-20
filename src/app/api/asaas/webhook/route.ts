@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient, createAdminClient } from '@/lib/supabase'
+import { upsertEntitlementPro, type EntityType } from '@/lib/entitlements'
+import { PRODUTO_ENTITY_TYPE, type ProdutoKey } from '@/lib/produtos'
 
 type AsaasWebhookPayload = {
   id: string
@@ -100,6 +102,69 @@ export async function POST(req: NextRequest) {
         }
       }
       return NextResponse.json({ ok: true, event, tipo: 'promover' })
+    }
+
+    // ── Planos /planos: Atleta Pro, Treinador/Scout Pro, Clube institucional ──
+    // externalReference = "plano:<produto>:<userId>" — libera 30 dias em entitlements.
+    if (
+      (event === 'PAYMENT_RECEIVED' || event === 'PAYMENT_CONFIRMED') &&
+      payment.externalReference?.startsWith('plano:')
+    ) {
+      const [, produto, userId] = payment.externalReference.split(':')
+      if (userId && UUID_RE.test(userId) && produto in PRODUTO_ENTITY_TYPE) {
+        const adminClient = createAdminClient()
+        const { data: { user: compradorUser } } = await adminClient.auth.admin.getUserById(userId)
+        const processados = (compradorUser?.user_metadata?.pagamentos_processados as string[] | null) ?? []
+        if (!processados.includes(payment.id)) {
+          const alvo = PRODUTO_ENTITY_TYPE[produto as Exclude<ProdutoKey, 'boost'>]
+          const entityType: EntityType | null = alvo === 'self'
+            ? (compradorUser?.user_metadata?.tipo as EntityType | undefined) ?? null
+            : alvo
+
+          if (entityType) {
+            const ativoAte = new Date()
+            ativoAte.setDate(ativoAte.getDate() + 30)
+            await upsertEntitlementPro(adminClient, userId, entityType, ativoAte)
+
+            await adminClient.auth.admin.updateUserById(userId, {
+              user_metadata: { pagamentos_processados: [...processados, payment.id] },
+            })
+            console.log(`[webhook] plano ${produto}: entitlement 'pro' liberado até ${ativoAte.toISOString()} (entity_type=${entityType})`)
+          } else {
+            console.error(`[webhook] plano ${produto}: não foi possível determinar entity_type pro usuário ${userId}`)
+          }
+        } else {
+          console.log('[webhook] plano: pagamento já processado, ignorado')
+        }
+      }
+      return NextResponse.json({ ok: true, event, tipo: 'plano' })
+    }
+
+    // ── Add-on "Impulsionar perfil": 7 dias de destaque no ranking/busca ──
+    // externalReference = "boost:<userId>"
+    if (
+      (event === 'PAYMENT_RECEIVED' || event === 'PAYMENT_CONFIRMED') &&
+      payment.externalReference?.startsWith('boost:')
+    ) {
+      const userId = payment.externalReference.replace('boost:', '')
+      if (userId && UUID_RE.test(userId)) {
+        const adminClient = createAdminClient()
+        const { data: { user: atletaUser } } = await adminClient.auth.admin.getUserById(userId)
+        const processados = (atletaUser?.user_metadata?.pagamentos_processados as string[] | null) ?? []
+        if (!processados.includes(payment.id)) {
+          const expiraEm = new Date()
+          expiraEm.setDate(expiraEm.getDate() + 7)
+          await adminClient.from('profile_boosts').insert({ profile_id: userId, expires_at: expiraEm.toISOString() })
+
+          await adminClient.auth.admin.updateUserById(userId, {
+            user_metadata: { pagamentos_processados: [...processados, payment.id] },
+          })
+          console.log(`[webhook] boost: perfil em destaque até ${expiraEm.toISOString()}`)
+        } else {
+          console.log('[webhook] boost: pagamento já processado, ignorado')
+        }
+      }
+      return NextResponse.json({ ok: true, event, tipo: 'boost' })
     }
 
     // ── ScoutBase: pagamentos de mensalidade ──

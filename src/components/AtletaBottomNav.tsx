@@ -188,6 +188,19 @@ export default function AtletaBottomNav() {
             </span>
           </Link>
 
+          {/* Vagas */}
+          <Link
+            href="/vagas"
+            className={`mc-nav-item${isActive('/vagas') ? ' active' : ''}`}
+          >
+            <span className="mc-nav-icon" style={{ color: isActive('/vagas') ? '#00FF88' : 'rgba(255,255,255,0.38)' }}>
+              💼
+            </span>
+            <span className="mc-nav-label" style={{ color: isActive('/vagas') ? '#00FF88' : 'rgba(255,255,255,0.35)' }}>
+              Vagas
+            </span>
+          </Link>
+
           {/* Compartilhar — navegação programática com dados */}
           <button
             onClick={handleShare}
