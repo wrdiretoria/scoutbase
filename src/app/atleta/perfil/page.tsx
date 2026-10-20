@@ -9,7 +9,7 @@ import {
   VARIANTES, BLOCO_PERFIL as Q_BPERF,
   type VarianteKey, type QuestionDef,
 } from '@/lib/questionnaire'
-import { generateCard } from '@/lib/canvasCard'
+import { generateStoryCard, storyParaArquivo, compartilharStory, podeCompartilharArquivo } from '@/lib/storyCard'
 import {
   atributosDaAvaliacao, notaDaAvaliacao, ovrDasAvaliacoes, perfilCompleto,
   COLUNAS_NOTA, type AvaliacaoNota,
@@ -472,6 +472,7 @@ function AtletaPerfilContent() {
   const [saveErr, setSaveErr] = useState<string | null>(null)
   const [sharingCard, setSharingCard] = useState(false)
   const [cardModal,   setCardModal]   = useState<string>('')   // data URL → abre modal
+  const [cardFile,    setCardFile]    = useState<File | null>(null)   // PNG do story (share/download)
 
   // ── Edição de identidade (nome / posição / cidade) ──
   const [editingId,    setEditingId]    = useState(false)
@@ -2385,21 +2386,29 @@ function AtletaPerfilContent() {
                       })
                     } catch { imgSrc = avatarUrl }
                   }
+                  // Story 1080×1920 — OVR (lib/escala) e categoria (lib/categoria) pelos helpers únicos
                   const tempCanvas = document.createElement('canvas')
-                  await generateCard(tempCanvas, {
+                  await generateStoryCard(tempCanvas, {
                     nome:          meta.nome,
                     pos:           posAbrev(meta.posicao ?? ''),
                     posicao:       meta.posicao ?? '',
                     ovr:           ovrTotal,
                     hasEvaluation: avaliacao !== null,
-                    categoria:     dataNasc ? calcularCategoria(dataNasc) : null,
+                    categoria:     dataNasc ? (calcularCategoria(dataNasc) || null) : null,
                     fotoUrl:       imgSrc || null,
                     initials:      getInitials(meta.nome ?? ''),
                     athleteId:     athleteId || null,
                     cidade:        meta.cidade || null,
                     idade:         dataNasc ? calcularIdade(dataNasc) : null,
-                    profileUrl:    `${window.location.origin}/jogador/${uid}`,
+                    profileUrl:    `https://www.meucraque.com/jogador/${uid}`,
+                    statPac:       atrsLegado?.vel ?? null,
+                    statSho:       atrsLegado?.tec ?? null,
+                    statPas:       atrsLegado?.dri ?? null,
+                    statDri:       atrsLegado?.fis ?? null,
+                    statDef:       atrsLegado?.tat ?? null,
+                    statPhy:       atrsLegado?.pos ?? null,
                   })
+                  setCardFile(await storyParaArquivo(tempCanvas, `${meta.nome.replace(/\s+/g,'_')}_MeuCraque_story.png`))
                   setCardModal(tempCanvas.toDataURL('image/png'))
                 } catch {
                   alert('Erro ao gerar o card. Tente novamente.')
@@ -2411,10 +2420,10 @@ function AtletaPerfilContent() {
               <span style={{ fontSize:'20px', flexShrink:0 }}>{sharingCard ? '⏳' : '📸'}</span>
               <div style={{ flex:1, textAlign:'left' }}>
                 <span style={{ display:'block', fontSize:'14px', fontWeight:700 }}>
-                  {sharingCard ? 'Gerando…' : 'Baixar card do perfil'}
+                  {sharingCard ? 'Gerando…' : 'Compartilhar meu card'}
                 </span>
                 <span style={{ display:'block', fontSize:'11px', color:'rgba(255,255,255,0.42)', marginTop:'1px' }}>
-                  {sharingCard ? 'Aguarde um segundo' : 'Salvar imagem para Instagram / Story'}
+                  {sharingCard ? 'Aguarde um segundo' : 'Story para Instagram / WhatsApp'}
                 </span>
               </div>
               {!sharingCard && <span style={{ fontSize:'16px', color:'rgba(0,255,136,0.5)', flexShrink:0 }}>↗</span>}
@@ -2446,37 +2455,45 @@ function AtletaPerfilContent() {
             textAlign: 'center', fontSize: '13px', fontWeight: 600,
             lineHeight: 1.5,
           }}>
-            📲 Segure a imagem para salvar nas fotos
+            Seu card no formato story · pronto para postar
           </p>
 
           <img
             src={cardModal}
-            alt="Card do atleta"
+            alt="Card do atleta no formato story"
             style={{
-              width: 'min(300px, 85vw)',
-              borderRadius: '20px',
+              width: 'min(240px, 60vw, calc((100dvh - 260px) * 9 / 16))',
+              aspectRatio: '9 / 16',
+              borderRadius: '16px',
               boxShadow: '0 0 60px rgba(0,255,136,0.25), 0 20px 60px rgba(0,0,0,0.8)',
               display: 'block',
             }}
           />
 
-          <a
-            href={cardModal}
-            download={`${meta.nome.replace(/\s+/g,'_')}_MeuCraque.png`}
+          {/* Celular: Web Share API (Instagram/WhatsApp) · Desktop: baixa o PNG */}
+          <button
+            onClick={async () => {
+              if (!cardFile) return
+              await compartilharStory(
+                cardFile,
+                `Meu card no MeuCraque! ${meta.posicao ?? ''}`.trim(),
+                `https://www.meucraque.com/jogador/${uid}`,
+              )
+            }}
             style={{
               marginTop: '20px',
               display: 'block', width: 'min(300px, 85vw)',
               padding: '16px', borderRadius: '14px', textAlign: 'center',
               background: 'linear-gradient(135deg,#00e87a,#00FF88)',
               color: '#020d04', fontWeight: 900, fontSize: '16px',
-              textDecoration: 'none',
+              border: 'none', cursor: 'pointer', fontFamily: 'system-ui, sans-serif',
             }}
           >
-            ⬇ Baixar card
-          </a>
+            {cardFile && podeCompartilharArquivo(cardFile) ? '📲 Compartilhar no Instagram / WhatsApp' : '⬇ Baixar card (PNG)'}
+          </button>
 
           <button
-            onClick={() => setCardModal('')}
+            onClick={() => { setCardModal(''); setCardFile(null) }}
             style={{
               marginTop: '14px', background: 'none', border: 'none',
               color: 'rgba(255,255,255,0.3)', fontSize: '14px',

@@ -26,14 +26,14 @@ export type CanvasCardProps = {
 
 // ── Tier — espelho de AtletaCardLanding ────────────────────────────────────────
 
-function getTier(ovr: number | null) {
+export function getTier(ovr: number | null) {
   if (ovr !== null && ovr >= 85) return { color: '#F5C518', bg: '#0e0b00', border: '#F5C51840', medal: '🥇' }
   if (ovr !== null && ovr >= 70) return { color: '#bdbdbd', bg: '#0d0d0d', border: '#9e9e9e30', medal: '🥈' }
   if (ovr !== null && ovr >= 50) return { color: '#cd7f32', bg: '#0c0800', border: '#cd7f3235', medal: '🥉' }
   return                               { color: '#6b7280', bg: '#0a0a0a', border: '#6b728025', medal: null }
 }
 
-function hexToRgb(hex: string) {
+export function hexToRgb(hex: string) {
   const h = hex.replace('#', '')
   const r = parseInt(h.slice(0,2), 16)
   const g = parseInt(h.slice(2,4), 16)
@@ -62,7 +62,7 @@ function posAbrev(posicao: string | null | undefined): string {
   return posicao.slice(0, 3).toUpperCase()
 }
 
-function loadImage(src: string): Promise<HTMLImageElement | null> {
+export function loadImage(src: string): Promise<HTMLImageElement | null> {
   return new Promise(res => {
     const img = new Image()
     img.crossOrigin = 'anonymous'
@@ -72,7 +72,7 @@ function loadImage(src: string): Promise<HTMLImageElement | null> {
   })
 }
 
-function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
+export function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath()
   ctx.moveTo(x + r, y)
   ctx.lineTo(x + w - r, y)
@@ -295,7 +295,8 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
   const hasAttr = stats.some(s => s.val !== '—')
   const colW = PHOTO_W / 6
 
-  stats.forEach((s, i) => {
+  // Sem avaliação: linha oculta, mas o espaço é mantido (igual ao AtletaCardLanding)
+  if (hasAttr) stats.forEach((s, i) => {
     const cx = PAD + i * colW + colW / 2
     const cy = ATTRS_Y
 
