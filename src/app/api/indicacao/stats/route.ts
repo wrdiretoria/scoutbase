@@ -20,6 +20,7 @@ export async function GET() {
       meta:    AMIGOS_POR_PREMIO,
       faltam:  p.faltam,
       premios: p.premios,       // avaliações grátis já ganhas por indicação
+      pendentes: p.pendentes,   // cadastros completos aguardando avaliação oficial
     })
   } catch (err) {
     console.error('[indicacao/stats] unexpected', err)

@@ -2,12 +2,12 @@
 
 /**
  * "Convide seu time" — indicação premiada no perfil do atleta.
- * 3 amigos com cadastro completo pelo link /convite/[id] = 1 avaliação grátis
+ * 3 amigos com perfil completo e primeira avaliação oficial = 1 avaliação grátis
  * (regra e antifraude no servidor: lib/indicacao.ts).
  */
 import { useEffect, useState } from 'react'
 
-export type StatsIndicacao = { noLote: number; meta: number; faltam: number; premios: number; count: number }
+export type StatsIndicacao = { noLote: number; meta: number; faltam: number; premios: number; count: number; pendentes: number }
 
 const BASE_URL = 'https://www.meucraque.com'
 
@@ -27,8 +27,8 @@ export default function ConviteTimeSection({ athleteId, stats: statsProp }: {
     if (statsProp) return
     fetch('/api/indicacao/stats')
       .then(r => (r.ok ? r.json() : null))
-      .then((d: StatsIndicacao | null) => setStats(d ?? { noLote: 0, meta: 3, faltam: 3, premios: 0, count: 0 }))
-      .catch(() => setStats({ noLote: 0, meta: 3, faltam: 3, premios: 0, count: 0 }))
+      .then((d: StatsIndicacao | null) => setStats(d ?? { noLote: 0, meta: 3, faltam: 3, premios: 0, count: 0, pendentes: 0 }))
+      .catch(() => setStats({ noLote: 0, meta: 3, faltam: 3, premios: 0, count: 0, pendentes: 0 }))
   }, [statsProp])
 
   function copiar() {
@@ -53,7 +53,7 @@ export default function ConviteTimeSection({ athleteId, stats: statsProp }: {
         <div style={{ flex: 1, minWidth: 0 }}>
           <p style={{ margin: 0, fontSize: '15px', fontWeight: 900, color: 'white' }}>Convide seu time</p>
           <p style={{ margin: '2px 0 0', fontSize: '12px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.4 }}>
-            Cada 3 amigos que criarem o card pelo seu link = <strong style={{ color: '#00e676' }}>1 avaliação grátis</strong>
+            Cada 3 amigos com perfil completo e primeira avaliação oficial = <strong style={{ color: '#00e676' }}>1 avaliação grátis</strong>
           </p>
         </div>
         <div style={{ textAlign: 'center', flexShrink: 0 }}>
@@ -83,6 +83,12 @@ export default function ConviteTimeSection({ athleteId, stats: statsProp }: {
             ? `🎉 Você já ganhou ${stats.premios} ${stats.premios > 1 ? 'avaliações grátis' : 'avaliação grátis'} · ${stats.faltam > 1 ? 'faltam' : 'falta'} ${stats.faltam} para a próxima`
             : `${stats.faltam > 1 ? 'Faltam' : 'Falta'} ${stats.faltam} amigo${stats.faltam > 1 ? 's' : ''} para a sua avaliação grátis`}
       </p>
+
+      {stats && stats.pendentes > 0 && (
+        <p style={{ margin: '0 0 12px', fontSize: '11px', color: 'rgba(255,255,255,0.55)' }}>
+          {stats.pendentes} {stats.pendentes === 1 ? 'convite aguarda' : 'convites aguardam'} a primeira avaliação oficial.
+        </p>
+      )}
 
       {/* Convidar no WhatsApp */}
       <a href={whatsapp} target="_blank" rel="noopener noreferrer" style={{

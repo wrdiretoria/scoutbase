@@ -1,14 +1,13 @@
 -- ─────────────────────────────────────────────────────────────────────────────
--- Indicação premiada — "3 amigos com cadastro completo = 1 avaliação grátis"
+-- Indicação premiada — "3 amigos verificados = 1 avaliação grátis"
 --
 -- Livro-caixa das indicações. Cada atleta indicado aparece UMA vez (referred_id
--- único): não dá para contar a mesma pessoa duas vezes. A confirmação é feita
--- só pelo servidor (service role) em /api/atleta/salvar-perfil, depois do
--- cadastro completo (nome, posição, data de nascimento).
+-- único): não dá para contar a mesma pessoa duas vezes. O cadastro completo
+-- cria uma indicação pendente; ela só é confirmada após uma avaliação oficial
+-- por um treinador aprovado.
 --
--- O prêmio vai para user_metadata.cards_disponiveis (o mesmo saldo que o PIX
--- carrega e que /api/treinador/avaliar consome). user_metadata.indicacao_premios
--- guarda quantos prêmios já foram pagos, para não pagar o mesmo lote duas vezes.
+-- Os prêmios usam o saldo protegido em profiles.cards_disponiveis e a tabela
+-- evaluation_credit_grants garante idempotência.
 --
 -- Rodar no SQL Editor do Supabase. Idempotente (pode rodar mais de uma vez).
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -17,8 +16,8 @@ create table if not exists indicacoes (
   id            uuid primary key default gen_random_uuid(),
   referrer_id   uuid not null,                 -- quem indicou (auth.users.id == profiles.id)
   referred_id   uuid not null unique,          -- quem foi indicado — conta uma vez só
-  status        text not null default 'confirmada'
-                check (status in ('confirmada', 'rejeitada')),
+  status        text not null default 'pendente'
+                check (status in ('pendente', 'confirmada', 'rejeitada')),
   motivo        text,                          -- motivo da rejeição (autoindicação, conta antiga…)
   created_at    timestamptz not null default now()
 );

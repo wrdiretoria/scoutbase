@@ -1,10 +1,11 @@
 /**
- * Indicação premiada — "3 amigos com cadastro completo = 1 avaliação grátis".
+ * Indicação premiada — "3 amigos verificados = 1 avaliação grátis".
  * SÓ servidor (admin client). Tabela: indicacoes (scripts/migration-indicacoes.sql).
  *
  * Fluxo: o link /convite/[id] leva ao cadastro com ?ref=MC-XXXXX; ao salvar o
- * perfil completo (/api/atleta/salvar-perfil), o servidor confirma a indicação
- * para o PRÓPRIO usuário logado. A cada 3 confirmadas → +1 crédito protegido no banco.
+ * perfil completo (/api/atleta/salvar-perfil), a indicação fica pendente e só é
+ * confirmada após a primeira avaliação oficial por treinador aprovado. A cada
+ * 3 confirmadas → +1 crédito protegido no banco.
  *
  * Antifraude:
  *   • referred_id único — a mesma pessoa nunca conta duas vezes
@@ -27,7 +28,7 @@ export function normalizarCodigo(codigo: string | null | undefined): string | nu
 }
 
 export type ResultadoIndicacao =
-  | { ok: true; referrerId: string; confirmadas: number; premioConcedido: boolean }
+  | { ok: true; referrerId: string; pendente: true }
   | { ok: false; motivo: string }
 
 /**
@@ -75,7 +76,7 @@ export async function confirmarIndicacao(
     const { error: insErr } = await admin.from('indicacoes').insert({
       referrer_id: referrerId,
       referred_id: referredId,
-      status: motivo ? 'rejeitada' : 'confirmada',
+      status: motivo ? 'rejeitada' : 'pendente',
       motivo,
     })
     if (insErr) return { ok: false, motivo: insErr.code === '23505' ? 'ja_registrada' : 'erro_banco' }
@@ -85,12 +86,61 @@ export async function confirmarIndicacao(
 
     if (motivo) return { ok: false, motivo }
 
-    // Prêmio: a cada 3 confirmadas → +1 card. Chaves idempotentes evitam pagar o mesmo lote duas vezes.
-    const premio = await pagarPremios(admin, referrerId)
-    return { ok: true, referrerId, confirmadas: premio.confirmadas, premioConcedido: premio.novos > 0 }
+    // Não libera crédito no cadastro. A primeira avaliação oficial confirma a indicação.
+    return { ok: true, referrerId, pendente: true }
   } catch (err) {
     console.error('[indicacao] confirmar', err)
     return { ok: false, motivo: 'erro_interno' }
+  }
+}
+
+/**
+ * Confirma uma indicação pendente depois de existir uma avaliação oficial.
+ * A avaliação precisa pertencer a um treinador aprovado na lista gerenciada no servidor.
+ */
+export async function confirmarIndicacaoAposAvaliacao(
+  admin: SupabaseClient,
+  referredId: string,
+  trainerId: string,
+): Promise<void> {
+  try {
+    const { data: treinador } = await admin
+      .from('verified_trainers')
+      .select('approved')
+      .eq('user_id', trainerId)
+      .maybeSingle()
+    if (treinador?.approved !== true) return
+
+    const { data: avaliacao, error: avaliacaoError } = await admin
+      .from('avaliacoes')
+      .select('id')
+      .eq('aluno_id', referredId)
+      .eq('professor_id', trainerId)
+      .limit(1)
+      .maybeSingle()
+    if (avaliacaoError || !avaliacao) return
+
+    const { data: pendente, error: lookupError } = await admin
+      .from('indicacoes')
+      .select('referrer_id')
+      .eq('referred_id', referredId)
+      .eq('status', 'pendente')
+      .maybeSingle()
+    if (lookupError || !pendente?.referrer_id) return
+
+    const { data: confirmada, error: updateError } = await admin
+      .from('indicacoes')
+      .update({ status: 'confirmada', motivo: null })
+      .eq('referred_id', referredId)
+      .eq('status', 'pendente')
+      .select('referrer_id')
+      .maybeSingle()
+    if (updateError || !confirmada?.referrer_id) return
+
+    await pagarPremios(admin, confirmada.referrer_id)
+  } catch (err) {
+    // A falha na contabilização não invalida uma avaliação oficial já registrada.
+    console.error('[indicacao] confirmação pós-avaliação falhou', err)
   }
 }
 
@@ -133,14 +183,24 @@ async function pagarPremios(admin: SupabaseClient, referrerId: string) {
 
 /** Progresso do atleta logado: X/3 para o próximo prêmio. */
 export async function progressoIndicacoes(admin: SupabaseClient, referrerId: string) {
-  const { count } = await admin
-    .from('indicacoes')
-    .select('*', { count: 'exact', head: true })
-    .eq('referrer_id', referrerId)
-    .eq('status', 'confirmada')
+  // GET também reconcilia concessões idempotentes caso uma chamada anterior tenha falhado.
+  await pagarPremios(admin, referrerId)
+  const [{ count }, { count: pendentesCount }] = await Promise.all([
+    admin
+      .from('indicacoes')
+      .select('*', { count: 'exact', head: true })
+      .eq('referrer_id', referrerId)
+      .eq('status', 'confirmada'),
+    admin
+      .from('indicacoes')
+      .select('*', { count: 'exact', head: true })
+      .eq('referrer_id', referrerId)
+      .eq('status', 'pendente'),
+  ])
   const confirmadas = count ?? 0
   return {
     confirmadas,
+    pendentes: pendentesCount ?? 0,
     noLote:  confirmadas % AMIGOS_POR_PREMIO,                       // 0..2 → "X/3"
     faltam:  AMIGOS_POR_PREMIO - (confirmadas % AMIGOS_POR_PREMIO), // para o próximo prêmio
     premios: Math.floor(confirmadas / AMIGOS_POR_PREMIO),
