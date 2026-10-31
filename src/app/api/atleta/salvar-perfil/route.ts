@@ -1,6 +1,7 @@
-import { createAdminClient } from '@/lib/supabase'
+import { createAdminClient, createServerClient } from '@/lib/supabase'
 import { NextResponse } from 'next/server'
 import { erroDataNascimento } from '@/lib/categoria'
+import { confirmarIndicacao } from '@/lib/indicacao'
 
 async function gerarAthleteId(admin: ReturnType<typeof createAdminClient>): Promise<string> {
   for (let tentativa = 0; tentativa < 10; tentativa++) {
@@ -14,7 +15,7 @@ async function gerarAthleteId(admin: ReturnType<typeof createAdminClient>): Prom
 
 export async function POST(req: Request) {
   try {
-    const { userId, dataNascimento, nome, escolaId, athleteId: preGeneratedId, recoveryEmail, avatarUrl } = await req.json() as {
+    const { userId, dataNascimento, nome, escolaId, athleteId: preGeneratedId, recoveryEmail, avatarUrl, refCode } = await req.json() as {
       userId?: string
       dataNascimento?: string
       nome?: string
@@ -22,10 +23,17 @@ export async function POST(req: Request) {
       athleteId?: string
       recoveryEmail?: string | null
       avatarUrl?: string | null
+      refCode?: string | null   // código de indicação (?ref=MC-XXXXX do link /convite/[id])
     }
 
     if (!userId) {
       return NextResponse.json({ error: 'Dados ausentes.' }, { status: 400 })
+    }
+    // Só o próprio usuário logado pode salvar o próprio perfil
+    const supabase = await createServerClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user || user.id !== userId) {
+      return NextResponse.json({ error: 'Acesso negado.' }, { status: 403 })
     }
     // Data de nascimento obrigatória e válida — sem ela o atleta fica sem categoria
     const erroNasc = erroDataNascimento(dataNascimento)
@@ -77,6 +85,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Erro ao salvar o perfil.' }, { status: 500 })
     }
 
+    // Indicação premiada: confirmada aqui, no servidor, para o próprio usuário e
+    // com o cadastro completo. Nunca bloqueia o cadastro.
+    if (refCode) {
+      const r = await confirmarIndicacao(admin, refCode, userId)
+      if (!r.ok) console.log('[atleta/salvar-perfil] indicação não contada:', r.motivo)
+    }
+
     return NextResponse.json({ ok: true, athleteId })
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
@@ -84,3 +99,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Erro interno. Tente novamente.' }, { status: 500 })
   }
 }
+

@@ -1,9 +1,11 @@
 /**
  * GET /api/indicacao/stats
- * Retorna quantos usuários foram indicados pelo atleta autenticado.
+ * Progresso da indicação premiada do atleta logado: X/3 amigos para a próxima
+ * avaliação grátis (contando só indicações confirmadas na tabela indicacoes).
  */
 import { NextResponse } from 'next/server'
 import { createServerClient, createAdminClient } from '@/lib/supabase'
+import { AMIGOS_POR_PREMIO, progressoIndicacoes } from '@/lib/indicacao'
 
 export async function GET() {
   try {
@@ -11,17 +13,17 @@ export async function GET() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
-    // Usa o contador salvo no metadata (mais rápido que varrer todos os users)
-    const count = (user.user_metadata?.indicacoes_count as number) ?? 0
-    const faltam = 10 - (count % 10 === 0 && count > 0 ? 10 : count % 10)
-
+    const p = await progressoIndicacoes(createAdminClient(), user.id)
     return NextResponse.json({
-      count,
-      faltam,               // quantas indicações faltam para o próximo card
-      proximoCard: faltam,  // alias legível
+      count:   p.confirmadas,   // total confirmado (compat.)
+      noLote:  p.noLote,        // 0..2 → "X/3"
+      meta:    AMIGOS_POR_PREMIO,
+      faltam:  p.faltam,
+      premios: p.premios,       // avaliações grátis já ganhas por indicação
     })
   } catch (err) {
     console.error('[indicacao/stats] unexpected', err)
     return NextResponse.json({ error: 'Erro interno' }, { status: 500 })
   }
 }
+
