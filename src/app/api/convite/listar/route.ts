@@ -5,6 +5,7 @@
  */
 import { NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase'
+import { isVerifiedTrainer } from '@/lib/trainer-access'
 
 export async function GET() {
   try {
@@ -12,12 +13,7 @@ export async function GET() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Não autenticado.' }, { status: 401 })
 
-    const m = user.user_metadata ?? {}
-    const eTreinador =
-      m.tipo === 'treinador' ||
-      m.tipo === 'escola' ||
-      (!m.posicao && !m.athlete_id && (m.clube_atual || m.especialidade || m.anos_exp || m.certificacoes || m.clubes_trabalhados))
-    if (!eTreinador) {
+    if (!await isVerifiedTrainer(user.id)) {
       return NextResponse.json({ error: 'Apenas treinadores podem listar solicitações.' }, { status: 403 })
     }
 
@@ -31,3 +27,4 @@ export async function GET() {
     return NextResponse.json({ error: 'Erro ao buscar solicitações.' }, { status: 500 })
   }
 }
+

@@ -1,8 +1,14 @@
-import { createAdminClient } from '@/lib/supabase'
+import { createAdminClient, createServerClient } from '@/lib/supabase'
 import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
   try {
+    // This route uses the service-role client, so the session must establish
+    // the only profile it is allowed to change.
+    const supabase = await createServerClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 })
+
     const {
       userId, bio, especialidade, avatarUrl,
       cidade, pais, anosExp,
@@ -29,6 +35,9 @@ export async function POST(req: Request) {
     }
 
     if (!userId) return NextResponse.json({ error: 'userId ausente.' }, { status: 400 })
+    if (userId !== user.id) {
+      return NextResponse.json({ error: 'Você só pode alterar o próprio perfil.' }, { status: 403 })
+    }
 
     const admin = createAdminClient()
 
@@ -81,3 +90,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Erro interno.' }, { status: 500 })
   }
 }
+

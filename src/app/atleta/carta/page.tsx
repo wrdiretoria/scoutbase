@@ -33,13 +33,17 @@ export default function CartaPage() {
   const [erroPix,   setErroPix]   = useState('')
   const [polling,   setPolling]   = useState(false)
 
-  // Polling: após PIX gerado, verifica se cards_disponiveis aumentou
+  // Polling: após PIX gerado, verifica o saldo guardado no banco.
   const checkPagamento = useCallback(async () => {
     const supabase = createClient()
-    // Força refresh do token para pegar user_metadata atualizado
-    await supabase.auth.refreshSession()
     const { data: { user } } = await supabase.auth.getUser()
-    const cards = (user?.user_metadata?.cards_disponiveis as number) ?? 0
+    if (!user) return false
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('cards_disponiveis')
+      .eq('id', user.id)
+      .maybeSingle()
+    const cards = profile?.cards_disponiveis ?? 0
     if (cards > 0) {
       setCardsDisponiveis(cards)
       setPolling(false)
@@ -58,15 +62,15 @@ export default function CartaPage() {
       setUid(user.id)
       setNome(user.user_metadata.nome ?? '')
       setPosicao(user.user_metadata.posicao ?? '')
-      setCardsDisponiveis((user.user_metadata?.cards_disponiveis as number) ?? 0)
 
       // Perfil
       const { data: profile } = await supabase
         .from('profiles')
-        .select('athlete_id, data_nascimento, avatar_url')
+        .select('athlete_id, data_nascimento, avatar_url, cards_disponiveis')
         .eq('id', user.id)
         .single()
 
+      setCardsDisponiveis(profile?.cards_disponiveis ?? 0)
       if (profile?.athlete_id)      setAthleteId(profile.athlete_id as string)
       if (profile?.data_nascimento) setDataNasc(profile.data_nascimento as string)
       if (profile?.avatar_url)      setAvatarUrl(profile.avatar_url as string)
@@ -551,3 +555,4 @@ export default function CartaPage() {
     </main>
   )
 }
+

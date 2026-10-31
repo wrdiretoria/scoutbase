@@ -11,11 +11,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient, createAdminClient } from '@/lib/supabase'
-
-function ehTreinador(meta: Record<string, unknown>) {
-  return meta.tipo === 'treinador' || meta.tipo === 'escola'
-    || (!meta.posicao && !meta.athlete_id && (meta.clube_atual || meta.especialidade || meta.anos_exp || meta.certificacoes || meta.clubes_trabalhados))
-}
+import { isVerifiedTrainer } from '@/lib/trainer-access'
 
 export async function GET(req: NextRequest) {
   try {
@@ -68,7 +64,7 @@ export async function POST(req: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Não autenticado.' }, { status: 401 })
 
-    if (!ehTreinador(user.user_metadata ?? {})) {
+    if (!await isVerifiedTrainer(user.id)) {
       return NextResponse.json({ error: 'Apenas treinadores/escolinhas podem publicar vagas.' }, { status: 403 })
     }
 
@@ -101,3 +97,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Erro interno.' }, { status: 500 })
   }
 }
+

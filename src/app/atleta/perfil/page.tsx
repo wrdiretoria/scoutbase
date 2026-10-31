@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useEffect, useState, Suspense, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -523,7 +523,6 @@ function AtletaPerfilContent() {
       const um = user.user_metadata as Record<string, unknown>
       setVisitCount(        (um?.visit_count       as number | null) ?? 0)
       setFavoritoCount(     (um?.favorito_count    as number | null) ?? 0)
-      setCardsDisponiveis(  (um?.cards_disponiveis as number | null) ?? 0)
 
       const [
         { data: profile },
@@ -533,7 +532,7 @@ function AtletaPerfilContent() {
       ] = await Promise.all([
         supabase
           .from('profiles')
-          .select('data_nascimento, bio, altura, peso, pe_dominante, clube_atual, athlete_id, avatar_url, fotos')
+          .select('data_nascimento, bio, altura, peso, pe_dominante, clube_atual, athlete_id, avatar_url, fotos, cards_disponiveis')
           .eq('id', user.id)
           .single(),
         supabase
@@ -546,6 +545,8 @@ function AtletaPerfilContent() {
         fetch('/api/atleta/highlights').catch(() => null),
         fetch('/api/atleta/visitas').catch(() => null),
       ])
+
+      setCardsDisponiveis(profile?.cards_disponiveis ?? 0)
 
       // ── Processa perfil ──
       if (profile?.data_nascimento) setDataNasc(profile.data_nascimento as string)
@@ -2606,3 +2607,4 @@ export default function AtletaPerfilPage() {
     </Suspense>
   )
 }
+
