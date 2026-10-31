@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createServerClient, createAdminClient } from '@/lib/supabase'
+import { createAdminClient } from '@/lib/supabase'
 import { upsertEntitlementPro, type EntityType } from '@/lib/entitlements'
 import { PRODUTO_ENTITY_TYPE, type ProdutoKey } from '@/lib/produtos'
 
@@ -57,21 +57,16 @@ export async function POST(req: NextRequest) {
       const userId = payment.externalReference.replace('carta_', '')
       if (userId && UUID_RE.test(userId)) {
         const adminClient = createAdminClient()
-        const { data: { user: atletaUser } } = await adminClient.auth.admin.getUserById(userId)
-        // Idempotência: ignora se este payment.id já foi processado
-        const processados = (atletaUser?.user_metadata?.pagamentos_processados as string[] | null) ?? []
-        if (!processados.includes(payment.id)) {
-          const atual = (atletaUser?.user_metadata?.cards_disponiveis as number) ?? 0
-          await adminClient.auth.admin.updateUserById(userId, {
-            user_metadata: {
-              cards_disponiveis: atual + 1,
-              pagamentos_processados: [...processados, payment.id],
-            },
-          })
-          console.log('[webhook] carta: card adicionado, total:', atual + 1)
-        } else {
-          console.log('[webhook] carta: pagamento já processado, ignorado')
+        const { data: saldo, error } = await adminClient.rpc('grant_evaluation_credit', {
+          p_user_id: userId,
+          p_source_key: `asaas-card:${payment.id}`,
+          p_amount: 1,
+        })
+        if (error) {
+          console.error('[webhook] carta: não foi possível liberar o card', error)
+          return NextResponse.json({ error: 'Não foi possível processar o crédito.' }, { status: 500 })
         }
+        console.log('[webhook] carta: crédito processado; saldo:', saldo)
       }
       return NextResponse.json({ ok: true, event, tipo: 'carta' })
     }
@@ -216,3 +211,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Erro interno.' }, { status: 500 })
   }
 }
+

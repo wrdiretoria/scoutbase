@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useRef, useState } from 'react'
@@ -101,8 +101,10 @@ function CompartilharContent() {
         .from('avaliacoes')
         .select('id', { count: 'exact', head: true })
         .eq('aluno_id', uid)
-        .then(({ count }) => setHasEval((count ?? 0) > 0))
-        .catch(() => {})
+        .then(
+          ({ count }) => setHasEval((count ?? 0) > 0),
+          () => {},
+        )
     })
   }, [uid])
 
@@ -381,3 +383,4 @@ export default function CompartilharPage() {
     </Suspense>
   )
 }
+

@@ -36,8 +36,15 @@ export async function POST(req: Request) {
     // Busca dados do atleta
     const { data: { user } } = await admin.auth.admin.getUserById(userId)
 
-    // Primeira avaliação é bônus — dá 1 card grátis se nunca teve card e nunca foi avaliado
-    const cardsAtuais = (user?.user_metadata?.cards_disponiveis as number) ?? 0
+    const { data: profile } = await admin
+      .from('profiles')
+      .select('cards_disponiveis')
+      .eq('id', userId)
+      .maybeSingle()
+
+    // Primeira avaliação é bônus — dá 1 card grátis se nunca teve card e nunca foi avaliado.
+    // The database grants this once per account using an idempotency key.
+    const cardsAtuais = profile?.cards_disponiveis ?? 0
     if (cardsAtuais === 0) {
       const { count } = await admin
         .from('avaliacoes')
@@ -45,9 +52,12 @@ export async function POST(req: Request) {
         .eq('aluno_id', userId)
 
       if ((count ?? 0) === 0) {
-        await admin.auth.admin.updateUserById(userId, {
-          user_metadata: { cards_disponiveis: 1 },
+        const { error: grantError } = await admin.rpc('grant_evaluation_credit', {
+          p_user_id: userId,
+          p_source_key: `first-card-bonus:${userId}`,
+          p_amount: 1,
         })
+        if (grantError) throw grantError
         return NextResponse.json({ ok: true, bonus: true })
       }
     }
@@ -95,3 +105,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Erro ao gerar cobrança.' }, { status: 500 })
   }
 }
+

@@ -3,7 +3,6 @@ import { withSentryConfig } from '@sentry/nextjs'
 
 const nextConfig: NextConfig = {
   typescript: { ignoreBuildErrors: true },
-  eslint:     { ignoreDuringBuilds: true },
   compress: true,
   images: {
     remotePatterns: [
@@ -59,7 +58,8 @@ export default withSentryConfig(nextConfig, {
 
   // Não bloqueia o build se o Sentry não estiver configurado
   silent:              true,
-  hideSourceMaps:      true,
+  sourcemaps:          { deleteSourcemapsAfterUpload: true },
   disableLogger:       true,
   automaticVercelMonitors: false,
 })
+

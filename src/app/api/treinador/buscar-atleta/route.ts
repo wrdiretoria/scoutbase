@@ -1,5 +1,6 @@
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient, createAdminClient } from '@/lib/supabase'
+import { isVerifiedTrainer } from '@/lib/trainer-access'
 
 export async function POST(req: NextRequest) {
   // ── Autenticação ──
@@ -7,12 +8,7 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 })
 
-  const m = user.user_metadata ?? {}
-  const eTreinador =
-    m.tipo === 'treinador' ||
-    m.tipo === 'escola' ||
-    (!m.posicao && !m.athlete_id && (m.clube_atual || m.especialidade || m.anos_exp || m.certificacoes || m.clubes_trabalhados))
-  if (!eTreinador) {
+  if (!await isVerifiedTrainer(user.id)) {
     return NextResponse.json({ error: 'Apenas treinadores podem buscar atletas.' }, { status: 403 })
   }
 
@@ -55,3 +51,4 @@ export async function POST(req: NextRequest) {
     dataNasc:   profile.data_nascimento,
   })
 }
+

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { randomUUID } from 'crypto'
 import { createServerClient, createAdminClient } from '@/lib/supabase'
+import { isVerifiedTrainer } from '@/lib/trainer-access'
 import { sendEmail, emailAvaliacaoRecebida } from '@/lib/email'
 import { calcScoutScore, calcAtributos, getTodasPerguntas, type VarianteKey } from '@/lib/questionnaire'
 
@@ -9,12 +11,7 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 })
 
-  const m = user.user_metadata ?? {}
-  const eTreinador =
-    m.tipo === 'treinador' ||
-    m.tipo === 'escola' ||
-    (!m.posicao && !m.athlete_id && (m.clube_atual || m.especialidade || m.anos_exp || m.certificacoes || m.clubes_trabalhados))
-  if (!eTreinador) {
+  if (!await isVerifiedTrainer(user.id)) {
     return NextResponse.json({ error: 'Acesso restrito a treinadores.' }, { status: 403 })
   }
 
@@ -54,7 +51,7 @@ export async function POST(req: NextRequest) {
   // ── Verifica idade do atleta (bloqueia 18+) ──
   const { data: profileData } = await admin
     .from('profiles')
-    .select('data_nascimento')
+    .select('data_nascimento, cards_disponiveis')
     .eq('id', profileId)
     .maybeSingle()
 
@@ -72,24 +69,47 @@ export async function POST(req: NextRequest) {
 
   // ── Verifica e decrementa card do atleta ──
   const { data: { user: atletaUser } } = await admin.auth.admin.getUserById(profileId)
-  const cardsDisponiveis = (atletaUser?.user_metadata?.cards_disponiveis as number) ?? 0
+  const cardsDisponiveis = profileData?.cards_disponiveis ?? 0
 
   // Primeira avaliação é gratuita — verifica se nunca foi avaliado antes
   const { count: avaliacoesAnteriores } = await admin
     .from('avaliacoes')
     .select('*', { count: 'exact', head: true })
     .eq('aluno_id', profileId)
-  const primeiraAvaliacao = (avaliacoesAnteriores ?? 0) === 0
+  let primeiraAvaliacao = false
+  if ((avaliacoesAnteriores ?? 0) === 0) {
+    const { data: claimedFreeEvaluation, error: claimError } = await admin.rpc('claim_first_free_evaluation', {
+      p_user_id: profileId,
+    })
+    if (claimError) {
+      console.error('[avaliar] free evaluation claim failed', claimError)
+      return NextResponse.json({ error: 'Não foi possível reservar a avaliação gratuita.' }, { status: 500 })
+    }
+    primeiraAvaliacao = claimedFreeEvaluation === true
+    if (!primeiraAvaliacao) {
+      const { count: latestAssessmentCount } = await admin
+        .from('avaliacoes')
+        .select('*', { count: 'exact', head: true })
+        .eq('aluno_id', profileId)
+      if ((latestAssessmentCount ?? 0) === 0) {
+        return NextResponse.json({ error: 'Já existe uma avaliação em andamento para este atleta. Tente novamente em instantes.' }, { status: 409 })
+      }
+    }
+  }
 
   if (!primeiraAvaliacao && cardsDisponiveis <= 0) {
     return NextResponse.json({ error: 'Atleta não possui card de avaliação disponível.' }, { status: 403 })
   }
 
   // Só decrementa card se não for a primeira avaliação (a primeira é grátis)
-  if (!primeiraAvaliacao && cardsDisponiveis > 0) {
-    await admin.auth.admin.updateUserById(profileId, {
-      user_metadata: { cards_disponiveis: cardsDisponiveis - 1 },
+  const debitado = !primeiraAvaliacao && cardsDisponiveis > 0
+  if (debitado) {
+    const { data: saldoRestante, error: debitError } = await admin.rpc('decrement_card', {
+      p_user_id: profileId,
     })
+    if (debitError || saldoRestante === null) {
+      return NextResponse.json({ error: 'Atleta não possui card de avaliação disponível.' }, { status: 403 })
+    }
   }
 
   // ── Calcula os 6 atributos FIFA-style via calcAtributos ──
@@ -135,6 +155,20 @@ export async function POST(req: NextRequest) {
   })
 
   if (dbError) {
+    if (primeiraAvaliacao) {
+      const { error: claimReleaseError } = await admin.rpc('release_first_free_evaluation', {
+        p_user_id: profileId,
+      })
+      if (claimReleaseError) console.error('[avaliar] free evaluation claim release failed', claimReleaseError)
+    }
+    if (debitado) {
+      const { error: refundError } = await admin.rpc('grant_evaluation_credit', {
+        p_user_id: profileId,
+        p_source_key: `assessment-refund:${randomUUID()}`,
+        p_amount: 1,
+      })
+      if (refundError) console.error('[avaliar] credit refund failed', refundError)
+    }
     console.error('[avaliar]', dbError)
     return NextResponse.json({ error: 'Erro ao registrar avaliação.' }, { status: 500 })
   }
@@ -183,3 +217,4 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ ok: true, notaGeral: scout_score })
 }
+

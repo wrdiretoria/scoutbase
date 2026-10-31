@@ -5,6 +5,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient, createAdminClient } from '@/lib/supabase'
+import { isVerifiedTrainer } from '@/lib/trainer-access'
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,7 +18,12 @@ export async function POST(req: NextRequest) {
     }
 
     // Verifica se é a primeira avaliação (gratuita) ou se tem card
-    const cardsDisponiveis = (user.user_metadata?.cards_disponiveis as number) ?? 0
+    const { data: athleteBalance } = await supabase
+      .from('profiles')
+      .select('cards_disponiveis')
+      .eq('id', user.id)
+      .maybeSingle()
+    const cardsDisponiveis = athleteBalance?.cards_disponiveis ?? 0
     const { count: evalCount } = await supabase
       .from('avaliacoes')
       .select('*', { count: 'exact', head: true })
@@ -66,12 +72,7 @@ export async function POST(req: NextRequest) {
     if (!treinadorUser) {
       return NextResponse.json({ error: 'Treinador não encontrado.' }, { status: 404 })
     }
-    const tm = treinadorUser.user_metadata ?? {}
-    const eTreinador =
-      tm.tipo === 'treinador' ||
-      tm.tipo === 'escola' ||
-      (!tm.posicao && !tm.athlete_id && (tm.clube_atual || tm.especialidade || tm.anos_exp || tm.certificacoes || tm.clubes_trabalhados))
-    if (!eTreinador) {
+    if (!await isVerifiedTrainer(treinadorId)) {
       return NextResponse.json({ error: 'ID não pertence a um treinador.' }, { status: 404 })
     }
 
@@ -115,3 +116,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Erro ao enviar solicitação.' }, { status: 500 })
   }
 }
+
