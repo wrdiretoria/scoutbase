@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
 import { createServerClient, createAdminClient } from '@/lib/supabase'
+import { confirmarIndicacaoAposAvaliacao } from '@/lib/indicacao'
 import { isVerifiedTrainer } from '@/lib/trainer-access'
 import { sendEmail, emailAvaliacaoRecebida } from '@/lib/email'
 import { calcScoutScore, calcAtributos, getTodasPerguntas, type VarianteKey } from '@/lib/questionnaire'
@@ -172,6 +173,9 @@ export async function POST(req: NextRequest) {
     console.error('[avaliar]', dbError)
     return NextResponse.json({ error: 'Erro ao registrar avaliação.' }, { status: 500 })
   }
+
+  // A primeira avaliação oficial de um treinador aprovado verifica o atleta indicado.
+  await confirmarIndicacaoAposAvaliacao(admin, profileId, user.id)
 
   // ── Remove solicitação do treinador (se existia) ──
   try {
