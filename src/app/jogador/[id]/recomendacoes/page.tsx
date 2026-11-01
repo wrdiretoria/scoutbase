@@ -22,10 +22,12 @@ export default async function RecomendacoesPage({ params }: Props) {
   if (!user || meta?.tipo !== 'atleta') notFound()
 
   let isOwner = false
+  let logado = false
   try {
     const supabase = await createServerClient()
     const { data: { user: visitor } } = await supabase.auth.getUser()
     isOwner = visitor?.id === id
+    logado = !!visitor
   } catch { /* visitante anônimo */ }
 
   return (
@@ -47,7 +49,7 @@ export default async function RecomendacoesPage({ params }: Props) {
           Recomendações de {meta?.nome ?? 'Atleta'}
         </h1>
 
-        <RecomendacoesSection subjectId={id} isOwner={isOwner} limit={100} />
+        <RecomendacoesSection subjectId={id} isOwner={isOwner} limit={100} logado={logado} />
       </div>
     </main>
   )
