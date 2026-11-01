@@ -277,6 +277,7 @@ export default function TreinadorDashboardPage() {
   const [metricas,      setMetricas]      = useState<Metricas>({ totalAvaliacoes: 0, totalAtletas: 0, totalDestaques: 0, semanaCount: 0 })
   const [recentes,      setRecentes]      = useState<AvaliacaoRecente[]>([])
   const [loading,       setLoading]       = useState(true)
+  const [agora]                             = useState(() => Date.now())
   const [solicitacoes,  setSolicitacoes]  = useState<{ atletaId: string; atletaNome: string; atletaMcId: string; ts: string }[]>([])
   const [uploadingFoto, setUploadingFoto] = useState(false)
   const [totalEscolinhas, setTotalEscolinhas] = useState<number | null>(null)
@@ -652,7 +653,7 @@ export default function TreinadorDashboardPage() {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {solicitacoes.map((sol) => {
-                const dias = Math.floor((Date.now() - new Date(sol.ts).getTime()) / 86_400_000)
+                const dias = Math.floor((agora - new Date(sol.ts).getTime()) / 86_400_000)
                 const quando = dias === 0 ? 'Hoje' : dias === 1 ? 'Ontem' : `${dias}d atrás`
                 const initials = sol.atletaNome.split(' ').slice(0,2).map((n: string) => n[0] ?? '').join('').toUpperCase()
                 return (
