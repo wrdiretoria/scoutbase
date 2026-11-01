@@ -1,5 +1,13 @@
 import { notFound } from 'next/navigation'
-import { createServerClient } from '@/lib/supabase'
+import type { Metadata } from 'next'
+import { createAdminClient } from '@/lib/supabase'
+
+// Página privada (acesso só por token): não deve aparecer em buscadores.
+export const metadata: Metadata = { robots: { index: false, follow: false } }
+
+// Aceita os tokens atuais (curtos ou longos) e recusa qualquer outra coisa
+// antes de consultar o banco.
+const TOKEN_RE = /^[A-Za-z0-9_-]{4,128}$/
 
 type Props = {
   params: Promise<{ token: string }>
@@ -69,13 +77,18 @@ function RadarSVG({ notas }: { notas: Notas }) {
 
 export default async function PublicPerfilPage({ params }: Props) {
   const { token } = await params
-  const supabase = await createServerClient()
+  if (!TOKEN_RE.test(token)) notFound()
+
+  // Busca no servidor com a chave de serviço, limitada ao aluno do token e só
+  // aos campos exibidos. Assim a página não depende de leitura anônima da
+  // tabela alunos, que pode ser fechada no banco.
+  const supabase = createAdminClient()
 
   const { data: aluno } = await supabase
     .from('alunos')
     .select('id, nome, posicao, turmas(nome)')
     .eq('token_acesso', token)
-    .single()
+    .maybeSingle()
 
   if (!aluno) notFound()
 
