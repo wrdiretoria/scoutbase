@@ -39,10 +39,15 @@ export default function AtletaPromoverPage() {
       if (!user) { router.push('/login'); return }
       if (user.user_metadata?.tipo !== 'atleta') { router.push('/atleta/perfil'); return }
 
-      const promoDate = user.user_metadata?.promovido_ate as string | null
-      if (promoDate && new Date(promoDate) > new Date()) {
-        setPromovido(promoDate)
-      }
+      const { data: boost } = await supabase
+        .from('profile_boosts')
+        .select('expires_at')
+        .eq('profile_id', user.id)
+        .gt('expires_at', new Date().toISOString())
+        .order('expires_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      if (boost?.expires_at) setPromovido(boost.expires_at as string)
       setLoading(false)
     }
     check()

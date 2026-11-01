@@ -143,7 +143,7 @@ export default async function RankingPage({ searchParams }: Props) {
 
   const ranking: RankingItem[] = atletas
     .map((u): RankingItem | null => {
-      const meta = u.user_metadata as { nome?: string; posicao?: string; cidade?: string; bairro?: string; estado?: string; pais?: string; promovido_ate?: string }
+      const meta = u.user_metadata as { nome?: string; posicao?: string; cidade?: string; bairro?: string; estado?: string; pais?: string }
       const profile   = profileMap.get(u.id)
       const nome      = (profile?.nome as string | null) ?? meta.nome ?? 'Atleta'
       const dataNasc  = (profile?.data_nascimento as string | null) ?? null
@@ -154,7 +154,6 @@ export default async function RankingPage({ searchParams }: Props) {
       const visitas = visitasMap.get(u.id) ?? 0
       if (modoSemana && visitas === 0) return null          // Top da Semana: só quem foi visitado
       const criadoEm  = (profilesComCriacao.find(p => p.id === u.id) as { criado_em?: string | null } | undefined)?.criado_em ?? u.created_at ?? null
-      const boostLegado = meta.promovido_ate ? new Date(meta.promovido_ate) > agora : false
       return {
         id: u.id, nome,
         posicao:   meta.posicao ?? '',
@@ -169,7 +168,7 @@ export default async function RankingPage({ searchParams }: Props) {
         avatarUrl: (profile?.avatar_url as string | null) ?? null,
         athleteId,
         criadoEm,
-        boosted: boostLegado || boostedIds.has(u.id),
+        boosted: boostedIds.has(u.id),
         visitas,
       }
     })
