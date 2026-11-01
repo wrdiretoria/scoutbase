@@ -1,7 +1,7 @@
 /**
  * POST /api/relatorios/gerar
  *
- * Gera relatório mensal unificado usando Google Gemini (camada gratuita: 1.500 req/dia).
+ * Gera relatório mensal unificado usando Google Gemini (modelo em GEMINI_MODEL).
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -15,6 +15,11 @@ function getGemini() {
   if (!key) throw new Error('GEMINI_API_KEY não configurada')
   return new GoogleGenerativeAI(key)
 }
+
+// gemini-1.5-flash foi desligado pelo Google. 'gemini-3.5-flash' é um apelido que o
+// Google mantém e redireciona para o Flash mais novo. Dá para trocar sem mexer no
+// código definindo GEMINI_MODEL na Vercel.
+const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-3.5-flash'
 
 // ── Error messages ─────────────────────────────────────────────────────────────
 
@@ -114,7 +119,7 @@ Máximo 320 palavras. Tom profissional e acolhedor.`
 
   try {
     const genAI = getGemini()
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    const model = genAI.getGenerativeModel({ model: GEMINI_MODEL })
     const result = await model.generateContent(prompt)
     const texto = result.response.text()
 
