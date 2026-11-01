@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
 import type { Metadata } from 'next'
 import { createAdminClient } from '@/lib/supabase'
 
@@ -86,7 +87,7 @@ export default async function PublicPerfilPage({ params }: Props) {
 
   const { data: aluno } = await supabase
     .from('alunos')
-    .select('id, nome, posicao, turmas(nome)')
+    .select('id, nome, posicao, pai_auth_id, turmas(nome)')
     .eq('token_acesso', token)
     .maybeSingle()
 
@@ -231,6 +232,21 @@ export default async function PublicPerfilPage({ params }: Props) {
         {!ultimaAvaliacao && (
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8 text-center">
             <p className="text-gray-400 text-sm">Nenhuma avaliação registrada ainda.</p>
+          </div>
+        )}
+
+        {/* Primeiro acesso do responsável: só enquanto o atleta não tem um */}
+        {!aluno.pai_auth_id && (
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 text-center">
+            <p className="text-sm text-gray-600">
+              Quer acompanhar a agenda e as presenças do seu filho?
+            </p>
+            <Link
+              href={`/pais/entrar?token=${encodeURIComponent(token)}`}
+              className="inline-block mt-3 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              Criar acesso de responsável
+            </Link>
           </div>
         )}
 
