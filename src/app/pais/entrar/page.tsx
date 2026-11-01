@@ -1,23 +1,25 @@
 ﻿'use client'
 
-import { useState } from 'react'
+import { use, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
+import { extrairTokenDoLink, sidParaEmailPais, sidParaEmailPaisLegado } from '@/lib/pais'
 
 type Aba = 'primeiro' | 'retorno' | 'recuperar'
 
-/** Synthetic email used as Supabase Auth identity for parents */
-function sidToEmail(sid: string) {
-  return `${sid.toLowerCase()}@pais.Meu Craque`
-}
-
-export default function PaisEntrarPage() {
+export default function PaisEntrarPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ token?: string }>
+}) {
+  // ?token=… vem do botão "Criar acesso de responsável" da página /p/[token]
+  const { token: tokenDaUrl } = use(searchParams)
   const router = useRouter()
   const [aba, setAba] = useState<Aba>('primeiro')
 
-  // Primeiro acesso
-  const [scoutIdPrimeiro, setScoutIdPrimeiro] = useState('')
+  // Primeiro acesso (pelo link privado enviado pelo treinador)
+  const [linkPrimeiro, setLinkPrimeiro] = useState(tokenDaUrl ?? '')
   const [senhaPrimeiro, setSenhaPrimeiro] = useState('')
 
   // Retorno
@@ -45,59 +47,28 @@ export default function PaisEntrarPage() {
     setErro(null)
     setInfo(null)
 
-    const sid = `SID-${scoutIdPrimeiro.trim().toUpperCase()}`
-
-    // 1. Valida número via API (admin client — sem RLS)
-    const verificar = await fetch('/api/pais/verificar', {
+    // O servidor confere o token, cria a conta e grava o vínculo uma única vez.
+    const res = await fetch('/api/pais/primeiro-acesso', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ scout_id: sid }),
+      body: JSON.stringify({ token: extrairTokenDoLink(linkPrimeiro), senha: senhaPrimeiro }),
     })
-    if (!verificar.ok) {
-      setErro('Número inválido. Verifique com o treinador do seu filho.')
-      setLoading(false)
-      return
+    const json = await res.json().catch(() => ({})) as {
+      ok?: boolean; login?: boolean; sid?: string; error?: string
     }
-    const aluno = await verificar.json() as { id: string; nome: string }
 
-    // 2. Cria conta com email sintético
-    const supabase = createClient()
-    const { data, error: signUpErr } = await supabase.auth.signUp({
-      email: sidToEmail(sid),
-      password: senhaPrimeiro,
-      options: {
-        data: {
-          tipo: 'pai',
-          aluno_scout_id: sid,
-          aluno_id: aluno.id,
-          aluno_nome: aluno.nome,
-        },
-      },
-    })
-
-    if (signUpErr) {
-      if (
-        signUpErr.message.includes('already registered') ||
-        signUpErr.message.includes('User already registered')
-      ) {
-        setErro('Já existe um acesso criado para este número. Use a aba "Já tenho conta".')
-      } else {
-        setErro('Não foi possível criar o acesso. Tente novamente.')
-      }
+    if (!res.ok || !json.ok) {
+      setErro(json.error ?? 'Não foi possível criar o acesso. Tente novamente.')
       setLoading(false)
       return
     }
 
-    // 3. pai_auth_id será salvo automaticamente em /pais/perfil via admin client
-
-    // 4. Se sessão imediata → redireciona
-    if (data?.session) {
+    if (json.login) {
       router.push('/pais/perfil')
       return
     }
 
-    // 5. Sem sessão imediata (raro)
-    setInfo('Acesso criado! Entre usando a aba "Já tenho conta".')
+    setInfo(`Acesso criado! Entre na aba "Já tenho conta" com o número ${json.sid ?? 'do atleta'}.`)
     setLoading(false)
   }
 
@@ -110,10 +81,17 @@ export default function PaisEntrarPage() {
     const supabase = createClient()
     const sid = `SID-${scoutIdRetorno.trim().toUpperCase()}`
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: sidToEmail(sid),
+    let { data, error } = await supabase.auth.signInWithPassword({
+      email: sidParaEmailPais(sid),
       password: senhaRetorno,
     })
+    if (error) {
+      // Contas antigas, criadas com o formato de e-mail anterior
+      ;({ data, error } = await supabase.auth.signInWithPassword({
+        email: sidParaEmailPaisLegado(sid),
+        password: senhaRetorno,
+      }))
+    }
 
     if (error || !data.user) {
       setErro('Número ou senha incorretos.')
@@ -201,18 +179,18 @@ export default function PaisEntrarPage() {
           <form onSubmit={handlePrimeiroAcesso} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Número do atleta
+                Link de acesso
               </label>
               <input
                 required
                 type="text"
-                value={scoutIdPrimeiro}
-                onChange={(e) => setScoutIdPrimeiro(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm text-center tracking-widest font-mono focus:outline-none focus:ring-2 focus:ring-green-500"
-                placeholder="Ex: 00001"
+                value={linkPrimeiro}
+                onChange={(e) => setLinkPrimeiro(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                placeholder="Cole aqui o link enviado pelo treinador"
               />
               <p className="text-xs text-gray-400 mt-1">
-                Peça o número do atleta ao treinador do seu filho.
+                Use o link do relatório que o treinador do seu filho enviou.
               </p>
             </div>
 
@@ -223,11 +201,11 @@ export default function PaisEntrarPage() {
               <input
                 required
                 type="password"
-                minLength={6}
+                minLength={8}
                 value={senhaPrimeiro}
                 onChange={(e) => setSenhaPrimeiro(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                placeholder="Mínimo 6 caracteres"
+                placeholder="Mínimo 8 caracteres"
               />
             </div>
 

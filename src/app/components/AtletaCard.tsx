@@ -6,7 +6,7 @@
  */
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { fmtAtributo } from '@/lib/escala'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -77,6 +77,7 @@ export default function AtletaCard({
 }: AtletaCardProps) {
   const tier = getTier(ovr)
   const [imgErr, setImgErr] = useState(false)
+  const reactId = useId()
   const showPhoto = !!foto && !imgErr
 
   const parts     = nome.trim().split(' ')
@@ -99,7 +100,7 @@ export default function AtletaCard({
     { label: 'POS', val: fmtAtributo(atributos?.pos) },
   ]
 
-  const uid = athleteId ? `ac-${athleteId.replace(/[^a-z0-9]/gi, '')}` : `ac-${Math.random().toString(36).slice(2)}`
+  const uid = athleteId ? `ac-${athleteId.replace(/[^a-z0-9]/gi, '')}` : `ac-${reactId.replace(/[^a-z0-9]/gi, '')}`
 
   return (
     <>

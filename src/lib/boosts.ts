@@ -2,12 +2,11 @@
  * IDs de perfis com destaque ativo — usado pelo ranking e pela busca de scout
  * pra ordenar quem está impulsionado antes do critério padrão (OVR/etc).
  *
- * Existem dois mecanismos de boost neste app: o legado `promovido_ate` em
- * user_metadata (feature "Promover perfil" de 30 dias, já em produção) e a
- * nova tabela `profile_boosts` (add-on "Impulsionar perfil" de 7 dias, desta
- * fase). Um perfil conta como impulsionado se qualquer um dos dois estiver
- * ativo — dá pra checar o legado direto no objeto de usuário já carregado
- * (sem query extra); esta função só cobre o lado da tabela nova.
+ * Fonte única de destaque: a tabela `profile_boosts`, gravada só pelo webhook
+ * de pagamento (service role). Tanto "Promover perfil" (30 dias) quanto
+ * "Impulsionar perfil" (7 dias) gravam aqui. O antigo `promovido_ate` em
+ * user_metadata não é mais lido: o próprio usuário consegue editar
+ * user_metadata pelo navegador, então ele permitia destaque sem pagar.
  */
 import type { SupabaseClient } from '@supabase/supabase-js'
 

@@ -10,7 +10,7 @@ export default async function RelatoriosPage() {
   // Fetch all active athletes
   const { data: rawAlunos } = await supabase
     .from('alunos')
-    .select('id, nome, posicao, scout_id, ativo')
+    .select('id, nome, posicao, scout_id, token_acesso, ativo')
     .eq('professor_id', user.id)
     .eq('ativo', true)
     .order('nome')
@@ -63,6 +63,7 @@ export default async function RelatoriosPage() {
       nome: aluno.nome,
       posicao: aluno.posicao ?? null,
       scout_id: aluno.scout_id ?? null,
+      token_acesso: aluno.token_acesso ?? null,
       scoutScore: latestScore,
       ultimaAvaliacao: latest?.created_at ?? null,
       totalAvaliacoes: evals.length,

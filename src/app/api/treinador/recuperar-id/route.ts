@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
 import { checkRateLimit } from '@/lib/rate-limit'
+import { listAllUsers } from '@/lib/auth'
 
 export async function POST(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
@@ -37,8 +38,9 @@ export async function POST(req: NextRequest) {
   }
 
   // Fallback: tenta via auth (email pode não estar em profiles.email)
-  const { data: users } = await admin.auth.admin.listUsers({ perPage: 1000 })
-  const user = users?.users.find(u => u.email?.toLowerCase() === email)
+  // listAllUsers pagina tudo — listUsers({ perPage: 1000 }) só olhava os 1.000 primeiros
+  const users = await listAllUsers(admin).catch(() => [])
+  const user = users.find(u => u.email?.toLowerCase() === email)
 
   if (user) {
     const { data: prof } = await admin

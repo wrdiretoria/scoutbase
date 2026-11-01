@@ -223,17 +223,20 @@ function NovaRecomendacaoForm({ subjectId, onCriada }: {
 }
 
 export default function RecomendacoesSection({
-  subjectId, isOwner, limit = 3, showViewAllLink = false,
+  subjectId, isOwner, limit = 3, showViewAllLink = false, logado = true,
 }: {
   subjectId: string
   isOwner: boolean
   limit?: number
   showViewAllLink?: boolean
+  /** Recomendações são só para usuários logados. */
+  logado?: boolean
 }) {
   const [recomendacoes, setRecomendacoes] = useState<Recomendacao[] | null>(null)
   const [total, setTotal] = useState(0)
 
   useEffect(() => {
+    if (!logado) return
     let ativo = true
     fetch(`/api/recommendations?subjectId=${subjectId}&limit=${limit}`)
       .then(res => res.json())
@@ -244,7 +247,22 @@ export default function RecomendacoesSection({
       })
       .catch(() => { if (ativo) setRecomendacoes([]) })
     return () => { ativo = false }
-  }, [subjectId, limit])
+  }, [subjectId, limit, logado])
+
+  if (!logado) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <p style={{ margin: 0, fontSize: '10px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+          💬 Recomendações
+        </p>
+        <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255,255,255,0.45)' }}>
+          <a href={`/login?next=${encodeURIComponent(`/jogador/${subjectId}`)}`} style={{ color: '#22c55e', fontWeight: 700, textDecoration: 'none' }}>
+            Entre
+          </a>{' '}para ver as recomendações.
+        </p>
+      </div>
+    )
+  }
 
   function handleToggleReacao(id: string, util: boolean, helpfulCount: number) {
     setRecomendacoes(prev => prev?.map(r => r.id === id ? { ...r, reactedByMe: util, helpful_count: helpfulCount } : r) ?? prev)

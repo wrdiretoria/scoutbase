@@ -1,10 +1,17 @@
 /**
- * /relatorio/[sid] — Página pública do relatório do atleta
- * Acessível sem login. Mostra perfil completo e dados verificados.
+ * /relatorio/[sid] — Relatório do atleta
+ * Só abre para o professor dono do aluno ou para o responsável vinculado.
+ * O scout_id é sequencial (SID-00001…), então não pode servir de senha.
+ * Para os responsáveis sem login existe o link privado /p/[token].
  */
 
-import { notFound } from 'next/navigation'
-import { createServerClient } from '@/lib/supabase'
+import type { Metadata } from 'next'
+import { notFound, redirect } from 'next/navigation'
+import { createAdminClient, createServerClient } from '@/lib/supabase'
+
+export const metadata: Metadata = { robots: { index: false, follow: false } }
+
+const SID_RE = /^SID-\d{1,10}$/
 
 type Props = { params: Promise<{ sid: string }> }
 
@@ -34,14 +41,21 @@ function ScoreBar({ label, val, cor }: { label: string; val: number; cor: string
 
 export default async function RelatorioPublicoPage({ params }: Props) {
   const { sid } = await params
-  const supabase = await createServerClient()
+  if (!SID_RE.test(sid)) notFound()
 
-  // Fetch athlete by scout_id (public, no auth filter)
+  const auth = await createServerClient()
+  const { data: { user } } = await auth.auth.getUser()
+  if (!user) redirect(`/login?next=${encodeURIComponent(`/relatorio/${sid}`)}`)
+
+  // Dados buscados no servidor, só se quem está logado for o professor do
+  // aluno ou o responsável vinculado (pai_auth_id gravado pelo servidor).
+  const supabase = createAdminClient()
   const { data: aluno } = await supabase
     .from('alunos')
     .select('id, nome, posicao, scout_id, data_nascimento')
     .eq('scout_id', sid)
-    .single()
+    .or(`professor_id.eq.${user.id},pai_auth_id.eq.${user.id}`)
+    .maybeSingle()
 
   if (!aluno) notFound()
 

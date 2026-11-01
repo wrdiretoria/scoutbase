@@ -83,13 +83,19 @@ export async function POST(req: NextRequest) {
         // Idempotência: ignora se este payment.id já foi processado
         const processados = (atletaUser?.user_metadata?.pagamentos_processados as string[] | null) ?? []
         if (!processados.includes(payment.id)) {
-          const promovido_ate = new Date()
-          promovido_ate.setDate(promovido_ate.getDate() + 30)
+          // Grava em profile_boosts (só o servidor escreve). user_metadata pode
+          // ser alterado pelo próprio usuário, então não serve para guardar destaque.
+          const promovidoAte = new Date()
+          promovidoAte.setDate(promovidoAte.getDate() + 30)
+          const { error: boostErr } = await adminClient
+            .from('profile_boosts')
+            .insert({ profile_id: userId, expires_at: promovidoAte.toISOString() })
+          if (boostErr) {
+            console.error('[webhook] promover: falha ao gravar destaque', boostErr)
+            return NextResponse.json({ error: 'Não foi possível ativar o destaque.' }, { status: 500 })
+          }
           await adminClient.auth.admin.updateUserById(userId, {
-            user_metadata: {
-              promovido_ate: promovido_ate.toISOString(),
-              pagamentos_processados: [...processados, payment.id],
-            },
+            user_metadata: { pagamentos_processados: [...processados, payment.id] },
           })
           console.log('[webhook] promover: promoção ativada por 30 dias')
         } else {

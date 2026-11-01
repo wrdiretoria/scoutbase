@@ -827,7 +827,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
           background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
           borderRadius: '18px', padding: '18px', marginBottom: '16px',
         }}>
-          <RecomendacoesSection subjectId={id} isOwner={isOwner} limit={3} showViewAllLink />
+          <RecomendacoesSection subjectId={id} isOwner={isOwner} limit={3} showViewAllLink logado={!!visitorId} />
         </div>
 
         {/* ── Atividade recente ── */}

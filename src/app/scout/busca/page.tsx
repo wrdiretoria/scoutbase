@@ -69,7 +69,6 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
   }
 
   const users = await listAllUsers(admin)
-  const agora = new Date()
   const atletaUsers = users.filter(u => u.user_metadata?.tipo === 'atleta')
 
   const ids = atletaUsers.map(u => u.id)
@@ -86,13 +85,13 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
 
   const atletas = atletaUsers
     .map(u => {
-      const meta = u.user_metadata as { nome?: string; posicao?: string; cidade?: string; promovido_ate?: string }
+      const meta = u.user_metadata as { nome?: string; posicao?: string; cidade?: string }
       const nome = meta.nome ?? 'Atleta'
       const p = profileMap.get(u.id)
       const dataNasc   = (p?.data_nascimento as string | null) ?? null
       const athleteId  = (p?.athlete_id as string | null) ?? null
       const ovr        = athleteId ? (ovrMap.get(athleteId) ?? null) : null
-      const promovido  = (meta.promovido_ate ? new Date(meta.promovido_ate) > agora : false) || boostedIds.has(u.id)
+      const promovido  = boostedIds.has(u.id)
       return {
         id: u.id,
         nome,

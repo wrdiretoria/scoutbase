@@ -1,6 +1,7 @@
 /**
  * GET /api/recommendations?subjectId=...&limit=...
- * Lista recomendações públicas de um perfil, mais recentes primeiro, enriquecidas
+ * Só para usuários logados (visitante anônimo recebe 401).
+ * Lista recomendações de um perfil, mais recentes primeiro, enriquecidas
  * com { id, nome, avatarUrl } do autor e se o visitante atual já reagiu "útil".
  * Resposta: { recommendations, total }
  *
@@ -22,6 +23,12 @@ type RecomendacaoRow = {
 
 export async function GET(req: NextRequest) {
   try {
+    const supabase = await createServerClient()
+    const { data: { user: visitante } } = await supabase.auth.getUser()
+    if (!visitante) {
+      return NextResponse.json({ error: 'Entre para ver as recomendações.' }, { status: 401 })
+    }
+
     const subjectId = req.nextUrl.searchParams.get('subjectId')
     const limitParam = req.nextUrl.searchParams.get('limit')
     const limit = limitParam ? Math.min(Math.max(parseInt(limitParam, 10) || 0, 1), 100) : 100
@@ -52,9 +59,7 @@ export async function GET(req: NextRequest) {
 
     // Reações do visitante atual (se logado), para marcar os cards já curtidos
     let idsReagidosPeloVisitante = new Set<string>()
-    const supabase = await createServerClient()
-    const { data: { user: visitante } } = await supabase.auth.getUser()
-    if (visitante && rows.length > 0) {
+    if (rows.length > 0) {
       const { data: reacoes } = await admin
         .from('recommendation_reactions')
         .select('recommendation_id')

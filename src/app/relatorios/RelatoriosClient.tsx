@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import PremiumModal from '@/components/PremiumModal'
 import EmptyState from '@/components/EmptyState'
+import { getBaseUrl } from '@/lib/base-url'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -11,6 +12,7 @@ type Atleta = {
   nome: string
   posicao: string | null
   scout_id: string | null
+  token_acesso: string | null
   scoutScore: number | null   // 0–100 raw
   ultimaAvaliacao: string | null
   totalAvaliacoes: number
@@ -137,9 +139,14 @@ function ModalRelatorio({
   const agora    = new Date()
   const dataStr  = agora.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
   const horaStr  = agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-  const linkPublico = atleta.scout_id
-    ? `https://Meu Craque-eta.vercel.app/relatorio/${atleta.scout_id}`
-    : `https://Meu Craque-eta.vercel.app/atleta/${atleta.id}`
+  // Link para os responsáveis: o token privado (/p/[token]). Sem token, cai no
+  // /relatorio/[sid], que só abre para o professor ou o responsável vinculado.
+  const base = getBaseUrl()
+  const linkPublico = atleta.token_acesso
+    ? `${base}/p/${atleta.token_acesso}`
+    : atleta.scout_id
+    ? `${base}/relatorio/${atleta.scout_id}`
+    : `${base}/atleta/${atleta.id}`
 
   const evolDisplay = resultado.scoreAnterior
     ? `${resultado.scoreAnterior} → ${resultado.scoutScore}`

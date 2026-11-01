@@ -9,42 +9,46 @@ export default async function PaisPerfilPage() {
   if (!user) redirect('/pais/entrar')
   if (user.user_metadata?.tipo !== 'pai') redirect('/pais/entrar')
 
-  const alunoScoutId = user.user_metadata?.aluno_scout_id as string | undefined
-  const alunoIdMeta = user.user_metadata?.aluno_id as string | undefined
-
-  if (!alunoScoutId && !alunoIdMeta) {
-    return (
-      <main className="p-8 text-center">
-        <p className="text-gray-500 text-sm">
-          Código do atleta não encontrado na sua conta. Entre em contato com o treinador.
-        </p>
-      </main>
-    )
-  }
-
-  // 2. Busca atleta com admin client (bypassa RLS — seguro pois auth já foi verificada)
+  // 2. Acha o atleta pelo vínculo gravado pelo servidor (alunos.pai_auth_id).
+  //    Nunca usa user_metadata (aluno_id / aluno_scout_id): o próprio usuário
+  //    consegue editar esses campos pelo navegador e apontar para outra criança.
   const admin = createAdminClient()
-  const query = admin
-    .from('alunos')
-    .select('id, nome, posicao, scout_id, ativo, professor_id, pai_auth_id, status_pagamento, turmas(id, nome)')
+  const CAMPOS = 'id, nome, posicao, scout_id, ativo, professor_id, pai_auth_id, status_pagamento, turmas(id, nome)'
 
-  const { data: aluno } = alunoIdMeta
-    ? await query.eq('id', alunoIdMeta).single()
-    : await query.eq('scout_id', alunoScoutId!).single()
+  const { data: vinculado } = await admin
+    .from('alunos')
+    .select(CAMPOS)
+    .eq('pai_auth_id', user.id)
+    .limit(1)
+    .maybeSingle()
+
+  let aluno = vinculado
+
+  // 3. Contas antigas que ainda não gravaram o vínculo: o número do atleta está
+  //    no e-mail da conta (sid-00001@pais...), que o usuário não troca sozinho.
+  //    Grava o vínculo uma única vez, só se o atleta ainda não tiver responsável.
+  if (!aluno) {
+    const sidDoEmail = user.email?.match(/^(sid-\d{1,10})@pais\./i)?.[1]?.toUpperCase()
+    if (sidDoEmail) {
+      const { data: reivindicado } = await admin
+        .from('alunos')
+        .update({ pai_auth_id: user.id })
+        .eq('scout_id', sidDoEmail)
+        .is('pai_auth_id', null)
+        .select(CAMPOS)
+        .maybeSingle()
+      aluno = reivindicado
+    }
+  }
 
   if (!aluno) {
     return (
       <main className="p-8 text-center">
         <p className="text-gray-500 text-sm">
-          Atleta não encontrado. Verifique o número do atleta com o treinador.
+          Atleta não encontrado na sua conta. Peça ao treinador o link de acesso do seu filho.
         </p>
       </main>
     )
-  }
-
-  // 3. Se o pai_auth_id ainda não foi salvo, salva agora com admin client
-  if (!(aluno as { pai_auth_id?: string | null }).pai_auth_id) {
-    await admin.from('alunos').update({ pai_auth_id: user.id }).eq('id', aluno.id)
   }
 
   // Plano do treinador (admin client — profiles também tem RLS)

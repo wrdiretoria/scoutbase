@@ -1,5 +1,14 @@
 import { notFound } from 'next/navigation'
-import { createServerClient } from '@/lib/supabase'
+import Link from 'next/link'
+import type { Metadata } from 'next'
+import { createAdminClient } from '@/lib/supabase'
+
+// Página privada (acesso só por token): não deve aparecer em buscadores.
+export const metadata: Metadata = { robots: { index: false, follow: false } }
+
+// Aceita os tokens atuais (curtos ou longos) e recusa qualquer outra coisa
+// antes de consultar o banco.
+const TOKEN_RE = /^[A-Za-z0-9_-]{4,128}$/
 
 type Props = {
   params: Promise<{ token: string }>
@@ -69,13 +78,18 @@ function RadarSVG({ notas }: { notas: Notas }) {
 
 export default async function PublicPerfilPage({ params }: Props) {
   const { token } = await params
-  const supabase = await createServerClient()
+  if (!TOKEN_RE.test(token)) notFound()
+
+  // Busca no servidor com a chave de serviço, limitada ao aluno do token e só
+  // aos campos exibidos. Assim a página não depende de leitura anônima da
+  // tabela alunos, que pode ser fechada no banco.
+  const supabase = createAdminClient()
 
   const { data: aluno } = await supabase
     .from('alunos')
-    .select('id, nome, posicao, turmas(nome)')
+    .select('id, nome, posicao, pai_auth_id, turmas(nome)')
     .eq('token_acesso', token)
-    .single()
+    .maybeSingle()
 
   if (!aluno) notFound()
 
@@ -218,6 +232,21 @@ export default async function PublicPerfilPage({ params }: Props) {
         {!ultimaAvaliacao && (
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-8 text-center">
             <p className="text-gray-400 text-sm">Nenhuma avaliação registrada ainda.</p>
+          </div>
+        )}
+
+        {/* Primeiro acesso do responsável: só enquanto o atleta não tem um */}
+        {!aluno.pai_auth_id && (
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 text-center">
+            <p className="text-sm text-gray-600">
+              Quer acompanhar a agenda e as presenças do seu filho?
+            </p>
+            <Link
+              href={`/pais/entrar?token=${encodeURIComponent(token)}`}
+              className="inline-block mt-3 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              Criar acesso de responsável
+            </Link>
           </div>
         )}
 
