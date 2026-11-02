@@ -167,7 +167,7 @@ export default async function FeedPage() {
           <span className={styles.startCardArrow} aria-hidden="true">›</span>
         </Link>
         <nav className={styles.shortcutRow} aria-label="Áreas principais">
-          <Link href={user ? '#journey' : signInHref} className={styles.shortcut}>
+          <Link href="#journey" className={styles.shortcut}>
             <Icon name="compass" size={37} /><strong>Minha<br className={styles.mobileBreak} /> Jornada</strong>
           </Link>
           <Link href={user ? '/mensagens' : signInHref} className={styles.shortcut}>
@@ -182,6 +182,30 @@ export default async function FeedPage() {
             <Link href={signInHref} className={styles.shortcut}><Icon name="trend" size={39} /><strong>Desempenho</strong></Link>
           )}
         </nav>
+
+        <section id="journey" className={styles.journeyCard} aria-labelledby="journey-heading" style={{ marginBottom: 14 }}>
+          <div className={styles.sideTitle}>
+            <span className={styles.sideGlyph}><Icon name="compass" size={22} /></span>
+            <div>
+              <h2 id="journey-heading">Minha Jornada</h2>
+              <p>{user && tipo !== 'atleta' ? 'Seu caminho no futebol.' : 'Desenvolvimento do atleta'}</p>
+            </div>
+          </div>
+          {user && tipo !== 'atleta' ? (
+            <Link href={perfil} className={styles.sideCta}>Completar perfil <span aria-hidden="true">›</span></Link>
+          ) : (
+            <>
+              <p className={styles.journeyCopy}>Monte seu perfil esportivo, avalie seu nível e acompanhe sua evolução no futebol.</p>
+              <Link href={user ? perfil : '/atleta/cadastro'} className={styles.sideCta}>
+                {user ? 'Atualizar meu perfil' : 'Criar perfil de atleta'} <span aria-hidden="true">›</span>
+              </Link>
+              <Link href="/atleta/questionario" className={styles.sideCta}>Fazer autoavaliação <span aria-hidden="true">›</span></Link>
+              <Link href={user ? '/atleta/historico' : '/login?next=%2Fatleta%2Fhistorico'} className={styles.sideCta}>
+                Ver histórico de evolução <span aria-hidden="true">›</span>
+              </Link>
+            </>
+          )}
+        </section>
 
         <div className={styles.contentGrid}>
           <section className={styles.feedColumn} aria-label="Feed da comunidade">
@@ -199,12 +223,6 @@ export default async function FeedPage() {
           </section>
 
           <aside className={styles.rightRail}>
-            <section id="journey" className={styles.journeyCard}>
-              <div className={styles.sideTitle}><span className={styles.sideGlyph}><Icon name="compass" size={22} /></span><div><h2>Minha Jornada</h2><p>Seu caminho no futebol.</p></div></div>
-              <p className={styles.journeyCopy}>Mantenha seu perfil atualizado e conte sua história no esporte.</p>
-              <Link href={user ? perfil : '/cadastro'} className={styles.sideCta}>{user ? 'Completar perfil' : 'Criar minha conta'} <span aria-hidden="true">›</span></Link>
-            </section>
-
             <section className={styles.peopleCard}>
               <div className={styles.sideTitle}><span className={styles.sideGlyph}><Icon name="users" size={22} /></span><div><h2>Conexões</h2><p>Pessoas do futebol para conhecer.</p></div></div>
               <div className={styles.suggestions}>{user ? <QuickConnectButton /> : <p>Entre na plataforma para se conectar com quem faz o futebol acontecer.</p>}</div>
@@ -225,7 +243,7 @@ export default async function FeedPage() {
         <Link href="/ranking"><Icon name="search" size={22} />Explorar</Link>
         <Link className={styles.dockPublish} href={user ? '#feed-composer' : signInHref} aria-label="Publicar"><Icon name="plus" size={27} /></Link>
         <Link href={user ? '/mensagens' : signInHref}><Icon name="users" size={23} />Conexões</Link>
-        <Link href={user ? '#journey' : signInHref}><Icon name="trend" size={22} />Jornada</Link>
+        <Link href="#journey"><Icon name="trend" size={22} />Jornada</Link>
         <Link href={user ? perfil : signInHref}><Icon name="user" size={22} />{user ? 'Perfil' : 'Entrar'}</Link>
       </nav>
     </main>
