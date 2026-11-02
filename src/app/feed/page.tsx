@@ -143,7 +143,7 @@ export default async function FeedPage() {
               <p>Acompanhe sua evolução, conecte-se e descubra novas oportunidades.</p>
             </> : <>
 
-              <h1>CRIE SEU PERFIL E SE CONECT COM A OPORTUNIDADE</h1>
+              <h1>CRIE SEU PERFIL E SE CONECTE COM OPORTUNIDADES</h1>
               <p>Conheça atletas, clubes e oportunidades do futebol.</p>
             </>}
           </div>
@@ -152,8 +152,8 @@ export default async function FeedPage() {
               <div className={styles.networkStat}><Icon name="users" size={18} /><span><strong>{stats?.connections ?? 0}</strong> {(stats?.connections ?? 0) === 1 ? 'conexão' : 'conexões'}</span></div>
               <Link href={perfil} className={styles.heroCta}>Completar perfil <span aria-hidden="true">›</span></Link>
             </> : <div className={styles.guestHeroActions}>
-              <Link href={signInHref} className={styles.heroCta}>Entrar</Link>
-              <Link href="/cadastro" className={styles.heroCtaSecondary}>Criar conta</Link>
+              <Link href="/atleta/cadastro" className={styles.heroCta}>Criar meu perfil de atleta</Link>
+              <Link href="/ranking" className={styles.heroCtaSecondary}>Encontrar atletas</Link>
             </div>}
           </div>
         </section>

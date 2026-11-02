@@ -388,3 +388,8 @@
   .page :global(*), .page :global(*::before), .page :global(*::after) { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
 .page :global(.feedHomeComposerGuest .feedHomeComposerPrompt) { width: 100%; min-width: 0; }
+
+@media (max-width: 700px) {
+  .guestHeroActions { flex-wrap: wrap; }
+  .guestHeroActions a { flex: 1 1 135px; min-height: 44px; text-align: center; white-space: normal; }
+}
