@@ -59,23 +59,36 @@ function performanceHref(tipo: string | undefined) {
 export default async function FeedPage() {
   const supabase = await createServerClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const [profile, stats] = user
+  const tipo = user?.user_metadata?.tipo as string | undefined
+  const [profile, stats, hasHighlight] = user
     ? await (async () => {
         const admin = createAdminClient()
-        const [profileResult, networkStats] = await Promise.all([
+        const [profileResult, networkStats, highlightResult] = await Promise.all([
           admin.from('profiles').select('nome, avatar_url').eq('id', user.id).maybeSingle(),
           getNetworkStats(admin, user.id, user.id),
+          tipo === 'atleta'
+            ? admin.from('highlights').select('id').eq('profile_id', user.id).limit(1)
+            : null,
         ])
-        return [profileResult.data, networkStats] as const
+        return [profileResult.data, networkStats, highlightResult?.data ? highlightResult.data.length > 0 : null] as const
       })()
-    : [null, null] as const
+    : [null, null, null] as const
 
   const nome = user
     ? (profile?.nome as string | null) ?? (user.user_metadata?.nome as string | undefined) ?? 'Você'
     : 'MeuCraque'
   const avatar = (profile?.avatar_url as string | null) ?? null
-  const tipo = user?.user_metadata?.tipo as string | undefined
   const perfil = profileHref(tipo)
+  const posicao = user?.user_metadata?.posicao
+  const nextStep = user && tipo === 'atleta'
+    ? typeof posicao !== 'string' || !posicao.trim()
+      ? { label: 'Informar minha posição', href: perfil }
+      : hasHighlight === false
+        ? { label: 'Adicionar vídeo de destaque', href: perfil }
+        : hasHighlight === true
+          ? { label: 'Ver meu perfil público', href: `/jogador/${user.id}` }
+          : { label: 'Revisar meu perfil', href: perfil }
+    : null
   const desempenho = performanceHref(tipo)
   const firstName = nome.split(' ')[0]
   const signInHref = '/login?next=%2Ffeed'
@@ -196,6 +209,11 @@ export default async function FeedPage() {
           ) : (
             <>
               <p className={styles.journeyCopy}>Monte seu perfil esportivo, avalie seu nível e acompanhe sua evolução no futebol.</p>
+              {nextStep && (
+                <Link href={nextStep.href} className={styles.sideCta}>
+                  Próximo passo: {nextStep.label} <span aria-hidden="true">›</span>
+                </Link>
+              )}
               <Link href={user ? perfil : '/atleta/cadastro'} className={styles.sideCta}>
                 {user ? 'Atualizar meu perfil' : 'Criar perfil de atleta'} <span aria-hidden="true">›</span>
               </Link>
