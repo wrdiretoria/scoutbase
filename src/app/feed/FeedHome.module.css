@@ -52,12 +52,12 @@
 .storyDisabled { opacity: .62; }
 
 .hero { position: relative; min-height: 300px; overflow: hidden; border: 1px solid rgba(109, 160, 153, .35); border-radius: 24px; background: #0d1a18; box-shadow: 0 24px 55px #0008; }
-.heroPhoto { position: absolute; inset: 0; background-image: url('/images/hero-player-faithful.png'); background-repeat: no-repeat; background-position: left top; background-size: cover; filter: saturate(.9); }
+.heroPhoto { position: absolute; inset: 0; background-image: url('/images/hero-player-faithful.png'); background-repeat: no-repeat; width: 46%; background-position: 15% top; background-size: auto 100%; filter: saturate(.9); }
 .heroShade { position: absolute; inset: 0; background: linear-gradient(90deg, #04100b00 0%, #06100b20 27%, #06100bcc 44%, #06100bf2 100%), linear-gradient(0deg, #06100a80, transparent 50%); }
 .heroCopy { position: relative; z-index: 1; width: min(50%, 590px); margin: 0 0 0 42%; padding: 42px 24px 92px 0; }
 .eyebrow { color: var(--lime); font-size: 9px; font-weight: 800; letter-spacing: .16em; }
 .heroCopy h1 { margin: 10px 0 9px; font-size: clamp(36px, 4.4vw, 59px); line-height: .99; letter-spacing: -2.3px; }
-.heroGuestCopy h1 { max-width: 100%; font-size: clamp(30px, 3.1vw, 44px); line-height: 1.12; letter-spacing: -1.1px; }
+.heroGuestCopy h1 { max-width: 100%; font-size: clamp(30px, 3.1vw, 44px); line-height: 1.12; letter-spacing: -1.1px; font-weight: 800; }
 .heroCopy h1 em { color: var(--lime); font-style: normal; }
 .heroCopy p { max-width: 510px; margin: 0; color: #f0f3f1; font-size: 19px; line-height: 1.42; }
 .heroCta { display: inline-flex; min-height: 39px; align-items: center; gap: 17px; margin-top: 17px; padding: 0 15px; border: 1px solid var(--lime); border-radius: 9px; background: var(--lime); color: #11170a; text-decoration: none; font-size: 12px; font-weight: 800; box-shadow: 0 7px 24px #a8f0002c; }
@@ -178,6 +178,7 @@
   .heroCopy h1 { overflow-wrap: anywhere; }
   .heroNetwork { position: relative; grid-column: 2; right: auto; bottom: auto; width: auto; margin: 0 24px 24px 0; }
   .heroCta { margin-top: 0; }
+  .heroGuestCopy + .heroNetwork > a { flex: 1; justify-content: center; border-radius: 999px; }
 }
 @media (min-width: 701px) and (max-width: 1199px) {
   .header { flex-wrap: wrap; gap: 12px 20px; padding: 16px 0 0; }
@@ -386,3 +387,4 @@
 @media (prefers-reduced-motion: reduce) {
   .page :global(*), .page :global(*::before), .page :global(*::after) { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
+.page :global(.feedHomeComposerGuest .feedHomeComposerPrompt) { width: 100%; min-width: 0; }
