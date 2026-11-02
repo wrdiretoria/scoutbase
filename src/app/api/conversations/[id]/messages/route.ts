@@ -6,9 +6,13 @@
  *
  * POST /api/conversations/[id]/messages
  * Envia uma mensagem. Body: { body }
+ * Plano free só manda a PRIMEIRA mensagem da conversa se já houver conexão
+ * aceita com o outro participante; sem conexão, exige canMessageUnlimited
+ * (Treinador/Scout Pro). Bloqueio retorna 403 com code 'upgrade_required'.
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient, createAdminClient } from '@/lib/supabase'
+import { canMessageUnlimited } from '@/lib/entitlements'
 
 async function ehParticipante(admin: ReturnType<typeof createAdminClient>, conversationId: string, userId: string) {
   const { data } = await admin
@@ -16,6 +20,16 @@ async function ehParticipante(admin: ReturnType<typeof createAdminClient>, conve
     .select('conversation_id')
     .eq('conversation_id', conversationId)
     .eq('user_id', userId)
+    .maybeSingle()
+  return !!data
+}
+
+async function temConexaoAceita(admin: ReturnType<typeof createAdminClient>, userIdA: string, userIdB: string) {
+  const { data } = await admin
+    .from('connections')
+    .select('id')
+    .eq('status', 'accepted')
+    .or(`and(requester_id.eq.${userIdA},addressee_id.eq.${userIdB}),and(requester_id.eq.${userIdB},addressee_id.eq.${userIdA})`)
     .maybeSingle()
   return !!data
 }
@@ -75,6 +89,24 @@ export async function POST(
 
     const { body } = await req.json() as { body?: string }
     if (!body?.trim()) return NextResponse.json({ error: 'Escreva uma mensagem.' }, { status: 400 })
+
+    const admin = createAdminClient()
+
+    const [{ data: outroParticipante }, { count: totalMensagens }] = await Promise.all([
+      admin.from('conversation_participants').select('user_id').eq('conversation_id', id).neq('user_id', user.id).maybeSingle(),
+      admin.from('messages').select('*', { count: 'exact', head: true }).eq('conversation_id', id),
+    ])
+
+    const primeiraMensagem = (totalMensagens ?? 0) === 0
+    if (primeiraMensagem && outroParticipante) {
+      const conectado = await temConexaoAceita(admin, user.id, outroParticipante.user_id as string)
+      if (!conectado && !(await canMessageUnlimited(admin, user.id))) {
+        return NextResponse.json({
+          error: 'Você só pode enviar a primeira mensagem para conexões aceitas no plano free. Assine o Treinador/Scout Pro para mandar mensagem a qualquer perfil.',
+          code: 'upgrade_required',
+        }, { status: 403 })
+      }
+    }
 
     const { data: mensagem, error } = await supabase
       .from('messages')

@@ -1,0 +1,41 @@
+.section { min-width: 0; padding: 16px 0; }
+.row { display: flex; align-items: center; gap: 20px; overflow-x: auto; scrollbar-width: thin; padding: 4px 2px 8px; }
+.story { display: flex; flex: 0 0 84px; flex-direction: column; align-items: center; gap: 8px; border: 0; padding: 0; background: none; color: #edf3ed; font: inherit; font-size: 12px; text-align: center; text-decoration: none; cursor: pointer; }
+.ring { display: grid; place-items: center; width: 68px; height: 68px; overflow: hidden; padding: 3px; border: 2px solid #b2f000; border-radius: 50%; background: #132119; color: #b2f000; font-size: 20px; font-weight: 700; }
+.ring img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.add { font-size: 36px; font-weight: 400; color: white; background: #08110d; }
+.seen { border-color: #65766c; color: #bfccc3; }
+.name { max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hint { max-width: 290px; flex: 0 0 auto; margin: 0; color: #9aaca0; font-size: 13px; line-height: 1.5; }
+.story:focus-visible, .dialog button:focus-visible { outline: 2px solid #b2f000; outline-offset: 4px; }
+.story:disabled { opacity: .6; cursor: wait; }
+.dialog { position: fixed; width: min(100% - 24px, 440px); max-height: calc(100svh - 24px); margin: auto; padding: 0; border: 1px solid #56715f; border-radius: 20px; background: #080f0b; color: #f3f7f4; overscroll-behavior: contain; }
+.dialog::backdrop { background: #000d; backdrop-filter: blur(6px); }
+.dialogBody { position: relative; padding: 22px 18px 16px; }
+.close { position: absolute; top: 10px; right: 10px; z-index: 2; display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid #ffffff35; border-radius: 50%; background: #07120ce8; color: white; font-size: 28px; cursor: pointer; }
+.form { display: flex; flex-direction: column; gap: 12px; }
+.form h2 { margin: 6px 42px 0 0; font-size: 22px; }
+.form p, .form small { margin: 0; color: #aebdb3; line-height: 1.5; }
+.form p { font-size: 14px; }
+.form label { display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+.file { padding: 14px; border: 1px dashed #8db650; border-radius: 12px; background: #b2f0000c; }
+.file input { max-width: 100%; font-size: 13px; }
+.form textarea { min-height: 76px; width: 100%; padding: 12px; border: 1px solid #ffffff30; border-radius: 12px; resize: vertical; background: #ffffff08; color: white; font: inherit; }
+.preview { width: 100%; max-height: 230px; border-radius: 12px; object-fit: contain; background: black; }
+.primary { min-height: 44px; border: 0; border-radius: 12px; background: #b2f000; color: #0c1608; font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; }
+.primary:disabled { opacity: .5; cursor: not-allowed; }
+.error { margin: 12px 0 0; color: #ffc4b8; font-size: 13px; line-height: 1.5; }
+.error button { border: 0; padding: 4px; background: none; color: #b2f000; text-decoration: underline; cursor: pointer; }
+.steps { display: flex; gap: 4px; padding: 0 45px 10px 0; }
+.steps span { min-width: 0; height: 3px; flex: 1; border-radius: 3px; background: #536057; }
+.steps .stepActive { background: #b2f000; }
+.viewerHeader { display: flex; min-height: 46px; padding: 0 42px 12px 0; flex-direction: column; gap: 4px; }
+.viewerHeader strong { font-size: 15px; overflow-wrap: anywhere; }
+.viewerHeader small { color: #b7c2bb; font-size: 12px; }
+.viewer > img, .viewer > video { display: block; width: 100%; height: min(57svh, 510px); object-fit: contain; background: #000; border-radius: 12px; }
+.caption { margin: 12px 0; font-size: 14px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.viewerFooter { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 12px; }
+.viewerFooter button { min-width: 44px; min-height: 44px; padding: 8px 12px; border: 1px solid #ffffff25; border-radius: 10px; background: #142018; color: white; font-size: 13px; cursor: pointer; }
+.viewerFooter button:first-child, .viewerFooter button:last-child { font-size: 26px; }
+.viewerFooter button:disabled { opacity: .4; cursor: default; }
+@media (max-width:700px) { .section { padding: 10px 0; } .row { gap: 12px; } .story { flex-basis: 72px; font-size: 11px; } .ring { width: 54px; height: 54px; } .hint { max-width: 220px; font-size: 12px; } }

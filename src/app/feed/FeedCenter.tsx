@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
+import Link from 'next/link'
 
 type Autor = { id: string; nome: string | null; avatarUrl: string | null }
 type Oportunidade = { id: string; title: string; position: string | null; category: string | null; city: string | null }
@@ -22,6 +23,16 @@ type FeedPost = {
 }
 
 type Comentario = { id: string; body: string; created_at: string; author: Autor | null }
+type PublicEvent = {
+  id: string
+  atletaId: string
+  tipo: 'join' | 'avaliacao'
+  nome: string
+  posicao: string
+  cidade: string
+  fotos: string[]
+  ts: string
+}
 
 const LIMIT = 10
 
@@ -42,8 +53,18 @@ function dataRelativa(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
 }
 
-const TIPO_ICON: Record<string, string> = {
-  update: '📝', achievement: '🏆', opportunity: '💼', recommendation_share: '💬',
+function urlSegura(value: string | null): value is string {
+  if (!value) return false
+  try {
+    const protocol = new URL(value).protocol
+    return protocol === 'https:' || protocol === 'http:'
+  } catch {
+    return false
+  }
+}
+
+const AUTOR_LABEL: Record<string, string> = {
+  atleta: 'Atleta', treinador: 'Treinador', scout: 'Scout', clube: 'Clube', pais: 'Responsável',
 }
 
 function Avatar({ autor, size = 38 }: { autor: Autor | null; size?: number }) {
@@ -69,10 +90,27 @@ function Avatar({ autor, size = 38 }: { autor: Autor | null; size?: number }) {
   )
 }
 
-function Composer({ onPosted }: { onPosted: (post: FeedPost) => void }) {
+function Composer({ onPosted, currentUser }: { onPosted: (post: FeedPost) => void; currentUser: Autor | null }) {
   const [body, setBody] = useState('')
   const [sending, setSending] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
+
+  if (!currentUser) {
+    return (
+      <div className="feedHomeComposer feedHomeComposerGuest">
+        <div className="feedHomeComposerTop">
+          <div className="feedHomeGuestAvatar" aria-hidden="true">MC</div>
+          <Link href="/login?next=%2Ffeed" className="feedHomeComposerTextarea feedHomeComposerPrompt">
+            No que você está pensando?
+          </Link>
+        </div>
+        <div className="feedHomeComposerFooter">
+          <span className="feedHomeGuestHint">Entre para participar do feed</span>
+          <Link href="/login?next=%2Ffeed" className="feedHomePublishButton">Entrar</Link>
+        </div>
+      </div>
+    )
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -100,40 +138,39 @@ function Composer({ onPosted }: { onPosted: (post: FeedPost) => void }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{
-      background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
-      borderRadius: '16px', padding: '16px', marginBottom: '16px',
-      display: 'flex', flexDirection: 'column', gap: '10px',
-    }}>
-      <textarea
-        value={body}
-        onChange={e => setBody(e.target.value)}
-        placeholder="Compartilhe uma novidade com sua rede…"
-        rows={3}
-        style={{
-          padding: '12px 14px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)',
-          background: 'rgba(255,255,255,0.04)', color: 'white', fontSize: '14px', outline: 'none',
-          resize: 'vertical', fontFamily: 'system-ui, sans-serif',
-        }}
-      />
+    <form id="feed-composer" className="feedHomeComposer" onSubmit={handleSubmit}>
+      <div className="feedHomeComposerTop">
+        <Avatar autor={currentUser} size={42} />
+        <textarea
+          value={body}
+          onChange={e => setBody(e.target.value)}
+          placeholder="No que você está pensando?"
+          rows={1}
+          aria-label="Escreva uma publicação"
+          className="feedHomeComposerTextarea"
+        />
+      </div>
       {erro && (
         <p style={{ margin: 0, fontSize: '11px', color: '#f87171', padding: '6px 10px', borderRadius: '8px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}>
           {erro}
         </p>
       )}
-      <button
-        type="submit"
-        disabled={sending || !body.trim()}
-        style={{
-          alignSelf: 'flex-end', padding: '10px 22px', borderRadius: '10px', border: 'none',
-          background: 'linear-gradient(160deg,#166534 0%,#22c55e 100%)',
-          color: 'white', fontWeight: 800, fontSize: '13px',
-          cursor: sending ? 'default' : 'pointer', opacity: !body.trim() ? 0.5 : 1,
-          fontFamily: 'system-ui, sans-serif',
-        }}
-      >
-        {sending ? 'Publicando…' : 'Publicar'}
-      </button>
+      <div className="feedHomeComposerFooter">
+        <div className="feedHomeComposerTools" aria-label="Outras opções de publicação">
+          <button type="button" disabled title="Publicação de imagem ainda não disponível" aria-label="Adicionar foto">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg><span>Foto</span>
+          </button>
+          <button type="button" disabled title="Publicação de vídeo ainda não disponível" aria-label="Adicionar vídeo">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="13" height="14" rx="2"/><path d="m16 10 5-3v10l-5-3z"/></svg><span>Vídeo</span>
+          </button>
+          <button type="button" disabled title="Publicação de evento ainda não disponível" aria-label="Adicionar evento">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 14h.01M12 14h.01M16 14h.01"/></svg><span>Evento</span>
+          </button>
+        </div>
+        <button className="feedHomePublishButton" type="submit" disabled={sending || !body.trim()}>
+          {sending ? 'Publicando…' : 'Publicar'}
+        </button>
+      </div>
     </form>
   )
 }
@@ -233,32 +270,48 @@ function PostCard({ post, onToggleLike, onCommentAdded, cardStyle }: {
     } catch { /* silencioso */ } finally { setSendingLike(false) }
   }
 
+  const mediaUrl = urlSegura(post.media_url) ? post.media_url : null
+  const mediaIsImage = !!mediaUrl && /\.(avif|gif|jpe?g|png|webp)(\?.*)?$/i.test(mediaUrl)
+
   return (
-    <div style={{ ...cardStyle, marginBottom: '12px' }}>
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-        <Avatar autor={post.author} />
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: 'white' }}>{post.author?.nome ?? 'Alguém'}</p>
-          <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.35)' }}>
-            {TIPO_ICON[post.type] ?? '📝'} {dataRelativa(post.created_at)}
-          </p>
+    <article className="feedHomePost" style={cardStyle}>
+      <div className="feedHomePostHeader">
+        <Avatar autor={post.author} size={46} />
+        <div className="feedHomePostIdentity">
+          <strong>{post.author?.nome ?? 'Alguém'}</strong>
+          <span>{AUTOR_LABEL[post.author_type] ?? 'Comunidade'} · {dataRelativa(post.created_at)}</span>
         </div>
+        <span className="feedHomePostType" aria-hidden="true">•••</span>
       </div>
 
-      {post.type === 'opportunity' && post.opportunity ? (
-        <div style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.18)', borderRadius: '12px', padding: '12px', marginBottom: '10px' }}>
-          <p style={{ margin: '0 0 4px', fontSize: '13px', fontWeight: 800, color: '#22c55e' }}>{post.opportunity.title}</p>
-          <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>
-            {[post.opportunity.position, post.opportunity.category, post.opportunity.city].filter(Boolean).join(' · ')}
-          </p>
+      <div className={mediaUrl ? 'feedHomePostContent hasMedia' : 'feedHomePostContent'}>
+        <div className="feedHomePostText">
+          {post.type === 'opportunity' && post.opportunity ? (
+            <div className="feedHomeOpportunity">
+              <p className="feedHomeOpportunityTitle"><span aria-hidden="true">📣 </span>{post.opportunity.title}</p>
+              <p className="feedHomeOpportunityDetails">
+                {[post.opportunity.position, post.opportunity.category, post.opportunity.city].filter(Boolean).join(' · ')}
+              </p>
+              {post.body && <p className="feedHomePostBody">{post.body}</p>}
+            </div>
+          ) : (
+            <p className="feedHomePostBody">{post.body}</p>
+          )}
         </div>
-      ) : (
-        <p style={{ margin: '0 0 10px', fontSize: '14px', color: 'rgba(255,255,255,0.8)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
-          {post.body}
-        </p>
-      )}
 
-      <div style={{ display: 'flex', gap: '16px', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        {mediaUrl && (
+          <a className="feedHomeMedia" href={mediaUrl} target="_blank" rel="noreferrer">
+            {mediaIsImage ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={mediaUrl} alt="Mídia da publicação" />
+            ) : (
+              <><span aria-hidden="true">▶</span><span>Abrir mídia da publicação</span><span aria-hidden="true">↗</span></>
+            )}
+          </a>
+        )}
+      </div>
+
+      <div className="feedHomePostActions">
         <button
           onClick={handleLike}
           disabled={sendingLike}
@@ -269,7 +322,7 @@ function PostCard({ post, onToggleLike, onCommentAdded, cardStyle }: {
             fontFamily: 'system-ui, sans-serif',
           }}
         >
-          👍 {post.reactionCount > 0 ? post.reactionCount : ''} Curtir
+          ♡ {post.reactionCount > 0 ? post.reactionCount : ''} Curtir
         </button>
         <button
           onClick={() => setComentariosAbertos(v => !v)}
@@ -279,16 +332,16 @@ function PostCard({ post, onToggleLike, onCommentAdded, cardStyle }: {
             fontFamily: 'system-ui, sans-serif',
           }}
         >
-          💬 {post.commentCount > 0 ? post.commentCount : ''} Comentar
+          ◯ {post.commentCount > 0 ? post.commentCount : ''} Comentar
         </button>
       </div>
 
       {comentariosAbertos && <CommentsPanel postId={post.id} onCommentAdded={() => onCommentAdded(post.id)} />}
-    </div>
+    </article>
   )
 }
 
-export default function FeedCenter({ cardStyle }: { cardStyle: CSSProperties }) {
+function AuthenticatedFeedCenter({ cardStyle, currentUser }: { cardStyle: CSSProperties; currentUser: Autor }) {
   const [posts, setPosts]       = useState<FeedPost[] | null>(null)
   const [offset, setOffset]     = useState(0)
   const [hasMore, setHasMore]   = useState(true)
@@ -345,18 +398,18 @@ export default function FeedCenter({ cardStyle }: { cardStyle: CSSProperties }) 
   }
 
   return (
-    <div>
-      <Composer onPosted={handlePosted} />
+    <div className="feedHomeStream">
+      <Composer onPosted={handlePosted} currentUser={currentUser} />
 
       {posts === null && (
-        <p style={{ textAlign: 'center', fontSize: '13px', color: 'rgba(255,255,255,0.3)', padding: '20px 0' }}>
+        <p className="feedHomeLoading">
           Carregando feed…
         </p>
       )}
 
       {posts !== null && posts.length === 0 && (
-        <div style={{ ...cardStyle, textAlign: 'center' }}>
-          <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>
+        <div className="feedHomeEmpty">
+          <p>
             Sua rede ainda não publicou nada. Que tal ser o primeiro?
           </p>
         </div>
@@ -381,4 +434,84 @@ export default function FeedCenter({ cardStyle }: { cardStyle: CSSProperties }) 
       )}
     </div>
   )
+}
+
+function PublicActivityFeed() {
+  const [events, setEvents] = useState<PublicEvent[] | null>(null)
+
+  useEffect(() => {
+    let active = true
+    fetch('/api/landing/livefeed?limit=8')
+      .then(response => response.ok ? response.json() as Promise<{ events?: PublicEvent[] }> : Promise.reject())
+      .then(data => { if (active) setEvents(data.events ?? []) })
+      .catch(() => { if (active) setEvents([]) })
+    return () => { active = false }
+  }, [])
+
+  if (events === null) return <p className="feedHomeLoading">Carregando novidades públicas…</p>
+  if (events.length === 0) {
+    return (
+      <div className="feedHomeEmpty">
+        <p>As novidades públicas aparecerão aqui.</p>
+        <div className="feedHomeExploreLinks">
+          <Link href="/ranking">Explorar atletas</Link>
+          <Link href="/treinadores">Conhecer treinadores</Link>
+          <Link href="/vagas">Ver oportunidades</Link>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="feedHomeStream">
+      {events.map(event => {
+        const avatar = event.fotos.find(photo => urlSegura(photo)) ?? null
+        const athlete = { id: event.atletaId, nome: event.nome, avatarUrl: avatar }
+        const details = [event.posicao, event.cidade].filter(Boolean).join(' · ')
+        return (
+          <article className="feedHomePost feedHomePublicPost" key={event.id}>
+            <div className="feedHomePostHeader">
+              <Avatar autor={athlete} size={46} />
+              <div className="feedHomePostIdentity">
+                <strong>{event.nome}</strong>
+                <span>Atleta · {dataRelativa(event.ts)}</span>
+              </div>
+              <span className="feedHomePostType" aria-hidden="true">•••</span>
+            </div>
+            <div className="feedHomePostContent hasMedia">
+              <div className="feedHomePostText">
+                <p className="feedHomePostBody">
+                  {event.tipo === 'avaliacao' ? 'Recebeu uma nova avaliação esportiva.' : 'Agora faz parte do MeuCraque.'}
+                </p>
+                {details && <p className="feedHomeOpportunityDetails">{details}</p>}
+              </div>
+              {avatar && (
+                <Link className="feedHomeMedia" href={`/jogador/${event.atletaId}`} aria-label={`Ver perfil público de ${event.nome}`}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={avatar} alt={`Foto pública de ${event.nome}`} />
+                </Link>
+              )}
+            </div>
+            <div className="feedHomePostActions">
+              <Link href={`/jogador/${event.atletaId}`}>Ver perfil público <span aria-hidden="true">›</span></Link>
+              <Link href="/login?next=%2Ffeed">Entre para se conectar</Link>
+            </div>
+          </article>
+        )
+      })}
+    </div>
+  )
+}
+
+export default function FeedCenter({ cardStyle, currentUser }: { cardStyle: CSSProperties; currentUser: Autor | null }) {
+  if (!currentUser) {
+    return (
+      <div className="feedHomeStream">
+        <Composer onPosted={() => undefined} currentUser={null} />
+        <PublicActivityFeed />
+      </div>
+    )
+  }
+
+  return <AuthenticatedFeedCenter cardStyle={cardStyle} currentUser={currentUser} />
 }

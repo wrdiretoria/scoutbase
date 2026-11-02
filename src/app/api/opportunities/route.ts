@@ -7,11 +7,16 @@
  *
  * POST /api/opportunities
  * Cria uma vaga. Body: { title, position?, category?, city?, description? }
- * Só treinador/escola pode criar — club_id = o próprio auth.uid().
+ * Só treinador/escola pode criar — club_id = o próprio auth.uid(). Plano
+ * free só tem 1 vaga aberta por vez; a 2ª simultânea exige canPostOpportunity
+ * (plano Clube). Bloqueio retorna 403 com code 'upgrade_required'.
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient, createAdminClient } from '@/lib/supabase'
 import { isVerifiedTrainer } from '@/lib/trainer-access'
+import { canPostOpportunity } from '@/lib/entitlements'
+
+const LIMITE_VAGAS_ABERTAS_GRATIS = 1
 
 export async function GET(req: NextRequest) {
   try {
@@ -72,6 +77,21 @@ export async function POST(req: NextRequest) {
       title?: string; position?: string; category?: string; city?: string; description?: string
     }
     if (!title?.trim()) return NextResponse.json({ error: 'Título é obrigatório.' }, { status: 400 })
+
+    const admin = createAdminClient()
+
+    const { count: vagasAbertas } = await admin
+      .from('opportunities')
+      .select('*', { count: 'exact', head: true })
+      .eq('club_id', user.id)
+      .eq('status', 'open')
+
+    if ((vagasAbertas ?? 0) >= LIMITE_VAGAS_ABERTAS_GRATIS && !(await canPostOpportunity(admin, user.id))) {
+      return NextResponse.json({
+        error: 'No plano free você pode ter só 1 vaga aberta por vez. Assine o plano Clube para publicar vagas ilimitadas.',
+        code: 'upgrade_required',
+      }, { status: 403 })
+    }
 
     const { data: vaga, error } = await supabase
       .from('opportunities')

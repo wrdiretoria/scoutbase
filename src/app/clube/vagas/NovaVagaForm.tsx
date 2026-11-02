@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 
 const POSICOES = [
   'Goleiro', 'Lateral Direito', 'Lateral Esquerdo', 'Zagueiro',
@@ -29,21 +30,24 @@ export default function NovaVagaForm({ onCriada }: { onCriada: (v: Vaga) => void
   const [description, setDescription] = useState('')
   const [sending, setSending]       = useState(false)
   const [erro, setErro]             = useState<string | null>(null)
+  const [bloqueioUpgrade, setBloqueioUpgrade] = useState<string | null>(null)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!title.trim() || sending) return
     setSending(true)
     setErro(null)
+    setBloqueioUpgrade(null)
     try {
       const res = await fetch('/api/opportunities', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, position, category, city, description }),
       })
-      const data = await res.json() as { opportunity?: Vaga; error?: string }
+      const data = await res.json() as { opportunity?: Vaga; error?: string; code?: string }
       if (!res.ok || !data.opportunity) {
-        setErro(data.error ?? 'Não foi possível criar a vaga.')
+        if (data.code === 'upgrade_required') setBloqueioUpgrade(data.error ?? 'Assine o plano Clube para publicar mais vagas.')
+        else setErro(data.error ?? 'Não foi possível criar a vaga.')
         return
       }
       onCriada(data.opportunity)
@@ -110,6 +114,22 @@ export default function NovaVagaForm({ onCriada }: { onCriada: (v: Vaga) => void
         <p style={{ margin: 0, fontSize: '11px', color: '#f87171', padding: '6px 10px', borderRadius: '8px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}>
           {erro}
         </p>
+      )}
+      {bloqueioUpgrade && (
+        <div style={{
+          padding: '12px 14px', borderRadius: '12px',
+          background: 'linear-gradient(135deg,#052e16,#0b1a10)', border: '1px solid rgba(34,197,94,0.25)',
+        }}>
+          <p style={{ margin: '0 0 8px', fontSize: '12px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
+            🔒 {bloqueioUpgrade}
+          </p>
+          <Link href="/planos" style={{
+            display: 'inline-block', padding: '8px 16px', borderRadius: '10px',
+            background: '#22c55e', color: 'black', fontWeight: 800, fontSize: '12px', textDecoration: 'none',
+          }}>
+            Ver plano Clube →
+          </Link>
+        </div>
       )}
       <div style={{ display: 'flex', gap: '8px' }}>
         <button

@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 const ALWAYS_PUBLIC = [
+  '/feed',
   '/ranking',
   '/jogador',
   '/scout/busca',
@@ -50,7 +51,6 @@ const PRIVATE_PREFIXES = [
   '/presencas',
   '/relatorios',
   '/turmas',
-  '/feed',
   '/mensagens',
   '/clube/vagas',
 ]

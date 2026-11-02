@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 
 type Autor = { id: string; nome: string | null; avatarUrl: string | null }
@@ -23,6 +24,7 @@ export default function ThreadView({ conversationId, meId, otherUser }: {
   const [mensagens, setMensagens] = useState<Mensagem[] | null>(null)
   const [texto, setTexto] = useState('')
   const [sending, setSending] = useState(false)
+  const [bloqueioUpgrade, setBloqueioUpgrade] = useState<string | null>(null)
   const fimRef = useRef<HTMLDivElement>(null)
 
   function adicionarMensagem(msg: Mensagem) {
@@ -82,6 +84,7 @@ export default function ThreadView({ conversationId, meId, otherUser }: {
     e.preventDefault()
     if (!texto.trim() || sending) return
     setSending(true)
+    setBloqueioUpgrade(null)
     const corpo = texto.trim()
     setTexto('')
     try {
@@ -94,6 +97,8 @@ export default function ThreadView({ conversationId, meId, otherUser }: {
         const data = await res.json() as { message: Mensagem }
         adicionarMensagem(data.message)
       } else {
+        const data = await res.json().catch(() => ({})) as { error?: string; code?: string }
+        if (data.code === 'upgrade_required') setBloqueioUpgrade(data.error ?? 'Assine o Pro para enviar essa mensagem.')
         setTexto(corpo) // devolve o texto se falhou
       }
     } catch {
@@ -154,6 +159,24 @@ export default function ThreadView({ conversationId, meId, otherUser }: {
         })}
         <div ref={fimRef} />
       </div>
+
+      {/* Bloqueio de plano free — 1ª mensagem a quem não é conexão aceita */}
+      {bloqueioUpgrade && (
+        <div style={{
+          margin: '0 16px 12px', padding: '12px 14px', borderRadius: '12px',
+          background: 'linear-gradient(135deg,#052e16,#0b1a10)', border: '1px solid rgba(34,197,94,0.25)',
+        }}>
+          <p style={{ margin: '0 0 8px', fontSize: '12px', color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
+            🔒 {bloqueioUpgrade}
+          </p>
+          <Link href="/planos" style={{
+            display: 'inline-block', padding: '8px 16px', borderRadius: '10px',
+            background: '#22c55e', color: 'black', fontWeight: 800, fontSize: '12px', textDecoration: 'none',
+          }}>
+            Ver plano Pro →
+          </Link>
+        </div>
+      )}
 
       {/* Input */}
       <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '8px', padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
