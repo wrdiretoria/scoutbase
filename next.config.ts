@@ -15,6 +15,13 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react'],  // reduz bundle do lucide
   },
+  async rewrites() {
+    return {
+      beforeFiles: [{ source: '/', destination: '/feed' }],
+      afterFiles: [],
+      fallback: [],
+    }
+  },
   async headers() {
     return [
       {
@@ -63,4 +70,3 @@ export default withSentryConfig(nextConfig, {
   disableLogger:       true,
   automaticVercelMonitors: false,
 })
-
