@@ -7,6 +7,7 @@ import type { ReactNode } from 'react'
 import { createAdminClient, createServerClient } from '@/lib/supabase'
 import { getNetworkStats } from '@/lib/network-stats'
 import FeedCenter from './FeedCenter'
+import { DiagnosisSummary } from '../teste-seu-nivel/Diagnosis'
 import QuickConnectButton from './QuickConnectButton'
 import FeedStories from './FeedStories'
 import styles from './FeedHome.module.css'
@@ -171,7 +172,7 @@ export default async function FeedPage() {
           </div>
         </section>
 
-        <Link href="/atleta/questionario" className={styles.startCard}>
+        <Link href="/teste-seu-nivel" className={styles.startCard}>
           <span className={styles.startCardIcon}><Icon name="target" size={28} /></span>
           <span className={styles.startCardCopy}>
             <small>Comece por aqui</small>
@@ -208,6 +209,7 @@ export default async function FeedPage() {
             <Link href={perfil} className={styles.sideCta}>Completar perfil <span aria-hidden="true">›</span></Link>
           ) : (
             <>
+              <DiagnosisSummary />
               <p className={styles.journeyCopy}>Monte seu perfil esportivo, avalie seu nível e acompanhe sua evolução no futebol.</p>
               {nextStep && (
                 <Link href={nextStep.href} className={styles.sideCta}>
