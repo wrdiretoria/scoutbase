@@ -8,6 +8,7 @@ import { createAdminClient, createServerClient } from '@/lib/supabase'
 import { getNetworkStats } from '@/lib/network-stats'
 import FeedCenter from './FeedCenter'
 import { DiagnosisSummary } from '../teste-seu-nivel/Diagnosis'
+import VisitNotifications from './VisitNotifications'
 import QuickConnectButton from './QuickConnectButton'
 import FeedStories from './FeedStories'
 import styles from './FeedHome.module.css'
@@ -133,7 +134,7 @@ export default async function FeedPage() {
             {user ? <Link href="/mensagens"><Icon name="message" size={19} />Mensagens</Link> : <Link href={signInHref}>Entrar</Link>}
           </nav>
           <div className={styles.headerActions}>
-            {user && <button className={styles.notification} type="button" aria-label="Notificações indisponíveis" disabled><Icon name="bell" size={23} /></button>}
+            {user && tipo === 'atleta' && <VisitNotifications icon={<Icon name="bell" size={23} />} />}
             {user ? <Link href={perfil} className={styles.avatarLink} aria-label={`Abrir perfil de ${nome}`}>
               {avatar ? (
                 // eslint-disable-next-line @next/next/no-img-element
