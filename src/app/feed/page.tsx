@@ -228,6 +228,15 @@ export default async function FeedPage() {
           )}
         </section>
 
+        <Link href="/desafio-1x1" className={styles.startCard}>
+          <span className={styles.startCardIcon}><Icon name="trophy" size={28} /></span>
+          <span className={styles.startCardCopy}>
+            <small>Arena MeuCraque</small>
+            <strong>Desafio 1×1</strong>
+          </span>
+          <span className={styles.startCardArrow} aria-hidden="true">›</span>
+        </Link>
+
         <div className={styles.contentGrid}>
           <section className={styles.feedColumn} aria-label="Feed da comunidade">
             <nav className={styles.feedTabs} aria-label="Filtros do feed">

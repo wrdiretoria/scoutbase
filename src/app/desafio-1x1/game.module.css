@@ -1,0 +1,15 @@
+.page{max-width:720px;margin:auto;padding:24px 16px 44px;color:#f5faf6}
+.page a,.tag{color:#c3ff49}
+.tag{margin:20px 0 4px;font-weight:800;font-size:12px;letter-spacing:.12em}
+.page h1{font-size:clamp(32px,8vw,52px);font-weight:900;margin:0}
+.page p{margin:8px 0 14px;line-height:1.45}
+.page canvas{display:block;width:100%;height:auto;border:1px solid #567761;border-radius:14px;background:#175c3a}
+.score{display:flex;justify-content:space-between;align-items:center;margin:14px 0;padding:12px 16px;background:#101827;border:1px solid #37455b;border-radius:12px;font-size:18px}
+.score span{font-variant-numeric:tabular-nums;color:#c3ff49}
+.controls{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;touch-action:none;user-select:none}
+.directions{display:grid;grid-template-columns:repeat(3,44px);gap:4px}
+.directions button:first-child{grid-column:2}
+.directions button:nth-child(2){grid-column:1}
+.directions button,.primary{min-height:44px;border:1px solid #536945;border-radius:10px;background:#14281c;color:#fff;font-weight:800;cursor:pointer}
+.primary{padding:0 16px;background:#c3ff49;color:#13200b}
+.page button:active{filter:brightness(.8)}
