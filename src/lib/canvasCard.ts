@@ -1,8 +1,7 @@
 /**
- * canvasCard.ts — Card Meu Craque, fiel ao design do AtletaCardLanding.
+ * canvasCard.ts — Card Meu Craque, imagem para compartilhamento.
  * 400 × 640 px, Canvas 2D, DPR 2x.
  */
-import { bandeiraDoPais } from './bandeira'
 
 export type CanvasCardProps = {
   nome:          string
@@ -43,27 +42,6 @@ export function hexToRgb(hex: string) {
   return { r, g, b }
 }
 
-function tagline(posicao: string | null | undefined): string {
-  const p = (posicao ?? '').toLowerCase()
-  if (p.includes('atacante') || p.includes('avante')) return 'NASCIDO PARA FAZER HISTÓRIA'
-  if (p.includes('meia') || p.includes('volante'))    return 'O JOGO PASSA PELOS SEUS PÉS'
-  if (p.includes('zagueiro') || p.includes('lateral')) return 'A MURALHA QUE NINGUÉM PASSA'
-  if (p.includes('goleiro'))                           return 'A ÚLTIMA BARREIRA'
-  return 'SEU TALENTO, SUA IDENTIDADE'
-}
-
-function posAbrev(posicao: string | null | undefined): string {
-  if (!posicao) return '—'
-  const p = posicao.toLowerCase()
-  if (p.includes('goleiro'))                              return 'GOL'
-  if (p.includes('lateral'))                             return 'LAT'
-  if (p.includes('zagueiro'))                            return 'ZAG'
-  if (p.includes('volante'))                             return 'VOL'
-  if (p.includes('meia') || p.includes('armador'))       return 'MEI'
-  if (p.includes('atacante') || p.includes('avante') || p.includes('ponta') || p.includes('centro')) return 'ATA'
-  return posicao.slice(0, 3).toUpperCase()
-}
-
 export function loadImage(src: string): Promise<HTMLImageElement | null> {
   return new Promise(res => {
     const img = new Image()
@@ -88,283 +66,76 @@ export function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w
   ctx.closePath()
 }
 
-// ── generateCard ───────────────────────────────────────────────────────────────
-
 export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardProps): Promise<void> {
-  const ctx = canvas.getContext('2d')!
+  const context2d = canvas.getContext('2d')
+  if (!context2d) throw new Error('Não foi possível criar o card.')
+  const ctx = context2d
 
-  const DPR = 2
-  const W = 400, H = 640
-  canvas.width  = W * DPR
-  canvas.height = H * DPR
-  ctx.scale(DPR, DPR)
+  const width = 400
+  const height = 640
+  canvas.width = width * 2
+  canvas.height = height * 2
+  ctx.scale(2, 2)
+  const lime = '#b3f737'
+  const photo = opts.fotoUrl ? await loadImage(opts.fotoUrl) : null
 
-  const tier = getTier(opts.ovr)
-  const { r: cr, g: cg, b: cb } = hexToRgb(tier.color)
-
-  const PAD = 24    // padding lateral do card
-  const RAD = 28    // border-radius externo
-
-  // ── 1. FUNDO ────────────────────────────────────────────────────────────────
-  roundRect(ctx, 0, 0, W, H, RAD)
-  ctx.fillStyle = tier.bg
-  ctx.fill()
-
-  // Borda
-  roundRect(ctx, 0, 0, W, H, RAD)
-  ctx.strokeStyle = tier.border
-  ctx.lineWidth = 2
-  ctx.stroke()
-
-  // ── 2. TOPO: MC | medalha | posição ─────────────────────────────────────────
-  const TOP_Y = 20
-  const TOP_H = 52
-
-  // Bolinha MC
-  const MC_CX = PAD + 20, MC_CY = TOP_Y + TOP_H / 2
-  ctx.beginPath(); ctx.arc(MC_CX, MC_CY, 20, 0, Math.PI * 2)
-  ctx.fillStyle = `rgba(${cr},${cg},${cb},0.12)`
-  ctx.fill()
-  ctx.strokeStyle = `rgba(${cr},${cg},${cb},0.6)`
-  ctx.lineWidth = 1.5
-  ctx.stroke()
-  ctx.fillStyle = tier.color
-  ctx.font = 'bold 13px system-ui, sans-serif'
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-  ctx.fillText('MC', MC_CX, MC_CY)
-
-  // Medalha ou sem nada
-  if (tier.medal) {
-    ctx.font = '26px system-ui, sans-serif'
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-    ctx.fillText(tier.medal, W / 2, MC_CY)
+  function text(value: string, x: number, y: number, size: number, color: string, weight = 700, maxWidth = 344) {
+    ctx.fillStyle = color
+    ctx.font = `${weight} ${size}px system-ui, sans-serif`
+    while (ctx.measureText(value).width > maxWidth && size > 13) {
+      size -= 1
+      ctx.font = `${weight} ${size}px system-ui, sans-serif`
+    }
+    ctx.fillText(value, x, y, maxWidth)
   }
 
-  // Pill posição
-  const POS_TEXT = posAbrev(opts.posicao || opts.pos)
-  ctx.font = 'bold 13px system-ui, sans-serif'
-  const pw = ctx.measureText(POS_TEXT).width + 24
-  const POS_X = W - PAD - pw, POS_Y = MC_CY - 15, POS_H = 30
-  roundRect(ctx, POS_X, POS_Y, pw, POS_H, 10)
-  ctx.fillStyle = `rgba(${cr},${cg},${cb},0.18)`
-  ctx.fill()
-  ctx.fillStyle = tier.color
-  ctx.font = 'bold 13px system-ui, sans-serif'
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-  ctx.fillText(POS_TEXT, POS_X + pw / 2, MC_CY)
+  roundRect(ctx, 0, 0, width, height, 28)
+  ctx.clip()
+  ctx.fillStyle = '#091610'
+  ctx.fillRect(0, 0, width, height)
 
-  // ── 3. FOTO ──────────────────────────────────────────────────────────────────
-  const PHOTO_X = PAD, PHOTO_Y = TOP_Y + TOP_H + 8
-  const PHOTO_W = W - PAD * 2, PHOTO_H = 210
-  const PHOTO_R = 18
-
-  roundRect(ctx, PHOTO_X, PHOTO_Y, PHOTO_W, PHOTO_H, PHOTO_R)
-  ctx.fillStyle = '#111'
-  ctx.fill()
-
-  let img: HTMLImageElement | null = null
-  if (opts.fotoUrl) img = await loadImage(opts.fotoUrl)
-
-  if (img) {
-    ctx.save()
-    roundRect(ctx, PHOTO_X, PHOTO_Y, PHOTO_W, PHOTO_H, PHOTO_R)
-    ctx.clip()
-    const scale = Math.max(PHOTO_W / img.width, PHOTO_H / img.height)
-    const dw = img.width * scale, dh = img.height * scale
-    const dx = PHOTO_X + (PHOTO_W - dw) / 2
-    const dy = PHOTO_Y + (PHOTO_H - dh) * 0.1
-    ctx.drawImage(img, dx, dy, dw, dh)
-
-    // Gradiente inferior sobre a foto
-    const grad = ctx.createLinearGradient(0, PHOTO_Y + PHOTO_H - 80, 0, PHOTO_Y + PHOTO_H)
-    grad.addColorStop(0, 'transparent')
-    grad.addColorStop(1, tier.bg)
-    ctx.fillStyle = grad
-    ctx.fillRect(PHOTO_X, PHOTO_Y, PHOTO_W, PHOTO_H)
-    ctx.restore()
+  ctx.save()
+  ctx.beginPath()
+  ctx.rect(0, 76, width, 378)
+  ctx.clip()
+  if (photo) {
+    const scale = Math.max(width / photo.naturalWidth, 378 / photo.naturalHeight)
+    const w = photo.naturalWidth * scale
+    const h = photo.naturalHeight * scale
+    ctx.drawImage(photo, (width - w) / 2, 76 - (h - 378) * .28, w, h)
   } else {
-    // Iniciais
-    ctx.save()
-    roundRect(ctx, PHOTO_X, PHOTO_Y, PHOTO_W, PHOTO_H, PHOTO_R)
-    ctx.clip()
-    const rad = ctx.createRadialGradient(W/2, PHOTO_Y + PHOTO_H/2, 0, W/2, PHOTO_Y + PHOTO_H/2, 120)
-    rad.addColorStop(0, `rgba(${cr},${cg},${cb},0.18)`)
-    rad.addColorStop(1, 'transparent')
-    ctx.fillStyle = rad
-    ctx.fillRect(PHOTO_X, PHOTO_Y, PHOTO_W, PHOTO_H)
-    ctx.font = `bold 72px system-ui, sans-serif`
-    ctx.fillStyle = `rgba(${cr},${cg},${cb},0.55)`
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-    ctx.fillText(opts.initials, W/2, PHOTO_Y + PHOTO_H/2)
-    ctx.restore()
+    ctx.fillStyle = '#162c22'
+    ctx.fillRect(0, 76, width, 378)
+    ctx.textAlign = 'center'
+    text(opts.initials, 200, 288, 88, lime, 800)
+    ctx.textAlign = 'left'
+  }
+  const shade = ctx.createLinearGradient(0, 245, 0, 454)
+  shade.addColorStop(0, '#09161000')
+  shade.addColorStop(1, '#091610')
+  ctx.fillStyle = shade
+  ctx.fillRect(0, 245, width, 209)
+  ctx.restore()
+
+  text('MeuCraque', 28, 48, 30, lime, 900)
+  ctx.textAlign = 'right'
+  text('PERFIL ESPORTIVO', 372, 47, 12, '#d4e0d7', 800, 135)
+  ctx.textAlign = 'left'
+  text(opts.posicao || opts.pos || 'Atleta', 28, 404, 19, lime, 800)
+  text(opts.nome, 28, 450, 42, '#ffffff', 900)
+  const context = [opts.categoria, opts.cidade].filter(Boolean).join(' · ')
+  if (context) text(context, 28, 482, 18, '#d4e0d7', 600)
+
+  ctx.fillStyle = '#315141'
+  ctx.fillRect(28, 507, 344, 1)
+  if (opts.athleteId) text(`ID ${opts.athleteId}`, 28, 537, 15, '#d4e0d7')
+  if (opts.ovr !== null && opts.hasEvaluation) {
+    ctx.textAlign = 'right'
+    text(`OVR ${opts.ovr}`, 372, 537, 18, lime, 800, 118)
+    ctx.textAlign = 'left'
   }
 
-  // ── 4. NOME ──────────────────────────────────────────────────────────────────
-  const NAME_Y = PHOTO_Y + PHOTO_H + 10
-  const parts    = opts.nome.trim().split(' ')
-  const lastName  = (parts.length > 1 ? parts[parts.length - 1] : opts.nome).toUpperCase()
-  const firstName = (parts.length > 1 ? parts[0] : '').toUpperCase()
-
-  ctx.textAlign = 'left'; ctx.textBaseline = 'top'
-
-  // firstName — pequeno, faded
-  ctx.fillStyle = 'rgba(255,255,255,0.45)'
-  ctx.font = '600 16px system-ui, sans-serif'
-  ctx.fillText(firstName || ' ', PAD, NAME_Y)
-
-  // lastName — grande, tier color
-  ctx.fillStyle = tier.color
-  ctx.shadowColor = tier.color
-  ctx.shadowBlur = 24
-  ctx.font = `bold 56px system-ui, -apple-system, sans-serif`
-  let ln = lastName
-  while (ctx.measureText(ln).width > PHOTO_W - 4 && ln.length > 2) ln = ln.slice(0, -1)
-  if (ln !== lastName) ln += '…'
-  ctx.fillText(ln, PAD, NAME_Y + 18)
-  ctx.shadowBlur = 0
-
-  // ── 5. DIVISOR ───────────────────────────────────────────────────────────────
-  const DIV1_Y = NAME_Y + 18 + 56 + 8
-  const divGrad = ctx.createLinearGradient(PAD, 0, W - PAD, 0)
-  divGrad.addColorStop(0, 'transparent')
-  divGrad.addColorStop(0.3, `rgba(${cr},${cg},${cb},0.4)`)
-  divGrad.addColorStop(0.7, `rgba(${cr},${cg},${cb},0.4)`)
-  divGrad.addColorStop(1, 'transparent')
-  ctx.strokeStyle = divGrad; ctx.lineWidth = 1
-  ctx.beginPath(); ctx.moveTo(PAD, DIV1_Y); ctx.lineTo(W - PAD, DIV1_Y); ctx.stroke()
-
-  // ── 6. ID | BANDEIRA | OVR ───────────────────────────────────────────────────
-  const ROW1_Y = DIV1_Y + 10
-  const ROW1_H = 44
-
-  // ID
-  const mcIdNum = opts.athleteId ? opts.athleteId.replace(/^MC-/, '') : '—'
-  ctx.textAlign = 'left'; ctx.textBaseline = 'top'
-  ctx.fillStyle = 'rgba(255,255,255,0.28)'
-  ctx.font = '700 11px system-ui, sans-serif'
-  ctx.fillText('ID ÚNICO', PAD, ROW1_Y)
-  ctx.fillStyle = tier.color
-  ctx.font = 'bold 19px system-ui, sans-serif'
-  ctx.fillText(mcIdNum, PAD, ROW1_Y + 14)
-
-  // Bandeira + OVR pill — lado direito
-  const OVR_TEXT = opts.ovr != null ? String(opts.ovr) : '—'
-  const FLAG = bandeiraDoPais(opts.pais)
-
-  // Flag
-  ctx.font = '20px system-ui, sans-serif'
-  ctx.textAlign = 'right'; ctx.textBaseline = 'middle'
-  const OVR_PILL_W = 72, OVR_PILL_H = 30
-  const OVR_X = W - PAD - OVR_PILL_W - 8
-  const FLAG_X = OVR_X - 10
-  ctx.fillText(FLAG, FLAG_X, ROW1_Y + ROW1_H / 2)
-
-  // OVR pill
-  roundRect(ctx, OVR_X, ROW1_Y + (ROW1_H - OVR_PILL_H) / 2, OVR_PILL_W, OVR_PILL_H, 20)
-  ctx.fillStyle = `rgba(${cr},${cg},${cb},0.18)`
-  ctx.fill()
-  roundRect(ctx, OVR_X, ROW1_Y + (ROW1_H - OVR_PILL_H) / 2, OVR_PILL_W, OVR_PILL_H, 20)
-  ctx.strokeStyle = `rgba(${cr},${cg},${cb},0.35)`
-  ctx.lineWidth = 1
-  ctx.stroke()
-
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
-  ctx.fillStyle = 'rgba(255,255,255,0.40)'
-  ctx.font = '700 10px system-ui, sans-serif'
-  ctx.fillText('OVR', OVR_X + 22, ROW1_Y + ROW1_H / 2)
-  ctx.fillStyle = tier.color
-  ctx.font = 'bold 20px system-ui, sans-serif'
-  ctx.fillText(OVR_TEXT, OVR_X + 52, ROW1_Y + ROW1_H / 2)
-
-  // ── 7. DIVISOR ───────────────────────────────────────────────────────────────
-  const DIV2_Y = ROW1_Y + ROW1_H + 6
-  ctx.strokeStyle = `rgba(${cr},${cg},${cb},0.30)`
-  ctx.lineWidth = 1
-  ctx.beginPath(); ctx.moveTo(PAD, DIV2_Y); ctx.lineTo(W - PAD, DIV2_Y); ctx.stroke()
-
-  // ── 8. 6 ATRIBUTOS ───────────────────────────────────────────────────────────
-  const ATTRS_Y = DIV2_Y + 6
-  const ATTRS_H = 52
-  const toFifa = (v: number | null | undefined) => v != null ? String(Math.min(99, Math.max(0, Math.round(v)))) : '—'
-  const stats = [
-    { label: 'VEL', val: toFifa(opts.statPac) },
-    { label: 'TEC', val: toFifa(opts.statSho) },
-    { label: 'DRI', val: toFifa(opts.statPas) },
-    { label: 'FIS', val: toFifa(opts.statDri) },
-    { label: 'TAT', val: toFifa(opts.statDef) },
-    { label: 'POS', val: toFifa(opts.statPhy) },
-  ]
-  const hasAttr = stats.some(s => s.val !== '—')
-  const colW = PHOTO_W / 6
-
-  // Sem avaliação: linha oculta, mas o espaço é mantido (igual ao AtletaCardLanding)
-  if (hasAttr) stats.forEach((s, i) => {
-    const cx = PAD + i * colW + colW / 2
-    const cy = ATTRS_Y
-
-    if (i > 0) {
-      ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1
-      ctx.beginPath(); ctx.moveTo(PAD + i * colW, cy + 4); ctx.lineTo(PAD + i * colW, cy + ATTRS_H - 4); ctx.stroke()
-    }
-
-    ctx.textAlign = 'center'; ctx.textBaseline = 'top'
-    ctx.fillStyle = hasAttr ? tier.color : 'rgba(255,255,255,0.12)'
-    ctx.font = `bold 22px system-ui, sans-serif`
-    if (hasAttr) { ctx.shadowColor = tier.color; ctx.shadowBlur = 12 }
-    ctx.fillText(s.val, cx, cy + 4)
-    ctx.shadowBlur = 0
-
-    ctx.fillStyle = 'rgba(255,255,255,0.30)'
-    ctx.font = '700 9px system-ui, sans-serif'
-    ctx.fillText(s.label, cx, cy + 30)
-  })
-
-  // ── 9. DIVISOR ───────────────────────────────────────────────────────────────
-  const DIV3_Y = ATTRS_Y + ATTRS_H + 4
-  ctx.strokeStyle = `rgba(${cr},${cg},${cb},0.25)`
-  ctx.lineWidth = 1
-  ctx.beginPath(); ctx.moveTo(PAD, DIV3_Y); ctx.lineTo(W - PAD, DIV3_Y); ctx.stroke()
-
-  // ── 10. POSIÇÃO | CATEGORIA ──────────────────────────────────────────────────
-  const FOOT_Y = DIV3_Y + 6
-  const FOOT_H = 44
-  const footCols = [
-    { icon: '⚽', label: 'POSIÇÃO', val: (opts.posicao || opts.pos || '—').toUpperCase().slice(0, 12) },
-    { icon: '🏷️', label: 'CATEG.',  val: (opts.categoria ?? '—').toUpperCase() },
-  ]
-  const fColW = PHOTO_W / 2
-
-  footCols.forEach((fc, i) => {
-    const cx = PAD + i * fColW + fColW / 2
-    if (i > 0) {
-      ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth = 1
-      ctx.beginPath(); ctx.moveTo(PAD + i * fColW, FOOT_Y + 4); ctx.lineTo(PAD + i * fColW, FOOT_Y + FOOT_H - 4); ctx.stroke()
-    }
-    ctx.textAlign = 'center'
-    ctx.font = '14px system-ui, sans-serif'
-    ctx.fillStyle = 'rgba(255,255,255,0.6)'
-    ctx.textBaseline = 'top'
-    ctx.fillText(fc.icon, cx, FOOT_Y + 2)
-
-    ctx.fillStyle = 'rgba(255,255,255,0.28)'
-    ctx.font = '700 9px system-ui, sans-serif'
-    ctx.fillText(fc.label, cx, FOOT_Y + 20)
-
-    ctx.fillStyle = fc.val === '—' ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.75)'
-    ctx.font = 'bold 13px system-ui, sans-serif'
-    ctx.fillText(fc.val, cx, FOOT_Y + 31)
-  })
-
-  // ── 11. TAGLINE ──────────────────────────────────────────────────────────────
-  const TAG_Y = FOOT_Y + FOOT_H + 6
-  ctx.textAlign = 'center'; ctx.textBaseline = 'top'
-  ctx.fillStyle = `rgba(${cr},${cg},${cb},0.55)`
-  ctx.font = 'italic bold 11px system-ui, sans-serif'
-  ctx.fillText(tagline(opts.posicao), W / 2, TAG_Y)
-
-  // ── 12. WATERMARK ────────────────────────────────────────────────────────────
-  ctx.fillStyle = 'rgba(255,255,255,0.07)'
-  ctx.font = '9px system-ui, sans-serif'
-  ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'
-  ctx.fillText('meucraque.com', W / 2, H - 6)
+  text('Veja meu perfil completo', 28, 577, 21, '#ffffff', 800)
+  const link = opts.profileUrl.replace(/^https?:\/\/(www\.)?/, '')
+  text(link || 'meucraque.com', 28, 606, 15, lime, 700)
 }
