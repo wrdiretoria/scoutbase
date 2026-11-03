@@ -19,6 +19,15 @@ const questions = [
 
 const storageKey = 'meucraque:diagnostico:v1'
 const titles = ['Montando sua base', 'Organizando sua apresentação', 'Pronto para apresentar seu material']
+const actions = {
+  0: ['Organize sua apresentação', 'Abra sua bio, escreva posição e região e fixe um vídeo em que você aparece.', 'Ver meu perfil', '/atleta/perfil'],
+  1: ['Monte seu currículo esportivo', 'Preencha posição, categoria e cidade. Depois, abra o perfil público e confira se esses dados estão fáceis de encontrar.', 'Completar meu perfil', '/atleta/perfil'],
+  2: ['Peça um feedback de treinador', 'Mostre um lance seu e pergunte qual foi sua melhor decisão e o que faria diferente.', 'Encontrar treinadores', '/treinadores'],
+  3: ['Escolha um vídeo de jogo', 'Separe um lance em que dê para identificar você e entender o que aconteceu antes e depois da jogada.', 'Abrir meu perfil para adicionar o vídeo', '/atleta/perfil'],
+  4: ['Grave um vídeo de treino', 'Escolha uma habilidade da sua posição e grave uma execução completa.', 'Abrir meu perfil para adicionar o vídeo', '/atleta/perfil'],
+  5: ['Defina uma rotina para retomar o foco', 'No próximo treino, teste uma sequência após errar: respirar, observar o jogo e escolher a próxima ação.', 'Ver Minha Jornada', '/#journey'],
+  9: ['Escolha uma oportunidade concreta', 'Procure uma vaga da sua categoria e anote os requisitos e o material solicitado.', 'Explorar oportunidades', '/vagas'],
+} as const
 const choices = ['Ainda não', 'Em preparação', 'Sim']
 const subscribe = (callback: () => void) => {
   window.addEventListener('storage', callback)
@@ -36,12 +45,16 @@ function readAnswers(raw: string): number[] | null {
 function diagnose(answers: number[]) {
   const scored = questions.flatMap((question, index) => question[1] ? [index] : [])
   const ready = scored.filter(index => answers[index] === 2)
-  const priority = [1, 3, 0, 2, 4, 5, 9].find(index => questions[index][1] && answers[index] < 2)
-    ?? scored.find(index => answers[index] < 2)
+  const priorities = [1, 3, 0, 2, 4, 5, 9] as const
+  const priority = priorities.find(index => answers[index] < 2)
+  const score = Math.round(scored.reduce((total, index) => total + answers[index], 0) * 100 / (2 * scored.length))
   return {
-    title: titles[ready.length === scored.length ? 2 : ready.length >= 3 ? 1 : 0],
+    score,
+    title: titles[score === 100 ? 2 : score >= 50 ? 1 : 0],
     ready,
-    next: priority === undefined ? 'Revise seu perfil e compartilhe com alguém de confiança.' : questions[priority][1],
+    next: priority === undefined
+      ? ['Coloque seu perfil em circulação', 'Revise seu material e compartilhe com um treinador ou use-o em uma oportunidade da sua categoria.', 'Abrir meu perfil', '/atleta/perfil'] as const
+      : actions[priority],
   }
 }
 
@@ -50,7 +63,7 @@ export function DiagnosisSummary() {
   const answers = readAnswers(raw)
   if (!answers) return null
   const result = diagnose(answers)
-  return <p className={styles.summary}><strong>{result.title}</strong> · <Link href="/teste-seu-nivel">Ver meu diagnóstico</Link></p>
+  return <p className={styles.summary}><strong>{result.score}/100 · {result.title}</strong> · <Link href="/teste-seu-nivel">Ver meu diagnóstico</Link></p>
 }
 
 export default function Diagnosis() {
@@ -76,7 +89,9 @@ export default function Diagnosis() {
       <h1>Teste seu nível</h1>
       {result ? (
         <section aria-live="polite">
-          <p>Seu diagnóstico de preparação</p>
+          <p>Nota de preparação para oportunidades</p>
+          <p className={styles.score}><strong>{result.score}</strong><span> / 100</span></p>
+          <progress className={styles.progress} value={result.score} max={100} aria-label="Nota de preparação" />
           <h2>{result.title}</h2>
           <p>{result.ready.length} de 7 itens de preparação marcados como prontos.</p>
           {result.ready.length > 0 && (
@@ -89,11 +104,15 @@ export default function Diagnosis() {
               ][index]}</li>)}</ul>
             </>
           )}
-          <h3>Seu próximo passo</h3>
-          <p>{result.next}</p>
+          <div className={styles.next}>
+            <p>Prioridade para esta semana</p>
+            <h3>{result.next[0]}</h3>
+            <p>{result.next[1]}</p>
+            <Link className={styles.nextLink} href={result.next[3]}>{result.next[2]} →</Link>
+          </div>
+          <p>A nota mede sua preparação com base nas suas respostas. “Em preparação” vale metade dos pontos de “Sim”.</p>
           <p>{stored ? 'Resultado disponível em Minha Jornada neste navegador.' : 'O navegador não conseguiu salvar o resultado.'}</p>
           <div className={styles.actions}>
-            <Link href="/atleta/perfil">Abrir meu perfil</Link>
             <button type="button" onClick={() => { setAnswers(null); setRetake(true) }}>Refazer teste</button>
           </div>
         </section>
