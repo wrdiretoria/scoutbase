@@ -448,6 +448,14 @@ function AtletaPerfilContent() {
   ]
   const [loading,    setLoading]    = useState(true)
 
+  useEffect(() => {
+    if (loading) return
+    const section = window.location.hash.slice(1)
+    if (section === 'identidade' || section === 'highlights') {
+      document.getElementById(section)?.scrollIntoView()
+    }
+  }, [loading])
+
   const [curriculo,  setCurriculo]  = useState<Curriculo>({
     bio: '', altura: '', peso: '', peDominante: '', clubeAtual: '',
     telefone: '', clubesAnteriores: '', campeonatos: '', titulos: '', premiacoes: '',
@@ -1143,7 +1151,7 @@ function AtletaPerfilContent() {
             </div>
           </div>
 
-          <div style={{ padding:'28px 20px 20px' }}>
+          <div id="identidade" style={{ padding:'28px 20px 20px', scrollMarginTop: 80 }}>
 
             {/* ── Identidade: exibição ou edição inline ── */}
             {editingId ? (
@@ -1993,7 +2001,7 @@ function AtletaPerfilContent() {
         {/* ══════════════════════════════════════════
             HIGHLIGHTS — vídeos via link
         ══════════════════════════════════════════ */}
-        <div style={{ marginBottom:'24px' }}>
+        <div id="highlights" style={{ marginBottom:'24px', scrollMarginTop: 80 }}>
 
           {/* Header */}
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'12px' }}>

@@ -84,9 +84,9 @@ export default async function FeedPage() {
   const posicao = user?.user_metadata?.posicao
   const nextStep = user && tipo === 'atleta'
     ? typeof posicao !== 'string' || !posicao.trim()
-      ? { label: 'Informar minha posição', href: perfil }
+      ? { label: 'Informar minha posição', href: '/atleta/perfil#identidade' }
       : hasHighlight === false
-        ? { label: 'Adicionar vídeo de destaque', href: perfil }
+        ? { label: 'Adicionar vídeo de destaque', href: '/atleta/perfil#highlights' }
         : hasHighlight === true
           ? { label: 'Ver meu perfil público', href: `/jogador/${user.id}` }
           : { label: 'Revisar meu perfil', href: perfil }
@@ -155,7 +155,7 @@ export default async function FeedPage() {
             {user ? <>
               <span className={styles.eyebrow}>SEU FUTEBOL. SUA TRAJETÓRIA.</span>
               <h1>Bem-vindo, <em>{firstName}!</em></h1>
-              <p>Acompanhe sua evolução, conecte-se e descubra novas oportunidades.</p>
+              <p>{nextStep ? 'Minha Jornada · Seu próximo passo' : 'Acompanhe sua evolução, conecte-se e descubra novas oportunidades.'}</p>
             </> : <>
 
               <h1>CRIE SEU PERFIL E SE CONECTE COM OPORTUNIDADES</h1>
@@ -163,7 +163,9 @@ export default async function FeedPage() {
             </>}
           </div>
           <div className={styles.heroNetwork}>
-            {user ? <>
+            {nextStep ? (
+              <Link href={nextStep.href} className={styles.heroCta}>{nextStep.label} <span aria-hidden="true">›</span></Link>
+            ) : user ? <>
               <div className={styles.networkStat}><Icon name="users" size={18} /><span><strong>{stats?.connections ?? 0}</strong> {(stats?.connections ?? 0) === 1 ? 'conexão' : 'conexões'}</span></div>
               <Link href={perfil} className={styles.heroCta}>Completar perfil <span aria-hidden="true">›</span></Link>
             </> : <div className={styles.guestHeroActions}>

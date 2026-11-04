@@ -21,10 +21,10 @@ const storageKey = 'meucraque:diagnostico:v1'
 const titles = ['Montando sua base', 'Organizando sua apresentação', 'Pronto para apresentar seu material']
 const actions = {
   0: ['Organize sua apresentação', 'Abra sua bio, escreva posição e região e fixe um vídeo em que você aparece.', 'Ver meu perfil', '/atleta/perfil'],
-  1: ['Monte seu currículo esportivo', 'Preencha posição, categoria e cidade. Depois, abra o perfil público e confira se esses dados estão fáceis de encontrar.', 'Completar meu perfil', '/atleta/perfil'],
+  1: ['Monte seu currículo esportivo', 'Preencha posição, categoria e cidade. Depois, abra o perfil público e confira se esses dados estão fáceis de encontrar.', 'Completar meu perfil', '/atleta/perfil#identidade'],
   2: ['Peça um feedback de treinador', 'Mostre um lance seu e pergunte qual foi sua melhor decisão e o que faria diferente.', 'Encontrar treinadores', '/treinadores'],
-  3: ['Escolha um vídeo de jogo', 'Separe um lance em que dê para identificar você e entender o que aconteceu antes e depois da jogada.', 'Abrir meu perfil para adicionar o vídeo', '/atleta/perfil'],
-  4: ['Grave um vídeo de treino', 'Escolha uma habilidade da sua posição e grave uma execução completa.', 'Abrir meu perfil para adicionar o vídeo', '/atleta/perfil'],
+  3: ['Escolha um vídeo de jogo', 'Separe um lance em que dê para identificar você e entender o que aconteceu antes e depois da jogada.', 'Adicionar vídeo ao meu perfil', '/atleta/perfil#highlights'],
+  4: ['Grave um vídeo de treino', 'Escolha uma habilidade da sua posição e grave uma execução completa.', 'Adicionar vídeo ao meu perfil', '/atleta/perfil#highlights'],
   5: ['Defina uma rotina para retomar o foco', 'No próximo treino, teste uma sequência após errar: respirar, observar o jogo e escolher a próxima ação.', 'Ver Minha Jornada', '/#journey'],
   9: ['Escolha uma oportunidade concreta', 'Procure uma vaga da sua categoria e anote os requisitos e o material solicitado.', 'Explorar oportunidades', '/vagas'],
 } as const
