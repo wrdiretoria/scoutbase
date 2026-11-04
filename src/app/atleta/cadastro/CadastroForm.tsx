@@ -203,16 +203,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
 
       const userId = data.user.id
 
-      // 3. Registrar indicação se houver código de referência
-      if (refCode) {
-        try {
-          await fetch('/api/indicacao/registrar', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ refCode, newUserId: userId }),
-          })
-        } catch { /* indicação falhou — não bloqueia */ }
-      }
+      // 3. Indicação: vai junto no salvar-perfil — o servidor só confirma com o cadastro completo
 
       // 4. Upload da foto via API (admin client — sem RLS)
       let avatarUrl: string | null = null
@@ -251,6 +242,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
           avatarUrl,
           recoveryEmail: recoveryEmail.trim().toLowerCase() || null,
           ...(escolaId ? { escolaId } : {}),
+          ...(refCode ? { refCode } : {}),
         }),
       })
 
@@ -734,3 +726,4 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
     </main>
   )
 }
+
