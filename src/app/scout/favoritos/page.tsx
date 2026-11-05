@@ -79,7 +79,7 @@ export default function ScoutFavoritosPage() {
   }
 
   return (
-    <main style={{ background: '#06100a', minHeight: '100dvh', fontFamily: 'system-ui, sans-serif', color: 'white' }}>
+    <main style={{ background: 'var(--mc-canvas)', minHeight: '100dvh', fontFamily: 'inherit', color: 'white' }}>
       <style>{`
         @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
         .fav-card { animation: fadeUp .35s ease forwards; transition: background .2s, border-color .2s; }

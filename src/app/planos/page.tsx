@@ -68,8 +68,8 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 export default function PlanosPage() {
   return (
     <main style={{
-      background: '#06100a', minHeight: '100vh',
-      fontFamily: 'system-ui, sans-serif', color: 'white',
+      background: 'var(--mc-canvas)', minHeight: '100vh',
+      fontFamily: 'inherit', color: 'white',
     }}>
       <style>{`
         .plan-card { transition: transform 0.2s, border-color 0.2s; }
@@ -86,7 +86,7 @@ export default function PlanosPage() {
         backdropFilter: 'blur(20px)', zIndex: 10,
       }}>
         <Link href="/" style={{ fontSize: '16px', fontWeight: 800, color: 'white', textDecoration: 'none' }}>
-          ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+          ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
         <Link href="/atleta/cadastro" style={{
           padding: '8px 16px', borderRadius: '10px', background: '#22c55e',

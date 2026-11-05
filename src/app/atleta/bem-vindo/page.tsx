@@ -287,7 +287,7 @@ function BemVindoContent() {
       padding: '32px 20px',
       paddingTop: 'max(32px, env(safe-area-inset-top))',
       paddingBottom: 'max(48px, env(safe-area-inset-bottom))',
-      fontFamily: 'system-ui, sans-serif',
+      fontFamily: 'inherit',
       position: 'relative',
     }}>
 
@@ -374,11 +374,11 @@ function BemVindoContent() {
 
         {/* ── Badge topo ── */}
         <div className="anim-badge" style={{ display:'flex', alignItems:'center', gap:'8px' }}>
-          <div style={{ width:'6px', height:'6px', borderRadius:'50%', background:'#00FF88', boxShadow:'0 0 10px #00FF88', animation:'dotPulse 2s ease-in-out infinite' }} />
+          <div style={{ width:'6px', height:'6px', borderRadius:'50%', background: 'var(--mc-accent)', boxShadow:'0 0 10px #00FF88', animation:'dotPulse 2s ease-in-out infinite' }} />
           <span style={{ fontSize:'11px', fontWeight:700, letterSpacing:'0.14em', color:'rgba(0,255,136,0.75)', textTransform:'uppercase' }}>
             Perfil criado
           </span>
-          <div style={{ width:'6px', height:'6px', borderRadius:'50%', background:'#00FF88', boxShadow:'0 0 10px #00FF88', animation:'dotPulse 2s ease-in-out infinite 0.3s' }} />
+          <div style={{ width:'6px', height:'6px', borderRadius:'50%', background: 'var(--mc-accent)', boxShadow:'0 0 10px #00FF88', animation:'dotPulse 2s ease-in-out infinite 0.3s' }} />
         </div>
 
         {/* ══════════════════════════════════════
@@ -531,7 +531,7 @@ function BemVindoContent() {
                     WebkitBackdropFilter:'blur(20px)',
                     border:'1px solid rgba(0,255,136,0.4)',
                     borderRadius:'10px', padding:'5px 13px',
-                    fontSize:'10px', fontWeight:800, color:'#00FF88',
+                    fontSize:'10px', fontWeight:800, color: 'var(--mc-accent)',
                     letterSpacing:'0.10em',
                     boxShadow:'0 0 16px rgba(0,255,136,0.18), inset 0 1px 0 rgba(255,255,255,0.08)',
                     textShadow:'0 0 12px rgba(0,255,136,0.6)',
@@ -583,7 +583,7 @@ function BemVindoContent() {
                     borderRadius:'8px', padding:'5px 14px',
                     boxShadow:'0 0 14px rgba(0,255,136,0.1), inset 0 1px 0 rgba(255,255,255,0.07)',
                   }}>
-                    <span style={{ fontSize:'12px', fontWeight:900, color:'#00FF88', letterSpacing:'0.10em' }}>{posAbrev}</span>
+                    <span style={{ fontSize:'12px', fontWeight:900, color: 'var(--mc-accent)', letterSpacing:'0.10em' }}>{posAbrev}</span>
                   </div>
 
                   {cidade && (
@@ -690,7 +690,7 @@ function BemVindoContent() {
           width:'100%',
         }}>
           <div style={{
-            width:'8px', height:'8px', borderRadius:'50%', background:'#00FF88',
+            width:'8px', height:'8px', borderRadius:'50%', background: 'var(--mc-accent)',
             flexShrink:0, boxShadow:'0 0 10px #00FF88',
             animation:'dotPulse 2.2s ease-in-out infinite',
           }} />
@@ -726,7 +726,7 @@ function BemVindoContent() {
             <div style={{ flex: 1, minWidth: 0 }}>
               <p style={{
                 margin: '0 0 4px', fontSize: '14px', fontWeight: 900,
-                color: '#00FF88', letterSpacing: '-0.01em',
+                color: 'var(--mc-accent)', letterSpacing: '-0.01em',
               }}>
                 Qual seu estilo de jogo?
               </p>
@@ -929,7 +929,7 @@ function BemVindoContent() {
             style={{
               marginTop: '14px', background: 'none', border: 'none',
               color: 'rgba(255,255,255,0.3)', fontSize: '14px',
-              cursor: 'pointer', fontFamily: 'system-ui, sans-serif',
+              cursor: 'pointer', fontFamily: 'inherit',
               padding: '8px 24px',
             }}
           >

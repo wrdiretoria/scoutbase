@@ -64,14 +64,14 @@ export default function ClubeVagasPage() {
 
   if (loading) {
     return (
-      <main style={{ background: '#06100a', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px', fontFamily: 'system-ui, sans-serif' }}>Carregando…</p>
+      <main style={{ background: 'var(--mc-canvas)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '13px', fontFamily: 'inherit' }}>Carregando…</p>
       </main>
     )
   }
 
   return (
-    <main style={{ background: '#06100a', minHeight: '100vh', fontFamily: 'system-ui, sans-serif', color: 'white', padding: '24px 20px 100px' }}>
+    <main style={{ background: 'var(--mc-canvas)', minHeight: '100vh', fontFamily: 'inherit', color: 'white', padding: '24px 20px 100px' }}>
       <div style={{ maxWidth: '560px', margin: '0 auto' }}>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
@@ -88,7 +88,7 @@ export default function ClubeVagasPage() {
         {vagas !== null && vagas.length === 0 && (
           <div style={{
             padding: '32px', borderRadius: '16px', textAlign: 'center',
-            background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
+            background: 'var(--mc-surface)', border: '1px solid rgba(255,255,255,0.07)',
           }}>
             <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.35)' }}>
               Você ainda não publicou nenhuma vaga.
@@ -99,7 +99,7 @@ export default function ClubeVagasPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {vagas?.map(v => (
             <div key={v.id} style={{
-              background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
+              background: 'var(--mc-surface)', border: '1px solid rgba(255,255,255,0.07)',
               borderRadius: '16px', padding: '16px',
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
@@ -125,7 +125,7 @@ export default function ClubeVagasPage() {
                   style={{
                     padding: '7px 14px', borderRadius: '100px', border: '1px solid rgba(255,255,255,0.1)',
                     background: 'rgba(255,255,255,0.03)', color: 'rgba(255,255,255,0.6)',
-                    fontWeight: 700, fontSize: '12px', cursor: 'pointer', fontFamily: 'system-ui, sans-serif',
+                    fontWeight: 700, fontSize: '12px', cursor: 'pointer', fontFamily: 'inherit',
                   }}
                 >
                   {expandido === v.id ? 'Ocultar candidatos' : 'Ver candidatos'}
@@ -137,7 +137,7 @@ export default function ClubeVagasPage() {
                     padding: '7px 14px', borderRadius: '100px', border: '1px solid rgba(255,255,255,0.1)',
                     background: 'transparent', color: 'rgba(255,255,255,0.4)',
                     fontWeight: 700, fontSize: '12px', cursor: fechando === v.id ? 'default' : 'pointer',
-                    fontFamily: 'system-ui, sans-serif',
+                    fontFamily: 'inherit',
                   }}
                 >
                   {v.status === 'open' ? 'Fechar vaga' : 'Reabrir vaga'}

@@ -78,7 +78,7 @@ export default async function ClubePage({ params }: Props) {
     .order('created_at', { ascending: false })
 
   return (
-    <main style={{ background: '#06100a', minHeight: '100vh', fontFamily: 'system-ui, sans-serif', color: 'white', padding: '24px 20px 60px' }}>
+    <main style={{ background: 'var(--mc-canvas)', minHeight: '100vh', fontFamily: 'inherit', color: 'white', padding: '24px 20px 60px' }}>
       <div style={{ maxWidth: '560px', margin: '0 auto' }}>
 
         <Link
@@ -132,7 +132,7 @@ export default async function ClubePage({ params }: Props) {
         {(vagas ?? []).length === 0 ? (
           <div style={{
             padding: '24px', borderRadius: '16px', textAlign: 'center',
-            background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
+            background: 'var(--mc-surface)', border: '1px solid rgba(255,255,255,0.07)',
           }}>
             <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.35)' }}>
               Nenhuma vaga aberta no momento.
@@ -142,7 +142,7 @@ export default async function ClubePage({ params }: Props) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {(vagas ?? []).map(v => (
               <div key={v.id} style={{
-                background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
+                background: 'var(--mc-surface)', border: '1px solid rgba(255,255,255,0.07)',
                 borderRadius: '16px', padding: '16px',
               }}>
                 <p style={{ margin: '0 0 4px', fontSize: '15px', fontWeight: 800, color: 'white' }}>{v.title}</p>

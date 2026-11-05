@@ -29,7 +29,7 @@ export default async function RecomendacoesPage({ params }: Props) {
   } catch { /* visitante anônimo */ }
 
   return (
-    <main style={{ background: '#06100a', minHeight: '100vh', fontFamily: 'system-ui, sans-serif', padding: '24px 20px 60px' }}>
+    <main style={{ background: 'var(--mc-canvas)', minHeight: '100vh', fontFamily: 'inherit', padding: '24px 20px 60px' }}>
       <div style={{ maxWidth: '380px', margin: '0 auto' }}>
         <Link
           href={`/jogador/${id}`}

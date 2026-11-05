@@ -178,7 +178,7 @@ function CompartilharContent() {
       padding: '28px 20px',
       paddingTop: 'max(28px, env(safe-area-inset-top))',
       paddingBottom: 'max(40px, env(safe-area-inset-bottom))',
-      fontFamily: 'system-ui, sans-serif',
+      fontFamily: 'inherit',
     }}>
 
       <style>{`
@@ -250,7 +250,7 @@ function CompartilharContent() {
             ← Voltar
           </button>
           <Link href="/" style={{ fontSize: '14px', fontWeight: 800, color: 'white', textDecoration: 'none', opacity: .55 }}>
-            ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+            ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
           </Link>
           <div style={{ width: '60px' }} />
         </div>
@@ -262,12 +262,12 @@ function CompartilharContent() {
             padding: '5px 14px', borderRadius: '100px',
             background: 'rgba(0,255,136,.08)', border: '1px solid rgba(0,255,136,.2)',
           }}>
-            <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#00FF88', boxShadow: '0 0 8px #00FF88', animation: 'dotPulse 2s ease-in-out infinite' }} />
+            <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'var(--mc-accent)', boxShadow: '0 0 8px #00FF88', animation: 'dotPulse 2s ease-in-out infinite' }} />
             <span style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '.14em', color: 'rgba(0,255,136,.85)', textTransform: 'uppercase' }}>Card Oficial</span>
           </div>
           <h1 style={{ margin: 0, fontSize: 'clamp(30px,9vw,38px)', fontWeight: 900, color: 'white', letterSpacing: '-.04em', lineHeight: 1.05 }}>
             Minha jornada<br />
-            <span style={{ color: '#00FF88', textShadow: '0 0 40px rgba(0,255,136,.5)' }}>começou.</span>
+            <span style={{ color: 'var(--mc-accent)', textShadow: '0 0 40px rgba(0,255,136,.5)' }}>começou.</span>
           </h1>
         </div>
 
@@ -287,7 +287,7 @@ function CompartilharContent() {
               <canvas ref={canvasRef} style={{ display: 'block', width: '100%', height: 'auto', opacity: canvasReady ? 1 : 0, transition: 'opacity .35s ease' }} />
               {!canvasReady && (
                 <div style={{ position: 'absolute', inset: 0, background: '#080f0a', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', minHeight: '220px' }}>
-                  <div style={{ width: 30, height: 30, borderRadius: '50%', border: '2.5px solid rgba(0,255,136,0.3)', borderTopColor: '#00FF88', animation: 'cardSpin .7s linear infinite' }} />
+                  <div style={{ width: 30, height: 30, borderRadius: '50%', border: '2.5px solid rgba(0,255,136,0.3)', borderTopcolor: 'var(--mc-accent)', animation: 'cardSpin .7s linear infinite' }} />
                   <style>{`@keyframes cardSpin { to { transform: rotate(360deg) } }`}</style>
                   <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255,255,255,0.25)', fontFamily: 'system-ui' }}>Gerando card…</p>
                 </div>

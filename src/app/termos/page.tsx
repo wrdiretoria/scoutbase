@@ -80,7 +80,7 @@ function Divider() {
 export default function TermosPage() {
   return (
     <main style={{
-      background: '#06100a',
+      background: 'var(--mc-canvas)',
       minHeight: '100vh',
       fontFamily: 'system-ui, -apple-system, sans-serif',
       color: 'white',
@@ -110,7 +110,7 @@ export default function TermosPage() {
 
         <Link href="/" style={{ fontWeight: 800, textDecoration: 'none', fontSize: '16px' }}>
           <span style={{ marginRight: '4px' }}>⚽</span>
-          <span style={{ color: '#00ff87' }}>MEUCRAQUE</span>
+          <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span>
           <span style={{ color: 'white' }}>.com</span>
         </Link>
 

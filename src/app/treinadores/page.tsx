@@ -100,8 +100,8 @@ export default async function TreinadoresPage() {
 
   return (
     <main style={{
-      background: '#06100a', minHeight: '100vh',
-      fontFamily: 'system-ui, sans-serif', color: 'white',
+      background: 'var(--mc-canvas)', minHeight: '100vh',
+      fontFamily: 'inherit', color: 'white',
     }}>
       {/* Nav */}
       <nav style={{
@@ -111,7 +111,7 @@ export default async function TreinadoresPage() {
         backdropFilter: 'blur(20px)', zIndex: 10,
       }}>
         <Link href="/" style={{ fontSize: '16px', fontWeight: 800, textDecoration: 'none', letterSpacing: '-0.01em' }}>
-          ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+          ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
         <Link href="/treinador/cadastro" style={{
           padding: '8px 16px', borderRadius: '10px', background: '#22c55e',

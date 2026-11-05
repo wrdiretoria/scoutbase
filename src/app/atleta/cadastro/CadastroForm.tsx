@@ -285,7 +285,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '14px 16px', borderRadius: '12px', boxSizing: 'border-box',
     background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-    color: 'white', fontSize: '16px', outline: 'none', fontFamily: 'system-ui, sans-serif',
+    color: 'white', fontSize: '16px', outline: 'none', fontFamily: 'inherit',
     transition: 'border-color .2s, box-shadow .2s',
   }
   const labelStyle: React.CSSProperties = {
@@ -296,12 +296,12 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
 
   return (
     <main style={{
-      background: '#06100a', minHeight: '100dvh',
+      background: 'var(--mc-canvas)', minHeight: '100dvh',
       display: 'flex', flexDirection: 'column', alignItems: 'center',
       padding: '24px',
       paddingTop: 'max(24px, env(safe-area-inset-top))',
       paddingBottom: 'max(32px, env(safe-area-inset-bottom))',
-      fontFamily: 'system-ui, sans-serif',
+      fontFamily: 'inherit',
     }}>
       <div style={{ width: '100%', maxWidth: '380px', margin: 'auto 0' }}>
 
@@ -573,7 +573,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
                         background: active ? 'rgba(34,197,94,0.1)' : 'rgba(255,255,255,0.04)',
                         color: active ? '#22c55e' : 'rgba(255,255,255,0.5)',
                         fontWeight: 700, fontSize: '14px',
-                        transition: 'all 0.2s', fontFamily: 'system-ui, sans-serif',
+                        transition: 'all 0.2s', fontFamily: 'inherit',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
                       }}
                     >
@@ -590,9 +590,9 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
                 required value={posicao} onChange={e => setPosicao(e.target.value)}
                 style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}
               >
-                <option value="" disabled style={{ background: '#06100a' }}>Selecione sua posição</option>
+                <option value="" disabled style={{ background: 'var(--mc-canvas)' }}>Selecione sua posição</option>
                 {posicoes.map(p => (
-                  <option key={p} value={p} style={{ background: '#06100a' }}>{p}</option>
+                  <option key={p} value={p} style={{ background: 'var(--mc-canvas)' }}>{p}</option>
                 ))}
               </select>
             </div>
@@ -613,7 +613,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
                   '—',
                   'Outro',
                 ].map(p => (
-                  <option key={p} value={p} disabled={p === '—'} style={{ background: '#06100a' }}>{p === '—' ? '──────────' : p}</option>
+                  <option key={p} value={p} disabled={p === '—'} style={{ background: 'var(--mc-canvas)' }}>{p === '—' ? '──────────' : p}</option>
                 ))}
               </select>
             </div>
@@ -626,9 +626,9 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
                   required value={estado} onChange={e => { setEstado(e.target.value); setCidade('') }}
                   style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}
                 >
-                  <option value="" disabled style={{ background: '#06100a' }}>Selecione o estado</option>
+                  <option value="" disabled style={{ background: 'var(--mc-canvas)' }}>Selecione o estado</option>
                   {ESTADOS_BR.map(uf => (
-                    <option key={uf} value={uf} style={{ background: '#06100a' }}>{uf}</option>
+                    <option key={uf} value={uf} style={{ background: 'var(--mc-canvas)' }}>{uf}</option>
                   ))}
                 </select>
               </div>
@@ -643,11 +643,11 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
                   disabled={!estado}
                   style={{ ...inputStyle, appearance: 'none', cursor: estado ? 'pointer' : 'default', opacity: estado ? 1 : 0.4 }}
                 >
-                  <option value="" disabled style={{ background: '#06100a' }}>
+                  <option value="" disabled style={{ background: 'var(--mc-canvas)' }}>
                     {estado ? 'Selecione a cidade' : 'Selecione o estado primeiro'}
                   </option>
                   {(CIDADES_BR[estado] ?? []).map(c => (
-                    <option key={c} value={c} style={{ background: '#06100a' }}>{c}</option>
+                    <option key={c} value={c} style={{ background: 'var(--mc-canvas)' }}>{c}</option>
                   ))}
                 </select>
               ) : (CIDADES_INTL[pais] ?? []).length > 0 ? (
@@ -655,9 +655,9 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
                   required value={cidade} onChange={e => setCidade(e.target.value)}
                   style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}
                 >
-                  <option value="" disabled style={{ background: '#06100a' }}>Selecione a cidade</option>
+                  <option value="" disabled style={{ background: 'var(--mc-canvas)' }}>Selecione a cidade</option>
                   {(CIDADES_INTL[pais] ?? []).map(c => (
-                    <option key={c} value={c} style={{ background: '#06100a' }}>{c}</option>
+                    <option key={c} value={c} style={{ background: 'var(--mc-canvas)' }}>{c}</option>
                   ))}
                 </select>
               ) : (

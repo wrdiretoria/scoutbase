@@ -5,12 +5,12 @@ import Link from 'next/link'
 export default function OfflinePage() {
   return (
     <main style={{
-      background: '#06100a',
+      background: 'var(--mc-canvas)',
       minHeight: '100dvh',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontFamily: 'system-ui, sans-serif',
+      fontFamily: 'inherit',
       color: 'white',
       padding: '24px',
     }}>
@@ -28,7 +28,7 @@ export default function OfflinePage() {
         </div>
 
         <Link href="/" aria-label="MeuCraque, início" style={{ margin: '0 0 6px', fontSize: '10px', fontWeight: 800, letterSpacing: '0.1em' }} className="inline-block no-underline text-inherit">
-          ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+          ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
 
         <h1 style={{ margin: '0 0 12px', fontSize: '24px', fontWeight: 900, letterSpacing: '-0.02em' }}>

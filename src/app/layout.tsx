@@ -68,7 +68,7 @@ export default function RootLayout({
       lang="pt-BR"
       className={`${bebasNeue.variable} ${dmSans.variable} antialiased`}
     >
-      <body className="font-[family-name:var(--font-dm-sans)]">
+      <body className="mc-site font-[family-name:var(--font-dm-sans)]">
         {children}
         <ServiceWorkerRegister />
       </body>

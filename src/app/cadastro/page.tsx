@@ -4,10 +4,10 @@ import Link from 'next/link'
 export default function EscolhaPerfilPage() {
   return (
     <main style={{
-      background: '#06100a', minHeight: '100vh',
+      background: 'var(--mc-canvas)', minHeight: '100vh',
       display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
-      padding: '24px', fontFamily: 'system-ui, sans-serif',
+      padding: '24px', fontFamily: 'inherit',
     }}>
       <style>{`
         .perfil-card {
@@ -33,7 +33,7 @@ export default function EscolhaPerfilPage() {
       {/* Logo */}
       <div style={{ marginBottom: '48px', textAlign: 'center' }}>
         <Link href="/" style={{ fontSize: '20px', fontWeight: 800, letterSpacing: '-0.01em', textDecoration: 'none' }}>
-          ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+          ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
         <p style={{ marginTop: '8px', fontSize: '14px', color: 'rgba(255,255,255,0.4)' }}>
           Quem é você no jogo?

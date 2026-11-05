@@ -250,7 +250,7 @@ function AvaliacaoDetalhada({ respostas }: { respostas: Record<string, number> &
           </p>
           <div style={{ display:'flex', flexWrap:'wrap', gap:'7px' }}>
             {fortes.map((q: QuestionDef) => (
-              <span key={q.key} style={{ padding:'3px 10px', borderRadius:'100px', fontSize:'11px', fontWeight:700, background:'rgba(0,255,136,0.1)', border:'1px solid rgba(0,255,136,0.2)', color:'#00FF88' }}>
+              <span key={q.key} style={{ padding:'3px 10px', borderRadius:'100px', fontSize:'11px', fontWeight:700, background:'rgba(0,255,136,0.1)', border:'1px solid rgba(0,255,136,0.2)', color: 'var(--mc-accent)' }}>
                 {q.icon} {q.label}
               </span>
             ))}
@@ -386,7 +386,7 @@ function IndicacaoSection({ athleteId }: { athleteId: string }) {
             padding:'9px 14px', borderRadius:'10px', cursor:'pointer', flexShrink:0,
             background: copied ? '#1e40af' : 'rgba(96,165,250,0.15)',
             color: copied ? 'white' : '#60a5fa',
-            fontWeight:700, fontSize:'12px', fontFamily:'system-ui, sans-serif',
+            fontWeight:700, fontSize:'12px', fontFamily: 'inherit',
             border:'1px solid rgba(96,165,250,0.25)',
             transition:'all 0.2s',
           }}
@@ -401,7 +401,7 @@ function IndicacaoSection({ athleteId }: { athleteId: string }) {
           width:'100%', padding:'10px', borderRadius:'10px', cursor:'pointer',
           background:'linear-gradient(135deg,rgba(96,165,250,0.15),rgba(167,139,250,0.15))',
           color:'rgba(255,255,255,0.7)', fontWeight:700, fontSize:'13px',
-          fontFamily:'system-ui, sans-serif',
+          fontFamily: 'inherit',
           border:'1px solid rgba(96,165,250,0.2)',
           display:'flex', alignItems:'center', justifyContent:'center', gap:'8px',
         }}
@@ -881,10 +881,10 @@ function AtletaPerfilContent() {
   // ── Loading — skeleton ───────────────────────────────────────
   if (loading) {
     return (
-      <main className="mc-screen" style={{ background: 'var(--mc-canvas)', minHeight: '100dvh', fontFamily: 'system-ui, sans-serif' }}>
+      <main className="mc-screen" style={{ background: 'var(--mc-canvas)', minHeight: '100dvh', fontFamily: 'inherit' }}>
         {/* Nav */}
         <nav style={{ padding: '16px 24px', paddingTop: 'calc(16px + env(safe-area-inset-top))', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-          <Link href="/" aria-label="MeuCraque, início" style={{ fontSize: '16px', fontWeight: 800, color: 'white' }} className="inline-block no-underline text-inherit">⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span></Link>
+          <Link href="/" aria-label="MeuCraque, início" style={{ fontSize: '16px', fontWeight: 800, color: 'white' }} className="inline-block no-underline text-inherit">⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span></Link>
           <div className="skel" style={{ width: 32, height: 12, borderRadius: 6 }} />
         </nav>
         <div style={{ maxWidth: '480px', margin: '0 auto', padding: '28px 20px 80px' }}>
@@ -1035,7 +1035,7 @@ function AtletaPerfilContent() {
       {/* ── Nav ── */}
       <nav style={{ padding:'16px 24px', paddingTop:'calc(16px + env(safe-area-inset-top))', display:'flex', alignItems:'center', justifyContent:'space-between', borderBottom:'1px solid rgba(255,255,255,0.06)' }}>
         <Link href="/" style={{ fontSize:'16px', fontWeight:800, color:'white', textDecoration:'none', letterSpacing:'0.03em' }}>
-          ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+          ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
         <button
           onClick={async () => { const s = createClient(); await s.auth.signOut(); router.push('/') }}
@@ -1289,7 +1289,7 @@ function AtletaPerfilContent() {
                 <span style={{ fontSize:'10px', fontWeight:700, letterSpacing:'0.10em', color:'rgba(255,255,255,0.35)', textTransform:'uppercase' }}>
                   OVR oficial
                 </span>
-                <span style={{ fontSize:'20px', fontWeight:900, color:'#00FF88', fontVariantNumeric:'tabular-nums', textShadow:'0 0 12px rgba(0,255,136,0.5)' }}>
+                <span style={{ fontSize:'20px', fontWeight:900, color: 'var(--mc-accent)', fontVariantNumeric:'tabular-nums', textShadow:'0 0 12px rgba(0,255,136,0.5)' }}>
                   {ovrTotal}<span style={{ fontSize:'9px', fontWeight:600, color:'rgba(255,255,255,0.25)', marginLeft:'2px' }}>/100</span>
                 </span>
               </div>
@@ -1314,7 +1314,7 @@ function AtletaPerfilContent() {
                   Perfil {perfil.pct}% completo
                 </span>
                 {perfil.pct === 100 && (
-                  <span style={{ fontSize:'10px', fontWeight:800, color:'#00FF88' }}>✓ Completo</span>
+                  <span style={{ fontSize:'10px', fontWeight:800, color: 'var(--mc-accent)' }}>✓ Completo</span>
                 )}
               </div>
               <div style={{ height:'5px', background:'rgba(255,255,255,0.07)', borderRadius:'3px', overflow:'hidden' }}>
@@ -1460,7 +1460,7 @@ function AtletaPerfilContent() {
               <p style={{ margin:'0 0 2px', fontSize:'10px', fontWeight:700, letterSpacing:'0.12em', color:'rgba(0,255,136,0.7)', textTransform:'uppercase' }}>
                 Seu ID de Atleta
               </p>
-              <p style={{ margin:0, fontSize:'26px', fontWeight:900, color:'#00FF88', letterSpacing:'0.06em', lineHeight:1 }}>
+              <p style={{ margin:0, fontSize:'26px', fontWeight:900, color: 'var(--mc-accent)', letterSpacing:'0.06em', lineHeight:1 }}>
                 {athleteId.replace('MC-', '')}
               </p>
             </div>
@@ -1479,7 +1479,7 @@ function AtletaPerfilContent() {
             { label:'Scouts',        val: favoritoCount > 0 ? favoritoCount.toLocaleString('pt-BR') : '—', sub:'salvaram você', color: favoritoCount > 0 ? '#fbbf24' : 'rgba(255,255,255,0.2)' },
           ].map(s => (
             <div key={s.label} style={{
-              background:'#0b1610', border:'1px solid rgba(255,255,255,0.06)',
+              background: 'var(--mc-surface)', border:'1px solid rgba(255,255,255,0.06)',
               borderRadius:'14px', padding:'14px 10px', textAlign:'center',
             }}>
               <p style={{ margin:'0 0 2px', fontSize:'20px', fontWeight:900, color: s.color }}>{s.val}</p>
@@ -1550,7 +1550,7 @@ function AtletaPerfilContent() {
           }}>
             <div style={{
               width:'38px', height:'38px', borderRadius:'50%', flexShrink:0,
-              background:'#00FF88',
+              background: 'var(--mc-accent)',
               display:'flex', alignItems:'center', justifyContent:'center',
               fontSize:'16px', fontWeight:900, color:'#020d04',
               boxShadow:'0 0 14px rgba(0,255,136,0.4)',
@@ -1558,7 +1558,7 @@ function AtletaPerfilContent() {
               ✓
             </div>
             <div style={{ flex:1, minWidth:0 }}>
-              <p style={{ margin:'0 0 2px', fontSize:'10px', fontWeight:800, color:'#00FF88', letterSpacing:'0.10em', textTransform:'uppercase' }}>
+              <p style={{ margin:'0 0 2px', fontSize:'10px', fontWeight:800, color: 'var(--mc-accent)', letterSpacing:'0.10em', textTransform:'uppercase' }}>
                 Última avaliação oficial
               </p>
               <p style={{ margin:0, fontSize:'12px', color:'rgba(255,255,255,0.42)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
@@ -1622,7 +1622,7 @@ function AtletaPerfilContent() {
                 🎟️
               </div>
               <div style={{ flex:1 }}>
-                <p style={{ margin:'0 0 2px', fontSize:'13px', fontWeight:800, color:'#00FF88' }}>
+                <p style={{ margin:'0 0 2px', fontSize:'13px', fontWeight:800, color: 'var(--mc-accent)' }}>
                   {!avaliacao ? 'Sua 1ª avaliação é gratuita!' : 'Solicitar avaliação'}
                 </p>
                 <p style={{ margin:0, fontSize:'11px', color: !avaliacao ? 'rgba(0,255,136,0.6)' : 'rgba(255,255,255,0.4)' }}>
@@ -1664,7 +1664,7 @@ function AtletaPerfilContent() {
                 <p style={{ margin:0, fontSize:'12px', color:'#ef4444' }}>{conviteErro}</p>
               )}
               {conviteEnviado && (
-                <p style={{ margin:0, fontSize:'12px', color:'#00FF88' }}>
+                <p style={{ margin:0, fontSize:'12px', color: 'var(--mc-accent)' }}>
                   ✓ Solicitação enviada! O treinador receberá e poderá te avaliar.
                 </p>
               )}
@@ -1681,7 +1681,7 @@ function AtletaPerfilContent() {
               ⚽
             </div>
             <div style={{ flex:1 }}>
-              <p style={{ margin:'0 0 2px', fontSize:'13px', fontWeight:700, color:'#00FF88' }}>
+              <p style={{ margin:'0 0 2px', fontSize:'13px', fontWeight:700, color: 'var(--mc-accent)' }}>
                 Card de Avaliação
               </p>
               <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.35)' }}>
@@ -1729,14 +1729,14 @@ function AtletaPerfilContent() {
               <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
                 <div style={{
                   width:'32px', height:'32px', borderRadius:'50%',
-                  background:'#00FF88', display:'flex', alignItems:'center', justifyContent:'center',
+                  background: 'var(--mc-accent)', display:'flex', alignItems:'center', justifyContent:'center',
                   fontSize:'16px', color:'#020d04', fontWeight:900,
                   boxShadow:'0 0 16px rgba(0,255,136,0.5)',
                 }}>
                   ✓
                 </div>
                 <div>
-                  <p style={{ margin:0, fontSize:'11px', fontWeight:800, letterSpacing:'0.12em', color:'#00FF88', textTransform:'uppercase' }}>
+                  <p style={{ margin:0, fontSize:'11px', fontWeight:800, letterSpacing:'0.12em', color: 'var(--mc-accent)', textTransform:'uppercase' }}>
                     Avaliação oficial
                   </p>
                   <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.35)' }}>
@@ -1760,7 +1760,7 @@ function AtletaPerfilContent() {
 
             {/* Corpo — atributos desbloqueados */}
             <div style={{
-              background:'#0b1610',
+              background: 'var(--mc-surface)',
               border:'1px solid rgba(0,255,136,0.22)',
               borderTop:'1px solid rgba(0,255,136,0.10)',
               padding:'20px',
@@ -1829,7 +1829,7 @@ function AtletaPerfilContent() {
                 background:'rgba(0,255,136,0.08)', border:'1px solid rgba(0,255,136,0.2)',
                 display:'flex', alignItems:'center', gap:'6px',
               }}>
-                <div style={{ width:'5px', height:'5px', borderRadius:'50%', background:'#00FF88', animation:'dotPulse 2.2s ease-in-out infinite' }} />
+                <div style={{ width:'5px', height:'5px', borderRadius:'50%', background: 'var(--mc-accent)', animation:'dotPulse 2.2s ease-in-out infinite' }} />
                 <span style={{ fontSize:'9px', fontWeight:800, letterSpacing:'0.12em', color:'rgba(0,255,136,0.8)', textTransform:'uppercase' }}>
                   Oficial
                 </span>
@@ -1960,7 +1960,7 @@ function AtletaPerfilContent() {
           </div>
 
           <div style={{
-            background:'#0b1610', border:'1px solid rgba(255,255,255,0.07)',
+            background: 'var(--mc-surface)', border:'1px solid rgba(255,255,255,0.07)',
             borderRadius:'18px', padding:'22px 18px',
             display:'flex', flexDirection:'column', gap:'20px',
             marginBottom:'12px',
@@ -2143,7 +2143,7 @@ function AtletaPerfilContent() {
               style={{
                 padding:'7px 14px', borderRadius:'10px', border:'1px solid rgba(0,255,136,0.3)',
                 background: showAddHL ? 'rgba(0,255,136,0.12)' : 'rgba(0,255,136,0.06)',
-                color:'#00FF88', fontWeight:700, fontSize:'13px', cursor:'pointer',
+                color: 'var(--mc-accent)', fontWeight:700, fontSize:'13px', cursor:'pointer',
                 fontFamily:'system-ui,sans-serif',
               }}
             >
@@ -2218,7 +2218,7 @@ function AtletaPerfilContent() {
                 return (
                   <div key={hl.id} className="hl-card" style={{
                     borderRadius:'16px', overflow:'hidden',
-                    background:'#0b1610', border:'1px solid rgba(255,255,255,0.08)',
+                    background: 'var(--mc-surface)', border:'1px solid rgba(255,255,255,0.08)',
                   }}>
                     {/* Thumbnail / embed area — 16:9 */}
                     <div style={{ position:'relative', aspectRatio:'16/9', background:'#0a120e', cursor:'pointer' }}
@@ -2349,7 +2349,7 @@ function AtletaPerfilContent() {
               background:'rgba(0,255,136,0.08)', border:'1px solid rgba(0,255,136,0.20)',
               borderRadius:'8px', padding:'4px 10px',
             }}>
-              <div style={{ width:'5px', height:'5px', borderRadius:'50%', background:'#00FF88', boxShadow:'0 0 5px #00FF88' }} />
+              <div style={{ width:'5px', height:'5px', borderRadius:'50%', background: 'var(--mc-accent)', boxShadow:'0 0 5px #00FF88' }} />
               <span style={{ fontSize:'9px', fontWeight:800, color:'rgba(0,255,136,0.8)', letterSpacing:'0.12em', textTransform:'uppercase' }}>Ao vivo</span>
             </div>
           </div>
@@ -2632,7 +2632,7 @@ export default function AtletaPerfilPage() {
   return (
     <Suspense fallback={
       <main className="mc-screen" style={{ background:'#020d04', minHeight:'100dvh', display:'flex', alignItems:'center', justifyContent:'center' }}>
-        <div style={{ width:40, height:40, borderRadius:'50%', border:'3px solid rgba(0,255,136,0.15)', borderTopColor:'#00FF88', animation:'spin .8s linear infinite' }} />
+        <div style={{ width:40, height:40, borderRadius:'50%', border:'3px solid rgba(0,255,136,0.15)', borderTopcolor: 'var(--mc-accent)', animation:'spin .8s linear infinite' }} />
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </main>
     }>

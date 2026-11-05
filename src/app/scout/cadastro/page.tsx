@@ -58,7 +58,7 @@ export default function ScoutCadastroPage() {
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '12px 16px', borderRadius: '12px', boxSizing: 'border-box',
     background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-    color: 'white', fontSize: '16px', outline: 'none', fontFamily: 'system-ui, sans-serif',
+    color: 'white', fontSize: '16px', outline: 'none', fontFamily: 'inherit',
   }
   const labelStyle: React.CSSProperties = {
     display: 'block', fontSize: '12px', fontWeight: 700,
@@ -68,9 +68,9 @@ export default function ScoutCadastroPage() {
 
   return (
     <main style={{
-      background: '#06100a', minHeight: '100vh',
+      background: 'var(--mc-canvas)', minHeight: '100vh',
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      padding: '24px', fontFamily: 'system-ui, sans-serif',
+      padding: '24px', fontFamily: 'inherit',
     }}>
       <div style={{ width: '100%', maxWidth: '380px' }}>
 
@@ -119,9 +119,9 @@ export default function ScoutCadastroPage() {
                 required value={organizacao} onChange={e => setOrg(e.target.value)}
                 style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}
               >
-                <option value="" disabled style={{ background: '#06100a' }}>Selecione</option>
+                <option value="" disabled style={{ background: 'var(--mc-canvas)' }}>Selecione</option>
                 {organizacoes.map(o => (
-                  <option key={o} value={o} style={{ background: '#06100a' }}>{o}</option>
+                  <option key={o} value={o} style={{ background: 'var(--mc-canvas)' }}>{o}</option>
                 ))}
               </select>
             </div>

@@ -32,17 +32,17 @@ export default async function ScoutsPage() {
 
   return (
     <main style={{
-      background: '#06100a', minHeight: '100vh',
-      fontFamily: 'system-ui, sans-serif', color: 'white',
+      background: 'var(--mc-canvas)', minHeight: '100vh',
+      fontFamily: 'inherit', color: 'white',
     }}>
       {/* Nav */}
       <nav style={{
         padding: '16px 24px', display: 'flex', alignItems: 'center',
         justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)',
-        position: 'sticky', top: 0, background: '#06100a', zIndex: 10,
+        position: 'sticky', top: 0, background: 'var(--mc-canvas)', zIndex: 10,
       }}>
         <Link href="/" style={{ fontSize: '16px', fontWeight: 800, textDecoration: 'none', letterSpacing: '-0.01em' }}>
-          ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+          ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
         <Link href="/scout/cadastro" style={{
           padding: '8px 16px', borderRadius: '10px', background: '#22c55e',

@@ -132,7 +132,7 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
   const temFiltro = posicaoFiltro || categoriaFiltro || cidadeFiltro
 
   return (
-    <main style={{ background: '#06100a', minHeight: '100vh', fontFamily: 'system-ui, sans-serif', color: 'white' }}>
+    <main style={{ background: 'var(--mc-canvas)', minHeight: '100vh', fontFamily: 'inherit', color: 'white' }}>
       <style>{`
         .scout-card { transition: border-color 0.18s, background 0.18s; }
         .scout-card:hover { border-color: rgba(34,197,94,0.3) !important; background: rgba(34,197,94,0.04) !important; }
@@ -148,7 +148,7 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
         backdropFilter: 'blur(16px)', zIndex: 50,
       }}>
         <Link href="/" style={{ fontSize: '16px', fontWeight: 800, color: 'white', textDecoration: 'none', letterSpacing: '0.03em' }}>
-          ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+          ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {isScoutLogado ? (

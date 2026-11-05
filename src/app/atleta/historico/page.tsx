@@ -265,7 +265,7 @@ export default function AtletaHistoricoPage() {
   // ── Loading — skeleton ───────────────────────────────────────────────────
   if (loading) {
     return (
-      <main style={{ background:'#06100a', minHeight:'100dvh', fontFamily:'system-ui, sans-serif' }}>
+      <main style={{ background: 'var(--mc-canvas)', minHeight:'100dvh', fontFamily: 'inherit' }}>
         {/* Nav */}
         <nav style={{ padding:'16px 20px', paddingTop:'calc(16px + env(safe-area-inset-top))', display:'flex', alignItems:'center', borderBottom:'1px solid rgba(255,255,255,0.06)' }}>
           <div className="skel" style={{ width:52, height:14, borderRadius:6, marginRight:'auto' }} />
@@ -337,7 +337,7 @@ export default function AtletaHistoricoPage() {
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <main style={{ background:'#06100a', minHeight:'100dvh', fontFamily:'system-ui, sans-serif', color:'white', overscrollBehaviorY:'none' }}>
+    <main style={{ background: 'var(--mc-canvas)', minHeight:'100dvh', fontFamily: 'inherit', color:'white', overscrollBehaviorY:'none' }}>
 
       <style>{`
         @keyframes fadeUp {
@@ -484,7 +484,7 @@ export default function AtletaHistoricoPage() {
               <>
                 <span style={{
                   fontSize:'64px', fontWeight:900, lineHeight:1,
-                  letterSpacing:'-0.05em', color:'#00FF88',
+                  letterSpacing:'-0.05em', color: 'var(--mc-accent)',
                   textShadow:'0 0 48px rgba(0,255,136,0.55)',
                   fontVariantNumeric:'tabular-nums',
                 }}>
@@ -636,7 +636,7 @@ export default function AtletaHistoricoPage() {
                                     background:'rgba(0,255,136,0.1)',
                                     border:'1px solid rgba(0,255,136,0.22)',
                                     display:'flex', alignItems:'center', justifyContent:'center',
-                                    fontSize:'9px', color:'#00FF88', fontWeight:900,
+                                    fontSize:'9px', color: 'var(--mc-accent)', fontWeight:900,
                                   }}>
                                     ✓
                                   </div>
@@ -680,7 +680,7 @@ export default function AtletaHistoricoPage() {
                     <div style={{ flexShrink:0, width:'28px', display:'flex', justifyContent:'center', paddingTop:'4px' }}>
                       <div style={{
                         width:'16px', height:'16px', borderRadius:'50%',
-                        background:'#00FF88',
+                        background: 'var(--mc-accent)',
                         border:'2px solid rgba(0,255,136,0.4)',
                         boxShadow:'0 0 16px rgba(0,255,136,0.6), 0 0 32px rgba(0,255,136,0.25)',
                         animation:'glowDot 3s ease-in-out infinite',
@@ -709,7 +709,7 @@ export default function AtletaHistoricoPage() {
                           <div style={{ display:'flex', alignItems:'center', gap:'12px' }}>
                             <div style={{
                               width:'36px', height:'36px', borderRadius:'50%', flexShrink:0,
-                              background:'#00FF88',
+                              background: 'var(--mc-accent)',
                               display:'flex', alignItems:'center', justifyContent:'center',
                               fontSize:'16px', fontWeight:900, color:'#020d04',
                               boxShadow:'0 0 16px rgba(0,255,136,0.5)',
@@ -717,7 +717,7 @@ export default function AtletaHistoricoPage() {
                               🏆
                             </div>
                             <div>
-                              <p style={{ margin:'0 0 2px', fontSize:'11px', fontWeight:800, color:'#00FF88', letterSpacing:'0.1em', textTransform:'uppercase' }}>
+                              <p style={{ margin:'0 0 2px', fontSize:'11px', fontWeight:800, color: 'var(--mc-accent)', letterSpacing:'0.1em', textTransform:'uppercase' }}>
                                 {isFirst ? 'Primeira avaliação oficial' : 'Avaliação oficial'}
                               </p>
                               <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.4)' }}>
@@ -954,7 +954,7 @@ export default function AtletaHistoricoPage() {
               <div style={{ flexShrink:0, width:'28px', display:'flex', flexDirection:'column', alignItems:'center' }}>
                 <div style={{
                   width:'10px', height:'10px', borderRadius:'50%',
-                  background:'#00FF88',
+                  background: 'var(--mc-accent)',
                   boxShadow:'0 0 10px rgba(0,255,136,0.8), 0 0 20px rgba(0,255,136,0.4)',
                   animation:'nowBlink 1.6s ease-in-out infinite',
                 }} />
@@ -1010,7 +1010,7 @@ export default function AtletaHistoricoPage() {
                 background:'rgba(0,255,136,0.08)', border:'1px solid rgba(0,255,136,0.25)',
               }}>
                 <span style={{ fontSize:'10px', fontWeight:700, color:'rgba(0,255,136,0.55)', textTransform:'uppercase', letterSpacing:'0.1em' }}>Seu ID</span>
-                <span style={{ fontSize:'20px', fontWeight:900, color:'#00FF88', letterSpacing:'0.08em', fontVariantNumeric:'tabular-nums' }}>
+                <span style={{ fontSize:'20px', fontWeight:900, color: 'var(--mc-accent)', letterSpacing:'0.08em', fontVariantNumeric:'tabular-nums' }}>
                   {dados.athleteId}
                 </span>
               </div>

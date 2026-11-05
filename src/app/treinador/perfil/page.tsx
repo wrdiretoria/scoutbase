@@ -231,7 +231,7 @@ export default function TreinadorPerfilPage() {
       padding: '28px 20px',
       paddingTop: 'max(28px, env(safe-area-inset-top))',
       paddingBottom: 'calc(80px + env(safe-area-inset-bottom))',
-      fontFamily: 'system-ui, sans-serif',
+      fontFamily: 'inherit',
       position: 'relative',
       overscrollBehaviorY: 'none',
     }}>
@@ -315,7 +315,7 @@ export default function TreinadorPerfilPage() {
             ← Início
           </Link>
           <Link href="/" style={{ fontSize:'14px', fontWeight:800, color:'white', textDecoration:'none', opacity:0.55 }}>
-            ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+            ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
           </Link>
           <Link href="/treinador/curriculo" style={{
             background:'none', border:'none', cursor:'pointer',
@@ -389,7 +389,7 @@ export default function TreinadorPerfilPage() {
             <div style={{
               position:'absolute', bottom:'1px', right:'1px',
               width:'28px', height:'28px', borderRadius:'50%',
-              background:'#00FF88',
+              background: 'var(--mc-accent)',
               display:'flex', alignItems:'center', justifyContent:'center',
               fontSize:'14px', fontWeight:900, color:'#020d04',
               boxShadow:'0 0 14px rgba(0,255,136,0.7), 0 2px 8px rgba(0,0,0,0.6), 0 0 0 2px #030a05',
@@ -425,12 +425,12 @@ export default function TreinadorPerfilPage() {
           }}>
             <div style={{
               width:'5px', height:'5px', borderRadius:'50%',
-              background:'#00FF88', boxShadow:'0 0 6px #00FF88',
+              background: 'var(--mc-accent)', boxShadow:'0 0 6px #00FF88',
               animation:'dotPulse 2.2s ease-in-out infinite',
             }} />
             <span style={{
               fontSize:'10px', fontWeight:800, letterSpacing:'0.12em',
-              color:'#00FF88', textTransform:'uppercase',
+              color: 'var(--mc-accent)', textTransform:'uppercase',
             }}>
               Avaliador Oficial MeuCraque
             </span>

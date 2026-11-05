@@ -162,8 +162,8 @@ export default function CartaPage() {
 
   if (loading) {
     return (
-      <main style={{ background: '#06100a', minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: 48, height: 48, borderRadius: '50%', border: '3px solid rgba(0,255,136,0.2)', borderTopColor: '#00FF88', animation: 'spin 0.8s linear infinite' }} />
+      <main style={{ background: 'var(--mc-canvas)', minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: 48, height: 48, borderRadius: '50%', border: '3px solid rgba(0,255,136,0.2)', borderTopcolor: 'var(--mc-accent)', animation: 'spin 0.8s linear infinite' }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
       </main>
     )
@@ -186,7 +186,7 @@ export default function CartaPage() {
         ← Perfil
       </button>
       <Link href="/" aria-label="MeuCraque, início" style={{ fontSize: '13px', fontWeight: 800 }} className="inline-block no-underline text-inherit">
-        ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+        ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
       </Link>
       <div style={{ width: 60 }} />
     </div>
@@ -199,7 +199,7 @@ export default function CartaPage() {
         background: '#030a05', minHeight: '100dvh',
         display: 'flex', flexDirection: 'column', alignItems: 'center',
         padding: '32px 20px 60px',
-        fontFamily: 'system-ui, sans-serif',
+        fontFamily: 'inherit',
       }}>
         <style>{`
           @keyframes cardIn { from{opacity:0;transform:translateY(30px) scale(0.94)} to{opacity:1;transform:translateY(0) scale(1)} }
@@ -260,7 +260,7 @@ export default function CartaPage() {
                   boxShadow: '0 0 20px rgba(0,255,136,0.2)',
                 }}>
                   <p style={{ margin: 0, fontSize: 9, fontWeight: 800, color: 'rgba(0,255,136,0.7)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>OVR</p>
-                  <p style={{ margin: 0, fontSize: 28, fontWeight: 900, color: '#00FF88', lineHeight: 1, textShadow: '0 0 20px rgba(0,255,136,0.6)' }}>{ovrDisplay}</p>
+                  <p style={{ margin: 0, fontSize: 28, fontWeight: 900, color: 'var(--mc-accent)', lineHeight: 1, textShadow: '0 0 20px rgba(0,255,136,0.6)' }}>{ovrDisplay}</p>
                 </div>
               </div>
 
@@ -270,7 +270,7 @@ export default function CartaPage() {
                   position: 'absolute', top: 14, right: 14, zIndex: 8,
                   background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(16px)',
                   border: '1px solid rgba(0,255,136,0.35)', borderRadius: 10,
-                  padding: '5px 12px', fontSize: 10, fontWeight: 800, color: '#00FF88', letterSpacing: '0.1em',
+                  padding: '5px 12px', fontSize: 10, fontWeight: 800, color: 'var(--mc-accent)', letterSpacing: '0.1em',
                 }}>
                   {categoria}
                 </div>
@@ -299,7 +299,7 @@ export default function CartaPage() {
                   background: 'linear-gradient(135deg,rgba(0,255,136,0.15),rgba(0,255,136,0.07))',
                   border: '1px solid rgba(0,255,136,0.3)', borderRadius: 8, padding: '5px 14px',
                 }}>
-                  <span style={{ fontSize: 12, fontWeight: 900, color: '#00FF88', letterSpacing: '0.1em' }}>{pos}</span>
+                  <span style={{ fontSize: 12, fontWeight: 900, color: 'var(--mc-accent)', letterSpacing: '0.1em' }}>{pos}</span>
                 </div>
                 <span style={{ fontSize: 10, fontWeight: 700, color: 'rgba(0,255,136,0.5)', letterSpacing: '0.08em' }}>
                   {athleteId.replace(/^[A-Z]+-/, '')}
@@ -356,9 +356,9 @@ export default function CartaPage() {
   if (cardsDisponiveis > 0) {
     return (
       <main style={{
-        background: '#06100a', minHeight: '100dvh',
+        background: 'var(--mc-canvas)', minHeight: '100dvh',
         display: 'flex', flexDirection: 'column', alignItems: 'center',
-        padding: '32px 20px 60px', fontFamily: 'system-ui, sans-serif',
+        padding: '32px 20px 60px', fontFamily: 'inherit',
       }}>
         <style>{`@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}.fu{animation:fadeUp .4s ease forwards;opacity:0}`}</style>
         {nav}
@@ -378,7 +378,7 @@ export default function CartaPage() {
               Card de avaliação ativo!
             </p>
             <p style={{ margin: 0, fontSize: 14, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, maxWidth: 300 }}>
-              Você tem <strong style={{ color: '#00FF88' }}>{cardsDisponiveis} card{cardsDisponiveis !== 1 ? 's' : ''}</strong> disponível{cardsDisponiveis !== 1 ? 'is' : ''}.<br />
+              Você tem <strong style={{ color: 'var(--mc-accent)' }}>{cardsDisponiveis} card{cardsDisponiveis !== 1 ? 's' : ''}</strong> disponível{cardsDisponiveis !== 1 ? 'is' : ''}.<br />
               Volte ao seu perfil e envie o ID de um treinador para solicitar sua avaliação.
             </p>
           </div>
@@ -408,7 +408,7 @@ export default function CartaPage() {
             style={{
               width: '100%', padding: '16px', borderRadius: 14, border: 'none', cursor: 'pointer',
               background: 'linear-gradient(135deg,#00e87a,#00FF88 50%,#22c55e)',
-              color: '#020d04', fontWeight: 900, fontSize: 15, fontFamily: 'system-ui, sans-serif',
+              color: '#020d04', fontWeight: 900, fontSize: 15, fontFamily: 'inherit',
               boxShadow: '0 0 30px rgba(0,255,136,0.25)',
             }}
           >
@@ -422,9 +422,9 @@ export default function CartaPage() {
   // ── 3. SEM CARD E SEM AVALIAÇÃO — paywall de compra ──────────────────────
   return (
     <main style={{
-      background: '#06100a', minHeight: '100dvh',
+      background: 'var(--mc-canvas)', minHeight: '100dvh',
       display: 'flex', flexDirection: 'column', alignItems: 'center',
-      padding: '32px 20px 60px', fontFamily: 'system-ui, sans-serif',
+      padding: '32px 20px 60px', fontFamily: 'inherit',
     }}>
       <style>{`
         @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }

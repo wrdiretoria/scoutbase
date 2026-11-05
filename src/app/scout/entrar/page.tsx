@@ -40,13 +40,13 @@ export default function ScoutEntrarPage() {
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '13px 16px', borderRadius: '12px', boxSizing: 'border-box',
     background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-    color: 'white', fontSize: '16px', outline: 'none', fontFamily: 'system-ui, sans-serif',
+    color: 'white', fontSize: '16px', outline: 'none', fontFamily: 'inherit',
   }
 
   return (
     <main style={{
-      background: '#06100a', minHeight: '100dvh',
-      fontFamily: 'system-ui, sans-serif', color: 'white',
+      background: 'var(--mc-canvas)', minHeight: '100dvh',
+      fontFamily: 'inherit', color: 'white',
       display: 'flex', flexDirection: 'column', alignItems: 'center',
       padding: '0 20px 40px',
     }}>
@@ -64,7 +64,7 @@ export default function ScoutEntrarPage() {
           ← Busca
         </Link>
         <Link href="/" style={{ fontSize: '15px', fontWeight: 800, color: 'white', textDecoration: 'none' }}>
-          ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+          ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
         <div style={{ width: 60 }} />
       </nav>
@@ -133,7 +133,7 @@ export default function ScoutEntrarPage() {
               background: loading ? 'rgba(251,191,36,0.4)' : '#fbbf24',
               color: loading ? 'rgba(0,0,0,0.5)' : 'black',
               fontWeight: 900, fontSize: 16, cursor: loading ? 'wait' : 'pointer',
-              fontFamily: 'system-ui, sans-serif', transition: 'background .2s',
+              fontFamily: 'inherit', transition: 'background .2s',
             }}
           >
             {loading ? 'Entrando…' : 'Entrar →'}

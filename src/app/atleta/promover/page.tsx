@@ -72,14 +72,14 @@ export default function AtletaPromoverPage() {
   }
 
   if (loading) return (
-    <main style={{ background: '#06100a', minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui, sans-serif' }}>
+    <main style={{ background: 'var(--mc-canvas)', minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit' }}>
       <div style={{ width: 40, height: 40, borderRadius: '50%', border: '3px solid rgba(34,197,94,0.2)', borderTop: '3px solid #22c55e', animation: 'spin 1s linear infinite' }} />
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </main>
   )
 
   return (
-    <main style={{ background: '#06100a', minHeight: '100dvh', fontFamily: 'system-ui, sans-serif', color: 'white', padding: '0 20px 60px' }}>
+    <main style={{ background: 'var(--mc-canvas)', minHeight: '100dvh', fontFamily: 'inherit', color: 'white', padding: '0 20px 60px' }}>
       <style>{`
         @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
         .benefit { display:flex; align-items:flex-start; gap:12px; padding:12px 14px; border-radius:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); }
@@ -92,7 +92,7 @@ export default function AtletaPromoverPage() {
           ← Meu perfil
         </Link>
         <Link href="/" aria-label="MeuCraque, início" style={{ fontSize:15, fontWeight:800 }} className="inline-block no-underline text-inherit">
-          ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+          ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
         <div style={{ width:60 }} />
       </nav>
@@ -228,7 +228,7 @@ export default function AtletaPromoverPage() {
                       width:'100%', padding:'11px', borderRadius:10, cursor:'pointer',
                       background: copiado ? 'rgba(34,197,94,0.2)' : '#22c55e',
                       color: copiado ? '#22c55e' : 'black',
-                      fontWeight:800, fontSize:14, fontFamily:'system-ui, sans-serif',
+                      fontWeight:800, fontSize:14, fontFamily: 'inherit',
                       border: copiado ? '1px solid rgba(34,197,94,0.4)' : 'none',
                     }}
                   >
@@ -250,7 +250,7 @@ export default function AtletaPromoverPage() {
                 style={{
                   width:'100%', padding:'17px', borderRadius:16, border:'none', cursor: gerando ? 'wait' : 'pointer',
                   background: gerando ? 'rgba(34,197,94,0.4)' : 'linear-gradient(135deg, #16a34a, #22c55e)',
-                  color:'black', fontWeight:900, fontSize:17, fontFamily:'system-ui, sans-serif',
+                  color:'black', fontWeight:900, fontSize:17, fontFamily: 'inherit',
                   boxShadow:'0 8px 28px rgba(34,197,94,0.3)',
                   transition:'opacity .2s, transform .1s',
                 }}
@@ -270,7 +270,7 @@ export default function AtletaPromoverPage() {
               style={{
                 padding:'12px 28px', borderRadius:12, border:'1px solid rgba(34,197,94,0.25)',
                 background:'rgba(34,197,94,0.07)', color:'#22c55e',
-                fontWeight:700, fontSize:14, cursor:'pointer', fontFamily:'system-ui, sans-serif',
+                fontWeight:700, fontSize:14, cursor:'pointer', fontFamily: 'inherit',
               }}
             >
               {gerando ? 'Gerando…' : '🔄 Renovar por +30 dias — R$ 9,90'}

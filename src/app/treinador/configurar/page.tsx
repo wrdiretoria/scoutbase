@@ -208,7 +208,7 @@ export default function TreinadorConfigurarPage() {
     width: '100%', padding: '14px 16px', borderRadius: '12px',
     background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
     color: 'white', fontSize: '16px', outline: 'none',
-    fontFamily: 'system-ui, sans-serif', boxSizing: 'border-box',
+    fontFamily: 'inherit', boxSizing: 'border-box',
     transition: 'border-color .2s',
   }
   const lbl: React.CSSProperties = {
@@ -224,7 +224,7 @@ export default function TreinadorConfigurarPage() {
       display: 'flex', flexDirection: 'column', alignItems: 'center',
       padding: '0 20px 48px',
       paddingTop: 'max(32px, env(safe-area-inset-top))',
-      fontFamily: 'system-ui, sans-serif',
+      fontFamily: 'inherit',
     }}>
       <style>{`
         @keyframes fadeUp   { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
@@ -272,7 +272,7 @@ export default function TreinadorConfigurarPage() {
         {/* ── Logo ── */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <Link href="/" aria-label="MeuCraque, início" style={{ fontSize: '16px', fontWeight: 900, color: 'white' }} className="inline-block no-underline text-inherit">
-            ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+            ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
           </Link>
         </div>
 

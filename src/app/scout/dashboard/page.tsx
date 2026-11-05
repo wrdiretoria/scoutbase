@@ -96,7 +96,7 @@ export default function ScoutDashboardPage() {
   // ── Skeleton ──────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <main style={{ background: '#06100a', minHeight: '100dvh', fontFamily: 'system-ui, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <main style={{ background: 'var(--mc-canvas)', minHeight: '100dvh', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <style>{`.sk{background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%);background-size:200% 100%;animation:sk 1.4s infinite}@keyframes sk{0%{background-position:200% 0}100%{background-position:-200% 0}}`}</style>
         <div style={{ width: 320, display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div className="sk" style={{ height: 200, borderRadius: 20 }} />
@@ -113,8 +113,8 @@ export default function ScoutDashboardPage() {
 
   return (
     <main style={{
-      background: '#06100a', minHeight: '100dvh',
-      fontFamily: 'system-ui, sans-serif', color: 'white',
+      background: 'var(--mc-canvas)', minHeight: '100dvh',
+      fontFamily: 'inherit', color: 'white',
       padding: '0 0 40px',
     }}>
       <style>{`
@@ -136,7 +136,7 @@ export default function ScoutDashboardPage() {
         borderBottom: '1px solid rgba(255,255,255,0.06)',
       }}>
         <Link href="/" style={{ fontSize: '15px', fontWeight: 800, color: 'white', textDecoration: 'none' }}>
-          ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+          ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
         <button onClick={handleSair} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', fontSize: '13px', cursor: 'pointer' }}>
           Sair

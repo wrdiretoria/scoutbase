@@ -168,7 +168,7 @@ textarea {
 }
 
 /* Shared visual foundation for the main MeuCraque screens. */
-.mc-screen {
+:root {
   --mc-canvas: #080f0c;
   --mc-surface: #121f18;
   --mc-line: #385346;
@@ -176,11 +176,20 @@ textarea {
   --mc-muted: #b9c8bf;
   --mc-accent: #b3f737;
   --mc-on-accent: #13200b;
+}
+
+.mc-site {
+  background: var(--mc-canvas);
+  color: var(--mc-text);
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+}
+
+.mc-screen {
   font-family: var(--font-dm-sans), system-ui, sans-serif;
   color: var(--mc-text);
 }
 
-.mc-screen :where(a, button, input, select, textarea):focus-visible {
+.mc-site :where(a, button, input, select, textarea):focus-visible {
   outline: 2px solid var(--mc-accent);
   outline-offset: 3px;
 }

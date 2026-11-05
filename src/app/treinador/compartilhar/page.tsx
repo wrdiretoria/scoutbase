@@ -152,7 +152,7 @@ export default function TreinadorCompartilharPage() {
       padding: '28px 20px',
       paddingTop: 'max(28px, env(safe-area-inset-top))',
       paddingBottom: 'max(40px, env(safe-area-inset-bottom))',
-      fontFamily: 'system-ui, sans-serif',
+      fontFamily: 'inherit',
     }}>
 
       <style>{`
@@ -224,7 +224,7 @@ export default function TreinadorCompartilharPage() {
             ← Voltar
           </button>
           <Link href="/" style={{ fontSize: '14px', fontWeight: 800, color: 'white', textDecoration: 'none', opacity: .55 }}>
-            ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+            ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
           </Link>
           <div style={{ width: '60px' }} />
         </div>

@@ -43,7 +43,7 @@ function getInitials(nome: string) {
 
 function notaColor(nota: number) {
   if (nota >= 75) return '#00FF88'
-  if (nota >= 60) return '#fbbf24'
+  if (nota >= 60) return '#b3f737'
   if (nota >= 45) return '#f97316'
   return '#ef4444'
 }
@@ -93,7 +93,7 @@ function TrainerCard({ perfil, av, at, dest, uploadingFoto }: { perfil: Perfil; 
         position: 'absolute', top: '50%', left: '50%',
         transform: 'translate(-50%,-50%)',
         width: '340px', height: '440px',
-        background: 'radial-gradient(ellipse, rgba(251,191,36,0.28) 0%, rgba(217,119,6,0.12) 40%, transparent 70%)',
+        background: 'radial-gradient(ellipse, rgba(179,247,55,0.28) 0%, rgba(109,152,69,0.12) 40%, transparent 70%)',
         animation: 'cardGlow 4s ease-in-out infinite',
         pointerEvents: 'none',
         borderRadius: '50%',
@@ -102,15 +102,15 @@ function TrainerCard({ perfil, av, at, dest, uploadingFoto }: { perfil: Perfil; 
       {/* Border gradient wrapper */}
       <div style={{
         padding: '1.5px',
-        background: 'linear-gradient(160deg, #fbbf24 0%, #92400e 40%, #fbbf24 70%, #78350f 100%)',
+        background: 'linear-gradient(160deg, #b3f737 0%, #385346 40%, #b3f737 70%, #243a2c 100%)',
         borderRadius: '22px',
-        boxShadow: '0 40px 100px rgba(0,0,0,0.8), 0 0 60px rgba(251,191,36,0.18)',
+        boxShadow: '0 40px 100px rgba(0,0,0,0.8), 0 0 60px rgba(179,247,55,0.18)',
         animation: 'cardFloat 5s ease-in-out infinite',
         position: 'relative',
       }}>
         {/* Card body */}
         <div style={{
-          background: 'linear-gradient(165deg, #1a0c00 0%, #2e1800 35%, #1a0c00 70%, #0d0700 100%)',
+          background: 'linear-gradient(165deg, #101b15 0%, #17271d 35%, #101b15 70%, #080f0c 100%)',
           borderRadius: '20px',
           overflow: 'hidden',
           position: 'relative',
@@ -119,7 +119,7 @@ function TrainerCard({ perfil, av, at, dest, uploadingFoto }: { perfil: Perfil; 
           {/* Shimmer sweep */}
           <div style={{
             position: 'absolute', inset: 0, pointerEvents: 'none',
-            background: 'linear-gradient(105deg, transparent 35%, rgba(255,210,80,0.07) 50%, transparent 65%)',
+            background: 'linear-gradient(105deg, transparent 35%, rgba(202,245,158,0.07) 50%, transparent 65%)',
             backgroundSize: '200% 100%',
             animation: 'shimmer 4s linear infinite',
           }} />
@@ -127,22 +127,22 @@ function TrainerCard({ perfil, av, at, dest, uploadingFoto }: { perfil: Perfil; 
           {/* Inner corner lights */}
           <div style={{
             position: 'absolute', top: 0, left: 0, right: 0, height: '120px',
-            background: 'radial-gradient(ellipse at 50% -20%, rgba(251,191,36,0.12) 0%, transparent 70%)',
+            background: 'radial-gradient(ellipse at 50% -20%, rgba(179,247,55,0.12) 0%, transparent 70%)',
             pointerEvents: 'none',
           }} />
 
           {/* Gold top stripe */}
-          <div style={{ height: '3px', background: 'linear-gradient(90deg, #78350f, #fbbf24 25%, #f59e0b 75%, #78350f)' }} />
+          <div style={{ height: '3px', background: 'linear-gradient(90deg, #243a2c, #b3f737 25%, #98c63d 75%, #243a2c)' }} />
 
           {/* Header: level badge */}
           <div style={{ padding: '16px 20px 0', display: 'flex', justifyContent: 'center' }}>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: '5px',
-              background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.25)',
+              background: 'rgba(179,247,55,0.1)', border: '1px solid rgba(179,247,55,0.25)',
               borderRadius: '100px', padding: '4px 14px',
             }}>
-              <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#fbbf24', boxShadow: '0 0 6px #fbbf24', display: 'inline-block', animation: 'dotPulse 2s ease-in-out infinite' }} />
-              <span style={{ fontSize: '8px', fontWeight: 900, letterSpacing: '0.2em', color: '#fbbf24', textTransform: 'uppercase' }}>
+              <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#b3f737', boxShadow: '0 0 6px #b3f737', display: 'inline-block', animation: 'dotPulse 2s ease-in-out infinite' }} />
+              <span style={{ fontSize: '8px', fontWeight: 900, letterSpacing: '0.2em', color: '#b3f737', textTransform: 'uppercase' }}>
                 Treinador de Futebol
               </span>
             </div>
@@ -153,9 +153,9 @@ function TrainerCard({ perfil, av, at, dest, uploadingFoto }: { perfil: Perfil; 
             <label htmlFor="treinador-foto-input" style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               width: '110px', height: '110px', borderRadius: '50%',
-              background: perfil.avatar_url ? 'transparent' : 'linear-gradient(135deg, #78350f 0%, #d97706 50%, #fbbf24 100%)',
-              border: '3px solid rgba(251,191,36,0.55)',
-              boxShadow: '0 0 0 6px rgba(251,191,36,0.06), 0 20px 40px rgba(0,0,0,0.6)',
+              background: perfil.avatar_url ? 'transparent' : 'linear-gradient(135deg, #243a2c 0%, #7aa42e 50%, #b3f737 100%)',
+              border: '3px solid rgba(179,247,55,0.55)',
+              boxShadow: '0 0 0 6px rgba(179,247,55,0.06), 0 20px 40px rgba(0,0,0,0.6)',
               overflow: 'hidden',
               position: 'relative',
               cursor: uploadingFoto ? 'wait' : 'pointer',
@@ -191,14 +191,14 @@ function TrainerCard({ perfil, av, at, dest, uploadingFoto }: { perfil: Perfil; 
               margin: '0 0 6px', fontSize: lastName.length > 10 ? '20px' : '24px',
               fontWeight: 900, letterSpacing: '-0.03em', lineHeight: 1.05,
               color: 'white',
-              textShadow: '0 0 30px rgba(251,191,36,0.15)',
+              textShadow: '0 0 30px rgba(179,247,55,0.15)',
             }}>
               {lastName || firstName}
             </h2>
             <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255,255,255,0.32)', letterSpacing: '0.02em' }}>
               {perfil.especialidade
                 ? <>
-                    <span style={{ color: 'rgba(251,191,36,0.55)', fontWeight: 600 }}>{perfil.especialidade}</span>
+                    <span style={{ color: 'rgba(179,247,55,0.55)', fontWeight: 600 }}>{perfil.especialidade}</span>
                     {perfil.cidade ? <span style={{ color: 'rgba(255,255,255,0.2)' }}> · {perfil.cidade}</span> : null}
                   </>
                 : <span style={{ color: 'rgba(255,255,255,0.18)' }}>Especialidade não definida</span>
@@ -207,7 +207,7 @@ function TrainerCard({ perfil, av, at, dest, uploadingFoto }: { perfil: Perfil; 
           </div>
 
           {/* Divider */}
-          <div style={{ margin: '18px 20px', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(251,191,36,0.18), transparent)' }} />
+          <div style={{ margin: '18px 20px', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(179,247,55,0.18), transparent)' }} />
 
           {/* Stats row */}
           <div style={{ padding: '0 16px 24px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
@@ -218,7 +218,7 @@ function TrainerCard({ perfil, av, at, dest, uploadingFoto }: { perfil: Perfil; 
             ].map((s, i) => (
               <div key={i} style={{
                 background: 'rgba(0,0,0,0.35)',
-                border: '1px solid rgba(251,191,36,0.09)',
+                border: '1px solid rgba(179,247,55,0.09)',
                 borderRadius: '12px',
                 padding: '10px 6px',
                 textAlign: 'center',
@@ -228,14 +228,14 @@ function TrainerCard({ perfil, av, at, dest, uploadingFoto }: { perfil: Perfil; 
                 {s.val > 0 && (
                   <div style={{
                     position: 'absolute', top: 0, left: 0, right: 0, height: '2px',
-                    background: 'linear-gradient(90deg, transparent, #fbbf24, transparent)',
+                    background: 'linear-gradient(90deg, transparent, #b3f737, transparent)',
                   }} />
                 )}
                 <div style={{
                   fontSize: '26px', fontWeight: 900, lineHeight: 1,
                   letterSpacing: '-0.04em',
-                  color: s.val > 0 ? '#fbbf24' : 'rgba(255,255,255,0.15)',
-                  textShadow: s.val > 0 ? '0 0 20px rgba(251,191,36,0.6)' : 'none',
+                  color: s.val > 0 ? '#b3f737' : 'rgba(255,255,255,0.15)',
+                  textShadow: s.val > 0 ? '0 0 20px rgba(179,247,55,0.6)' : 'none',
                 }}>
                   {s.val}
                 </div>
@@ -252,11 +252,11 @@ function TrainerCard({ perfil, av, at, dest, uploadingFoto }: { perfil: Perfil; 
           {/* Bottom watermark + ID */}
           <div style={{
             padding: '10px 20px',
-            borderTop: '1px solid rgba(251,191,36,0.07)',
+            borderTop: '1px solid rgba(179,247,55,0.07)',
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           }}>
             {perfil.treinadorId && (
-              <span style={{ fontSize: '11px', fontWeight: 900, color: 'rgba(251,191,36,0.7)', letterSpacing: '0.12em' }}>
+              <span style={{ fontSize: '11px', fontWeight: 900, color: 'rgba(179,247,55,0.7)', letterSpacing: '0.12em' }}>
                 ID: {perfil.treinadorId.replace('TR-', '')}
               </span>
             )}
@@ -416,7 +416,7 @@ export default function TreinadorDashboardPage() {
   // ── Skeleton ──────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <main style={{ background: '#080400', minHeight: '100dvh', fontFamily: 'system-ui, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <main style={{ background: '#080f0c', minHeight: '100dvh', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <style>{`.skel{background:linear-gradient(90deg,rgba(255,255,255,0.04) 25%,rgba(255,255,255,0.08) 50%,rgba(255,255,255,0.04) 75%);background-size:200% 100%;animation:skelShimmer 1.4s infinite}@keyframes skelShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}`}</style>
         <div style={{ width: '260px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
           <div className="skel" style={{ width: '260px', height: '420px', borderRadius: '22px' }} />
@@ -433,11 +433,11 @@ export default function TreinadorDashboardPage() {
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <main style={{
-      background: '#080400',
+      background: '#080f0c',
       minHeight: '100dvh',
       display: 'flex', flexDirection: 'column', alignItems: 'center',
       padding: '0 0 calc(80px + env(safe-area-inset-bottom))',
-      fontFamily: 'system-ui, sans-serif',
+      fontFamily: 'inherit',
     }}>
 
       <style>{`
@@ -447,8 +447,8 @@ export default function TreinadorDashboardPage() {
         @keyframes shimmer   { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
         @keyframes dotPulse  { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.65)} }
         @keyframes ctaPulse  {
-          0%,100%{box-shadow:0 0 40px rgba(251,191,36,0.25),0 8px 32px rgba(0,0,0,0.6)}
-          50%    {box-shadow:0 0 70px rgba(251,191,36,0.45),0 8px 32px rgba(0,0,0,0.6)}
+          0%,100%{box-shadow:0 0 40px rgba(179,247,55,0.25),0 8px 32px rgba(0,0,0,0.6)}
+          50%    {box-shadow:0 0 70px rgba(179,247,55,0.45),0 8px 32px rgba(0,0,0,0.6)}
         }
         @keyframes cardReveal { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
 
@@ -465,7 +465,7 @@ export default function TreinadorDashboardPage() {
         .cta-avaliar {
           display:flex; align-items:center; justify-content:space-between; gap:12px;
           width:100%; padding:20px 24px; border-radius:18px; border:none;
-          background:linear-gradient(135deg, #d97706 0%, #fbbf24 50%, #d97706 100%);
+          background:linear-gradient(135deg, #7aa42e 0%, #b3f737 50%, #7aa42e 100%);
           color:#1a0800; font-weight:900; font-size:17px; cursor:pointer;
           font-family:system-ui,sans-serif; text-decoration:none;
           animation:ctaPulse 3s ease-in-out infinite;
@@ -480,7 +480,7 @@ export default function TreinadorDashboardPage() {
           border:1px solid rgba(255,255,255,0.07); border-radius:16px;
           transition:background .2s, border-color .2s; min-height:72px;
         }
-        .av-card:hover  { background:rgba(255,255,255,0.045); border-color:rgba(251,191,36,0.18); }
+        .av-card:hover  { background:rgba(255,255,255,0.045); border-color:rgba(179,247,55,0.18); }
         .av-card:active { transform:scale(.99); opacity:.88; transition:transform .08s; }
 
         .quick-btn {
@@ -490,7 +490,7 @@ export default function TreinadorDashboardPage() {
           text-decoration:none;
           transition:background .2s, border-color .2s; min-height:56px;
         }
-        .quick-btn:hover  { background:rgba(255,255,255,0.05); border-color:rgba(251,191,36,0.2); }
+        .quick-btn:hover  { background:rgba(255,255,255,0.05); border-color:rgba(179,247,55,0.2); }
         .quick-btn:active { transform:scale(.98); opacity:.88; transition:transform .08s; }
       `}</style>
 
@@ -499,13 +499,13 @@ export default function TreinadorDashboardPage() {
         <div style={{
           position: 'absolute', top: '-30%', left: '50%', transform: 'translateX(-50%)',
           width: '900px', height: '800px', borderRadius: '50%',
-          background: 'radial-gradient(ellipse, rgba(251,191,36,0.07) 0%, rgba(217,119,6,0.04) 40%, transparent 65%)',
+          background: 'radial-gradient(ellipse, rgba(179,247,55,0.07) 0%, rgba(109,152,69,0.04) 40%, transparent 65%)',
         }} />
         <div style={{
           position: 'absolute', inset: 0,
           backgroundImage:
-            'linear-gradient(rgba(251,191,36,0.015) 1px, transparent 1px),' +
-            'linear-gradient(90deg, rgba(251,191,36,0.015) 1px, transparent 1px)',
+            'linear-gradient(rgba(179,247,55,0.015) 1px, transparent 1px),' +
+            'linear-gradient(90deg, rgba(179,247,55,0.015) 1px, transparent 1px)',
           backgroundSize: '52px 52px',
         }} />
       </div>
@@ -523,9 +523,9 @@ export default function TreinadorDashboardPage() {
           <Link href="/treinador/perfil" style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             width: '36px', height: '36px', borderRadius: '50%', overflow: 'hidden',
-            border: '2px solid rgba(251,191,36,0.4)', textDecoration: 'none', flexShrink: 0,
-            background: perfil.avatar_url ? 'transparent' : 'linear-gradient(135deg,#92400e,#d97706)',
-            boxShadow: '0 0 14px rgba(251,191,36,0.2)',
+            border: '2px solid rgba(179,247,55,0.4)', textDecoration: 'none', flexShrink: 0,
+            background: perfil.avatar_url ? 'transparent' : 'linear-gradient(135deg,#385346,#7aa42e)',
+            boxShadow: '0 0 14px rgba(179,247,55,0.2)',
           }}>
             {perfil.avatar_url
               ? <img src={perfil.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -543,7 +543,7 @@ export default function TreinadorDashboardPage() {
           </p>
           <h1 style={{ margin: 0, fontSize: '28px', fontWeight: 900, letterSpacing: '-0.035em', color: 'white', lineHeight: 1.1 }}>
             {primeiroNome},<br />
-            <span style={{ color: '#fbbf24' }}>este é seu cartão.</span>
+            <span style={{ color: '#b3f737' }}>este é seu cartão.</span>
           </h1>
         </div>
 
@@ -567,8 +567,8 @@ export default function TreinadorDashboardPage() {
           <Link href="/treinador/compartilhar" style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
             padding: '13px', borderRadius: '16px', textDecoration: 'none',
-            background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.2)',
-            fontSize: '14px', fontWeight: 800, color: '#fbbf24',
+            background: 'rgba(179,247,55,0.08)', border: '1px solid rgba(179,247,55,0.2)',
+            fontSize: '14px', fontWeight: 800, color: '#b3f737',
             transition: 'background .2s',
           }}>
             <span>📲</span>
@@ -621,16 +621,16 @@ export default function TreinadorDashboardPage() {
             <Link href="/treinador/configurar" style={{
               display: 'flex', alignItems: 'center', gap: '12px',
               padding: '14px 18px',
-              background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.18)',
+              background: 'rgba(179,247,55,0.06)', border: '1px solid rgba(179,247,55,0.18)',
               borderRadius: '16px', textDecoration: 'none',
               transition: 'background .2s',
             }}>
               <span style={{ fontSize: '20px', flexShrink: 0 }}>✦</span>
               <div style={{ flex: 1 }}>
-                <p style={{ margin: '0 0 2px', fontSize: '13px', fontWeight: 700, color: 'rgba(251,191,36,0.8)' }}>Complete seu perfil</p>
+                <p style={{ margin: '0 0 2px', fontSize: '13px', fontWeight: 700, color: 'rgba(179,247,55,0.8)' }}>Complete seu perfil</p>
                 <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.25)' }}>Adicione foto, especialidade e bio para ser encontrado por escolas</p>
               </div>
-              <span style={{ color: 'rgba(251,191,36,0.35)', fontSize: '18px', flexShrink: 0 }}>›</span>
+              <span style={{ color: 'rgba(179,247,55,0.35)', fontSize: '18px', flexShrink: 0 }}>›</span>
             </Link>
           </div>
         )}
@@ -644,8 +644,8 @@ export default function TreinadorDashboardPage() {
               </p>
               <div style={{
                 padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800,
-                background: 'rgba(251,191,36,0.15)', color: '#fbbf24',
-                border: '1px solid rgba(251,191,36,0.25)',
+                background: 'rgba(179,247,55,0.15)', color: '#b3f737',
+                border: '1px solid rgba(179,247,55,0.25)',
               }}>
                 {solicitacoes.length} pendente{solicitacoes.length !== 1 ? 's' : ''}
               </div>
@@ -660,7 +660,7 @@ export default function TreinadorDashboardPage() {
                     key={sol.atletaId}
                     href={`/treinador/avaliar?id=${sol.atletaMcId}`}
                     className="av-card"
-                    style={{ textDecoration: 'none', color: 'white', borderColor: 'rgba(251,191,36,0.2)' }}
+                    style={{ textDecoration: 'none', color: 'white', borderColor: 'rgba(179,247,55,0.2)' }}
                   >
                     <div style={{
                       width: '46px', height: '46px', borderRadius: '50%', flexShrink: 0,
@@ -675,7 +675,7 @@ export default function TreinadorDashboardPage() {
                         {sol.atletaNome}
                       </p>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(251,191,36,0.7)', letterSpacing: '0.06em' }}>
+                        <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(179,247,55,0.7)', letterSpacing: '0.06em' }}>
                           {sol.atletaMcId}
                         </span>
                         <span style={{ color: 'rgba(255,255,255,0.1)', fontSize: '10px' }}>·</span>
@@ -684,8 +684,8 @@ export default function TreinadorDashboardPage() {
                     </div>
                     <div style={{
                       flexShrink: 0, padding: '7px 12px', borderRadius: '10px',
-                      background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.25)',
-                      fontSize: '12px', fontWeight: 800, color: '#fbbf24',
+                      background: 'rgba(179,247,55,0.1)', border: '1px solid rgba(179,247,55,0.25)',
+                      fontSize: '12px', fontWeight: 800, color: '#b3f737',
                     }}>
                       Avaliar →
                     </div>
@@ -699,13 +699,13 @@ export default function TreinadorDashboardPage() {
         {/* ── Zero state convites ── */}
         {solicitacoes.length === 0 && (
           <div className="a4" style={{
-            padding: '20px', background: 'rgba(251,191,36,0.04)',
-            border: '1px solid rgba(251,191,36,0.14)', borderRadius: '18px', marginBottom: '24px',
+            padding: '20px', background: 'rgba(179,247,55,0.04)',
+            border: '1px solid rgba(179,247,55,0.14)', borderRadius: '18px', marginBottom: '24px',
             display: 'flex', gap: '14px', alignItems: 'flex-start',
           }}>
             <span style={{ fontSize: '24px', flexShrink: 0 }}>📨</span>
             <div>
-              <p style={{ margin: '0 0 4px', fontSize: '13px', fontWeight: 700, color: 'rgba(251,191,36,0.8)' }}>
+              <p style={{ margin: '0 0 4px', fontSize: '13px', fontWeight: 700, color: 'rgba(179,247,55,0.8)' }}>
                 Nenhum convite ainda
               </p>
               <p style={{ margin: '0 0 10px', fontSize: '12px', color: 'rgba(255,255,255,0.28)', lineHeight: 1.6 }}>
@@ -714,8 +714,8 @@ export default function TreinadorDashboardPage() {
               <Link href="/treinador/compartilhar" style={{
                 display: 'inline-flex', alignItems: 'center', gap: '6px',
                 padding: '8px 16px', borderRadius: '10px',
-                background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.25)',
-                fontSize: '12px', fontWeight: 800, color: '#fbbf24', textDecoration: 'none',
+                background: 'rgba(179,247,55,0.1)', border: '1px solid rgba(179,247,55,0.25)',
+                fontSize: '12px', fontWeight: 800, color: '#b3f737', textDecoration: 'none',
               }}>
                 📲 Compartilhar meu card
               </Link>
@@ -733,7 +733,7 @@ export default function TreinadorDashboardPage() {
             <span style={{ fontSize: '24px', flexShrink: 0 }}>🎯</span>
             <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255,255,255,0.28)', lineHeight: 1.7 }}>
               Faça sua primeira avaliação e comece a{' '}
-              <span style={{ color: 'rgba(251,191,36,0.6)', fontWeight: 700 }}>construir sua reputação no futebol.</span>
+              <span style={{ color: 'rgba(179,247,55,0.6)', fontWeight: 700 }}>construir sua reputação no futebol.</span>
               {' '}Cada nota conta.
             </p>
           </div>
@@ -815,7 +815,7 @@ export default function TreinadorDashboardPage() {
               <Link key={i} href={item.href} className="quick-btn">
                 <div style={{
                   width: '40px', height: '40px', borderRadius: '12px', flexShrink: 0,
-                  background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.15)',
+                  background: 'rgba(179,247,55,0.08)', border: '1px solid rgba(179,247,55,0.15)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px',
                 }}>
                   {item.icon}

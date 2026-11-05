@@ -50,7 +50,7 @@ export default function RecuperarIdPage() {
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '12px 16px', borderRadius: '12px', boxSizing: 'border-box',
     background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-    color: 'white', fontSize: '16px', outline: 'none', fontFamily: 'system-ui, sans-serif',
+    color: 'white', fontSize: '16px', outline: 'none', fontFamily: 'inherit',
   }
   const labelStyle: React.CSSProperties = {
     display: 'block', fontSize: '12px', fontWeight: 700,
@@ -60,16 +60,16 @@ export default function RecuperarIdPage() {
 
   return (
     <main style={{
-      background: '#06100a', minHeight: '100dvh',
+      background: 'var(--mc-canvas)', minHeight: '100dvh',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '24px', fontFamily: 'system-ui, sans-serif',
+      padding: '24px', fontFamily: 'inherit',
     }}>
       <div style={{ width: '100%', maxWidth: '360px' }}>
 
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <Link href="/" style={{ fontSize: '18px', fontWeight: 800, color: 'white', textDecoration: 'none' }}>
-            ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+            ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
           </Link>
         </div>
 
@@ -198,7 +198,7 @@ export default function RecuperarIdPage() {
                   border: '1.5px solid rgba(0,255,136,0.25)',
                 }}>
                   <p style={{ margin: '0 0 4px', fontSize: '13px', color: 'rgba(255,255,255,0.5)' }}>{a.nome}</p>
-                  <p style={{ margin: 0, fontSize: '32px', fontWeight: 900, color: '#00FF88', letterSpacing: '0.06em', lineHeight: 1 }}>
+                  <p style={{ margin: 0, fontSize: '32px', fontWeight: 900, color: 'var(--mc-accent)', letterSpacing: '0.06em', lineHeight: 1 }}>
                     {a.athlete_id}
                   </p>
                 </div>

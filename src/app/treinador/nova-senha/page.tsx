@@ -50,7 +50,7 @@ function NovaSenhaContent() {
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '13px 16px', borderRadius: '12px', boxSizing: 'border-box',
     background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-    color: 'white', fontSize: '15px', outline: 'none', fontFamily: 'system-ui, sans-serif',
+    color: 'white', fontSize: '15px', outline: 'none', fontFamily: 'inherit',
   }
   const labelStyle: React.CSSProperties = {
     display: 'block', fontSize: '12px', fontWeight: 700,
@@ -62,13 +62,13 @@ function NovaSenhaContent() {
     <main style={{
       background: '#080400', minHeight: '100dvh',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '24px', fontFamily: 'system-ui, sans-serif',
+      padding: '24px', fontFamily: 'inherit',
     }}>
       <div style={{ width: '100%', maxWidth: '360px' }}>
 
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <Link href="/" style={{ fontSize: '18px', fontWeight: 800, color: 'white', textDecoration: 'none' }}>
-            ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+            ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
           </Link>
         </div>
 
@@ -169,7 +169,7 @@ function NovaSenhaContent() {
 export default function TreinadorNovaSenhaPage() {
   return (
     <Suspense fallback={
-      <main style={{ background:'#06100a', minHeight:'100dvh', display:'flex', alignItems:'center', justifyContent:'center' }}>
+      <main style={{ background: 'var(--mc-canvas)', minHeight:'100dvh', display:'flex', alignItems:'center', justifyContent:'center' }}>
         <div style={{ width:40, height:40, borderRadius:'50%', border:'3px solid rgba(34,197,94,0.2)', borderTopColor:'#22c55e', animation:'spin .8s linear infinite' }} />
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </main>

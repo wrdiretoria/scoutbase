@@ -158,14 +158,14 @@ export default function QuestionarioPage() {
     <main style={{
       background: '#060d07', minHeight: '100dvh',
       display: 'flex', flexDirection: 'column',
-      padding: '0', fontFamily: 'system-ui, sans-serif',
+      padding: '0', fontFamily: 'inherit',
       overscrollBehaviorY: 'none',
     }}>
 
       {/* Barra de progresso */}
       <div style={{ height: '3px', background: 'rgba(255,255,255,0.06)', flexShrink: 0 }}>
         <div style={{
-          height: '100%', background: '#00FF88',
+          height: '100%', background: 'var(--mc-accent)',
           width: `${progresso}%`,
           transition: 'width 0.4s cubic-bezier(.22,1,.36,1)',
           boxShadow: '0 0 12px rgba(0,255,136,0.6)',
@@ -199,7 +199,7 @@ export default function QuestionarioPage() {
         <div style={{ marginBottom: '32px' }}>
           <p style={{
             margin: '0 0 8px', fontSize: '11px', fontWeight: 700,
-            color: '#00FF88', letterSpacing: '0.12em', textTransform: 'uppercase',
+            color: 'var(--mc-accent)', letterSpacing: '0.12em', textTransform: 'uppercase',
           }}>
             Pergunta {step + 1}
           </p>

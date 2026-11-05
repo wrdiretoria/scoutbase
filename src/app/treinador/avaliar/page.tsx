@@ -372,7 +372,7 @@ function AvaliarPageInner() {
       padding: '28px 20px',
       paddingTop: 'max(28px, env(safe-area-inset-top))',
       paddingBottom: 'calc(80px + env(safe-area-inset-bottom))',
-      fontFamily: 'system-ui, sans-serif',
+      fontFamily: 'inherit',
       position: 'relative',
     }}>
 
@@ -451,7 +451,7 @@ function AvaliarPageInner() {
             ← {step === 'buscar' ? 'Meu perfil' : 'Nova avaliação'}
           </button>
           <Link href="/" style={{ fontSize:'13px', fontWeight:800, color:'white', textDecoration:'none', opacity:0.5 }}>
-            ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+            ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
           </Link>
           <div style={{ width:'80px' }} />
         </div>
@@ -468,7 +468,7 @@ function AvaliarPageInner() {
                 padding:'5px 14px', borderRadius:'100px', marginBottom:'14px',
                 background:'rgba(0,255,136,0.08)', border:'1px solid rgba(0,255,136,0.2)',
               }}>
-                <div style={{ width:'5px', height:'5px', borderRadius:'50%', background:'#00FF88', boxShadow:'0 0 8px #00FF88', animation:'dotPulse 2s ease-in-out infinite' }} />
+                <div style={{ width:'5px', height:'5px', borderRadius:'50%', background: 'var(--mc-accent)', boxShadow:'0 0 8px #00FF88', animation:'dotPulse 2s ease-in-out infinite' }} />
                 <span style={{ fontSize:'10px', fontWeight:800, letterSpacing:'0.14em', color:'rgba(0,255,136,0.8)', textTransform:'uppercase' }}>
                   Avaliação oficial
                 </span>
@@ -505,7 +505,7 @@ function AvaliarPageInner() {
                     border:'1px solid rgba(255,255,255,0.1)',
                     color:'white', fontSize:'22px', fontWeight:900,
                     letterSpacing:'0.14em', outline:'none',
-                    fontFamily:'system-ui, sans-serif',
+                    fontFamily: 'inherit',
                     fontVariantNumeric:'tabular-nums',
                   }}
                 />
@@ -867,7 +867,7 @@ function AvaliarPageInner() {
                   width:'100%', padding:'14px 16px', boxSizing:'border-box', borderRadius:'14px',
                   background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.09)',
                   color:'rgba(255,255,255,0.75)', fontSize:'16px', lineHeight:1.7,
-                  fontFamily:'system-ui, sans-serif', transition:'border-color .2s',
+                  fontFamily: 'inherit', transition:'border-color .2s',
                 }}
               />
             </div>
@@ -997,7 +997,7 @@ function AvaliarPageInner() {
                       display:'flex', alignItems:'center', gap:'5px',
                       padding:'5px 12px', borderRadius:'100px', fontSize:'12px', fontWeight:700,
                       background:'rgba(0,255,136,0.1)', border:'1px solid rgba(0,255,136,0.2)',
-                      color:'#00FF88',
+                      color: 'var(--mc-accent)',
                     }}>
                       <span>{q.icon}</span>
                       <span>{q.label}</span>

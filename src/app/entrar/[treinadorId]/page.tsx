@@ -28,9 +28,9 @@ export default async function EntrarPage({ params }: Props) {
 
   return (
     <main style={{
-      background: '#06100a', minHeight: '100vh',
+      background: 'var(--mc-canvas)', minHeight: '100vh',
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      padding: '24px', fontFamily: 'system-ui, sans-serif',
+      padding: '24px', fontFamily: 'inherit',
     }}>
       <div style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
 
@@ -40,7 +40,7 @@ export default async function EntrarPage({ params }: Props) {
             fontSize: '18px', fontWeight: 800, color: 'white',
             textDecoration: 'none', letterSpacing: '0.03em',
           }}>
-            ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+            ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
           </Link>
         </div>
 

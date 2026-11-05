@@ -36,7 +36,7 @@ export default function TreinadorRecuperarIdPage() {
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '13px 16px', borderRadius: '12px', boxSizing: 'border-box',
     background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-    color: 'white', fontSize: '16px', outline: 'none', fontFamily: 'system-ui, sans-serif',
+    color: 'white', fontSize: '16px', outline: 'none', fontFamily: 'inherit',
   }
 
   const idNumerico = result?.treinadorId?.replace('TR-', '') ?? ''
@@ -45,14 +45,14 @@ export default function TreinadorRecuperarIdPage() {
     <main style={{
       background: '#080400', minHeight: '100dvh',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '24px', fontFamily: 'system-ui, sans-serif',
+      padding: '24px', fontFamily: 'inherit',
     }}>
       <div style={{ width: '100%', maxWidth: '360px' }}>
 
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <Link href="/" style={{ fontSize: '18px', fontWeight: 800, color: 'white', textDecoration: 'none' }}>
-            ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+            ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
           </Link>
         </div>
 
@@ -111,7 +111,7 @@ export default function TreinadorRecuperarIdPage() {
                   cursor: loading ? 'not-allowed' : 'pointer',
                   background: '#fbbf24', color: 'black', fontWeight: 800,
                   fontSize: '15px', opacity: loading ? 0.6 : 1,
-                  fontFamily: 'system-ui, sans-serif',
+                  fontFamily: 'inherit',
                 }}
               >
                 {loading ? 'Buscando…' : 'Encontrar meu ID →'}
@@ -173,7 +173,7 @@ export default function TreinadorRecuperarIdPage() {
                 display: 'block', width: '100%', padding: '12px', borderRadius: '12px',
                 border: '1px solid rgba(255,255,255,0.1)', background: 'transparent',
                 color: 'rgba(255,255,255,0.35)', fontSize: '13px', cursor: 'pointer',
-                fontFamily: 'system-ui, sans-serif',
+                fontFamily: 'inherit',
               }}
             >
               Buscar novamente
