@@ -801,7 +801,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
                 <svg width="16" height="16" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink:0 }}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
-                Ver perfil completo
+                Ver currículo e avaliação
                 <svg width="14" height="14" fill="none" stroke="rgba(255,255,255,0.65)" strokeWidth="2.5" viewBox="0 0 24 24" style={{ flexShrink:0 }}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 18l6-6-6-6"/>
                 </svg>
@@ -809,6 +809,76 @@ export default async function JogadorPublicoPage({ params }: Props) {
             )}
           </div>
         </div>
+
+        {/* ── Highlights — vídeos em campo ── */}
+        {highlights.length > 0 && (
+          <section id="lances" aria-labelledby="lances-heading" style={{ margin: '16px 0', scrollMarginTop: '20px' }}>
+            <h2 id="lances-heading" style={{ margin: '0 0 12px', fontSize: '18px', fontWeight: 800, color: '#f0f6f1' }}>
+              Melhores lances
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {highlights.map(hl => {
+                const thumb = getHlThumbnail(hl.plataforma, hl.video_id, hl.thumbnail_url)
+                const corPlat = getPlataformaCor(hl.plataforma)
+                const labelPlat = getPlataformaLabel(hl.plataforma)
+                return (
+                  <a
+                    key={hl.id}
+                    href={hl.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ textDecoration: 'none', display: 'block', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', background: '#0b1610' }}
+                  >
+                    {/* Thumbnail */}
+                    <div style={{ position: 'relative', aspectRatio: '16/9', background: '#0a120e', overflow: 'hidden' }}>
+                      {thumb ? (
+                        <img src={thumb} alt={hl.titulo ?? labelPlat} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{
+                          width: '100%', height: '100%',
+                          background: `linear-gradient(135deg,${corPlat}22,rgba(0,0,0,0.7))`,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                          <span style={{ fontSize: '32px', opacity: 0.6 }}>▶</span>
+                        </div>
+                      )}
+                      {/* Overlay play */}
+                      <div style={{
+                        position: 'absolute', inset: 0,
+                        background: 'rgba(0,0,0,0.22)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        <div style={{
+                          width: '44px', height: '44px', borderRadius: '50%',
+                          background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          border: '1.5px solid rgba(255,255,255,0.3)',
+                        }}>
+                          <span style={{ fontSize: '16px', marginLeft: '3px' }}>▶</span>
+                        </div>
+                      </div>
+                      {/* Badge plataforma */}
+                      <div style={{
+                        position: 'absolute', top: '8px', left: '8px',
+                        padding: '3px 8px', borderRadius: '100px',
+                        background: corPlat,
+                      }}>
+                        <span style={{ fontSize: '9px', fontWeight: 800, color: 'white', letterSpacing: '0.05em' }}>{labelPlat}</span>
+                      </div>
+                    </div>
+                    {/* Rodapé */}
+                    <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <p style={{ margin: 0, flex: 1, fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {hl.titulo ?? `Assistir no ${labelPlat}`}
+                      </p>
+                      <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.25)', flexShrink: 0 }}>↗</span>
+                    </div>
+                  </a>
+                )
+              })}
+            </div>
+          </section>
+        )}
 
         {/* ── Rede: stats + ações ── */}
         <NetworkStatsBar stats={networkStats} viewsLocked={viewsLocked} />
@@ -821,17 +891,6 @@ export default async function JogadorPublicoPage({ params }: Props) {
             <CopiarLink url={`${SERVER_BASE_URL}/jogador/${id}`} />
           </div>
         )}
-
-        {/* ── Recomendações ── */}
-        <div style={{
-          background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
-          borderRadius: '18px', padding: '18px', marginBottom: '16px',
-        }}>
-          <RecomendacoesSection subjectId={id} isOwner={isOwner} limit={3} showViewAllLink />
-        </div>
-
-        {/* ── Atividade recente ── */}
-        <AtividadeRecenteSection posts={atividadeRecente} />
 
         {/* ── Avaliação + Currículo — âncora para o CTA ── */}
         {ultimaAv && (
@@ -1091,75 +1150,16 @@ export default async function JogadorPublicoPage({ params }: Props) {
           </div>
         )}
 
-        {/* ── Highlights — vídeos em campo ── */}
-        {highlights.length > 0 && (
-          <div style={{ marginTop: '16px' }}>
-            <p style={{ margin: '0 0 12px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-              🎬 Highlights
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {highlights.map(hl => {
-                const thumb = getHlThumbnail(hl.plataforma, hl.video_id, hl.thumbnail_url)
-                const corPlat = getPlataformaCor(hl.plataforma)
-                const labelPlat = getPlataformaLabel(hl.plataforma)
-                return (
-                  <a
-                    key={hl.id}
-                    href={hl.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ textDecoration: 'none', display: 'block', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', background: '#0b1610' }}
-                  >
-                    {/* Thumbnail */}
-                    <div style={{ position: 'relative', aspectRatio: '16/9', background: '#0a120e', overflow: 'hidden' }}>
-                      {thumb ? (
-                        <img src={thumb} alt={hl.titulo ?? labelPlat} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        <div style={{
-                          width: '100%', height: '100%',
-                          background: `linear-gradient(135deg,${corPlat}22,rgba(0,0,0,0.7))`,
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        }}>
-                          <span style={{ fontSize: '32px', opacity: 0.6 }}>▶</span>
-                        </div>
-                      )}
-                      {/* Overlay play */}
-                      <div style={{
-                        position: 'absolute', inset: 0,
-                        background: 'rgba(0,0,0,0.22)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      }}>
-                        <div style={{
-                          width: '44px', height: '44px', borderRadius: '50%',
-                          background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          border: '1.5px solid rgba(255,255,255,0.3)',
-                        }}>
-                          <span style={{ fontSize: '16px', marginLeft: '3px' }}>▶</span>
-                        </div>
-                      </div>
-                      {/* Badge plataforma */}
-                      <div style={{
-                        position: 'absolute', top: '8px', left: '8px',
-                        padding: '3px 8px', borderRadius: '100px',
-                        background: corPlat,
-                      }}>
-                        <span style={{ fontSize: '9px', fontWeight: 800, color: 'white', letterSpacing: '0.05em' }}>{labelPlat}</span>
-                      </div>
-                    </div>
-                    {/* Rodapé */}
-                    <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <p style={{ margin: 0, flex: 1, fontSize: '12px', fontWeight: 600, color: 'rgba(255,255,255,0.5)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {hl.titulo ?? `Assistir no ${labelPlat}`}
-                      </p>
-                      <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.25)', flexShrink: 0 }}>↗</span>
-                    </div>
-                  </a>
-                )
-              })}
-            </div>
-          </div>
-        )}
+        {/* ── Recomendações ── */}
+        <div style={{
+          background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
+          borderRadius: '18px', padding: '18px', marginBottom: '16px',
+        }}>
+          <RecomendacoesSection subjectId={id} isOwner={isOwner} limit={3} showViewAllLink />
+        </div>
+
+        {/* ── Atividade recente ── */}
+        <AtividadeRecenteSection posts={atividadeRecente} />
 
         {/* ── Card compartilhável — só visível para o dono ── */}
         {isOwner && (
