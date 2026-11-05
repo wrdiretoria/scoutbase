@@ -31,17 +31,33 @@ function dataRelativa(dateStr: string) {
 export default function InboxList() {
   const [conversas, setConversas] = useState<Conversa[] | null>(null)
 
+  const [falhou, setFalhou] = useState(false)
+  const [tentativa, setTentativa] = useState(0)
+  const [soNaoLidas, setSoNaoLidas] = useState(false)
+
   useEffect(() => {
     let ativo = true
     fetch('/api/conversations')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('Falha ao carregar conversas')
+        return res.json()
+      })
       .then((data: { conversations: Conversa[] }) => { if (ativo) setConversas(data.conversations ?? []) })
-      .catch(() => { if (ativo) setConversas([]) })
+      .catch(() => { if (ativo) setFalhou(true) })
     return () => { ativo = false }
-  }, [])
+  }, [tentativa]
+
+  if (falhou) {
+    return <div role="alert" style={{ padding: 20, background: '#121f18', borderRadius: 14, color: '#f0f6f1' }}>
+      <p>Não foi possível carregar suas mensagens.</p>
+      <button type="button" onClick={() => { setFalhou(false); setTentativa(atual => atual + 1) }} style={{ minHeight: 44, color: '#b3f737' }}>
+        Tentar novamente
+      </button>
+    </div>
+  }
 
   if (conversas === null) {
-    return <p style={{ textAlign: 'center', fontSize: '13px', color: 'rgba(255,255,255,0.3)', padding: '30px 0' }}>Carregando…</p>
+    return <p style={{ textAlign: 'center', fontSize: '13px', color: '#aebdb4', padding: '30px 0' }}>Carregando…</p>
   }
 
   if (conversas.length === 0) {
@@ -50,22 +66,36 @@ export default function InboxList() {
         background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
         borderRadius: '16px', padding: '24px', textAlign: 'center',
       }}>
-        <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>
-          Nenhuma conversa ainda. Mande uma mensagem a partir do perfil de alguém da sua rede.
+        <p style={{ margin: 0, fontSize: '13px', color: '#c4d0c9' }}>
+          Nenhuma conversa ainda. Abra um perfil para começar uma conversa.
         </p>
+        <Link href="/ranking" style={{ display: 'inline-flex', alignItems: 'center', minHeight: 44, color: '#b3f737', fontWeight: 700 }}>Explorar atletas</Link>
       </div>
     )
   }
 
+  const naoLidas = conversas.filter(conversa => conversa.unread)
+  const visiveis = soNaoLidas ? naoLidas : conversas
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-      {conversas.map(c => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <div role="group" aria-label="Filtrar mensagens" style={{ display: 'flex', gap: 8, marginBottom: 8, flexWrap: 'wrap' }}>
+        {[false, true].map(filtro => (
+          <button key={String(filtro)} type="button" aria-pressed={soNaoLidas === filtro}
+            onClick={() => setSoNaoLidas(filtro)}
+            style={{ minHeight: 44, padding: '0 14px', border: '1px solid #385346', borderRadius: 10, fontWeight: 800, background: soNaoLidas === filtro ? '#b3f737' : '#121f18', color: soNaoLidas === filtro ? '#13200b' : '#f0f6f1' }}>
+            {filtro ? `Não lidas (${naoLidas.length})` : 'Todas'}
+          </button>
+        ))}
+      </div>
+      {visiveis.length === 0 && <p style={{ color: '#c4d0c9' }}>Você está em dia. Nenhuma conversa não lida.</p>}
+      {visiveis.map(c => (
         <Link
           key={c.id}
           href={`/mensagens/${c.id}`}
           style={{
             display: 'flex', alignItems: 'center', gap: '12px',
-            background: '#0b1610', border: c.unread ? '1px solid rgba(34,197,94,0.3)' : '1px solid rgba(255,255,255,0.07)',
+            background: c.unread ? '#16251a' : '#0b1610', border: c.unread ? '1px solid #627b3d' : '1px solid #304239',
             borderRadius: '14px', padding: '12px 14px', textDecoration: 'none',
           }}
         >
@@ -87,7 +117,7 @@ export default function InboxList() {
               {c.other?.nome ?? 'Perfil'}
             </p>
             <p style={{
-              margin: 0, fontSize: '12px', color: c.unread ? 'rgba(255,255,255,0.65)' : 'rgba(255,255,255,0.35)',
+              margin: 0, fontSize: '12px', color: c.unread ? '#f0f6f1' : '#aebdb4',
               fontWeight: c.unread ? 700 : 400,
               whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
             }}>
@@ -99,7 +129,7 @@ export default function InboxList() {
               <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)' }}>{dataRelativa(c.lastMessage.created_at)}</span>
             )}
             {c.unread && (
-              <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 6px rgba(34,197,94,0.7)' }} />
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#b3f737' }}>Não lida</span>
             )}
           </div>
         </Link>
