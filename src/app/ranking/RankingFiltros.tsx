@@ -87,6 +87,7 @@ const PAISES = [
 ]
 
 type Props = {
+  buscaFiltro?: string
   categoriaFiltro?:    string
   posicaoFiltro?:      string
   cidadeFiltro?:       string
@@ -97,8 +98,9 @@ type Props = {
   ordem?:              string     // aba atual (semana | novos | visitados) — preservada nos filtros
 }
 
-function buildUrl(p: { ordem?: string; categoria?: string; posicao?: string; cidade?: string; bairro?: string; estado?: string; pais?: string }) {
+function buildUrl(p: { ordem?: string; categoria?: string; posicao?: string; cidade?: string; bairro?: string; estado?: string; pais?: string; busca?: string }) {
   const q = new URLSearchParams()
+  if (p.busca) q.set('q', p.busca)
   if (p.ordem)     q.set('ordem',     p.ordem)
   if (p.categoria) q.set('categoria', p.categoria)
   if (p.posicao)   q.set('posicao',   p.posicao)
@@ -110,7 +112,7 @@ function buildUrl(p: { ordem?: string; categoria?: string; posicao?: string; cid
   return `/ranking${s ? `?${s}` : ''}`
 }
 
-export default function RankingFiltros({ categoriaFiltro, posicaoFiltro, cidadeFiltro, bairroFiltro, bairrosDisponiveis = [], estadoFiltro, paisFiltro, ordem }: Props) {
+export default function RankingFiltros({ categoriaFiltro, posicaoFiltro, cidadeFiltro, bairroFiltro, bairrosDisponiveis = [], estadoFiltro, paisFiltro, ordem, buscaFiltro }: Props) {
   const router  = useRouter()
 
   const isBrasil = !paisFiltro || paisFiltro === 'Brasil'
@@ -121,23 +123,23 @@ export default function RankingFiltros({ categoriaFiltro, posicaoFiltro, cidadeF
     : (paisFiltro ? CIDADES_INTL[paisFiltro] ?? [] : [])
 
   function onPosicao(pos: string) {
-    router.push(buildUrl({ ordem, categoria: categoriaFiltro, posicao: pos || undefined, cidade: cidadeFiltro, bairro: bairroFiltro, estado: estadoFiltro, pais: paisFiltro }))
+    router.push(buildUrl({ ordem, busca: buscaFiltro, categoria: categoriaFiltro, posicao: pos || undefined, cidade: cidadeFiltro, bairro: bairroFiltro, estado: estadoFiltro, pais: paisFiltro }))
   }
 
   function onPais(p: string) {
-    router.push(buildUrl({ ordem, categoria: categoriaFiltro, posicao: posicaoFiltro, pais: p || undefined }))
+    router.push(buildUrl({ ordem, busca: buscaFiltro, categoria: categoriaFiltro, posicao: posicaoFiltro, pais: p || undefined }))
   }
 
   function onEstado(uf: string) {
-    router.push(buildUrl({ ordem, categoria: categoriaFiltro, posicao: posicaoFiltro, estado: uf || undefined, pais: paisFiltro }))
+    router.push(buildUrl({ ordem, busca: buscaFiltro, categoria: categoriaFiltro, posicao: posicaoFiltro, estado: uf || undefined, pais: paisFiltro }))
   }
 
   function onCidade(c: string) {
-    router.push(buildUrl({ ordem, categoria: categoriaFiltro, posicao: posicaoFiltro, cidade: c || undefined, estado: estadoFiltro, pais: paisFiltro }))
+    router.push(buildUrl({ ordem, busca: buscaFiltro, categoria: categoriaFiltro, posicao: posicaoFiltro, cidade: c || undefined, estado: estadoFiltro, pais: paisFiltro }))
   }
 
   function onBairro(b: string) {
-    router.push(buildUrl({ ordem, categoria: categoriaFiltro, posicao: posicaoFiltro, cidade: cidadeFiltro, bairro: b || undefined, estado: estadoFiltro, pais: paisFiltro }))
+    router.push(buildUrl({ ordem, busca: buscaFiltro, categoria: categoriaFiltro, posicao: posicaoFiltro, cidade: cidadeFiltro, bairro: b || undefined, estado: estadoFiltro, pais: paisFiltro }))
   }
 
   const temFiltro = posicaoFiltro || cidadeFiltro || bairroFiltro || estadoFiltro || paisFiltro
@@ -211,7 +213,7 @@ export default function RankingFiltros({ categoriaFiltro, posicaoFiltro, cidadeF
         {/* Limpar filtros extras */}
         {temFiltro && (
           <a
-            href={buildUrl({ ordem, categoria: categoriaFiltro })}
+            href={buildUrl({ ordem, busca: buscaFiltro, categoria: categoriaFiltro })}
             style={{
               padding: '9px 14px', borderRadius: '10px', fontSize: '12px', fontWeight: 700,
               color: 'rgba(255,255,255,0.4)', border: '1px solid rgba(255,255,255,0.1)',

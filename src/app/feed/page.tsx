@@ -262,10 +262,6 @@ export default async function FeedPage() {
           <section className={styles.feedColumn} aria-label="Feed da comunidade">
             <nav className={styles.feedTabs} aria-label="Filtros do feed">
               <Link className={styles.selectedTab} href="/feed">Feed</Link>
-              <span aria-disabled="true" title="Filtro ainda não disponível">Para você</span>
-              <span aria-disabled="true" title="Filtro do feed ainda não disponível">Oportunidades</span>
-              <span aria-disabled="true" title="Filtro ainda não disponível">Clubes</span>
-              <span aria-disabled="true" title="Filtro ainda não disponível">Conteúdos</span>
             </nav>
             <FeedCenter
               cardStyle={{}}

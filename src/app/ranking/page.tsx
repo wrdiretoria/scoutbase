@@ -330,6 +330,7 @@ export default async function RankingPage({ searchParams }: Props) {
 
         {/* Filtros de posição + estado + cidade (client component) */}
         <RankingFiltros
+          buscaFiltro={buscaFiltro}
           categoriaFiltro={categoriaFiltro}
           posicaoFiltro={posicaoFiltro}
           estadoFiltro={estadoFiltro}
