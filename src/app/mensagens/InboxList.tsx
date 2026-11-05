@@ -45,7 +45,7 @@ export default function InboxList() {
       .then((data: { conversations: Conversa[] }) => { if (ativo) setConversas(data.conversations ?? []) })
       .catch(() => { if (ativo) setFalhou(true) })
     return () => { ativo = false }
-  }, [tentativa]
+  }, [tentativa])
 
   if (falhou) {
     return <div role="alert" style={{ padding: 20, background: '#121f18', borderRadius: 14, color: '#f0f6f1' }}>
