@@ -1019,8 +1019,11 @@ function AtletaPerfilContent() {
           padding:8px; border:1px solid #385346; border-radius:12px;
           color:#f0f6f1; text-align:center; text-decoration:none; font-weight:700; font-size:13px;
         }
-        .profile-quick-actions a:first-child { border-color:#b3f737; color:#b3f737; }
-        .action-btn.profile-card-share { background:#b3f737; color:#13200b; }
+        .profile-quick-actions a:hover { border-color:#718279; background:#18241e; }
+        .action-btn.profile-card-share { background:#b3f737; color:#13200b; border-color:#b3f737; }
+        .action-btn.profile-card-share:hover { background:#c6ff60; }
+        .share-btn.profile-link-share { border:1px solid #385346; background:#121f18; }
+        .share-btn.profile-link-share:hover { border-color:#718279; background:#18241e; }
         .profile-card-share div span + span, .profile-card-share > span:last-child { color:#294317 !important; }
         .profile-quick-actions a:focus-visible, .profile-card-share:focus-visible {
           outline:2px solid #b3f737; outline-offset:3px;
@@ -1049,8 +1052,7 @@ function AtletaPerfilContent() {
         {/* ── Header card ── */}
         <div style={{
           borderRadius:'20px', overflow:'hidden',
-          background:'#0b1610', border:'1px solid rgba(34,197,94,0.15)',
-          boxShadow:'0 0 40px rgba(34,197,94,0.08)',
+          background:'#101a15', border:'1px solid #304239',
           marginBottom:'16px',
         }}>
           {/* Banner + foto */}
@@ -1268,7 +1270,7 @@ function AtletaPerfilContent() {
                 <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', gap:'8px' }}>
                   <div>
                     <h1 style={{ margin:'0 0 4px', fontSize:'20px', fontWeight:800 }}>{meta.nome}</h1>
-                    <p style={{ margin:0, fontSize:'13px', color:'rgba(255,255,255,0.4)' }}>
+                    <p style={{ margin:0, fontSize:'13px', color:'#c4d0c9' }}>
                       {meta.posicao}{meta.bairro ? ` · ${meta.bairro}` : ''}{meta.cidade ? ` · ${meta.cidade}` : ''}{meta.pais ? ` · ${meta.pais}` : ''}
                     </p>
                   </div>
@@ -1348,7 +1350,7 @@ function AtletaPerfilContent() {
         {/* ── Ações ── */}
         <div style={{ display:'flex', flexDirection:'column', gap:'10px', marginBottom:16 }}>
           <button
-            className="share-btn"
+            className="share-btn profile-link-share"
             onClick={async () => {
               const cardUrl = uid ? `${window.location.origin}/jogador/${uid}` : window.location.origin
               try {
@@ -1372,7 +1374,7 @@ function AtletaPerfilContent() {
             <span style={{ fontSize:'20px', flexShrink:0 }}>📲</span>
             <div style={{ flex:1, textAlign:'left' }}>
               <span style={{ display:'block', fontSize:'14px', fontWeight:700 }}>Compartilhar meu perfil</span>
-              <span style={{ display:'block', fontSize:'11px', color:'rgba(255,255,255,0.42)', marginTop:'1px' }}>
+              <span style={{ display:'block', fontSize:'12px', color:'#c4d0c9', marginTop:'2px' }}>
                 {avaliacao ? 'Com avaliação oficial · atributos desbloqueados' : 'Perfil + ID de atleta'}
               </span>
             </div>
