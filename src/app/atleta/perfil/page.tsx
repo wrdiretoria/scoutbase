@@ -1011,6 +1011,20 @@ function AtletaPerfilContent() {
         .hl-add-input:focus { border-color:rgba(0,255,136,0.3); }
         .hl-add-input::placeholder { color:rgba(255,255,255,0.2); }
         .hl-add-input:focus { border-color:rgba(0,255,136,0.3); box-shadow:0 0 0 3px rgba(0,255,136,0.08); }
+        .profile-quick-actions {
+          display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;
+        }
+        .profile-quick-actions a {
+          flex:1 1 120px; display:grid; place-items:center; min-height:44px;
+          padding:8px; border:1px solid #385346; border-radius:12px;
+          color:#f0f6f1; text-align:center; text-decoration:none; font-weight:700; font-size:13px;
+        }
+        .profile-quick-actions a:first-child { border-color:#b3f737; color:#b3f737; }
+        .action-btn.profile-card-share { background:#b3f737; color:#13200b; }
+        .profile-card-share div span + span, .profile-card-share > span:last-child { color:#294317 !important; }
+        .profile-quick-actions a:focus-visible, .profile-card-share:focus-visible {
+          outline:2px solid #b3f737; outline-offset:3px;
+        }
         /* Save button */
         button[type=submit]:active { transform:scale(.98); opacity:.88; transition:transform .08s; }
       `}</style>
@@ -1029,6 +1043,8 @@ function AtletaPerfilContent() {
       </nav>
 
       <div style={{ maxWidth:'480px', margin:'0 auto', padding:'28px 20px', paddingBottom:'calc(80px + env(safe-area-inset-bottom))' }}>
+
+        <p style={{ color: '#b3f737', fontSize: 13, fontWeight: 800, margin: '0 0 12px' }}>Meu Perfil</p>
 
         {/* ── Header card ── */}
         <div style={{
@@ -1322,6 +1338,113 @@ function AtletaPerfilContent() {
               </div>
             )}
           </div>
+        </div>
+
+        <nav className="profile-quick-actions" aria-label="Atalhos do meu perfil">
+          <a href="#curriculo">Editar currículo</a>
+          <a href="#highlights">Meus vídeos</a>
+          {uid && <Link href={`/jogador/${uid}`}>Ver perfil público</Link>}
+        </nav>
+        {/* ── Ações ── */}
+        <div style={{ display:'flex', flexDirection:'column', gap:'10px', marginBottom:16 }}>
+          <button
+            className="share-btn"
+            onClick={async () => {
+              const cardUrl = uid ? `${window.location.origin}/jogador/${uid}` : window.location.origin
+              try {
+                if (navigator.share) {
+                  await navigator.share({ title:`${meta.nome} · MeuCraque`, text:`Acabei de montar meu perfil no MeuCraque! ${meta.posicao} · ${meta.cidade}. Você é o próximo?`, url:cardUrl })
+                } else {
+                  await navigator.clipboard.writeText(cardUrl)
+                  alert('Link copiado!')
+                }
+              } catch (err) {
+                // AbortError = usuário fechou o share — normal, não faz nada
+                if (err instanceof Error && err.name !== 'AbortError') {
+                  try {
+                    await navigator.clipboard.writeText(cardUrl)
+                    alert('Link copiado!')
+                  } catch { /* sem permissão de clipboard */ }
+                }
+              }
+            }}
+          >
+            <span style={{ fontSize:'20px', flexShrink:0 }}>📲</span>
+            <div style={{ flex:1, textAlign:'left' }}>
+              <span style={{ display:'block', fontSize:'14px', fontWeight:700 }}>Compartilhar meu perfil</span>
+              <span style={{ display:'block', fontSize:'11px', color:'rgba(255,255,255,0.42)', marginTop:'1px' }}>
+                {avaliacao ? 'Com avaliação oficial · atributos desbloqueados' : 'Perfil + ID de atleta'}
+              </span>
+            </div>
+            <span style={{ fontSize:'16px', color:'rgba(0,255,136,0.5)', flexShrink:0 }}>↗</span>
+          </button>
+
+          {/* Card para Instagram/Story */}
+          {uid && athleteId && (
+            <button
+              className="action-btn profile-card-share"
+              style={{ gap:'12px', opacity: sharingCard ? 0.6 : 1 }}
+              disabled={sharingCard}
+              onClick={async () => {
+                setSharingCard(true)
+                try {
+                  let imgSrc = ''
+                  if (avatarUrl) {
+                    try {
+                      const r = await fetch(avatarUrl)
+                      const b = await r.blob()
+                      imgSrc = await new Promise<string>((res, rej) => {
+                        const rd = new FileReader()
+                        rd.onload = () => res(rd.result as string)
+                        rd.onerror = rej
+                        rd.readAsDataURL(b)
+                      })
+                    } catch { imgSrc = avatarUrl }
+                  }
+                  // Story 1080×1920 — OVR (lib/escala) e categoria (lib/categoria) pelos helpers únicos
+                  const tempCanvas = document.createElement('canvas')
+                  await generateStoryCard(tempCanvas, {
+                    nome:          meta.nome,
+                    pos:           posAbrev(meta.posicao ?? ''),
+                    posicao:       meta.posicao ?? '',
+                    ovr:           ovrTotal,
+                    hasEvaluation: avaliacao !== null,
+                    categoria:     dataNasc ? (calcularCategoria(dataNasc) || null) : null,
+                    fotoUrl:       imgSrc || null,
+                    initials:      getInitials(meta.nome ?? ''),
+                    athleteId:     athleteId || null,
+                    cidade:        meta.cidade || null,
+                    idade:         dataNasc ? calcularIdade(dataNasc) : null,
+                    profileUrl:    `https://www.meucraque.com/jogador/${uid}`,
+                    pais:          meta.pais || null,
+                    statPac:       atrsLegado?.vel ?? null,
+                    statSho:       atrsLegado?.tec ?? null,
+                    statPas:       atrsLegado?.dri ?? null,
+                    statDri:       atrsLegado?.fis ?? null,
+                    statDef:       atrsLegado?.tat ?? null,
+                    statPhy:       atrsLegado?.pos ?? null,
+                  })
+                  setCardFile(await storyParaArquivo(tempCanvas, `${meta.nome.replace(/\s+/g,'_')}_MeuCraque_story.png`))
+                  setCardModal(tempCanvas.toDataURL('image/png'))
+                } catch {
+                  alert('Erro ao gerar o card. Tente novamente.')
+                } finally {
+                  setSharingCard(false)
+                }
+              }}
+            >
+              <span style={{ fontSize:'20px', flexShrink:0 }}>{sharingCard ? '⏳' : '📸'}</span>
+              <div style={{ flex:1, textAlign:'left' }}>
+                <span style={{ display:'block', fontSize:'14px', fontWeight:700 }}>
+                  {sharingCard ? 'Gerando…' : 'Compartilhar meu card'}
+                </span>
+                <span style={{ display:'block', fontSize:'11px', color:'rgba(255,255,255,0.42)', marginTop:'1px' }}>
+                  {sharingCard ? 'Aguarde um segundo' : 'Story para Instagram / WhatsApp'}
+                </span>
+              </div>
+              {!sharingCard && <span style={{ fontSize:'16px', color:'rgba(0,255,136,0.5)', flexShrink:0 }}>↗</span>}
+            </button>
+          )}
         </div>
 
         {/* ── ID do Atleta ── */}
@@ -1820,7 +1943,7 @@ function AtletaPerfilContent() {
         {/* ══════════════════════════════════════════
             CURRÍCULO EDITÁVEL
         ══════════════════════════════════════════ */}
-        <form onSubmit={handleSave}>
+        <form id="curriculo" onSubmit={handleSave} style={{ scrollMarginTop: 24 }}>
           <div style={{ marginBottom:'8px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
             <p style={{ margin:0, fontSize:'12px', fontWeight:700, color:'rgba(255,255,255,0.4)', letterSpacing:'0.08em', textTransform:'uppercase' }}>
               Meu currículo
@@ -2400,107 +2523,7 @@ function AtletaPerfilContent() {
         {/* ── Indicação ── */}
         {athleteId && <IndicacaoSection athleteId={athleteId} />}
 
-        {/* ── Ações ── */}
-        <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
-          <button
-            className="share-btn"
-            onClick={async () => {
-              const cardUrl = uid ? `${window.location.origin}/jogador/${uid}` : window.location.origin
-              try {
-                if (navigator.share) {
-                  await navigator.share({ title:`${meta.nome} · MeuCraque`, text:`Acabei de montar meu perfil no MeuCraque! ${meta.posicao} · ${meta.cidade}. Você é o próximo?`, url:cardUrl })
-                } else {
-                  await navigator.clipboard.writeText(cardUrl)
-                  alert('Link copiado!')
-                }
-              } catch (err) {
-                // AbortError = usuário fechou o share — normal, não faz nada
-                if (err instanceof Error && err.name !== 'AbortError') {
-                  try {
-                    await navigator.clipboard.writeText(cardUrl)
-                    alert('Link copiado!')
-                  } catch { /* sem permissão de clipboard */ }
-                }
-              }
-            }}
-          >
-            <span style={{ fontSize:'20px', flexShrink:0 }}>📲</span>
-            <div style={{ flex:1, textAlign:'left' }}>
-              <span style={{ display:'block', fontSize:'14px', fontWeight:700 }}>Compartilhar meu perfil</span>
-              <span style={{ display:'block', fontSize:'11px', color:'rgba(255,255,255,0.42)', marginTop:'1px' }}>
-                {avaliacao ? 'Com avaliação oficial · atributos desbloqueados' : 'Perfil + ID de atleta'}
-              </span>
-            </div>
-            <span style={{ fontSize:'16px', color:'rgba(0,255,136,0.5)', flexShrink:0 }}>↗</span>
-          </button>
-
-          {/* Card para Instagram/Story */}
-          {uid && athleteId && (
-            <button
-              className="action-btn"
-              style={{ gap:'12px', opacity: sharingCard ? 0.6 : 1 }}
-              disabled={sharingCard}
-              onClick={async () => {
-                setSharingCard(true)
-                try {
-                  let imgSrc = ''
-                  if (avatarUrl) {
-                    try {
-                      const r = await fetch(avatarUrl)
-                      const b = await r.blob()
-                      imgSrc = await new Promise<string>((res, rej) => {
-                        const rd = new FileReader()
-                        rd.onload = () => res(rd.result as string)
-                        rd.onerror = rej
-                        rd.readAsDataURL(b)
-                      })
-                    } catch { imgSrc = avatarUrl }
-                  }
-                  // Story 1080×1920 — OVR (lib/escala) e categoria (lib/categoria) pelos helpers únicos
-                  const tempCanvas = document.createElement('canvas')
-                  await generateStoryCard(tempCanvas, {
-                    nome:          meta.nome,
-                    pos:           posAbrev(meta.posicao ?? ''),
-                    posicao:       meta.posicao ?? '',
-                    ovr:           ovrTotal,
-                    hasEvaluation: avaliacao !== null,
-                    categoria:     dataNasc ? (calcularCategoria(dataNasc) || null) : null,
-                    fotoUrl:       imgSrc || null,
-                    initials:      getInitials(meta.nome ?? ''),
-                    athleteId:     athleteId || null,
-                    cidade:        meta.cidade || null,
-                    idade:         dataNasc ? calcularIdade(dataNasc) : null,
-                    profileUrl:    `https://www.meucraque.com/jogador/${uid}`,
-                    pais:          meta.pais || null,
-                    statPac:       atrsLegado?.vel ?? null,
-                    statSho:       atrsLegado?.tec ?? null,
-                    statPas:       atrsLegado?.dri ?? null,
-                    statDri:       atrsLegado?.fis ?? null,
-                    statDef:       atrsLegado?.tat ?? null,
-                    statPhy:       atrsLegado?.pos ?? null,
-                  })
-                  setCardFile(await storyParaArquivo(tempCanvas, `${meta.nome.replace(/\s+/g,'_')}_MeuCraque_story.png`))
-                  setCardModal(tempCanvas.toDataURL('image/png'))
-                } catch {
-                  alert('Erro ao gerar o card. Tente novamente.')
-                } finally {
-                  setSharingCard(false)
-                }
-              }}
-            >
-              <span style={{ fontSize:'20px', flexShrink:0 }}>{sharingCard ? '⏳' : '📸'}</span>
-              <div style={{ flex:1, textAlign:'left' }}>
-                <span style={{ display:'block', fontSize:'14px', fontWeight:700 }}>
-                  {sharingCard ? 'Gerando…' : 'Compartilhar meu card'}
-                </span>
-                <span style={{ display:'block', fontSize:'11px', color:'rgba(255,255,255,0.42)', marginTop:'1px' }}>
-                  {sharingCard ? 'Aguarde um segundo' : 'Story para Instagram / WhatsApp'}
-                </span>
-              </div>
-              {!sharingCard && <span style={{ fontSize:'16px', color:'rgba(0,255,136,0.5)', flexShrink:0 }}>↗</span>}
-            </button>
-          )}
-
+        <div>
           <Link href="/ranking" className="action-btn" style={{ justifyContent:'center', textAlign:'center' }}>
             Ver ranking geral →
           </Link>
