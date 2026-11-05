@@ -26,7 +26,7 @@ export default async function VagasPage({ searchParams }: Props) {
     const nomes = new Map((vagas?.data ?? []).map(vaga => [vaga.id, vaga.title]))
     const status: Record<string, string> = { pending: 'Enviada', viewed: 'Visualizada', accepted: 'Aceita', rejected: 'Não selecionada' }
     return (
-      <main style={{ maxWidth: 600, margin: '0 auto', padding: '24px 20px 64px', color: '#f0f6f1' }}>
+      <main className="mc-screen" style={{ maxWidth: 600, margin: '0 auto', padding: '24px 20px 64px', color: '#f0f6f1' }}>
         <Link href="/vagas" style={{ color: '#b3f737' }}>← Ver vagas abertas</Link>
         <h1 style={{ fontSize: 30, margin: '16px 0' }}>Minhas candidaturas</h1>
         {error || vagas?.error ? <p>Não foi possível carregar suas candidaturas agora.</p>
@@ -35,7 +35,7 @@ export default async function VagasPage({ searchParams }: Props) {
               {candidaturas.map(item => (
                 <li key={item.id} style={{ padding: 16, border: '1px solid #385346', borderRadius: 14, background: '#121f18' }}>
                   <strong>{nomes.get(item.opportunity_id) ?? 'Oportunidade indisponível'}</strong>
-                  <p style={{ margin: '6px 0 0', color: '#c4d0c9' }}>
+                  <p style={{ margin: '6px 0 0', color: 'var(--mc-muted)' }}>
                     {status[item.status] ?? 'Enviada'} · {new Date(item.created_at).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
                   </p>
                 </li>
@@ -65,7 +65,7 @@ export default async function VagasPage({ searchParams }: Props) {
   const clubePorId = new Map((clubes ?? []).map(c => [c.id, { nome: c.nome, avatarUrl: c.avatar_url }]))
 
   return (
-    <main style={{ background: '#06100a', minHeight: '100vh', fontFamily: 'system-ui, sans-serif', color: 'white', padding: '24px 20px 60px' }}>
+    <main className="mc-screen" style={{ background: 'var(--mc-canvas)', minHeight: '100vh',  color: 'white', padding: '24px 20px 60px' }}>
       <div style={{ maxWidth: '560px', margin: '0 auto' }}>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
@@ -75,12 +75,12 @@ export default async function VagasPage({ searchParams }: Props) {
         </div>
 
         <h1 style={{ margin: '0 0 4px', fontSize: '22px', fontWeight: 900 }}>Oportunidades</h1>
-        <p style={{ margin: '0 0 18px', fontSize: '13px', color: '#c4d0c9' }}>
+        <p style={{ margin: '0 0 18px', fontSize: '13px', color: 'var(--mc-muted)' }}>
           Oportunidades publicadas por treinadores e escolinhas no Meu Craque.
         </p>
 
         <nav aria-label="Oportunidades" style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-          <Link aria-current="page" href="/vagas" style={{ padding: '12px 14px', borderRadius: 10, background: '#b3f737', color: '#13200b', fontWeight: 800 }}>Vagas abertas</Link>
+          <Link aria-current="page" href="/vagas" style={{ padding: '12px 14px', borderRadius: 10, background: 'var(--mc-accent)', color: 'var(--mc-on-accent)', fontWeight: 800 }}>Vagas abertas</Link>
           <Link href="/vagas?aba=candidaturas" style={{ padding: '12px 14px', borderRadius: 10, border: '1px solid #526458', color: '#f0f6f1' }}>Minhas candidaturas</Link>
         </nav>
         <VagasFiltros positionFiltro={position} categoryFiltro={category} cityFiltro={city} />
@@ -88,7 +88,7 @@ export default async function VagasPage({ searchParams }: Props) {
         {rows.length === 0 ? (
           <div style={{
             padding: '32px', borderRadius: '16px', textAlign: 'center',
-            background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
+            background: 'var(--mc-surface)', border: '1px solid rgba(255,255,255,0.07)',
           }}>
             <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.35)' }}>
               {vagasError ? 'Não foi possível carregar as vagas agora.' : 'Nenhuma vaga encontrada. Experimente mudar os filtros.'}
@@ -100,13 +100,13 @@ export default async function VagasPage({ searchParams }: Props) {
               const clube = clubePorId.get(v.club_id)
               return (
                 <div key={v.id} style={{
-                  background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
+                  background: 'var(--mc-surface)', border: '1px solid rgba(255,255,255,0.07)',
                   borderRadius: '16px', padding: '16px',
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
                     <p style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: 'white' }}>{v.title}</p>
                   </div>
-                  <p style={{ margin: '0 0 6px', fontSize: '13px', color: '#c4d0c9' }}>
+                  <p style={{ margin: '0 0 6px', fontSize: '13px', color: 'var(--mc-muted)' }}>
                     {[v.position, v.category, v.city].filter(Boolean).join(' · ') || 'Sem detalhes adicionais'}
                   </p>
                   {clube?.nome && (

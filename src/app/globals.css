@@ -166,3 +166,29 @@ textarea {
     width: 100% !important;
   }
 }
+
+/* Shared visual foundation for the main MeuCraque screens. */
+.mc-screen {
+  --mc-canvas: #080f0c;
+  --mc-surface: #121f18;
+  --mc-line: #385346;
+  --mc-text: #f0f6f1;
+  --mc-muted: #b9c8bf;
+  --mc-accent: #b3f737;
+  --mc-on-accent: #13200b;
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+  color: var(--mc-text);
+}
+
+.mc-screen :where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--mc-accent);
+  outline-offset: 3px;
+}
+
+.mc-screen .mc-primary-action {
+  min-height: 44px;
+  border-color: var(--mc-accent);
+  background: var(--mc-accent);
+  color: var(--mc-on-accent);
+  font-weight: 800;
+}

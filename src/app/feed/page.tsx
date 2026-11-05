@@ -102,7 +102,7 @@ export default async function FeedPage() {
   const signInHref = '/login?next=%2Ffeed'
 
   return (
-    <main className={styles.page}>
+    <main className={`mc-screen ${styles.page}`}>
       <div className={styles.shell}>
         <header className={styles.header}>
           <details className={styles.menu}>
@@ -182,14 +182,14 @@ export default async function FeedPage() {
               <div className={styles.networkStat}><Icon name="users" size={18} /><span><strong>{stats?.connections ?? 0}</strong> {(stats?.connections ?? 0) === 1 ? 'conexão' : 'conexões'}</span></div>
               <Link href={perfil} className={styles.heroCta}>Completar perfil <span aria-hidden="true">›</span></Link>
             </> : <div className={styles.guestHeroActions}>
-              <Link href="/atleta/cadastro" className={styles.heroCta}>Criar meu perfil de atleta</Link>
+              <Link href="/atleta/cadastro" className={`mc-primary-action ${styles.heroCta}`}>Criar meu perfil de atleta</Link>
               <Link href="/ranking" className={styles.heroCtaSecondary}>Encontrar atletas</Link>
             </div>}
           </div>
         </section>
 
         {!user && (
-          <section aria-label="Exemplo de perfil esportivo" style={{ marginTop: 14, padding: 16, border: '1px solid #385346', borderRadius: 16, background: '#101e17' }}>
+          <section aria-label="Exemplo de perfil esportivo" style={{ marginTop: 14, padding: 16, border: '1px solid #385346', borderRadius: 16, background: 'var(--mc-surface)' }}>
             <p style={{ margin: '0 0 4px', color: '#b3f737', fontSize: 12, fontWeight: 800 }}>PERFIL ESPORTIVO</p>
             <h2 style={{ margin: '0 0 6px', fontSize: 20 }}>Veja como seu jogo pode aparecer</h2>
             <p style={{ margin: '0 0 8px', color: '#c4d0c9', lineHeight: 1.45 }}>

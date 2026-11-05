@@ -122,7 +122,7 @@ function StatCard({ label, value, locked }: { label: string; value: number | nul
 
   const cardStyle: CSSProperties = {
     display: 'block', textDecoration: 'none',
-    background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
+    background: 'var(--mc-surface)', border: '1px solid rgba(255,255,255,0.07)',
     borderRadius: '14px', padding: '12px', textAlign: 'center',
   }
 
@@ -171,7 +171,7 @@ function AtividadeRecenteSection({ posts }: { posts: FeedPostComContagens[] }) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {posts.map(post => (
             <div key={post.id} style={{
-              background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
+              background: 'var(--mc-surface)', border: '1px solid rgba(255,255,255,0.07)',
               borderRadius: '14px', padding: '14px',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
@@ -519,9 +519,9 @@ export default async function JogadorPublicoPage({ params }: Props) {
                     || !!meta.questionario_completo
 
   return (
-    <main style={{
-      background: '#06100a', minHeight: '100vh',
-      fontFamily: 'system-ui, sans-serif',
+    <main className="mc-screen" style={{
+      background: 'var(--mc-canvas)', minHeight: '100vh',
+      
       padding: '24px 20px 60px',
     }}>
       <style>{`
@@ -630,7 +630,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
         {/* ── Card principal ── */}
         <div className="pub-card" style={{
           borderRadius: '22px', overflow: 'hidden',
-          background: '#0b1610',
+          background: 'var(--mc-surface)',
           border: '1px solid rgba(34,197,94,0.22)',
           boxShadow: '0 0 56px rgba(34,197,94,0.15), 0 24px 64px rgba(0,0,0,0.6)',
           marginBottom: '16px',
@@ -827,7 +827,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
                     href={hl.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{ textDecoration: 'none', display: 'block', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', background: '#0b1610' }}
+                    style={{ textDecoration: 'none', display: 'block', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', background: 'var(--mc-surface)' }}
                   >
                     {/* Thumbnail */}
                     <div style={{ position: 'relative', aspectRatio: '16/9', background: '#0a120e', overflow: 'hidden' }}>
@@ -895,7 +895,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
         {/* ── Avaliação + Currículo — âncora para o CTA ── */}
         {ultimaAv && (
           <div id="curriculo" className="curr-section" style={{
-            background: '#0b1610', border: '1px solid rgba(34,197,94,0.15)',
+            background: 'var(--mc-surface)', border: '1px solid rgba(34,197,94,0.15)',
             borderRadius: '18px', padding: '20px', marginBottom: '16px',
             scrollMarginTop: '20px',
           }}>
@@ -973,7 +973,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
             {/* Apresentação */}
             {bio && (
               <div style={{
-                background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
+                background: 'var(--mc-surface)', border: '1px solid rgba(255,255,255,0.07)',
                 borderRadius: '16px', padding: '18px',
               }}>
                 <p style={{ margin: '0 0 10px', fontSize: '10px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
@@ -991,7 +991,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
               gap: '10px',
             }}>
               <div style={{
-                background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
+                background: 'var(--mc-surface)', border: '1px solid rgba(255,255,255,0.07)',
                 borderRadius: '14px', padding: '14px', textAlign: 'center',
               }}>
                 <p style={{ margin: '0 0 2px', fontSize: '18px', fontWeight: 900, color: '#22c55e' }}>
@@ -1000,7 +1000,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
                 <p style={{ margin: 0, fontSize: '10px', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Categoria</p>
               </div>
               <div style={{
-                background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
+                background: 'var(--mc-surface)', border: '1px solid rgba(255,255,255,0.07)',
                 borderRadius: '14px', padding: '14px', textAlign: 'center',
               }}>
                 {ovr !== null
@@ -1061,7 +1061,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
               const suporte = SUPORTE_LABEL[questionario.suporte]
               if (!tags.length && !nivel && !disp && !objetivo && !clube && !anos && !freq && !suporte) return null
               return (
-                <div style={{ background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', padding: '18px' }}>
+                <div style={{ background: 'var(--mc-surface)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', padding: '18px' }}>
                   <p style={{ margin: '0 0 12px', fontSize: '10px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                     ⚽ Perfil do Atleta
                   </p>
@@ -1090,7 +1090,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
             {/* Clubes anteriores */}
             {clubesAnteriores && (
               <div style={{
-                background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
+                background: 'var(--mc-surface)', border: '1px solid rgba(255,255,255,0.07)',
                 borderRadius: '16px', padding: '18px',
               }}>
                 <p style={{ margin: '0 0 10px', fontSize: '10px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
@@ -1105,7 +1105,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
             {/* Campeonatos */}
             {campeonatosTexto && (
               <div style={{
-                background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
+                background: 'var(--mc-surface)', border: '1px solid rgba(255,255,255,0.07)',
                 borderRadius: '16px', padding: '18px',
               }}>
                 <p style={{ margin: '0 0 10px', fontSize: '10px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
@@ -1120,7 +1120,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
             {/* Títulos */}
             {titulosTexto && (
               <div style={{
-                background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
+                background: 'var(--mc-surface)', border: '1px solid rgba(255,255,255,0.07)',
                 borderRadius: '16px', padding: '18px',
               }}>
                 <p style={{ margin: '0 0 10px', fontSize: '10px', fontWeight: 700, color: '#f59e0b', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
@@ -1135,7 +1135,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
             {/* Premiações individuais */}
             {premiacoesTexto && (
               <div style={{
-                background: '#0b1610', border: '1px solid rgba(251,191,36,0.18)',
+                background: 'var(--mc-surface)', border: '1px solid rgba(251,191,36,0.18)',
                 borderRadius: '16px', padding: '18px',
               }}>
                 <p style={{ margin: '0 0 10px', fontSize: '10px', fontWeight: 700, color: '#fbbf24', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
@@ -1152,7 +1152,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
 
         {/* ── Recomendações ── */}
         <div style={{
-          background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
+          background: 'var(--mc-surface)', border: '1px solid rgba(255,255,255,0.07)',
           borderRadius: '18px', padding: '18px', marginBottom: '16px',
         }}>
           <RecomendacoesSection subjectId={id} isOwner={isOwner} limit={3} showViewAllLink />

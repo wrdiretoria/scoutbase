@@ -225,9 +225,9 @@ export default async function RankingPage({ searchParams }: Props) {
     (sufixo ? `Ranking${sufixo}` : 'Os melhores do futebol')
 
   return (
-    <main style={{
-      background: '#06100a', minHeight: '100vh',
-      fontFamily: 'system-ui, sans-serif', color: 'white', overflowX: 'hidden',
+    <main className="mc-screen" style={{
+      background: 'var(--mc-canvas)', minHeight: '100vh',
+       color: 'white', overflowX: 'hidden',
     }}>
       <style>{`
         .rank-card { transition: background 0.2s, border-color 0.2s; }
@@ -239,7 +239,7 @@ export default async function RankingPage({ searchParams }: Props) {
       <nav style={{
         padding: '16px 24px', display: 'flex', alignItems: 'center',
         justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)',
-        position: 'sticky', top: 0, background: '#06100a', zIndex: 10,
+        position: 'sticky', top: 0, background: 'var(--mc-canvas)', zIndex: 10,
       }}>
         <Link href="/" style={{ fontSize: '16px', fontWeight: 800, textDecoration: 'none', letterSpacing: '-0.01em' }}>
           ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
@@ -284,7 +284,7 @@ export default async function RankingPage({ searchParams }: Props) {
               placeholder="Nome, posição, cidade ou ID"
               style={{ flex: 1, minWidth: 0, minHeight: 44, padding: '0 12px', border: '1px solid #526458', borderRadius: 10, background: '#121e18', color: '#fff', fontSize: 16 }}
             />
-            <button type="submit" style={{ minHeight: 44, padding: '0 14px', border: 0, borderRadius: 10, background: '#b3f737', color: '#13200b', fontWeight: 800 }}>
+            <button type="submit" className="mc-primary-action" style={{ minHeight: 44, padding: '0 14px', border: 0, borderRadius: 10, background: 'var(--mc-accent)', color: 'var(--mc-on-accent)', fontWeight: 800 }}>
               Buscar
             </button>
           </div>
@@ -361,7 +361,7 @@ export default async function RankingPage({ searchParams }: Props) {
         {/* Lista de atletas */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {filtered.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '60px 0', color: '#c4d0c9' }}>
+            <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--mc-muted)' }}>
               <p style={{ fontSize: '32px', margin: '0 0 8px' }}>🏃</p>
               <p style={{ margin: 0, fontSize: '14px' }}>
                 {modoSemana ? 'Nenhum perfil visitado nesse recorte nos últimos 7 dias.' : modoNovos ? 'Ninguém aguardando avaliação nesse recorte.' : 'Nenhum atleta encontrado. Tente outro nome ou ajuste os filtros.'}

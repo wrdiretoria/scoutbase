@@ -881,7 +881,7 @@ function AtletaPerfilContent() {
   // ── Loading — skeleton ───────────────────────────────────────
   if (loading) {
     return (
-      <main style={{ background: '#06100a', minHeight: '100dvh', fontFamily: 'system-ui, sans-serif' }}>
+      <main className="mc-screen" style={{ background: 'var(--mc-canvas)', minHeight: '100dvh', fontFamily: 'system-ui, sans-serif' }}>
         {/* Nav */}
         <nav style={{ padding: '16px 24px', paddingTop: 'calc(16px + env(safe-area-inset-top))', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <Link href="/" aria-label="MeuCraque, início" style={{ fontSize: '16px', fontWeight: 800, color: 'white' }} className="inline-block no-underline text-inherit">⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span></Link>
@@ -889,7 +889,7 @@ function AtletaPerfilContent() {
         </nav>
         <div style={{ maxWidth: '480px', margin: '0 auto', padding: '28px 20px 80px' }}>
           {/* Header card */}
-          <div style={{ borderRadius: '20px', background: '#0b1610', border: '1px solid rgba(34,197,94,0.08)', marginBottom: 16, overflow: 'hidden' }}>
+          <div style={{ borderRadius: '20px', background: 'var(--mc-surface)', border: '1px solid rgba(34,197,94,0.08)', marginBottom: 16, overflow: 'hidden' }}>
             <div className="skel" style={{ height: 110, borderRadius: 0 }} />
             <div style={{ padding: '28px 20px 22px' }}>
               <div className="skel" style={{ width: '52%', height: 20, marginBottom: 10 }} />
@@ -924,7 +924,7 @@ function AtletaPerfilContent() {
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '13px 14px', borderRadius: '10px', boxSizing: 'border-box',
     background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.09)',
-    color: 'white', fontSize: '16px', outline: 'none', fontFamily: 'system-ui, sans-serif',
+    color: 'white', fontSize: '16px', outline: 'none', 
     transition: 'border-color .2s, box-shadow .2s',
   }
   const labelStyle: React.CSSProperties = {
@@ -936,7 +936,7 @@ function AtletaPerfilContent() {
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <main style={{ background: '#06100a', minHeight: '100dvh', fontFamily: 'system-ui, sans-serif', color: 'white', overscrollBehaviorY: 'none' }}>
+    <main className="mc-screen" style={{ background: 'var(--mc-canvas)', minHeight: '100dvh',  color: 'white', overscrollBehaviorY: 'none' }}>
       <style>{`
         @keyframes barGrow  { from{width:0} to{width:var(--w)} }
         @keyframes fadeUp   { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
@@ -1020,7 +1020,7 @@ function AtletaPerfilContent() {
           color:#f0f6f1; text-align:center; text-decoration:none; font-weight:700; font-size:13px;
         }
         .profile-quick-actions a:hover { border-color:#718279; background:#18241e; }
-        .action-btn.profile-card-share { background:#b3f737; color:#13200b; border-color:#b3f737; }
+        .action-btn.profile-card-share { background:var(--mc-accent); color:var(--mc-on-accent); border-color:var(--mc-accent); }
         .action-btn.profile-card-share:hover { background:#c6ff60; }
         .share-btn.profile-link-share { border:1px solid #385346; background:#121f18; }
         .share-btn.profile-link-share:hover { border-color:#718279; background:#18241e; }
@@ -1384,7 +1384,7 @@ function AtletaPerfilContent() {
           {/* Card para Instagram/Story */}
           {uid && athleteId && (
             <button
-              className="action-btn profile-card-share"
+              className="action-btn profile-card-share mc-primary-action"
               style={{ gap:'12px', opacity: sharingCard ? 0.6 : 1 }}
               disabled={sharingCard}
               onClick={async () => {
@@ -2582,7 +2582,7 @@ function AtletaPerfilContent() {
               padding: '16px', borderRadius: '14px', textAlign: 'center',
               background: 'linear-gradient(135deg,#00e87a,#00FF88)',
               color: '#020d04', fontWeight: 900, fontSize: '16px',
-              border: 'none', cursor: 'pointer', fontFamily: 'system-ui, sans-serif',
+              border: 'none', cursor: 'pointer', 
             }}
           >
             {cardFile && podeCompartilharArquivo(cardFile) ? '📲 Compartilhar no Instagram / WhatsApp' : '⬇ Baixar card (PNG)'}
@@ -2593,7 +2593,7 @@ function AtletaPerfilContent() {
             style={{
               marginTop: '14px', background: 'none', border: 'none',
               color: 'rgba(255,255,255,0.3)', fontSize: '14px',
-              cursor: 'pointer', fontFamily: 'system-ui, sans-serif',
+              cursor: 'pointer', 
               padding: '8px 24px',
             }}
           >
@@ -2631,7 +2631,7 @@ function AtletaPerfilContent() {
 export default function AtletaPerfilPage() {
   return (
     <Suspense fallback={
-      <main style={{ background:'#020d04', minHeight:'100dvh', display:'flex', alignItems:'center', justifyContent:'center' }}>
+      <main className="mc-screen" style={{ background:'#020d04', minHeight:'100dvh', display:'flex', alignItems:'center', justifyContent:'center' }}>
         <div style={{ width:40, height:40, borderRadius:'50%', border:'3px solid rgba(0,255,136,0.15)', borderTopColor:'#00FF88', animation:'spin .8s linear infinite' }} />
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </main>
