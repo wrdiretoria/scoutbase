@@ -260,10 +260,10 @@ export default async function RankingPage({ searchParams }: Props) {
             {modoVisitados ? '👁 Mais Visitados' : modoSemana ? '🔥 Visitas nos últimos 7 dias' : modoNovos ? '⏳ Aguardando avaliação' : '🏆 Ranking Oficial'}
           </p>
           <h1 style={{ margin: '0 0 4px', fontSize: '28px', fontWeight: 900, letterSpacing: '-0.02em' }}>
-            {titulo}
+            Explorar atletas
           </h1>
           <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.4)' }}>
-            {filtered.length} atleta{filtered.length !== 1 ? 's' : ''}
+            {titulo} · {filtered.length} atleta{filtered.length !== 1 ? 's' : ''}
             {buscaFiltro     ? ` · "${buscaFiltro}"`   : ''}
             {categoriaFiltro ? ` · ${categoriaFiltro}` : ''}
             {posicaoFiltro   ? ` · ${posicaoFiltro}`   : ''}
@@ -274,22 +274,21 @@ export default async function RankingPage({ searchParams }: Props) {
           </p>
         </div>
 
-        {/* Abas */}
-        <div style={{ display: 'flex', gap: '6px', marginBottom: '14px', padding: '4px', borderRadius: '14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-          {ABAS.map(t => {
-            const ativa = aba === t.id
-            return (
-              <Link key={t.id} href={urlRanking(params, { ordem: t.id })} className="filter-pill" style={{
-                flex: 1, textAlign: 'center', padding: '9px 4px', borderRadius: '10px',
-                fontSize: '12px', fontWeight: 800, textDecoration: 'none', whiteSpace: 'nowrap',
-                background: ativa ? '#22c55e' : 'transparent',
-                color: ativa ? 'black' : 'rgba(255,255,255,0.55)',
-              }}>
-                {t.label}
-              </Link>
-            )
-          })}
-        </div>
+        <form action="/ranking" method="get" aria-label="Buscar atletas" style={{ marginBottom: 16 }}>
+          <label htmlFor="busca-atleta" style={{ display: 'block', marginBottom: 8, fontWeight: 700 }}>Buscar atleta</label>
+          {(['ordem', 'categoria', 'posicao', 'pais', 'estado', 'cidade', 'bairro'] as const).map(key =>
+            params[key] ? <input key={key} type="hidden" name={key} value={params[key]} /> : null
+          )}
+          <div style={{ display: 'flex', gap: 8 }}>
+            <input id="busca-atleta" name="q" type="search" defaultValue={buscaFiltro}
+              placeholder="Nome, posição, cidade ou ID"
+              style={{ flex: 1, minWidth: 0, minHeight: 44, padding: '0 12px', border: '1px solid #526458', borderRadius: 10, background: '#121e18', color: '#fff', fontSize: 16 }}
+            />
+            <button type="submit" style={{ minHeight: 44, padding: '0 14px', border: 0, borderRadius: 10, background: '#b3f737', color: '#13200b', fontWeight: 800 }}>
+              Buscar
+            </button>
+          </div>
+        </form>
 
         {/* Filtros de categoria (pills) */}
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'nowrap', overflowX: 'auto', marginBottom: '12px', paddingBottom: '4px', scrollbarWidth: 'none' }}>
@@ -341,13 +340,30 @@ export default async function RankingPage({ searchParams }: Props) {
           ordem={aba === 'ranking' ? undefined : aba}
         />
 
+        {/* Abas */}
+        <div style={{ display: 'flex', gap: '6px', marginBottom: '14px', padding: '4px', borderRadius: '14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+          {ABAS.map(t => {
+            const ativa = aba === t.id
+            return (
+              <Link key={t.id} href={urlRanking(params, { ordem: t.id })} className="filter-pill" style={{
+                flex: 1, textAlign: 'center', padding: '9px 4px', borderRadius: '10px',
+                fontSize: '12px', fontWeight: 800, textDecoration: 'none', whiteSpace: 'nowrap',
+                background: ativa ? '#22c55e' : 'transparent',
+                color: ativa ? 'black' : 'rgba(255,255,255,0.55)',
+              }}>
+                {t.label}
+              </Link>
+            )
+          })}
+        </div>
+
         {/* Lista de atletas */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {filtered.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '60px 0', color: 'rgba(255,255,255,0.25)' }}>
+            <div style={{ textAlign: 'center', padding: '60px 0', color: '#c4d0c9' }}>
               <p style={{ fontSize: '32px', margin: '0 0 8px' }}>🏃</p>
               <p style={{ margin: 0, fontSize: '14px' }}>
-                {modoSemana ? 'Nenhum perfil visitado nesse recorte nos últimos 7 dias.' : modoNovos ? 'Ninguém aguardando avaliação nesse recorte.' : 'Nenhum atleta nessa categoria ainda.'}
+                {modoSemana ? 'Nenhum perfil visitado nesse recorte nos últimos 7 dias.' : modoNovos ? 'Ninguém aguardando avaliação nesse recorte.' : 'Nenhum atleta encontrado. Tente outro nome ou ajuste os filtros.'}
               </p>
             </div>
           )}
