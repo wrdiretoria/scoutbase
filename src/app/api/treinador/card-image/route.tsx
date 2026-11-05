@@ -1,6 +1,6 @@
 /**
  * GET /api/treinador/card-image?id=<userId>
- * Gera o card do treinador como PNG 1200×1600 no servidor usando ImageResponse.
+ * Gera o card do treinador como PNG 800×1280 no servidor usando ImageResponse.
  * Alta resolução (2× Retina), sem html2canvas.
  */
 
@@ -37,40 +37,40 @@ export async function GET(req: NextRequest) {
   const av   = totAv   ?? 0
   const at   = new Set((pRows ?? []).map((r: { aluno_id: string }) => r.aluno_id)).size
   const dest = totDest ?? 0
-  const W = 1200
-  const H = 1600
-  const lime = '#b3f737'
-  const shield = `<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1400" viewBox="0 0 1000 1400"><defs><linearGradient id="g" x2="1" y2="1"><stop stop-color="#284431"/><stop offset="1" stop-color="#091510"/></linearGradient></defs><path d="M500 14 930 112 985 232 950 1040 850 1170 500 1380 150 1170 50 1040 15 232 70 112Z" fill="url(#g)" stroke="#b3f737" stroke-width="14"/><path d="M500 44 909 138 955 238 922 1026 828 1148 500 1346 172 1148 78 1026 45 238 91 138Z" fill="none" stroke="#5e8054" stroke-width="3"/></svg>`
-  const frame = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(shield)}`
-  const nameSize = nome.length > 20 ? 52 : nome.length > 14 ? 67 : 82
+  const W = 800
+  const H = 1280
+  const gold = '#f3c66b'
+  const ink = '#091610'
+  const nameSize = nome.length > 24 ? 46 : nome.length > 16 ? 62 : 80
 
   return new ImageResponse(
-    <div style={{ width: W, height: H, display: 'flex', position: 'relative', background: '#080f0c', color: '#f0f6f1', fontFamily: 'sans-serif' }}>
-      <img src={frame} width={1000} height={1400} alt="" style={{ position: 'absolute', left: 100, top: 48 }} />
-      <div style={{ position: 'absolute', top: 157, left: 0, width: W, display: 'flex', justifyContent: 'center', fontSize: 39, fontWeight: 800, letterSpacing: 4, color: lime }}>
-        MEUCRAQUE
+    <div style={{ width: W, height: H, display: 'flex', position: 'relative', overflow: 'hidden', borderRadius: 56, background: ink, color: '#fff', fontFamily: 'sans-serif' }}>
+      <div style={{ position: 'absolute', top: 152, left: 0, width: W, height: 756, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#162c22' }}>
+        {avatar_url ? <img src={avatar_url} alt="" width={W} height={756} style={{ objectFit: 'cover', objectPosition: 'center 28%' }} /> : (
+          <span style={{ color: gold, fontSize: 148, fontWeight: 800 }}>{getInitials(nome)}</span>
+        )}
       </div>
-      <div style={{ position: 'absolute', top: 232, left: 0, width: W, display: 'flex', justifyContent: 'center', fontSize: 27, letterSpacing: 5, color: '#c4d0c9' }}>
-        CARTA DE TREINADOR
+      <div style={{ position: 'absolute', top: 490, left: 0, width: W, height: 418, display: 'flex', background: 'linear-gradient(180deg, rgba(9,22,16,0), #091610)' }} />
+      <div style={{ position: 'absolute', top: 0, left: 56, right: 56, height: 152, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ fontSize: 57, color: gold, fontWeight: 900 }}>MeuCraque</span>
+        <span style={{ fontSize: 24, color: '#d4e0d7', fontWeight: 800 }}>TREINADOR</span>
       </div>
-      <div style={{ position: 'absolute', top: 305, left: 370, width: 460, height: 460, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 230, border: '6px solid #b3f737', overflow: 'hidden', background: '#162a20', fontSize: 120, fontWeight: 800 }}>
-        {avatar_url ? <img src={avatar_url} width={448} height={448} alt="" style={{ objectFit: 'cover', objectPosition: 'center 30%', borderRadius: 224 }} /> : getInitials(nome)}
+      <div style={{ position: 'absolute', top: 770, left: 56, right: 56, display: 'flex', flexDirection: 'column', gap: 6 }}>
+        <span style={{ fontSize: 36, color: gold, fontWeight: 800 }}>{especialidade || 'Treinador de futebol'}</span>
+        <span style={{ fontSize: nameSize, lineHeight: 1.05, fontWeight: 900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nome}</span>
+        {cidade && <span style={{ color: '#d4e0d7', fontSize: 33 }}>{cidade}</span>}
       </div>
-      <div style={{ position: 'absolute', top: 804, left: 185, width: 830, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-        <span style={{ fontSize: nameSize, fontWeight: 900, lineHeight: 1.05 }}>{nome.toUpperCase()}</span>
-        <span style={{ marginTop: 20, color: lime, fontSize: 34, fontWeight: 800 }}>{especialidade || 'Treinador de futebol'}</span>
-        {cidade && <span style={{ marginTop: 10, color: '#c4d0c9', fontSize: 29 }}>{cidade}</span>}
-      </div>
-      <div style={{ position: 'absolute', top: 1030, left: 240, width: 720, display: 'flex', justifyContent: 'space-around', borderTop: '2px solid #385346', paddingTop: 24 }}>
-        {[[av, 'AVALIAÇÕES'], [at, 'ATLETAS'], [dest, 'DESTAQUES']].map(([count, label]) => (
-          <div key={label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 230 }}>
-            <span style={{ color: lime, fontSize: 65, fontWeight: 900 }}>{count}</span>
-            <span style={{ color: '#c4d0c9', fontSize: 21, fontWeight: 800 }}>{label}</span>
+      <div style={{ position: 'absolute', top: 1008, left: 56, right: 56, borderTop: '2px solid #746044', paddingTop: 16, display: 'flex', justifyContent: 'space-between' }}>
+        {[[av, 'Avaliações'], [at, 'Atletas'], [dest, 'Destaques']].map(([count, label]) => (
+          <div key={label} style={{ display: 'flex', alignItems: 'baseline', gap: 9, fontSize: 24, color: '#d4e0d7' }}>
+            <span style={{ color: gold, fontSize: 37, fontWeight: 900 }}>{count}</span>
+            {label}
           </div>
         ))}
       </div>
-      <div style={{ position: 'absolute', left: 0, bottom: 70, width: W, display: 'flex', justifyContent: 'center', fontSize: 30, color: '#c4d0c9' }}>
-        meucraque.com
+      <div style={{ position: 'absolute', top: 1134, left: 56, right: 56, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <span style={{ fontSize: 39, fontWeight: 800 }}>Veja meu perfil completo</span>
+        <span style={{ fontSize: 23, color: gold }}>{`meucraque.com/treinador/${userId}`}</span>
       </div>
     </div>,
     { width: W, height: H },
