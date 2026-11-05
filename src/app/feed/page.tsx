@@ -91,6 +91,12 @@ export default async function FeedPage() {
           ? { label: 'Ver meu perfil público', href: `/jogador/${user.id}` }
           : { label: 'Revisar meu perfil', href: perfil }
     : null
+  const publicProfile = user && tipo === 'atleta' && hasHighlight === true && typeof posicao === 'string' && posicao.trim()
+    ? `/jogador/${user.id}`
+    : null
+  const shareProfile = publicProfile
+    ? `https://wa.me/?text=${encodeURIComponent(`Veja meu perfil esportivo no MeuCraque: https://www.meucraque.com${publicProfile}`)}`
+    : null
   const desempenho = performanceHref(tipo)
   const firstName = nome.split(' ')[0]
   const signInHref = '/login?next=%2Ffeed'
@@ -146,25 +152,25 @@ export default async function FeedPage() {
           </div>
         </header>
 
-        <FeedStories user={user ? { id: user.id, name: nome, avatarUrl: avatar } : null} />
-
-        <section className={styles.hero} aria-label="Boas-vindas ao MeuCraque">
+        <section className={styles.hero} aria-label={nextStep ? "Minha Jornada" : "Boas-vindas ao MeuCraque"} style={{ marginTop: 16 }}>
           <div className={styles.heroPhoto} />
           <div className={styles.heroShade} />
           <div className={`${styles.heroCopy} ${!user ? styles.heroGuestCopy : ''}`}>
             {user ? <>
               <span className={styles.eyebrow}>SEU FUTEBOL. SUA TRAJETÓRIA.</span>
-              <h1>Bem-vindo, <em>{firstName}!</em></h1>
-              <p>{nextStep ? 'Minha Jornada · Seu próximo passo' : 'Acompanhe sua evolução, conecte-se e descubra novas oportunidades.'}</p>
+              <h1>{nextStep ? 'Minha Jornada' : <>Bem-vindo, <em>{firstName}!</em></>}</h1>
+              <p>{nextStep ? publicProfile ? 'Mostre seu jogo. Envie seu perfil esportivo a um treinador.' : 'Seu próximo passo para preparar seu perfil esportivo.' : 'Acompanhe sua evolução, conecte-se e descubra novas oportunidades.'}</p>
             </> : <>
 
-              <h1>CRIE SEU PERFIL E SE CONECTE COM OPORTUNIDADES</h1>
-              <p>Conheça atletas, clubes e oportunidades do futebol.</p>
+              <h1>Mostre seu jogo para quem recruta</h1>
+              <p>Monte seu perfil esportivo com seus melhores lances e encontre oportunidades no futebol.</p>
             </>}
           </div>
           <div className={styles.heroNetwork}>
             {nextStep ? (
-              <Link href={nextStep.href} className={styles.heroCta}>{nextStep.label} <span aria-hidden="true">›</span></Link>
+              <Link href={shareProfile ?? nextStep.href} className={styles.heroCta} style={{ minHeight: 44, whiteSpace: 'normal' }}>
+                {shareProfile ? 'Compartilhar meu perfil' : nextStep.label} <span aria-hidden="true">›</span>
+              </Link>
             ) : user ? <>
               <div className={styles.networkStat}><Icon name="users" size={18} /><span><strong>{stats?.connections ?? 0}</strong> {(stats?.connections ?? 0) === 1 ? 'conexão' : 'conexões'}</span></div>
               <Link href={perfil} className={styles.heroCta}>Completar perfil <span aria-hidden="true">›</span></Link>
@@ -216,7 +222,7 @@ export default async function FeedPage() {
               <p className={styles.journeyCopy}>Monte seu perfil esportivo, avalie seu nível e acompanhe sua evolução no futebol.</p>
               {nextStep && (
                 <Link href={nextStep.href} className={styles.sideCta}>
-                  Próximo passo: {nextStep.label} <span aria-hidden="true">›</span>
+                  {publicProfile ? 'Ver como o treinador vê' : `Próximo passo: ${nextStep.label}`} <span aria-hidden="true">›</span>
                 </Link>
               )}
               <Link href={user ? perfil : '/atleta/cadastro'} className={styles.sideCta}>
@@ -230,14 +236,7 @@ export default async function FeedPage() {
           )}
         </section>
 
-        <Link href="/desafio-1x1" className={styles.startCard}>
-          <span className={styles.startCardIcon}><Icon name="trophy" size={28} /></span>
-          <span className={styles.startCardCopy}>
-            <small>Arena MeuCraque</small>
-            <strong>Desafio 1×1</strong>
-          </span>
-          <span className={styles.startCardArrow} aria-hidden="true">›</span>
-        </Link>
+        <FeedStories user={user ? { id: user.id, name: nome, avatarUrl: avatar } : null} />
 
         <div className={styles.contentGrid}>
           <section className={styles.feedColumn} aria-label="Feed da comunidade">
