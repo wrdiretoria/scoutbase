@@ -122,19 +122,19 @@ export default function LoginPage() {
   }
 
   if (checking) return (
-    <main style={{
-      background: '#06100a', minHeight: '100dvh',
+    <main className="mc-screen" style={{
+      background: 'var(--mc-canvas)', minHeight: '100dvh',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontFamily: 'system-ui, sans-serif',
+      fontFamily: 'inherit',
     }}>
       <div style={{ textAlign: 'center' }}>
         <Link href="/" aria-label="MeuCraque, início" style={{ fontSize: '18px', fontWeight: 800, color: 'white', marginBottom: '32px' }} className="inline-block no-underline text-inherit">
-          ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+          ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
         <div style={{
           width: '36px', height: '36px', margin: '0 auto',
           border: '3px solid rgba(0,255,136,0.15)',
-          borderTopColor: '#00ff87', borderRadius: '50%',
+          borderTopColor: 'var(--mc-accent)', borderRadius: '50%',
           animation: 'spin 0.8s linear infinite',
         }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
@@ -145,30 +145,30 @@ export default function LoginPage() {
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '14px 16px', borderRadius: '12px', boxSizing: 'border-box',
     background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)',
-    color: 'white', fontSize: '16px', outline: 'none', fontFamily: 'system-ui, sans-serif',
+    color: 'white', fontSize: '16px', fontFamily: 'inherit',
     transition: 'border-color .2s, box-shadow .2s',
   }
 
   return (
-    <main style={{
-      background: '#06100a', minHeight: '100dvh',
+    <main className="mc-screen" style={{
+      background: 'var(--mc-canvas)', minHeight: '100dvh',
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
       padding: '24px',
       paddingTop: 'max(24px, env(safe-area-inset-top))',
       paddingBottom: 'max(24px, env(safe-area-inset-bottom))',
-      fontFamily: 'system-ui, sans-serif',
+      fontFamily: 'inherit',
     }}>
       <style>{`
-        input:focus { border-color:rgba(0,255,136,0.35) !important; box-shadow:0 0 0 3px rgba(0,255,136,0.08) !important; }
+        .mc-screen input:focus { border-color:var(--mc-accent); }
         button:active { transform:scale(.97); opacity:.88; transition:transform .08s,opacity .08s; }
       `}</style>
 
-      <div style={{ width: '100%', maxWidth: '380px' }}>
+      <div style={{ width: '100%', maxWidth: '420px', padding: 'clamp(14px, 5vw, 28px)', background: 'var(--mc-surface)', border: '1px solid var(--mc-line)', borderRadius: 20 }}>
 
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '36px' }}>
           <Link href="/" style={{ fontSize: '20px', fontWeight: 800, color: 'white', textDecoration: 'none' }}>
-            ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+            ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
           </Link>
         </div>
 
@@ -181,13 +181,14 @@ export default function LoginPage() {
           {(['atleta', 'treinador'] as Area[]).map(a => (
             <button
               key={a}
+              type="button" aria-pressed={area === a}
               onClick={() => handleArea(a)}
               style={{
                 flex: 1, padding: '10px', borderRadius: '9px', border: 'none',
-                cursor: 'pointer', fontFamily: 'system-ui, sans-serif',
+                cursor: 'pointer', fontFamily: 'inherit',
                 fontSize: '14px', fontWeight: 700,
-                background: area === a ? '#00FF88' : 'transparent',
-                color: area === a ? '#030805' : 'rgba(255,255,255,0.4)',
+                background: area === a ? '#304332' : 'transparent',
+                color: area === a ? 'var(--mc-text)' : 'var(--mc-muted)',
                 transition: 'all .2s',
               }}
             >
@@ -197,10 +198,10 @@ export default function LoginPage() {
         </div>
 
         {/* Título */}
-        <h1 style={{ margin: '0 0 6px', fontSize: '24px', fontWeight: 900, color: 'white', letterSpacing: '-0.02em' }}>
+        <h1 style={{ margin: '0 0 6px', fontSize: 'clamp(24px, 7vw, 32px)', fontWeight: 900, color: 'white', letterSpacing: '-0.02em' }}>
           Bem-vindo de volta
         </h1>
-        <p style={{ margin: '0 0 24px', fontSize: '14px', color: 'rgba(255,255,255,0.35)' }}>
+        <p style={{ margin: '0 0 24px', fontSize: '14px', color: 'var(--mc-muted)' }}>
           Entre com seu ID ou email e senha.
         </p>
 
@@ -208,11 +209,12 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
 
           <div>
-            <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '8px' }}>
-              ID ou Email
+            <label htmlFor="login-identificador" style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--mc-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '8px' }}>
+              ID ou e-mail
             </label>
             <input
               key={area}
+              id="login-identificador" autoComplete="username"
               type="text"
               required
               autoFocus
@@ -226,7 +228,7 @@ export default function LoginPage() {
             />
             {area === 'atleta' && (
               <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.2)' }}>
-                <Link href="/atleta/recuperar-id" style={{ color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>
+                <Link href="/atleta/recuperar-id" style={{ color: 'var(--mc-muted)', textDecoration: 'none' }}>
                   Esqueceu o ID?
                 </Link>
               </p>
@@ -234,18 +236,18 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'rgba(255,255,255,0.4)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '8px' }}>
+            <label htmlFor="login-senha" style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--mc-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '8px' }}>
               Senha
             </label>
             <input
-              type="password" required value={password}
+              id="login-senha" autoComplete="current-password" type="password" required value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder="Sua senha" style={inputStyle}
             />
             <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.2)' }}>
               <Link
                 href={area === 'atleta' ? '/atleta/recuperar-senha' : '/treinador/recuperar-senha'}
-                style={{ color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}
+                style={{ color: 'var(--mc-muted)', textDecoration: 'none' }}
               >
                 Esqueceu a senha?
               </Link>
@@ -263,13 +265,13 @@ export default function LoginPage() {
           )}
 
           <button
-            type="submit" disabled={loading}
+            type="submit" className="mc-primary-action" disabled={loading}
             style={{
               marginTop: '4px', padding: '16px', borderRadius: '14px', border: 'none',
               cursor: loading ? 'not-allowed' : 'pointer',
-              background: '#00FF88', color: '#030805', fontWeight: 800,
+              
               fontSize: '16px', opacity: loading ? 0.6 : 1,
-              minHeight: '56px', boxShadow: '0 0 32px rgba(0,255,136,0.2)',
+              minHeight: '52px',
               transition: 'opacity .15s',
             }}
           >
