@@ -108,6 +108,7 @@ export default async function FeedPage() {
           <details className={styles.menu}>
             <summary className={styles.menuButton} aria-label="Abrir menu"><Icon name="menu" size={27} /></summary>
             <nav className={styles.menuPanel} aria-label="Menu MeuCraque">
+              {user && <Link href="#feed-composer"><Icon name="plus" size={18} /> Publicar no Feed</Link>}
               <Link href="/feed"><Icon name="home" size={18} /> Início</Link>
               <Link href={user ? perfil : signInHref}><Icon name="user" size={18} /> Meu Perfil</Link>
               <Link href={user ? '/mensagens' : signInHref}><Icon name="users" size={18} /> Conexões</Link>
@@ -140,6 +141,12 @@ export default async function FeedPage() {
             {user ? <Link href="/mensagens"><Icon name="message" size={19} />Mensagens</Link> : <Link href={signInHref}>Entrar</Link>}
           </nav>
           <div className={styles.headerActions}>
+            {user && (
+              <Link href="/mensagens" aria-label="Mensagens" title="Mensagens"
+                style={{ display: 'grid', placeItems: 'center', minWidth: 32, minHeight: 44, color: 'inherit' }}>
+                <Icon name="message" size={21} />
+              </Link>
+            )}
             {user && tipo === 'atleta' && <VisitNotifications icon={<Icon name="bell" size={23} />} />}
             {user ? <Link href={perfil} className={styles.avatarLink} aria-label={`Abrir perfil de ${nome}`}>
               {avatar ? (
@@ -283,11 +290,9 @@ export default async function FeedPage() {
       </div>
 
       <nav className={styles.mobileDock} aria-label="Navegação inferior">
-        <Link className={styles.dockActive} href="/feed"><Icon name="home" size={23} />Início</Link>
+        <Link className={styles.dockActive} href="/" aria-current="page"><Icon name="home" size={23} />Início</Link>
         <Link href="/ranking"><Icon name="search" size={22} />Explorar</Link>
-        <Link className={styles.dockPublish} href={user ? '#feed-composer' : signInHref} aria-label="Publicar"><Icon name="plus" size={27} /></Link>
-        <Link href={user ? '/mensagens' : signInHref}><Icon name="users" size={23} />Conexões</Link>
-        <Link href="#journey"><Icon name="trend" size={22} />Jornada</Link>
+        <Link href="/vagas"><Icon name="target" size={22} />Oportunidades</Link>
         <Link href={user ? perfil : signInHref}><Icon name="user" size={22} />{user ? 'Perfil' : 'Entrar'}</Link>
       </nav>
     </main>
