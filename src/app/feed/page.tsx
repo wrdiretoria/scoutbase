@@ -86,7 +86,7 @@ export default async function FeedPage() {
     ? typeof posicao !== 'string' || !posicao.trim()
       ? { label: 'Informar minha posição', href: '/atleta/perfil#identidade' }
       : hasHighlight === false
-        ? { label: 'Adicionar vídeo de destaque', href: '/atleta/perfil#highlights' }
+        ? { label: 'Adicionar link de vídeo', href: '/atleta/perfil#highlights' }
         : hasHighlight === true
           ? { label: 'Ver meu perfil público', href: `/jogador/${user.id}` }
           : { label: 'Revisar meu perfil', href: perfil }
@@ -163,7 +163,7 @@ export default async function FeedPage() {
             </> : <>
 
               <h1>Mostre seu jogo</h1>
-              <p>Monte seu perfil esportivo com seus melhores lances e encontre oportunidades no futebol.</p>
+              <p>Crie seu perfil esportivo, adicione links dos seus melhores lances e compartilhe tudo em um só lugar.</p>
             </>}
           </div>
           <div className={styles.heroNetwork}>
@@ -180,6 +180,19 @@ export default async function FeedPage() {
             </div>}
           </div>
         </section>
+
+        {!user && (
+          <section aria-label="Exemplo de perfil esportivo" style={{ marginTop: 14, padding: 16, border: '1px solid #385346', borderRadius: 16, background: '#101e17' }}>
+            <p style={{ margin: '0 0 4px', color: '#b3f737', fontSize: 12, fontWeight: 800 }}>PERFIL ESPORTIVO</p>
+            <h2 style={{ margin: '0 0 6px', fontSize: 20 }}>Veja como seu jogo pode aparecer</h2>
+            <p style={{ margin: '0 0 8px', color: '#c4d0c9', lineHeight: 1.45 }}>
+              Foto, posição, categoria e links dos seus lances em um perfil que você pode enviar a um treinador.
+            </p>
+            <Link href="/atleta/92601" style={{ display: 'inline-flex', alignItems: 'center', minHeight: 44, color: '#b3f737', fontWeight: 800 }}>
+              Ver um perfil de exemplo <span aria-hidden="true" style={{ marginLeft: 8 }}>›</span>
+            </Link>
+          </section>
+        )}
 
         <Link href="/teste-seu-nivel" className={styles.startCard}>
           <span className={styles.startCardIcon}><Icon name="target" size={28} /></span>
