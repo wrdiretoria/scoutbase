@@ -10,15 +10,6 @@ import { createAdminClient } from '@/lib/supabase'
 
 export const runtime = 'nodejs'
 
-function calcularOVR(av: number, dest: number, temFoto: boolean, temEspec: boolean): number {
-  let ovr = 65
-  if (temFoto) ovr += 12
-  if (temEspec) ovr += 8
-  ovr += Math.min(av * 2, 10)
-  ovr += Math.min(dest * 3, 10)
-  return Math.min(ovr, 99)
-}
-
 function getInitials(nome: string) {
   return nome.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase()
 }
@@ -46,212 +37,42 @@ export async function GET(req: NextRequest) {
   const av   = totAv   ?? 0
   const at   = new Set((pRows ?? []).map((r: { aluno_id: string }) => r.aluno_id)).size
   const dest = totDest ?? 0
-  calcularOVR(av, dest, !!avatar_url, !!especialidade) // calcula mas não exibe
-
-  const primeiroNome = nome.split(' ')[0]
-  const sobrenome    = nome.split(' ').slice(1).join(' ')
-  const initials     = getInitials(nome)
-
-  // 1200×1600 = qualidade Retina / 2×
   const W = 1200
   const H = 1600
+  const lime = '#b3f737'
+  const shield = `<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1400" viewBox="0 0 1000 1400"><defs><linearGradient id="g" x2="1" y2="1"><stop stop-color="#284431"/><stop offset="1" stop-color="#091510"/></linearGradient></defs><path d="M500 14 930 112 985 232 950 1040 850 1170 500 1380 150 1170 50 1040 15 232 70 112Z" fill="url(#g)" stroke="#b3f737" stroke-width="14"/><path d="M500 44 909 138 955 238 922 1026 828 1148 500 1346 172 1148 78 1026 45 238 91 138Z" fill="none" stroke="#5e8054" stroke-width="3"/></svg>`
+  const frame = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(shield)}`
+  const nameSize = nome.length > 20 ? 52 : nome.length > 14 ? 67 : 82
 
   return new ImageResponse(
-    (
-      <div style={{
-        width: W, height: H,
-        display: 'flex', flexDirection: 'column',
-        background: '#080400',
-        fontFamily: 'system-ui, sans-serif',
-        position: 'relative',
-        overflow: 'hidden',
-      }}>
-
-        {/* Glow âmbar de fundo */}
-        <div style={{
-          position: 'absolute', top: -200, left: '50%',
-          transform: 'translateX(-50%)',
-          width: 1400, height: 1200,
-          borderRadius: '50%',
-          background: 'radial-gradient(ellipse, rgba(251,191,36,0.18) 0%, rgba(217,119,6,0.06) 40%, transparent 65%)',
-          display: 'flex',
-        }} />
-
-        {/* CARD */}
-        <div style={{
-          position: 'absolute',
-          top: 80, left: 80, right: 80, bottom: 360,
-          borderRadius: 64,
-          overflow: 'hidden',
-          display: 'flex',
-          boxShadow: '0 0 0 2px rgba(251,191,36,0.35), 0 0 160px rgba(251,191,36,0.2), 0 80px 240px rgba(0,0,0,0.98)',
-        }}>
-
-          {/* Foto ou initials */}
-          {avatar_url ? (
-            <img
-              src={avatar_url}
-              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%', display: 'flex' }}
-            />
-          ) : (
-            <div style={{
-              position: 'absolute', inset: 0,
-              background: 'linear-gradient(160deg, #2d1200 0%, #1a0a00 50%, #0d0500 100%)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <div style={{
-                width: 320, height: 320, borderRadius: '50%',
-                background: 'linear-gradient(145deg,#78350f,#d97706,#fbbf24)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 128, fontWeight: 900, color: 'white',
-              }}>
-                {initials}
-              </div>
-            </div>
-          )}
-
-          {/* Overlay escuro top + bottom */}
-          <div style={{
-            position: 'absolute', inset: 0,
-            background: 'linear-gradient(to bottom, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.05) 25%, transparent 45%, rgba(0,0,0,0.3) 62%, rgba(0,0,0,0.98) 100%)',
-            display: 'flex',
-          }} />
-          <div style={{
-            position: 'absolute', inset: 0,
-            background: 'linear-gradient(to right, rgba(0,0,0,0.4) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.3) 100%)',
-            display: 'flex',
-          }} />
-
-          {/* TRE — topo esquerdo */}
-          <div style={{
-            position: 'absolute', top: 40, left: 44,
-            fontSize: 28, fontWeight: 900, color: '#fbbf24',
-            letterSpacing: '0.14em',
-            display: 'flex',
-          }}>
-            TRE
-          </div>
-
-          {/* Especialidade — topo direito */}
-          {especialidade ? (
-            <div style={{
-              position: 'absolute', top: 32, right: 36,
-              background: 'rgba(10,5,0,0.88)',
-              border: '2px solid rgba(251,191,36,0.5)',
-              borderRadius: 18,
-              padding: '10px 26px',
-              fontSize: 24, fontWeight: 800, color: '#fbbf24',
-              letterSpacing: '0.1em',
-              display: 'flex',
-            }}>
-              {especialidade}
-            </div>
-          ) : null}
-
-          {/* Bottom info — gradiente escuro sólido */}
-          <div style={{
-            position: 'absolute', bottom: 0, left: 0, right: 0,
-            background: 'linear-gradient(to top, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.94) 55%, transparent 100%)',
-            padding: '96px 44px 56px',
-            display: 'flex', flexDirection: 'column',
-          }}>
-
-            {/* Nome */}
-            <div style={{
-              fontSize: 116, fontWeight: 900, color: '#ffffff',
-              letterSpacing: '-0.03em', lineHeight: 1,
-              display: 'flex',
-            }}>
-              {primeiroNome}
-            </div>
-
-            {sobrenome ? (
-              <div style={{
-                fontSize: 30, fontWeight: 700, color: 'rgba(255,255,255,0.6)',
-                textTransform: 'uppercase', letterSpacing: '0.16em',
-                marginTop: 8, marginBottom: 28,
-                display: 'flex',
-              }}>
-                {sobrenome}
-              </div>
-            ) : <div style={{ marginBottom: 28, display: 'flex' }} />}
-
-            {/* Badge Treinador */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-              <div style={{
-                background: 'rgba(251,191,36,0.2)',
-                border: '2px solid rgba(251,191,36,0.65)',
-                borderRadius: 16,
-                padding: '12px 32px',
-                fontSize: 30, fontWeight: 900, color: '#fde68a',
-                letterSpacing: '0.06em',
-                display: 'flex',
-              }}>
-                ⚡ Treinador
-              </div>
-              {cidade ? (
-                <div style={{ fontSize: 28, color: 'rgba(255,255,255,0.5)', fontWeight: 600, display: 'flex' }}>
-                  · {cidade}
-                </div>
-              ) : null}
-            </div>
-
-            {/* Stats */}
-            {av > 0 ? (
-              <div style={{ marginTop: 28, display: 'flex', gap: 20 }}>
-                <div style={{
-                  display: 'flex', alignItems: 'baseline', gap: 12,
-                  background: 'rgba(0,0,0,0.65)',
-                  border: '2px solid rgba(251,191,36,0.45)',
-                  borderRadius: 20, padding: '14px 28px',
-                }}>
-                  <span style={{ fontSize: 44, fontWeight: 900, color: '#fbbf24' }}>{av}</span>
-                  <span style={{ fontSize: 22, fontWeight: 700, color: 'rgba(255,255,255,0.65)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>avaliações</span>
-                </div>
-                {at > 0 ? (
-                  <div style={{
-                    display: 'flex', alignItems: 'baseline', gap: 12,
-                    background: 'rgba(0,0,0,0.65)',
-                    border: '2px solid rgba(251,191,36,0.45)',
-                    borderRadius: 20, padding: '14px 28px',
-                  }}>
-                    <span style={{ fontSize: 44, fontWeight: 900, color: '#fbbf24' }}>{at}</span>
-                    <span style={{ fontSize: 22, fontWeight: 700, color: 'rgba(255,255,255,0.65)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>atletas</span>
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
-
-            {/* Watermark */}
-            <div style={{ marginTop: 28, display: 'flex', alignItems: 'center', gap: 16 }}>
-              <div style={{ flex: 1, height: 2, background: 'rgba(255,255,255,0.08)', display: 'flex' }} />
-              <span style={{ fontSize: 20, fontWeight: 800, letterSpacing: '0.22em', color: 'rgba(255,255,255,0.22)', textTransform: 'uppercase' }}>Meu Craque</span>
-              <div style={{ flex: 1, height: 2, background: 'rgba(255,255,255,0.08)', display: 'flex' }} />
-            </div>
-          </div>
-
-          {/* Corner brackets */}
-          {[
-            { top: -1, left: -1,     borderTop:    '3px solid rgba(251,191,36,0.85)', borderLeft:   '3px solid rgba(251,191,36,0.85)', borderTopLeftRadius:     48 },
-            { top: -1, right: -1,    borderTop:    '3px solid rgba(251,191,36,0.85)', borderRight:  '3px solid rgba(251,191,36,0.85)', borderTopRightRadius:    48 },
-            { bottom: -1, left: -1,  borderBottom: '3px solid rgba(251,191,36,0.3)',  borderLeft:   '3px solid rgba(251,191,36,0.3)',  borderBottomLeftRadius:  48 },
-            { bottom: -1, right: -1, borderBottom: '3px solid rgba(251,191,36,0.3)',  borderRight:  '3px solid rgba(251,191,36,0.3)',  borderBottomRightRadius: 48 },
-          ].map((s, i) => (
-            <div key={i} style={{ position: 'absolute', width: 56, height: 56, display: 'flex', ...s }} />
-          ))}
-        </div>
-
-        {/* Footer branding */}
-        <div style={{
-          position: 'absolute', bottom: 48, left: 0, right: 0,
-          display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12,
-        }}>
-          <span style={{ fontSize: 26, fontWeight: 900, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.08em' }}>
-            ⚽ MEUCRAQUE.com
-          </span>
-        </div>
+    <div style={{ width: W, height: H, display: 'flex', position: 'relative', background: '#080f0c', color: '#f0f6f1', fontFamily: 'sans-serif' }}>
+      <img src={frame} width={1000} height={1400} alt="" style={{ position: 'absolute', left: 100, top: 48 }} />
+      <div style={{ position: 'absolute', top: 157, left: 0, width: W, display: 'flex', justifyContent: 'center', fontSize: 39, fontWeight: 800, letterSpacing: 4, color: lime }}>
+        MEUCRAQUE
       </div>
-    ),
-    { width: W, height: H }
+      <div style={{ position: 'absolute', top: 232, left: 0, width: W, display: 'flex', justifyContent: 'center', fontSize: 27, letterSpacing: 5, color: '#c4d0c9' }}>
+        CARTA DE TREINADOR
+      </div>
+      <div style={{ position: 'absolute', top: 305, left: 370, width: 460, height: 460, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 230, border: '6px solid #b3f737', overflow: 'hidden', background: '#162a20', fontSize: 120, fontWeight: 800 }}>
+        {avatar_url ? <img src={avatar_url} width={448} height={448} alt="" style={{ objectFit: 'cover', objectPosition: 'center 30%', borderRadius: 224 }} /> : getInitials(nome)}
+      </div>
+      <div style={{ position: 'absolute', top: 804, left: 185, width: 830, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+        <span style={{ fontSize: nameSize, fontWeight: 900, lineHeight: 1.05 }}>{nome.toUpperCase()}</span>
+        <span style={{ marginTop: 20, color: lime, fontSize: 34, fontWeight: 800 }}>{especialidade || 'Treinador de futebol'}</span>
+        {cidade && <span style={{ marginTop: 10, color: '#c4d0c9', fontSize: 29 }}>{cidade}</span>}
+      </div>
+      <div style={{ position: 'absolute', top: 1030, left: 240, width: 720, display: 'flex', justifyContent: 'space-around', borderTop: '2px solid #385346', paddingTop: 24 }}>
+        {[[av, 'AVALIAÇÕES'], [at, 'ATLETAS'], [dest, 'DESTAQUES']].map(([count, label]) => (
+          <div key={label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 230 }}>
+            <span style={{ color: lime, fontSize: 65, fontWeight: 900 }}>{count}</span>
+            <span style={{ color: '#c4d0c9', fontSize: 21, fontWeight: 800 }}>{label}</span>
+          </div>
+        ))}
+      </div>
+      <div style={{ position: 'absolute', left: 0, bottom: 70, width: W, display: 'flex', justifyContent: 'center', fontSize: 30, color: '#c4d0c9' }}>
+        meucraque.com
+      </div>
+    </div>,
+    { width: W, height: H },
   )
 }
