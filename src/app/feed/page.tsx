@@ -162,7 +162,7 @@ export default async function FeedPage() {
               <p>{nextStep ? publicProfile ? 'Mostre seu jogo. Envie seu perfil esportivo a um treinador.' : 'Seu próximo passo para preparar seu perfil esportivo.' : 'Acompanhe sua evolução, conecte-se e descubra novas oportunidades.'}</p>
             </> : <>
 
-              <h1>Mostre seu jogo para quem recruta</h1>
+              <h1>Mostre seu jogo</h1>
               <p>Monte seu perfil esportivo com seus melhores lances e encontre oportunidades no futebol.</p>
             </>}
           </div>
