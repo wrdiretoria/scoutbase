@@ -245,8 +245,8 @@ export default async function RankingPage({ searchParams }: Props) {
           ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
         <Link href="/atleta/cadastro" style={{
-          padding: '8px 16px', borderRadius: '10px', background: '#22c55e',
-          color: 'black', fontWeight: 800, fontSize: '13px', textDecoration: 'none',
+          padding: '8px 16px', borderRadius: '10px', background: 'var(--mc-surface)', border: '1px solid var(--mc-line)',
+          color: 'var(--mc-text)', fontWeight: 800, fontSize: '13px', textDecoration: 'none',
         }}>
           + Criar perfil
         </Link>
@@ -256,13 +256,13 @@ export default async function RankingPage({ searchParams }: Props) {
 
         {/* Header */}
         <div style={{ marginBottom: '24px' }}>
-          <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+          <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, color: 'var(--mc-text)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             {modoVisitados ? '👁 Mais Visitados' : modoSemana ? '🔥 Visitas nos últimos 7 dias' : modoNovos ? '⏳ Aguardando avaliação' : '🏆 Ranking Oficial'}
           </p>
           <h1 style={{ margin: '0 0 4px', fontSize: '28px', fontWeight: 900, letterSpacing: '-0.02em' }}>
             Explorar atletas
           </h1>
-          <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.4)' }}>
+          <p style={{ margin: 0, fontSize: '14px', color: 'var(--mc-muted)' }}>
             {titulo} · {filtered.length} atleta{filtered.length !== 1 ? 's' : ''}
             {buscaFiltro     ? ` · "${buscaFiltro}"`   : ''}
             {categoriaFiltro ? ` · ${categoriaFiltro}` : ''}
@@ -300,9 +300,9 @@ export default async function RankingPage({ searchParams }: Props) {
                 style={{
                   padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0,
                   textDecoration: 'none', border: '1px solid',
-                  background: !categoriaFiltro ? '#22c55e' : 'transparent',
-                  color: !categoriaFiltro ? 'black' : 'rgba(255,255,255,0.45)',
-                  borderColor: !categoriaFiltro ? '#22c55e' : 'rgba(255,255,255,0.12)',
+                  background: !categoriaFiltro ? '#26382d' : 'transparent',
+                  color: !categoriaFiltro ? 'var(--mc-text)' : 'var(--mc-muted)',
+                  borderColor: !categoriaFiltro ? '#718279' : 'rgba(255,255,255,0.12)',
                 }}
               >
                 Todos
@@ -318,9 +318,9 @@ export default async function RankingPage({ searchParams }: Props) {
               style={{
                 padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0,
                 textDecoration: 'none', border: '1px solid',
-                background: categoriaFiltro === cat ? '#22c55e' : 'transparent',
-                color: categoriaFiltro === cat ? 'black' : 'rgba(255,255,255,0.45)',
-                borderColor: categoriaFiltro === cat ? '#22c55e' : 'rgba(255,255,255,0.12)',
+                background: categoriaFiltro === cat ? '#26382d' : 'transparent',
+                color: categoriaFiltro === cat ? 'var(--mc-text)' : 'var(--mc-muted)',
+                borderColor: categoriaFiltro === cat ? '#718279' : 'rgba(255,255,255,0.12)',
               }}
             >
               {cat}
@@ -349,8 +349,8 @@ export default async function RankingPage({ searchParams }: Props) {
               <Link key={t.id} href={urlRanking(params, { ordem: t.id })} className="filter-pill" style={{
                 flex: 1, textAlign: 'center', padding: '9px 4px', borderRadius: '10px',
                 fontSize: '12px', fontWeight: 800, textDecoration: 'none', whiteSpace: 'nowrap',
-                background: ativa ? '#22c55e' : 'transparent',
-                color: ativa ? 'black' : 'rgba(255,255,255,0.55)',
+                background: ativa ? '#26382d' : 'transparent',
+                color: ativa ? 'var(--mc-text)' : 'var(--mc-muted)',
               }}>
                 {t.label}
               </Link>
@@ -389,8 +389,8 @@ export default async function RankingPage({ searchParams }: Props) {
                 style={{
                   display: 'flex', alignItems: 'center', gap: '10px',
                   padding: '14px 14px', borderRadius: '16px',
-                  background: rc ? rc.bg : 'rgba(255,255,255,0.03)',
-                  border: `1px solid ${rc ? rc.border : 'rgba(255,255,255,0.07)'}`,
+                  background: 'var(--mc-surface)',
+                  border: '1px solid var(--mc-line)',
                   textDecoration: 'none', color: 'white',
                 }}
               >
@@ -438,7 +438,7 @@ export default async function RankingPage({ searchParams }: Props) {
                   <p style={{ margin: '0 0 2px', fontSize: '15px', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {atleta.nome}
                   </p>
-                  <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255,255,255,0.4)' }}>
+                  <p style={{ margin: 0, fontSize: '12px', color: 'var(--mc-muted)' }}>
                     {atleta.pos}{atleta.bairro ? ` · ${atleta.bairro}` : ''}{atleta.cidade ? ` · ${atleta.cidade}` : ''}{atleta.categoria ? ` · ${atleta.categoria}` : ''}
                     {(modoSemana || modoVisitados) && <span style={{ color: 'rgba(251,191,36,0.85)', fontWeight: 700 }}>{` · 👁 ${atleta.visitas}${modoSemana ? ' na semana' : ''}`}</span>}
                   </p>
@@ -459,7 +459,7 @@ export default async function RankingPage({ searchParams }: Props) {
                     display: 'flex', flexDirection: 'column', alignItems: 'center',
                     flexShrink: 0, minWidth: '40px',
                   }}>
-                    <span style={{ fontSize: '18px', fontWeight: 900, color: '#22c55e', lineHeight: 1 }}>
+                    <span style={{ fontSize: '18px', fontWeight: 900, color: 'var(--mc-text)', lineHeight: 1 }}>
                       {atleta.ovr}
                     </span>
                     <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.28)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
@@ -479,18 +479,18 @@ export default async function RankingPage({ searchParams }: Props) {
         {/* CTA */}
         <div style={{
           marginTop: '40px', padding: '24px', borderRadius: '20px',
-          background: 'linear-gradient(135deg,#052e16,#0b1610)',
-          border: '1px solid rgba(34,197,94,0.2)', textAlign: 'center',
+          background: 'var(--mc-surface)',
+          border: '1px solid var(--mc-line)', textAlign: 'center',
         }}>
           <p style={{ margin: '0 0 6px', fontSize: '20px', fontWeight: 900 }}>
             Você é o próximo.
           </p>
-          <p style={{ margin: '0 0 18px', fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>
+          <p style={{ margin: '0 0 18px', fontSize: '13px', color: 'var(--mc-muted)' }}>
             Crie seu perfil e entre no ranking.
           </p>
           <Link href="/atleta/cadastro" style={{
             display: 'inline-block', padding: '13px 32px', borderRadius: '14px',
-            background: '#22c55e', color: 'black', fontWeight: 800,
+            background: 'var(--mc-accent)', color: 'black', fontWeight: 800,
             fontSize: '15px', textDecoration: 'none',
           }}>
             Criar meu perfil grátis →
