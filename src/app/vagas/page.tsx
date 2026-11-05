@@ -3,16 +3,48 @@
  * estar logados; candidatar-se exige login).
  */
 import Link from 'next/link'
-import { createAdminClient } from '@/lib/supabase'
+import { redirect } from 'next/navigation'
+import { createAdminClient, createServerClient } from '@/lib/supabase'
 import CandidatarButton from '@/components/CandidatarButton'
 import VagasFiltros from './VagasFiltros'
 
-type Props = { searchParams: Promise<{ position?: string; category?: string; city?: string }> }
+type Props = { searchParams: Promise<{ position?: string; category?: string; city?: string; aba?: string }> }
 
 export default async function VagasPage({ searchParams }: Props) {
-  const { position, category, city } = await searchParams
+  const { position, category, city, aba } = await searchParams
 
   const admin = createAdminClient()
+  const minhas = aba === 'candidaturas'
+  if (minhas) {
+    const supabase = await createServerClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) redirect('/login?next=%2Fvagas%3Faba%3Dcandidaturas')
+    const { data: candidaturas, error } = await admin.from('opportunity_applications')
+      .select('id, opportunity_id, status, created_at').eq('athlete_id', user.id).order('created_at', { ascending: false })
+    const ids = (candidaturas ?? []).map(item => item.opportunity_id)
+    const vagas = ids.length ? await admin.from('opportunities').select('id, title').in('id', ids) : null
+    const nomes = new Map((vagas?.data ?? []).map(vaga => [vaga.id, vaga.title]))
+    const status: Record<string, string> = { pending: 'Enviada', viewed: 'Visualizada', accepted: 'Aceita', rejected: 'Não selecionada' }
+    return (
+      <main style={{ maxWidth: 600, margin: '0 auto', padding: '24px 20px 64px', color: '#f0f6f1' }}>
+        <Link href="/vagas" style={{ color: '#b3f737' }}>← Ver vagas abertas</Link>
+        <h1 style={{ fontSize: 30, margin: '16px 0' }}>Minhas candidaturas</h1>
+        {error || vagas?.error ? <p>Não foi possível carregar suas candidaturas agora.</p>
+          : !candidaturas?.length ? <p>Você ainda não se candidatou a uma vaga.</p>
+          : <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gap: 12 }}>
+              {candidaturas.map(item => (
+                <li key={item.id} style={{ padding: 16, border: '1px solid #385346', borderRadius: 14, background: '#121f18' }}>
+                  <strong>{nomes.get(item.opportunity_id) ?? 'Oportunidade indisponível'}</strong>
+                  <p style={{ margin: '6px 0 0', color: '#c4d0c9' }}>
+                    {status[item.status] ?? 'Enviada'} · {new Date(item.created_at).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })}
+                  </p>
+                </li>
+              ))}
+            </ul>}
+      </main>
+    )
+  }
+
   let query = admin
     .from('opportunities')
     .select('id, club_id, title, position, category, city, description, created_at')
@@ -23,7 +55,7 @@ export default async function VagasPage({ searchParams }: Props) {
   if (category) query = query.eq('category', category)
   if (city)     query = query.ilike('city', `%${city}%`)
 
-  const { data: vagas } = await query
+  const { data: vagas, error: vagasError } = await query
 
   const rows = vagas ?? []
   const clubIds = Array.from(new Set(rows.map(v => v.club_id)))
@@ -42,11 +74,15 @@ export default async function VagasPage({ searchParams }: Props) {
           </Link>
         </div>
 
-        <h1 style={{ margin: '0 0 4px', fontSize: '22px', fontWeight: 900 }}>💼 Vagas abertas</h1>
-        <p style={{ margin: '0 0 18px', fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>
+        <h1 style={{ margin: '0 0 4px', fontSize: '22px', fontWeight: 900 }}>Oportunidades</h1>
+        <p style={{ margin: '0 0 18px', fontSize: '13px', color: '#c4d0c9' }}>
           Oportunidades publicadas por treinadores e escolinhas no Meu Craque.
         </p>
 
+        <nav aria-label="Oportunidades" style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+          <Link aria-current="page" href="/vagas" style={{ padding: '12px 14px', borderRadius: 10, background: '#b3f737', color: '#13200b', fontWeight: 800 }}>Vagas abertas</Link>
+          <Link href="/vagas?aba=candidaturas" style={{ padding: '12px 14px', borderRadius: 10, border: '1px solid #526458', color: '#f0f6f1' }}>Minhas candidaturas</Link>
+        </nav>
         <VagasFiltros positionFiltro={position} categoryFiltro={category} cityFiltro={city} />
 
         {rows.length === 0 ? (
@@ -55,7 +91,7 @@ export default async function VagasPage({ searchParams }: Props) {
             background: '#0b1610', border: '1px solid rgba(255,255,255,0.07)',
           }}>
             <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.35)' }}>
-              Nenhuma vaga encontrada com esses filtros.
+              {vagasError ? 'Não foi possível carregar as vagas agora.' : 'Nenhuma vaga encontrada. Experimente mudar os filtros.'}
             </p>
           </div>
         ) : (
@@ -70,7 +106,7 @@ export default async function VagasPage({ searchParams }: Props) {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '6px' }}>
                     <p style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: 'white' }}>{v.title}</p>
                   </div>
-                  <p style={{ margin: '0 0 6px', fontSize: '12px', color: 'rgba(255,255,255,0.45)' }}>
+                  <p style={{ margin: '0 0 6px', fontSize: '13px', color: '#c4d0c9' }}>
                     {[v.position, v.category, v.city].filter(Boolean).join(' · ') || 'Sem detalhes adicionais'}
                   </p>
                   {clube?.nome && (
