@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+
 export default function OfflinePage() {
   return (
     <main style={{
@@ -25,9 +27,9 @@ export default function OfflinePage() {
           📶
         </div>
 
-        <p style={{ margin: '0 0 6px', fontSize: '10px', fontWeight: 800, letterSpacing: '0.1em' }}>
+        <Link href="/" aria-label="MeuCraque, início" style={{ margin: '0 0 6px', fontSize: '10px', fontWeight: 800, letterSpacing: '0.1em' }} className="inline-block no-underline text-inherit">
           ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
-        </p>
+        </Link>
 
         <h1 style={{ margin: '0 0 12px', fontSize: '24px', fontWeight: 900, letterSpacing: '-0.02em' }}>
           Sem conexão

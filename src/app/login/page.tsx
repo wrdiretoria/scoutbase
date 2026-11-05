@@ -128,9 +128,9 @@ export default function LoginPage() {
       fontFamily: 'system-ui, sans-serif',
     }}>
       <div style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: '18px', fontWeight: 800, color: 'white', marginBottom: '32px' }}>
+        <Link href="/" aria-label="MeuCraque, início" style={{ fontSize: '18px', fontWeight: 800, color: 'white', marginBottom: '32px' }} className="inline-block no-underline text-inherit">
           ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
-        </div>
+        </Link>
         <div style={{
           width: '36px', height: '36px', margin: '0 auto',
           border: '3px solid rgba(0,255,136,0.15)',

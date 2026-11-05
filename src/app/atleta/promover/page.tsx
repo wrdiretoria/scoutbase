@@ -91,9 +91,9 @@ export default function AtletaPromoverPage() {
         <Link href="/atleta/perfil" style={{ fontSize:13, color:'rgba(255,255,255,0.4)', textDecoration:'none' }}>
           ← Meu perfil
         </Link>
-        <span style={{ fontSize:15, fontWeight:800 }}>
+        <Link href="/" aria-label="MeuCraque, início" style={{ fontSize:15, fontWeight:800 }} className="inline-block no-underline text-inherit">
           ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
-        </span>
+        </Link>
         <div style={{ width:60 }} />
       </nav>
 

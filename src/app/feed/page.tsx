@@ -116,7 +116,7 @@ export default async function FeedPage() {
               {!user && <Link href="/cadastro"><Icon name="plus" size={18} /> Criar conta</Link>}
             </nav>
           </details>
-          <Link href="/feed" className={styles.brand} aria-label="MeuCraque, início">
+          <Link href="/" className={styles.brand} aria-label="MeuCraque, início">
             <span className={styles.brandMark} aria-hidden="true">
               <svg viewBox="0 0 64 54" role="presentation">
                 <circle cx="32" cy="27" r="23" fill="currentColor" />

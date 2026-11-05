@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
@@ -183,9 +185,9 @@ export default function CartaPage() {
       >
         ← Perfil
       </button>
-      <span style={{ fontSize: '13px', fontWeight: 800 }}>
+      <Link href="/" aria-label="MeuCraque, início" style={{ fontSize: '13px', fontWeight: 800 }} className="inline-block no-underline text-inherit">
         ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
-      </span>
+      </Link>
       <div style={{ width: 60 }} />
     </div>
   )

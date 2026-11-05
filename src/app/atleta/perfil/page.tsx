@@ -884,7 +884,7 @@ function AtletaPerfilContent() {
       <main style={{ background: '#06100a', minHeight: '100dvh', fontFamily: 'system-ui, sans-serif' }}>
         {/* Nav */}
         <nav style={{ padding: '16px 24px', paddingTop: 'calc(16px + env(safe-area-inset-top))', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-          <span style={{ fontSize: '16px', fontWeight: 800, color: 'white' }}>⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span></span>
+          <Link href="/" aria-label="MeuCraque, início" style={{ fontSize: '16px', fontWeight: 800, color: 'white' }} className="inline-block no-underline text-inherit">⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span></Link>
           <div className="skel" style={{ width: 32, height: 12, borderRadius: 6 }} />
         </nav>
         <div style={{ maxWidth: '480px', margin: '0 auto', padding: '28px 20px 80px' }}>

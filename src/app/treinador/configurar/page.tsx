@@ -1,5 +1,7 @@
 ﻿'use client'
 
+import Link from 'next/link'
+
 import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
@@ -269,9 +271,9 @@ export default function TreinadorConfigurarPage() {
 
         {/* ── Logo ── */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <span style={{ fontSize: '16px', fontWeight: 900, color: 'white' }}>
+          <Link href="/" aria-label="MeuCraque, início" style={{ fontSize: '16px', fontWeight: 900, color: 'white' }} className="inline-block no-underline text-inherit">
             ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
-          </span>
+          </Link>
         </div>
 
         {/* ══════════════════════════════════
