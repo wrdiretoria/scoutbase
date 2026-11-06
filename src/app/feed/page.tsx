@@ -159,6 +159,8 @@ export default async function FeedPage() {
           </div>
         </header>
 
+        <FeedStories user={user ? { id: user.id, name: nome, avatarUrl: avatar } : null} />
+
         <section className={styles.hero} aria-label={nextStep ? "Minha Jornada" : "Boas-vindas ao MeuCraque"} style={{ marginTop: 16 }}>
           <div className={styles.heroPhoto} />
           <div className={styles.heroShade} />
@@ -255,8 +257,6 @@ export default async function FeedPage() {
             </>
           )}
         </section>
-
-        <FeedStories user={user ? { id: user.id, name: nome, avatarUrl: avatar } : null} />
 
         <div className={styles.contentGrid}>
           <section className={styles.feedColumn} aria-label="Feed da comunidade">
