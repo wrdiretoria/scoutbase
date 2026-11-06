@@ -23,9 +23,11 @@ export function categoriaDoAtleta(
   dataNasc: string | null | undefined,
   hoje: Date = new Date(),
 ): string | null {
+  if (erroDataNascimento(dataNasc?.slice(0, 10), hoje)) return null
   const ano = anoNascimento(dataNasc)
   if (ano === null) return null
   const n = hoje.getFullYear() - ano
+  if (n < 1) return null
   return n > CATEGORIA_MAX ? 'Adulto' : `Sub-${n}`
 }
 
