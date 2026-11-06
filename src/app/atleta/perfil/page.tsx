@@ -821,13 +821,13 @@ function AtletaPerfilContent() {
     e.preventDefault()
     if (!editNome.trim()) return
     setErroId(null)
-    // Data de nascimento: só pode ser preenchida enquanto estiver vazia (mesma validação do cadastro)
-    if (!dataNasc && editDataNasc) {
+    // Data de nascimento: permite preencher uma data ausente ou corrigir uma data inválida
+    if (!categoria && editDataNasc) {
       const erroNasc = erroDataNascimento(editDataNasc)
       if (erroNasc) { setErroId(erroNasc); return }
     }
     setSavingId(true)
-    if (!dataNasc && editDataNasc) {
+    if (!categoria && editDataNasc) {
       const res = await fetch('/api/atleta/data-nascimento', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1223,10 +1223,10 @@ function AtletaPerfilContent() {
                     style={{ background:'rgba(255,255,255,0.07)', border:'1px solid rgba(255,255,255,0.15)', borderRadius:'10px', padding:'10px 14px', color:'white', fontSize:'14px', outline:'none' }}
                   />
                 </div>
-                {/* Data de nascimento — preenchível só enquanto vazia (define a categoria) */}
+                {/* Data de nascimento — preenchível quando ausente ou inválida (define a categoria) */}
                 <div style={{ display:'flex', flexDirection:'column', gap:'4px' }}>
                   <label style={{ fontSize:'10px', fontWeight:700, color:'rgba(255,255,255,0.4)', letterSpacing:'0.08em', textTransform:'uppercase' }}>Data de nascimento</label>
-                  {dataNasc ? (
+                  {dataNasc && categoria ? (
                     <p style={{ margin:0, fontSize:'13px', color:'rgba(255,255,255,0.6)', lineHeight:1.5 }}>
                       {dataNasc.slice(8, 10)}/{dataNasc.slice(5, 7)}/{dataNasc.slice(0, 4)} · {categoria}
                       <span style={{ display:'block', fontSize:'11px', color:'rgba(255,255,255,0.3)' }}>
