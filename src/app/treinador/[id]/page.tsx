@@ -25,7 +25,7 @@ function posAbrev(pos: string): string {
 }
 
 function notaColor(nota: number) {
-  if (nota >= 75) return '#22c55e'
+  if (nota >= 75) return '#b3f737'
   if (nota >= 60) return '#fbbf24'
   if (nota >= 45) return '#f97316'
   return '#ef4444'
@@ -254,7 +254,7 @@ export default async function TreinadorPerfilPublico({ params }: Props) {
           ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
         <Link href="/atleta/cadastro" style={{
-          padding: '8px 16px', borderRadius: '10px', background: '#22c55e',
+          padding: '8px 16px', borderRadius: '10px', background: '#b3f737',
           color: 'black', fontWeight: 800, fontSize: '13px', textDecoration: 'none',
         }}>
           Criar meu perfil
@@ -297,7 +297,7 @@ export default async function TreinadorPerfilPublico({ params }: Props) {
             <div style={{ flex: 1, minWidth: 0 }}>
               <p style={{
                 margin: '0 0 2px', fontSize: '9px', fontWeight: 800,
-                color: '#22c55e', letterSpacing: '0.14em', textTransform: 'uppercase',
+                color: '#b3f737', letterSpacing: '0.14em', textTransform: 'uppercase',
               }}>
                 🎽 Treinador verificado
               </p>
@@ -469,7 +469,7 @@ export default async function TreinadorPerfilPublico({ params }: Props) {
           }}
         >
           {[
-            { label: 'Atletas', value: totalAtletas,    emoji: '👥', color: '#22c55e' },
+            { label: 'Atletas', value: totalAtletas,    emoji: '👥', color: '#b3f737' },
             { label: 'Avaliações', value: totalAvaliacoes, emoji: '📋', color: '#60a5fa' },
             { label: 'OVR médio', value: mediaOvr ?? '—', emoji: '⭐', color: '#fbbf24' },
             { label: 'Destaques', value: destaques,     emoji: '🌟', color: '#a78bfa' },
@@ -585,7 +585,7 @@ export default async function TreinadorPerfilPublico({ params }: Props) {
           </p>
           <Link href="/atleta/cadastro" style={{
             display: 'inline-block', padding: '13px 28px', borderRadius: '14px',
-            background: '#22c55e', color: 'black', fontWeight: 800,
+            background: '#b3f737', color: 'black', fontWeight: 800,
             fontSize: '15px', textDecoration: 'none',
           }}>
             ⚽ Criar meu perfil grátis →

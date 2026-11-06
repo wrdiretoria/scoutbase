@@ -33,7 +33,7 @@ export default function CopyInviteLink({ url }: { url: string }) {
         style={{
           padding: '10px 18px', borderRadius: '10px', border: 'none',
           cursor: 'pointer', flexShrink: 0,
-          background: copied ? '#16a34a' : '#22c55e',
+          background: copied ? '#16a34a' : '#b3f737',
           color: 'black', fontWeight: 700, fontSize: '13px',
           transition: 'background 0.2s',
           whiteSpace: 'nowrap',

@@ -57,7 +57,7 @@ export default function TreinadorBottomNav() {
           transform: translateX(-50%);
           width: 22px; height: 2.5px;
           border-radius: 0 0 3px 3px;
-          background: #00FF88;
+          background: #b3f737;
           box-shadow: 0 0 8px rgba(0,255,136,0.7);
         }
 
@@ -106,10 +106,10 @@ export default function TreinadorBottomNav() {
             href="/treinador/dashboard"
             className={`tc-nav-item${isActive('/treinador/dashboard') ? ' active' : ''}`}
           >
-            <span className="tc-nav-icon" style={{ color: isActive('/treinador/dashboard') ? '#00FF88' : 'rgba(255,255,255,0.38)' }}>
+            <span className="tc-nav-icon" style={{ color: isActive('/treinador/dashboard') ? '#b3f737' : 'rgba(255,255,255,0.38)' }}>
               🏠
             </span>
-            <span className="tc-nav-label" style={{ color: isActive('/treinador/dashboard') ? '#00FF88' : 'rgba(255,255,255,0.35)' }}>
+            <span className="tc-nav-label" style={{ color: isActive('/treinador/dashboard') ? '#b3f737' : 'rgba(255,255,255,0.35)' }}>
               Dashboard
             </span>
           </Link>
@@ -119,10 +119,10 @@ export default function TreinadorBottomNav() {
             href="/clube/vagas"
             className={`tc-nav-item${isActive('/clube/vagas') ? ' active' : ''}`}
           >
-            <span className="tc-nav-icon" style={{ color: isActive('/clube/vagas') ? '#00FF88' : 'rgba(255,255,255,0.38)' }}>
+            <span className="tc-nav-icon" style={{ color: isActive('/clube/vagas') ? '#b3f737' : 'rgba(255,255,255,0.38)' }}>
               💼
             </span>
-            <span className="tc-nav-label" style={{ color: isActive('/clube/vagas') ? '#00FF88' : 'rgba(255,255,255,0.35)' }}>
+            <span className="tc-nav-label" style={{ color: isActive('/clube/vagas') ? '#b3f737' : 'rgba(255,255,255,0.35)' }}>
               Vagas
             </span>
           </Link>
@@ -132,10 +132,10 @@ export default function TreinadorBottomNav() {
             href="/treinador/perfil"
             className={`tc-nav-item${isActive('/treinador/perfil') ? ' active' : ''}`}
           >
-            <span className="tc-nav-icon" style={{ color: isActive('/treinador/perfil') ? '#00FF88' : 'rgba(255,255,255,0.38)' }}>
+            <span className="tc-nav-icon" style={{ color: isActive('/treinador/perfil') ? '#b3f737' : 'rgba(255,255,255,0.38)' }}>
               👤
             </span>
-            <span className="tc-nav-label" style={{ color: isActive('/treinador/perfil') ? '#00FF88' : 'rgba(255,255,255,0.35)' }}>
+            <span className="tc-nav-label" style={{ color: isActive('/treinador/perfil') ? '#b3f737' : 'rgba(255,255,255,0.35)' }}>
               Perfil
             </span>
           </Link>

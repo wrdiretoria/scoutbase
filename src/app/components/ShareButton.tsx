@@ -32,7 +32,7 @@ export default function ShareButton() {
         borderRadius: '14px',
         background: copied ? 'rgba(34,197,94,0.12)' : 'rgba(255,255,255,0.035)',
         border: `1px solid ${copied ? 'rgba(34,197,94,0.35)' : 'rgba(255,255,255,0.08)'}`,
-        color: copied ? '#22c55e' : 'rgba(255,255,255,0.45)',
+        color: copied ? '#b3f737' : 'rgba(255,255,255,0.45)',
         fontSize: '13px',
         fontWeight: 700,
         cursor: 'pointer',

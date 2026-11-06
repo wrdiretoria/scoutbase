@@ -46,7 +46,7 @@ function getFaseLabel(dataNasc?: string): { fase: string; cor: string; bg: strin
   if (i <= 10) return { fase: 'INICIAÇÃO · Sub-7 ao Sub-10',    cor: '#60a5fa', bg: 'rgba(96,165,250,0.08)',  borda: 'rgba(96,165,250,0.25)'  }
   if (i <= 14) return { fase: 'FORMAÇÃO · Sub-11 ao Sub-14',    cor: '#a78bfa', bg: 'rgba(167,139,250,0.08)', borda: 'rgba(167,139,250,0.25)' }
   if (i <= 17) return { fase: 'COMPETIÇÃO · Sub-15 ao Sub-17',  cor: '#fb923c', bg: 'rgba(251,146,60,0.08)',  borda: 'rgba(251,146,60,0.25)'  }
-  return           { fase: 'SUB-20 · Elite Pré-Profissional',   cor: '#00FF88', bg: 'rgba(0,255,136,0.08)',   borda: 'rgba(0,255,136,0.3)'    }
+  return           { fase: 'SUB-20 · Elite Pré-Profissional',   cor: '#b3f737', bg: 'rgba(0,255,136,0.08)',   borda: 'rgba(0,255,136,0.3)'    }
 }
 
 // Posição em português completo + ícone
@@ -82,14 +82,14 @@ function posLabel(pos: string): string {
 }
 
 const NOTA_LABELS = ['', 'Fraco', 'Regular', 'Bom', 'Muito Bom', 'Excelente']
-const NOTA_COLORS = ['rgba(255,255,255,0.18)', '#ef4444', '#f59e0b', '#eab308', '#22c55e', '#00FF88']
+const NOTA_COLORS = ['rgba(255,255,255,0.18)', '#ef4444', '#f59e0b', '#eab308', '#b3f737', '#b3f737']
 
 function notaLabel(n: number): string { return NOTA_LABELS[n] ?? '—' }
 function notaColor(n: number): string {
   // para score 0-100
   if (n === 0)  return 'rgba(255,255,255,0.2)'
-  if (n >= 80)  return '#00FF88'
-  if (n >= 60)  return '#22c55e'
+  if (n >= 80)  return '#b3f737'
+  if (n >= 60)  return '#b3f737'
   if (n >= 40)  return '#eab308'
   if (n >= 20)  return '#f59e0b'
   return '#ef4444'
@@ -203,7 +203,7 @@ function SectionHeader({ title, subtitle, count, total }: {
       borderBottom: '1px solid rgba(255,255,255,0.06)',
     }}>
       <div>
-        <p style={{ margin: 0, fontSize: '12px', fontWeight: 800, color: done ? '#00FF88' : 'rgba(255,255,255,0.7)', letterSpacing: '0.06em' }}>
+        <p style={{ margin: 0, fontSize: '12px', fontWeight: 800, color: done ? '#b3f737' : 'rgba(255,255,255,0.7)', letterSpacing: '0.06em' }}>
           {title}
         </p>
         {subtitle && (
@@ -215,7 +215,7 @@ function SectionHeader({ title, subtitle, count, total }: {
       <div style={{
         padding: '3px 10px', borderRadius: '100px', fontSize: '10px', fontWeight: 800,
         background: done ? 'rgba(0,255,136,0.12)' : 'rgba(255,255,255,0.06)',
-        color: done ? '#00FF88' : 'rgba(255,255,255,0.35)',
+        color: done ? '#b3f737' : 'rgba(255,255,255,0.35)',
         border: done ? '1px solid rgba(0,255,136,0.25)' : '1px solid rgba(255,255,255,0.08)',
         letterSpacing: '0.06em',
       }}>
@@ -402,7 +402,7 @@ function AvaliarPageInner() {
         .seg-btn:hover { filter: brightness(1.25); }
         .btn-primary {
           width:100%; padding:17px; border-radius:14px; border:none;
-          background: linear-gradient(135deg,#00e87a,#00FF88 55%,#22c55e);
+          background: linear-gradient(135deg,#00e87a,#b3f737 55%,#b3f737);
           color:#020d04; font-weight:900; font-size:16px; min-height:56px;
           cursor:pointer; font-family:system-ui,sans-serif; letter-spacing:0.04em;
           box-shadow:0 0 40px rgba(0,255,136,0.3),0 4px 16px rgba(0,0,0,0.4),
@@ -468,7 +468,7 @@ function AvaliarPageInner() {
                 padding:'5px 14px', borderRadius:'100px', marginBottom:'14px',
                 background:'rgba(0,255,136,0.08)', border:'1px solid rgba(0,255,136,0.2)',
               }}>
-                <div style={{ width:'5px', height:'5px', borderRadius:'50%', background: 'var(--mc-accent)', boxShadow:'0 0 8px #00FF88', animation:'dotPulse 2s ease-in-out infinite' }} />
+                <div style={{ width:'5px', height:'5px', borderRadius:'50%', background: 'var(--mc-accent)', boxShadow:'0 0 8px #b3f737', animation:'dotPulse 2s ease-in-out infinite' }} />
                 <span style={{ fontSize:'10px', fontWeight:800, letterSpacing:'0.14em', color:'rgba(0,255,136,0.8)', textTransform:'uppercase' }}>
                   Avaliação oficial
                 </span>
@@ -579,7 +579,7 @@ function AvaliarPageInner() {
                     style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center 18%' }} />
                 ) : (
                   <div style={{ width:'100%', height:'100%', background:'linear-gradient(160deg,#1a3828 0%,#050e08 100%)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                    <div style={{ width:'64px', height:'64px', borderRadius:'50%', background:'linear-gradient(145deg,#1a7a42,#22c55e)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'22px', fontWeight:900, color:'white' }}>
+                    <div style={{ width:'64px', height:'64px', borderRadius:'50%', background:'linear-gradient(145deg,#1a7a42,#b3f737)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'22px', fontWeight:900, color:'white' }}>
                       {initials}
                     </div>
                   </div>
@@ -717,14 +717,14 @@ function AvaliarPageInner() {
               <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'8px' }}>
                 {atleta.avatar_url
                   ? <img src={atleta.avatar_url} alt={atleta.nome} style={{ width:'36px', height:'36px', borderRadius:'50%', objectFit:'cover', objectPosition:'center 15%', flexShrink:0 }} />
-                  : <div style={{ width:'36px', height:'36px', borderRadius:'50%', background:'linear-gradient(145deg,#1a7a42,#22c55e)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'13px', fontWeight:900, color:'white', flexShrink:0 }}>{initials}</div>
+                  : <div style={{ width:'36px', height:'36px', borderRadius:'50%', background:'linear-gradient(145deg,#1a7a42,#b3f737)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'13px', fontWeight:900, color:'white', flexShrink:0 }}>{initials}</div>
                 }
                 <div style={{ flex:1, minWidth:0 }}>
                   <p style={{ margin:0, fontSize:'14px', fontWeight:800, color:'white', letterSpacing:'-0.01em', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{atleta.nome}</p>
                 </div>
                 <div style={{ textAlign:'right', flexShrink:0 }}>
                   <span style={{ fontSize:'9px', fontWeight:700, letterSpacing:'0.10em', textTransform:'uppercase', color:'rgba(255,255,255,0.25)', display:'block' }}>Progresso</span>
-                  <span style={{ fontSize:'16px', fontWeight:900, fontVariantNumeric:'tabular-nums', color: totalPreench === totalPerguntas ? '#00FF88' : 'rgba(255,255,255,0.5)' }}>
+                  <span style={{ fontSize:'16px', fontWeight:900, fontVariantNumeric:'tabular-nums', color: totalPreench === totalPerguntas ? '#b3f737' : 'rgba(255,255,255,0.5)' }}>
                     {totalPreench}/{totalPerguntas}
                   </span>
                 </div>
@@ -740,7 +740,7 @@ function AvaliarPageInner() {
                 <span style={{ fontSize:'14px', flexShrink:0 }}>{posInfo?.icone}</span>
                 <span style={{ fontSize:'11px', fontWeight:900, color:'white' }}>{atleta.posicao}</span>
                 <span style={{ fontSize:'10px', color:'rgba(255,255,255,0.3)' }}>·</span>
-                <span style={{ fontSize:'11px', fontWeight:700, color: faseInfo?.cor ?? '#00FF88' }}>{faseInfo?.fase}</span>
+                <span style={{ fontSize:'11px', fontWeight:700, color: faseInfo?.cor ?? '#b3f737' }}>{faseInfo?.fase}</span>
                 {categoria && (
                   <>
                     <span style={{ fontSize:'10px', color:'rgba(255,255,255,0.3)' }}>·</span>

@@ -44,7 +44,7 @@ export default function OfflinePage() {
           style={{
             padding: '14px 32px',
             borderRadius: '14px',
-            background: '#22c55e',
+            background: '#b3f737',
             color: 'black',
             fontWeight: 800,
             fontSize: '15px',

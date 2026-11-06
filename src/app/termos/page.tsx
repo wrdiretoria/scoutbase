@@ -16,7 +16,7 @@ function SectionHeading({ num, title }: { num: string; title: string }) {
       margin: '0 0 12px',
       fontSize: '15px',
       fontWeight: 800,
-      color: '#22c55e',
+      color: '#b3f737',
       letterSpacing: '0.01em',
     }}>
       {num}. {title}
@@ -63,7 +63,7 @@ function Ul({ items }: { items: string[] }) {
           paddingLeft: '8px',
           position: 'relative',
         }}>
-          <span style={{ position: 'absolute', left: '-12px', color: '#22c55e' }}>·</span>
+          <span style={{ position: 'absolute', left: '-12px', color: '#b3f737' }}>·</span>
           {item}
         </li>
       ))}
@@ -126,7 +126,7 @@ export default function TermosPage() {
             margin: '0 0 12px',
             fontSize: '11px',
             fontWeight: 700,
-            color: '#22c55e',
+            color: '#b3f737',
             letterSpacing: '0.14em',
             textTransform: 'uppercase',
           }}>
@@ -260,7 +260,7 @@ export default function TermosPage() {
         ]} />
         <Body>
           Para exercer qualquer desses direitos, envie solicitação para:{' '}
-          <a href="mailto:privacidade@meucraque.com" style={{ color: '#22c55e', textDecoration: 'none', fontWeight: 700 }}>
+          <a href="mailto:privacidade@meucraque.com" style={{ color: '#b3f737', textDecoration: 'none', fontWeight: 700 }}>
             privacidade@meucraque.com
           </a>
           . Responderemos em até 15 dias úteis.
@@ -359,7 +359,7 @@ export default function TermosPage() {
         </Body>
         <Body>
           Dúvidas, solicitações de exclusão de dados ou denúncias de conteúdo impróprio:{' '}
-          <a href="mailto:privacidade@meucraque.com" style={{ color: '#22c55e', textDecoration: 'none', fontWeight: 700 }}>
+          <a href="mailto:privacidade@meucraque.com" style={{ color: '#b3f737', textDecoration: 'none', fontWeight: 700 }}>
             privacidade@meucraque.com
           </a>
         </Body>
@@ -373,7 +373,7 @@ export default function TermosPage() {
         }}>
           <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255,255,255,0.2)' }}>
             Última atualização: {VIGENCIA} —{' '}
-            <span style={{ color: '#22c55e' }}>meucraque.com</span>
+            <span style={{ color: '#b3f737' }}>meucraque.com</span>
           </p>
         </div>
 

@@ -152,7 +152,7 @@ export default function LiveFeed() {
         .feed-divider-dot {
           width: 5px; height: 5px;
           border-radius: 50%;
-          background: #00FF88;
+          background: #b3f737;
           box-shadow: 0 0 6px rgba(0,255,136,0.8);
           animation: pulseFeed 2s ease-in-out infinite;
         }
@@ -269,7 +269,7 @@ export default function LiveFeed() {
             fontWeight: 900, color: 'white',
             letterSpacing: '-0.028em', lineHeight: 1.06,
           }}>
-            Atletas <span style={{ color: '#00FF88' }}>em destaque</span>
+            Atletas <span style={{ color: '#b3f737' }}>em destaque</span>
           </h2>
           <p style={{
             margin: 0, fontSize: '14px',

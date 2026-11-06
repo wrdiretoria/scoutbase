@@ -118,7 +118,7 @@ export default function AtletaBottomNav() {
           transform: translateX(-50%);
           width: 22px; height: 2.5px;
           border-radius: 0 0 3px 3px;
-          background: #00FF88;
+          background: #b3f737;
           box-shadow: 0 0 8px rgba(0,255,136,0.7);
         }
 
@@ -167,10 +167,10 @@ export default function AtletaBottomNav() {
             href="/atleta/perfil"
             className={`mc-nav-item${isActive('/atleta/perfil') ? ' active' : ''}`}
           >
-            <span className="mc-nav-icon" style={{ color: isActive('/atleta/perfil') ? '#00FF88' : 'rgba(255,255,255,0.38)' }}>
+            <span className="mc-nav-icon" style={{ color: isActive('/atleta/perfil') ? '#b3f737' : 'rgba(255,255,255,0.38)' }}>
               👤
             </span>
-            <span className="mc-nav-label" style={{ color: isActive('/atleta/perfil') ? '#00FF88' : 'rgba(255,255,255,0.35)' }}>
+            <span className="mc-nav-label" style={{ color: isActive('/atleta/perfil') ? '#b3f737' : 'rgba(255,255,255,0.35)' }}>
               Perfil
             </span>
           </Link>
@@ -180,10 +180,10 @@ export default function AtletaBottomNav() {
             href="/atleta/historico"
             className={`mc-nav-item${isActive('/atleta/historico') ? ' active' : ''}`}
           >
-            <span className="mc-nav-icon" style={{ color: isActive('/atleta/historico') ? '#00FF88' : 'rgba(255,255,255,0.38)' }}>
+            <span className="mc-nav-icon" style={{ color: isActive('/atleta/historico') ? '#b3f737' : 'rgba(255,255,255,0.38)' }}>
               📈
             </span>
-            <span className="mc-nav-label" style={{ color: isActive('/atleta/historico') ? '#00FF88' : 'rgba(255,255,255,0.35)' }}>
+            <span className="mc-nav-label" style={{ color: isActive('/atleta/historico') ? '#b3f737' : 'rgba(255,255,255,0.35)' }}>
               Trajetória
             </span>
           </Link>
@@ -193,10 +193,10 @@ export default function AtletaBottomNav() {
             href="/vagas"
             className={`mc-nav-item${isActive('/vagas') ? ' active' : ''}`}
           >
-            <span className="mc-nav-icon" style={{ color: isActive('/vagas') ? '#00FF88' : 'rgba(255,255,255,0.38)' }}>
+            <span className="mc-nav-icon" style={{ color: isActive('/vagas') ? '#b3f737' : 'rgba(255,255,255,0.38)' }}>
               💼
             </span>
-            <span className="mc-nav-label" style={{ color: isActive('/vagas') ? '#00FF88' : 'rgba(255,255,255,0.35)' }}>
+            <span className="mc-nav-label" style={{ color: isActive('/vagas') ? '#b3f737' : 'rgba(255,255,255,0.35)' }}>
               Vagas
             </span>
           </Link>
@@ -206,10 +206,10 @@ export default function AtletaBottomNav() {
             onClick={handleShare}
             className={`mc-nav-item${isActive('/atleta/compartilhar') ? ' active' : ''}`}
           >
-            <span className="mc-nav-icon" style={{ color: isActive('/atleta/compartilhar') ? '#00FF88' : 'rgba(255,255,255,0.38)' }}>
+            <span className="mc-nav-icon" style={{ color: isActive('/atleta/compartilhar') ? '#b3f737' : 'rgba(255,255,255,0.38)' }}>
               📲
             </span>
-            <span className="mc-nav-label" style={{ color: isActive('/atleta/compartilhar') ? '#00FF88' : 'rgba(255,255,255,0.35)' }}>
+            <span className="mc-nav-label" style={{ color: isActive('/atleta/compartilhar') ? '#b3f737' : 'rgba(255,255,255,0.35)' }}>
               Compartilhar
             </span>
           </button>

@@ -80,7 +80,7 @@ export default function StatsBar() {
               border: '1px solid rgba(0,255,136,0.18)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
-              <svg width="18" height="18" fill="none" stroke="#00FF88" strokeWidth="1.8" viewBox="0 0 24 24">
+              <svg width="18" height="18" fill="none" stroke="#b3f737" strokeWidth="1.8" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round"
                   d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
@@ -90,7 +90,7 @@ export default function StatsBar() {
                 key={s.value}
                 className="stats-count-animate"
                 style={{
-                  fontSize: '20px', fontWeight: 900, color: '#00FF88',
+                  fontSize: '20px', fontWeight: 900, color: '#b3f737',
                   letterSpacing: '-0.02em', lineHeight: 1,
                   textShadow: '0 0 20px rgba(0,255,136,0.4)',
                 }}

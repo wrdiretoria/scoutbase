@@ -55,7 +55,7 @@ function LinhaSugestao({ pessoa, onConectado }: { pessoa: Sugestao; onConectado:
           width: '26px', height: '26px', borderRadius: '50%', flexShrink: 0,
           border: enviado ? '1px solid rgba(34,197,94,0.4)' : '1px solid rgba(255,255,255,0.15)',
           background: enviado ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.05)',
-          color: enviado ? '#22c55e' : 'rgba(255,255,255,0.6)',
+          color: enviado ? '#b3f737' : 'rgba(255,255,255,0.6)',
           fontSize: '13px', fontWeight: 800, cursor: sending || enviado ? 'default' : 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}

@@ -112,7 +112,7 @@ export default async function ClubePage({ params }: Props) {
               : initials}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ margin: '0 0 2px', fontSize: '9px', fontWeight: 800, color: '#22c55e', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+            <p style={{ margin: '0 0 2px', fontSize: '9px', fontWeight: 800, color: '#b3f737', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
               🏟 Clube / Escolinha
             </p>
             <h1 style={{ margin: '0 0 4px', fontSize: '20px', fontWeight: 900 }}>{nome}</h1>

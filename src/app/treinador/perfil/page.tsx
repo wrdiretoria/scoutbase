@@ -269,7 +269,7 @@ export default function TreinadorPerfilPage() {
 
         .btn-share {
           width:100%; padding:17px; border-radius:14px; border:none;
-          background: linear-gradient(135deg,#00e87a,#00FF88 55%,#22c55e);
+          background: linear-gradient(135deg,#00e87a,#b3f737 55%,#b3f737);
           color:#020d04; font-weight:900; font-size:16px; min-height:56px;
           cursor:pointer; font-family:system-ui,sans-serif; letter-spacing:0.03em;
           box-shadow: 0 0 40px rgba(0,255,136,0.3),0 4px 16px rgba(0,0,0,0.4),
@@ -357,7 +357,7 @@ export default function TreinadorPerfilPage() {
               ) : (
                 <div style={{
                   width:'100%', height:'100%', borderRadius:'50%',
-                  background:'linear-gradient(145deg,#166534,#22c55e,#4ade80)',
+                  background:'linear-gradient(145deg,#166534,#b3f737,#4ade80)',
                   display:'flex', alignItems:'center', justifyContent:'center',
                   fontSize:'30px', fontWeight:900, color:'white', letterSpacing:'-0.02em',
                   boxShadow:'inset 0 1px 0 rgba(255,255,255,0.2)',
@@ -425,7 +425,7 @@ export default function TreinadorPerfilPage() {
           }}>
             <div style={{
               width:'5px', height:'5px', borderRadius:'50%',
-              background: 'var(--mc-accent)', boxShadow:'0 0 6px #00FF88',
+              background: 'var(--mc-accent)', boxShadow:'0 0 6px #b3f737',
               animation:'dotPulse 2.2s ease-in-out infinite',
             }} />
             <span style={{
@@ -520,7 +520,7 @@ export default function TreinadorPerfilPage() {
               <span style={{
                 fontSize:            m.isText ? '18px' : '32px',
                 fontWeight:          900,
-                color:               m.highlight ? '#00FF88' : 'white',
+                color:               m.highlight ? '#b3f737' : 'white',
                 fontVariantNumeric:  'tabular-nums',
                 lineHeight:          1,
                 letterSpacing:       '-0.03em',

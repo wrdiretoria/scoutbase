@@ -55,7 +55,7 @@ function UtilButton({ recomendacao, onToggle }: {
         padding: '5px 12px', borderRadius: '100px',
         border: recomendacao.reactedByMe ? '1px solid rgba(34,197,94,0.4)' : '1px solid rgba(255,255,255,0.1)',
         background: recomendacao.reactedByMe ? 'rgba(34,197,94,0.12)' : 'rgba(255,255,255,0.03)',
-        color: recomendacao.reactedByMe ? '#22c55e' : 'rgba(255,255,255,0.45)',
+        color: recomendacao.reactedByMe ? '#b3f737' : 'rgba(255,255,255,0.45)',
         fontSize: '11px', fontWeight: 700, cursor: sending ? 'default' : 'pointer',
         fontFamily: 'system-ui, sans-serif',
       }}
@@ -151,7 +151,7 @@ function NovaRecomendacaoForm({ subjectId, onCriada }: {
         onClick={() => setAberto(true)}
         style={{
           padding: '10px 14px', borderRadius: '10px', border: '1px solid rgba(34,197,94,0.2)',
-          background: 'rgba(34,197,94,0.08)', color: '#22c55e', fontWeight: 700, fontSize: '12px',
+          background: 'rgba(34,197,94,0.08)', color: '#b3f737', fontWeight: 700, fontSize: '12px',
           cursor: 'pointer', fontFamily: 'system-ui, sans-serif', alignSelf: 'flex-start',
         }}
       >
@@ -198,7 +198,7 @@ function NovaRecomendacaoForm({ subjectId, onCriada }: {
           disabled={sending || !body.trim()}
           style={{
             flex: 1, padding: '10px', borderRadius: '10px', border: 'none',
-            background: 'linear-gradient(160deg,#166534 0%,#22c55e 100%)',
+            background: 'linear-gradient(160deg,#166534 0%,#b3f737 100%)',
             color: 'white', fontWeight: 800, fontSize: '12px',
             cursor: sending ? 'default' : 'pointer', opacity: !body.trim() ? 0.5 : 1,
             fontFamily: 'system-ui, sans-serif',
@@ -258,7 +258,7 @@ export default function RecomendacoesSection({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <p style={{ margin: 0, fontSize: '10px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+        <p style={{ margin: 0, fontSize: '10px', fontWeight: 700, color: '#b3f737', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
           💬 Recomendações
         </p>
         {showViewAllLink && total > limit && (

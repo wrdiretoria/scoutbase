@@ -42,7 +42,7 @@ function getInitials(nome: string) {
 }
 
 function notaColor(nota: number) {
-  if (nota >= 75) return '#00FF88'
+  if (nota >= 75) return '#b3f737'
   if (nota >= 60) return '#b3f737'
   if (nota >= 45) return '#f97316'
   return '#ef4444'
@@ -518,7 +518,7 @@ export default function TreinadorDashboardPage() {
           paddingTop: 'calc(26px + env(safe-area-inset-top))', paddingBottom: '20px',
         }}>
           <Link href="/" aria-label="MeuCraque, início" style={{ fontSize: '15px', fontWeight: 900, color: 'white', letterSpacing: '-0.02em' }} className="inline-block no-underline text-inherit">
-            ⚽ <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+            ⚽ <span style={{ color: '#b3f737' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
           </Link>
           <Link href="/treinador/perfil" style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -664,7 +664,7 @@ export default function TreinadorDashboardPage() {
                   >
                     <div style={{
                       width: '46px', height: '46px', borderRadius: '50%', flexShrink: 0,
-                      background: 'linear-gradient(145deg,#166534,#22c55e)',
+                      background: 'linear-gradient(145deg,#166534,#b3f737)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontSize: '14px', fontWeight: 900, color: 'white',
                     }}>
@@ -761,7 +761,7 @@ export default function TreinadorDashboardPage() {
                     style={{ animation: `cardReveal .4s ease forwards ${0.6 + idx * 0.06}s`, opacity: 0, textDecoration: 'none', color: 'white' }}>
                     <div style={{
                       width: '46px', height: '46px', borderRadius: '50%', flexShrink: 0,
-                      background: av.atleta_avatar ? 'transparent' : 'linear-gradient(145deg,#166534,#22c55e)',
+                      background: av.atleta_avatar ? 'transparent' : 'linear-gradient(145deg,#166534,#b3f737)',
                       overflow: 'hidden', border: `1.5px solid ${cor}40`,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>

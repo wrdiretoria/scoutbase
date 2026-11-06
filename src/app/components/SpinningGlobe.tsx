@@ -65,8 +65,8 @@ export default function SpinningGlobe() {
             width: '5px',
             height: '5px',
             borderRadius: '50%',
-            background: '#00FF88',
-            boxShadow: '0 0 6px #00FF88, 0 0 12px rgba(0,255,136,0.6)',
+            background: '#b3f737',
+            boxShadow: '0 0 6px #b3f737, 0 0 12px rgba(0,255,136,0.6)',
           }} />
         </div>
 
@@ -162,7 +162,7 @@ export default function SpinningGlobe() {
               width: '4px',
               height: '4px',
               borderRadius: '50%',
-              background: '#00FF88',
+              background: '#b3f737',
               boxShadow: '0 0 5px rgba(0,255,136,0.9)',
               opacity: 0.85,
             }} />

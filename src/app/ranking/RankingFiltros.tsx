@@ -240,7 +240,7 @@ export default function RankingFiltros({ categoriaFiltro, posicaoFiltro, cidadeF
           )}
           {posicaoFiltro && (
             <span style={{
-              fontSize: '11px', fontWeight: 700, color: '#22c55e',
+              fontSize: '11px', fontWeight: 700, color: '#b3f737',
               background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)',
               borderRadius: '20px', padding: '3px 10px',
             }}>

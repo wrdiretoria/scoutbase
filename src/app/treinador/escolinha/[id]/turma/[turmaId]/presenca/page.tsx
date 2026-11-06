@@ -304,7 +304,7 @@ export default function ChamadaPage() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
                       <div style={{
                         width: '38px', height: '38px', borderRadius: '50%', flexShrink: 0,
-                        background: a.avatar_url ? 'transparent' : 'linear-gradient(145deg,#166534,#22c55e)',
+                        background: a.avatar_url ? 'transparent' : 'linear-gradient(145deg,#166534,#b3f737)',
                         overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}>
                         {a.avatar_url

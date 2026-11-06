@@ -45,7 +45,7 @@ export default async function ScoutsPage() {
           ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
         <Link href="/scout/cadastro" style={{
-          padding: '8px 16px', borderRadius: '10px', background: '#22c55e',
+          padding: '8px 16px', borderRadius: '10px', background: '#b3f737',
           color: 'black', fontWeight: 800, fontSize: '13px', textDecoration: 'none',
         }}>
           + Sou scout
@@ -56,7 +56,7 @@ export default async function ScoutsPage() {
 
         {/* Header */}
         <div style={{ marginBottom: '28px' }}>
-          <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+          <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, color: '#b3f737', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             🔍 Rede de Scouts
           </p>
           <h1 style={{ margin: '0 0 4px', fontSize: '28px', fontWeight: 900, letterSpacing: '-0.02em' }}>
@@ -115,7 +115,7 @@ export default async function ScoutsPage() {
                   style={{
                     padding: '7px 14px', borderRadius: '10px',
                     background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.25)',
-                    color: '#22c55e', fontSize: '12px', fontWeight: 700,
+                    color: '#b3f737', fontSize: '12px', fontWeight: 700,
                     textDecoration: 'none', flexShrink: 0,
                   }}
                 >
@@ -140,7 +140,7 @@ export default async function ScoutsPage() {
           </p>
           <Link href="/scout/cadastro" style={{
             display: 'inline-block', padding: '13px 32px', borderRadius: '14px',
-            background: '#22c55e', color: 'black', fontWeight: 800,
+            background: '#b3f737', color: 'black', fontWeight: 800,
             fontSize: '15px', textDecoration: 'none',
           }}>
             Entrar como scout →

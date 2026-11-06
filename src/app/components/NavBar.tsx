@@ -88,7 +88,7 @@ export default function NavBar() {
           <Link href="/" style={{ textDecoration: 'none', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '22px' }}>⚽</span>
             <span style={{ fontSize: '17px', fontWeight: 800, letterSpacing: '-0.01em' }}>
-              <span style={{ color: '#00ff87' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
+              <span style={{ color: '#b3f737' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
             </span>
           </Link>
 
@@ -202,7 +202,7 @@ export default function NavBar() {
               href={l.href}
               onClick={() => setOpen(false)}
               style={{
-                color: l.href === '/ranking' ? '#22c55e' : 'rgba(255,255,255,0.75)',
+                color: l.href === '/ranking' ? '#b3f737' : 'rgba(255,255,255,0.75)',
                 textDecoration: 'none',
                 fontSize: '22px',
                 fontWeight: 600,
@@ -248,7 +248,7 @@ export default function NavBar() {
               onClick={() => setOpen(false)}
               style={{
                 padding: '16px', textAlign: 'center', fontSize: '16px', fontWeight: 700,
-                color: 'black', background: '#22c55e', borderRadius: '14px',
+                color: 'black', background: '#b3f737', borderRadius: '14px',
                 textDecoration: 'none', display: 'block',
               }}
             >

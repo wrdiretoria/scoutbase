@@ -238,7 +238,7 @@ function CommentsPanel({ postId, onCommentAdded }: { postId: string; onCommentAd
           disabled={sending || !texto.trim()}
           style={{
             padding: '8px 16px', borderRadius: '100px', border: 'none',
-            background: 'rgba(34,197,94,0.15)', color: '#22c55e', fontWeight: 700, fontSize: '12px',
+            background: 'rgba(34,197,94,0.15)', color: '#b3f737', fontWeight: 700, fontSize: '12px',
             cursor: sending ? 'default' : 'pointer', fontFamily: 'system-ui, sans-serif',
           }}
         >
@@ -317,7 +317,7 @@ function PostCard({ post, onToggleLike, onCommentAdded, cardStyle }: {
           disabled={sendingLike}
           style={{
             display: 'flex', alignItems: 'center', gap: '5px', background: 'none', border: 'none',
-            color: post.reactedByMe ? '#22c55e' : 'rgba(255,255,255,0.45)',
+            color: post.reactedByMe ? '#b3f737' : 'rgba(255,255,255,0.45)',
             fontSize: '12px', fontWeight: 700, cursor: 'pointer', padding: '4px 0',
             fontFamily: 'system-ui, sans-serif',
           }}

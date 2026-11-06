@@ -170,7 +170,7 @@ export default function TreinadorNovaSenhaPage() {
   return (
     <Suspense fallback={
       <main style={{ background: 'var(--mc-canvas)', minHeight:'100dvh', display:'flex', alignItems:'center', justifyContent:'center' }}>
-        <div style={{ width:40, height:40, borderRadius:'50%', border:'3px solid rgba(34,197,94,0.2)', borderTopColor:'#22c55e', animation:'spin .8s linear infinite' }} />
+        <div style={{ width:40, height:40, borderRadius:'50%', border:'3px solid rgba(34,197,94,0.2)', borderTopColor:'#b3f737', animation:'spin .8s linear infinite' }} />
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </main>
     }>

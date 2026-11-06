@@ -105,7 +105,7 @@ export default function RecuperarSenhaPage() {
         {etapa === 'verificar' && (
           <>
             <div style={{ marginBottom: '28px' }}>
-              <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', color: '#22c55e', textTransform: 'uppercase' }}>
+              <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', color: '#b3f737', textTransform: 'uppercase' }}>
                 Redefinir senha
               </p>
               <h1 style={{ margin: '0 0 8px', fontSize: '22px', fontWeight: 900, color: 'white' }}>
@@ -148,7 +148,7 @@ export default function RecuperarSenhaPage() {
                 style={{
                   padding: '14px', borderRadius: '14px', border: 'none',
                   cursor: loading ? 'not-allowed' : 'pointer',
-                  background: '#22c55e', color: 'black', fontWeight: 800,
+                  background: '#b3f737', color: 'black', fontWeight: 800,
                   fontSize: '15px', opacity: loading ? 0.6 : 1,
                 }}
               >
@@ -167,7 +167,7 @@ export default function RecuperarSenhaPage() {
                 padding: '6px 14px', borderRadius: '100px', marginBottom: '16px',
                 background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)',
               }}>
-                <span style={{ fontSize: '12px', color: '#22c55e', fontWeight: 700 }}>✓ Identidade verificada</span>
+                <span style={{ fontSize: '12px', color: '#b3f737', fontWeight: 700 }}>✓ Identidade verificada</span>
               </div>
               <h1 style={{ margin: '0 0 8px', fontSize: '22px', fontWeight: 900, color: 'white' }}>
                 Crie uma nova senha
@@ -209,7 +209,7 @@ export default function RecuperarSenhaPage() {
                 style={{
                   padding: '14px', borderRadius: '14px', border: 'none',
                   cursor: loading ? 'not-allowed' : 'pointer',
-                  background: '#22c55e', color: 'black', fontWeight: 800,
+                  background: '#b3f737', color: 'black', fontWeight: 800,
                   fontSize: '15px', opacity: loading ? 0.6 : 1,
                 }}
               >
@@ -233,7 +233,7 @@ export default function RecuperarSenhaPage() {
               onClick={() => router.push('/login')}
               style={{
                 width: '100%', padding: '14px', borderRadius: '14px', border: 'none',
-                background: '#22c55e', color: 'black', fontWeight: 800,
+                background: '#b3f737', color: 'black', fontWeight: 800,
                 fontSize: '15px', cursor: 'pointer',
               }}
             >

@@ -110,7 +110,7 @@ export default async function VagasPage({ searchParams }: Props) {
                     {[v.position, v.category, v.city].filter(Boolean).join(' · ') || 'Sem detalhes adicionais'}
                   </p>
                   {clube?.nome && (
-                    <Link href={`/clube/${v.club_id}`} style={{ fontSize: '12px', color: '#22c55e', textDecoration: 'none', fontWeight: 700 }}>
+                    <Link href={`/clube/${v.club_id}`} style={{ fontSize: '12px', color: '#b3f737', textDecoration: 'none', fontWeight: 700 }}>
                       🏟 {clube.nome}
                     </Link>
                   )}

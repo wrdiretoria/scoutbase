@@ -44,7 +44,7 @@ export default function IosPwaPrompt() {
           <p style={{ margin: 0, fontSize: 13, fontWeight: 800, color: 'white' }}>Instalar Meu Craque</p>
           <p style={{ margin: 0, fontSize: 11, color: 'rgba(255,255,255,0.45)', marginTop: 1 }}>
             Toque em{' '}
-            <svg style={{ display: 'inline', verticalAlign: 'middle' }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#00FF88" strokeWidth="2.5">
+            <svg style={{ display: 'inline', verticalAlign: 'middle' }} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#b3f737" strokeWidth="2.5">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8M16 6l-4-4-4 4M12 2v13"/>
             </svg>
             {' '}→ <strong style={{ color: 'rgba(255,255,255,0.75)' }}>Adicionar à Tela de Início</strong>

@@ -309,7 +309,7 @@ export default function TreinadorBemVindoPage() {
               {temQuest ? '✅' : '⚡'}
             </div>
             <div style={{ flex:1, minWidth:0 }}>
-              <p style={{ margin:'0 0 4px', fontSize:'14px', fontWeight:900, color: temQuest ? '#22c55e' : '#fbbf24', letterSpacing:'-0.01em' }}>
+              <p style={{ margin:'0 0 4px', fontSize:'14px', fontWeight:900, color: temQuest ? '#b3f737' : '#fbbf24', letterSpacing:'-0.01em' }}>
                 {temQuest ? 'Questionário concluído' : 'Definir meu perfil de treinador'}
               </p>
               <p style={{ margin:0, fontSize:'12px', color:'rgba(255,255,255,0.4)', lineHeight:1.5 }}>
@@ -341,7 +341,7 @@ export default function TreinadorBemVindoPage() {
               {temCurriculo ? '✅' : '📋'}
             </div>
             <div style={{ flex:1, minWidth:0 }}>
-              <p style={{ margin:'0 0 4px', fontSize:'14px', fontWeight:900, color: temCurriculo ? '#22c55e' : '#60a5fa', letterSpacing:'-0.01em' }}>
+              <p style={{ margin:'0 0 4px', fontSize:'14px', fontWeight:900, color: temCurriculo ? '#b3f737' : '#60a5fa', letterSpacing:'-0.01em' }}>
                 {temCurriculo ? 'Currículo preenchido' : 'Completar meu currículo'}
               </p>
               <p style={{ margin:0, fontSize:'12px', color:'rgba(255,255,255,0.4)', lineHeight:1.5 }}>

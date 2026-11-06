@@ -233,8 +233,8 @@ export default function QuestionarioPage() {
                 {/* Círculo seletor */}
                 <div style={{
                   width: '22px', height: '22px', borderRadius: '50%', flexShrink: 0,
-                  border: ativo ? '2px solid #00FF88' : '2px solid rgba(255,255,255,0.2)',
-                  background: ativo ? '#00FF88' : 'transparent',
+                  border: ativo ? '2px solid #b3f737' : '2px solid rgba(255,255,255,0.2)',
+                  background: ativo ? '#b3f737' : 'transparent',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   transition: 'all .15s',
                 }}>
@@ -246,7 +246,7 @@ export default function QuestionarioPage() {
                 <div>
                   <p style={{
                     margin: '0 0 2px', fontSize: '15px', fontWeight: 700,
-                    color: ativo ? '#00FF88' : 'white',
+                    color: ativo ? '#b3f737' : 'white',
                     transition: 'color .15s',
                   }}>
                     {op.label}
@@ -271,7 +271,7 @@ export default function QuestionarioPage() {
           style={{
             marginTop: '24px', padding: '17px', borderRadius: '14px', border: 'none',
             cursor: selected && !saving ? 'pointer' : 'not-allowed',
-            background: selected ? '#00FF88' : 'rgba(255,255,255,0.06)',
+            background: selected ? '#b3f737' : 'rgba(255,255,255,0.06)',
             color: selected ? '#060d07' : 'rgba(255,255,255,0.25)',
             fontWeight: 900, fontSize: '15px', letterSpacing: '0.01em',
             transition: 'all .2s',

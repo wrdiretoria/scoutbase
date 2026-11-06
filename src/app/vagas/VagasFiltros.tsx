@@ -64,7 +64,7 @@ export default function VagasFiltros({ positionFiltro, categoryFiltro, cityFiltr
         />
         <button type="submit" style={{
           padding: '10px 14px', borderRadius: '10px', border: '1px solid rgba(34,197,94,0.2)',
-          background: 'rgba(34,197,94,0.1)', color: '#22c55e', fontWeight: 700, fontSize: '13px',
+          background: 'rgba(34,197,94,0.1)', color: '#b3f737', fontWeight: 700, fontSize: '13px',
           cursor: 'pointer', fontFamily: 'system-ui, sans-serif',
         }}>
           🔍

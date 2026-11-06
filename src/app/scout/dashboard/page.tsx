@@ -199,7 +199,7 @@ export default function ScoutDashboardPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 20 }}>
               {[
                 { val: scout.favoritos.length, label: 'Atletas salvos', color: '#fbbf24' },
-                { val: '∞',                    label: 'Buscas disponíveis', color: '#22c55e' },
+                { val: '∞',                    label: 'Buscas disponíveis', color: '#b3f737' },
               ].map((s, i) => (
                 <div key={i} style={{
                   background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(251,191,36,0.08)',
@@ -255,7 +255,7 @@ export default function ScoutDashboardPage() {
               <p style={{ margin: '0 0 10px', fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>
                 Nenhum atleta salvo ainda
               </p>
-              <Link href="/scout/busca" style={{ fontSize: 12, color: '#22c55e', fontWeight: 700, textDecoration: 'none' }}>
+              <Link href="/scout/busca" style={{ fontSize: 12, color: '#b3f737', fontWeight: 700, textDecoration: 'none' }}>
                 Explorar atletas →
               </Link>
             </div>
@@ -283,7 +283,7 @@ export default function ScoutDashboardPage() {
                       </p>
                       {pos && (
                         <span style={{
-                          fontSize: 10, fontWeight: 800, color: '#22c55e',
+                          fontSize: 10, fontWeight: 800, color: '#b3f737',
                           background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)',
                           borderRadius: 6, padding: '1px 7px',
                         }}>

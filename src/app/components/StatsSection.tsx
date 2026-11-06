@@ -92,7 +92,7 @@ export default function StatsSection() {
 
               <div style={{
                 fontSize: 'clamp(38px,4.5vw,56px)',
-                fontWeight: 900, color: '#00FF88',
+                fontWeight: 900, color: '#b3f737',
                 lineHeight: 1, letterSpacing: '-0.04em',
                 marginBottom: '10px',
                 textShadow: '0 0 24px rgba(0,255,136,0.25)',

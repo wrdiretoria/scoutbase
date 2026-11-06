@@ -55,7 +55,7 @@ export default function SeguirButton({ subjectId }: { subjectId: string }) {
         flex: 1, padding: '13px', borderRadius: '12px',
         border: seguindo ? '1px solid rgba(34,197,94,0.4)' : '1px solid rgba(255,255,255,0.12)',
         background: seguindo ? 'rgba(34,197,94,0.12)' : 'rgba(255,255,255,0.04)',
-        color: seguindo ? '#22c55e' : 'rgba(255,255,255,0.7)',
+        color: seguindo ? '#b3f737' : 'rgba(255,255,255,0.7)',
         fontWeight: 800, fontSize: '13px',
         cursor: sending || checking ? 'default' : 'pointer',
         opacity: checking ? 0.6 : 1,

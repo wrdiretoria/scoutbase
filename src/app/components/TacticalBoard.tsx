@@ -17,7 +17,7 @@ function initials(nome: string) {
 }
 
 function ovrColor(ovr: number) {
-  if (ovr >= 80) return '#00FF88'
+  if (ovr >= 80) return '#b3f737'
   if (ovr >= 65) return '#fbbf24'
   return '#f97316'
 }
@@ -177,7 +177,7 @@ export default function TacticalBoard() {
       <div style={{ textAlign: 'center', marginBottom: '36px' }}>
         <p style={{
           margin: '0 0 8px', fontSize: '10px', fontWeight: 800,
-          color: '#22c55e', letterSpacing: '0.18em', textTransform: 'uppercase',
+          color: '#b3f737', letterSpacing: '0.18em', textTransform: 'uppercase',
         }}>
           ⚽ Formação do Momento
         </p>

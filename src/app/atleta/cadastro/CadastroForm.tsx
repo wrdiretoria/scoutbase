@@ -313,7 +313,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
             </Link>
             <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.3)' }}>
               Já tem conta?{' '}
-              <Link href="/login" style={{ color: '#22c55e', textDecoration: 'none', fontWeight: 700 }}>
+              <Link href="/login" style={{ color: '#b3f737', textDecoration: 'none', fontWeight: 700 }}>
                 Entrar →
               </Link>
             </p>
@@ -327,7 +327,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
             }}>
               <span style={{ fontSize: '20px' }}>⚽</span>
               <div>
-                <p style={{ margin: 0, fontSize: '11px', color: '#22c55e', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Convite aceito</p>
+                <p style={{ margin: 0, fontSize: '11px', color: '#b3f737', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Convite aceito</p>
                 <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>Escolinha de {escolaNome}</p>
               </div>
             </div>
@@ -352,13 +352,13 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
             {[1, 2].map(s => (
               <div key={s} style={{
                 flex: 1, height: '3px', borderRadius: '2px',
-                background: s <= step ? '#22c55e' : 'rgba(255,255,255,0.1)',
+                background: s <= step ? '#b3f737' : 'rgba(255,255,255,0.1)',
                 transition: 'background 0.3s',
               }} />
             ))}
           </div>
 
-          <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', color: '#22c55e', textTransform: 'uppercase' }}>
+          <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', color: '#b3f737', textTransform: 'uppercase' }}>
             {step === 1 ? 'Acesso · 1 de 2' : 'Identidade · 2 de 2'}
           </p>
           <h1 style={{ margin: '0 0 6px', fontSize: '26px', fontWeight: 900, color: 'white', letterSpacing: '-0.02em' }}>
@@ -406,8 +406,8 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
             >
               <div style={{
                 width: '20px', height: '20px', borderRadius: '6px', flexShrink: 0, marginTop: '1px',
-                background: consent ? '#22c55e' : 'rgba(255,255,255,0.06)',
-                border: `1.5px solid ${consent ? '#22c55e' : 'rgba(255,255,255,0.15)'}`,
+                background: consent ? '#b3f737' : 'rgba(255,255,255,0.06)',
+                border: `1.5px solid ${consent ? '#b3f737' : 'rgba(255,255,255,0.15)'}`,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 transition: 'all 0.2s',
               }}>
@@ -415,7 +415,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
               </div>
               <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>
                 Confirmo que sou o responsável legal pelo atleta cadastrado e autorizo o uso de seus dados e imagens conforme os{' '}
-                <Link href="/termos" target="_blank" onClick={e => e.stopPropagation()} style={{ color: '#22c55e', textDecoration: 'none' }}>Termos de Uso</Link>.
+                <Link href="/termos" target="_blank" onClick={e => e.stopPropagation()} style={{ color: '#b3f737', textDecoration: 'none' }}>Termos de Uso</Link>.
               </span>
             </div>
 
@@ -423,7 +423,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
 
             <button type="submit" style={{
               padding: '16px', borderRadius: '14px', border: 'none', cursor: 'pointer',
-              background: '#22c55e', color: 'black', fontWeight: 800, fontSize: '16px', marginTop: '4px',
+              background: '#b3f737', color: 'black', fontWeight: 800, fontSize: '16px', marginTop: '4px',
               minHeight: '56px', transition: 'transform .08s, opacity .1s',
               boxShadow: '0 0 28px rgba(34,197,94,0.2)',
             }}>
@@ -465,7 +465,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
                     <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(34,197,94,0.4)' }} />
                     <div style={{ width: '50px', height: '40px', borderRadius: '8px 8px 0 0', background: 'rgba(34,197,94,0.3)', marginTop: '2px' }} />
                   </div>
-                  <p style={{ margin: 0, fontSize: '10px', fontWeight: 700, color: '#22c55e', textAlign: 'center' }}>✓ ASSIM</p>
+                  <p style={{ margin: 0, fontSize: '10px', fontWeight: 700, color: '#b3f737', textAlign: 'center' }}>✓ ASSIM</p>
                   <p style={{ margin: '2px 0 0', fontSize: '9px', color: 'rgba(255,255,255,0.35)', textAlign: 'center', lineHeight: 1.4 }}>
                     Rosto visível<br />Fundo simples<br />Foto sozinho
                   </p>
@@ -569,9 +569,9 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
                       onClick={() => setSexo(opt)}
                       style={{
                         padding: '14px 10px', borderRadius: '12px', cursor: 'pointer',
-                        border: `1.5px solid ${active ? '#22c55e' : 'rgba(255,255,255,0.1)'}`,
+                        border: `1.5px solid ${active ? '#b3f737' : 'rgba(255,255,255,0.1)'}`,
                         background: active ? 'rgba(34,197,94,0.1)' : 'rgba(255,255,255,0.04)',
-                        color: active ? '#22c55e' : 'rgba(255,255,255,0.5)',
+                        color: active ? '#b3f737' : 'rgba(255,255,255,0.5)',
                         fontWeight: 700, fontSize: '14px',
                         transition: 'all 0.2s', fontFamily: 'inherit',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
@@ -699,7 +699,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
                     display: 'inline-block', marginTop: '10px', padding: '8px 14px',
                     borderRadius: '8px', background: 'rgba(34,197,94,0.15)',
                     border: '1px solid rgba(34,197,94,0.3)',
-                    color: '#22c55e', fontSize: '13px', fontWeight: 700, textDecoration: 'none',
+                    color: '#b3f737', fontSize: '13px', fontWeight: 700, textDecoration: 'none',
                   }}>
                     Criar perfil de treinador →
                   </Link>
@@ -712,7 +712,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
               style={{
                 padding: '16px', borderRadius: '14px', border: 'none',
                 cursor: loading ? 'not-allowed' : 'pointer',
-                background: '#22c55e', color: 'black', fontWeight: 800, fontSize: '16px',
+                background: '#b3f737', color: 'black', fontWeight: 800, fontSize: '16px',
                 opacity: loading ? 0.6 : 1, marginTop: '4px',
                 minHeight: '56px', transition: 'transform .08s, opacity .15s',
                 boxShadow: '0 0 28px rgba(34,197,94,0.2)',

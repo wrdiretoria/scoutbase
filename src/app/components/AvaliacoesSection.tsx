@@ -1,7 +1,7 @@
 const atributos = [
-  { label: 'Velocidade',     key: 'VEL', value: 90, color: '#00FF88' },
-  { label: 'Finalização',    key: 'FIN', value: 88, color: '#00FF88' },
-  { label: 'Técnica',        key: 'TEC', value: 82, color: '#00FF88' },
+  { label: 'Velocidade',     key: 'VEL', value: 90, color: '#b3f737' },
+  { label: 'Finalização',    key: 'FIN', value: 88, color: '#b3f737' },
+  { label: 'Técnica',        key: 'TEC', value: 82, color: '#b3f737' },
   { label: 'Visão de jogo',  key: 'VIS', value: 76, color: '#60a5fa' },
   { label: 'Força física',   key: 'FOR', value: 84, color: '#60a5fa' },
   { label: 'Posicionamento', key: 'POS', value: 79, color: '#60a5fa' },
@@ -39,7 +39,7 @@ export default function AvaliacoesSection() {
               letterSpacing: '-0.03em', lineHeight: 1.08,
             }}>
               Avaliado por<br />
-              <span style={{ color: '#00FF88' }}>treinadores reais</span>
+              <span style={{ color: '#b3f737' }}>treinadores reais</span>
             </h2>
 
             <p style={{ margin: '0 0 32px', fontSize: 'clamp(13px,1.1vw,16px)', color: 'rgba(255,255,255,0.38)', lineHeight: 1.68 }}>
@@ -54,7 +54,7 @@ export default function AvaliacoesSection() {
                     width: '20px', height: '20px', borderRadius: '50%', flexShrink: 0,
                     background: 'rgba(0,255,136,0.1)', border: '1px solid rgba(0,255,136,0.25)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: '10px', color: '#00FF88',
+                    fontSize: '10px', color: '#b3f737',
                   }}>✓</span>
                   <span style={{ fontSize: '14px', color: 'rgba(255,255,255,0.55)' }}>{text}</span>
                 </div>

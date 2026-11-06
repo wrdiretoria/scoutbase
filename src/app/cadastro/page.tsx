@@ -54,7 +54,7 @@ export default function EscolhaPerfilPage() {
           </div>
           <div style={{
             marginTop: '4px', display: 'flex', alignItems: 'center', gap: '6px',
-            fontSize: '13px', fontWeight: 700, color: '#22c55e',
+            fontSize: '13px', fontWeight: 700, color: '#b3f737',
           }}>
             Criar meu perfil →
           </div>
@@ -82,7 +82,7 @@ export default function EscolhaPerfilPage() {
       {/* Já tem conta */}
       <p style={{ marginTop: '32px', fontSize: '13px', color: 'rgba(255,255,255,0.3)' }}>
         Já tem conta?{' '}
-        <Link href="/login" style={{ color: '#22c55e', textDecoration: 'none', fontWeight: 600 }}>
+        <Link href="/login" style={{ color: '#b3f737', textDecoration: 'none', fontWeight: 600 }}>
           Entrar
         </Link>
       </p>

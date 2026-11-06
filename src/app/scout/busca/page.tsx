@@ -172,7 +172,7 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
           ) : (
             // Anônimo ou não-scout: só mostra Entrar (sem botão que pede login)
             <Link href="/scout/entrar" style={{
-              padding: '7px 14px', borderRadius: '8px', background: '#22c55e',
+              padding: '7px 14px', borderRadius: '8px', background: '#b3f737',
               color: 'black', fontWeight: 800, fontSize: '12px', textDecoration: 'none',
             }}>
               Entrar como scout
@@ -185,7 +185,7 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
 
         {/* ── Header ── */}
         <div style={{ marginBottom: '28px' }}>
-          <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+          <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, color: '#b3f737', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             🔍 Busca de talentos
           </p>
           <h1 style={{ margin: '0 0 4px', fontSize: '28px', fontWeight: 900, letterSpacing: '-0.02em' }}>
@@ -225,7 +225,7 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
             </p>
             <Link href="/planos" style={{
               display: 'inline-block', padding: '13px 28px', borderRadius: '12px',
-              background: '#22c55e', color: 'black', fontWeight: 800, fontSize: '14px', textDecoration: 'none',
+              background: '#b3f737', color: 'black', fontWeight: 800, fontSize: '14px', textDecoration: 'none',
             }}>
               Ver plano Pro →
             </Link>
@@ -259,7 +259,7 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
                 {atleta.promovido && (
                   <div style={{
                     position: 'absolute', top: 12, right: 12,
-                    fontSize: '10px', fontWeight: 800, color: '#22c55e',
+                    fontSize: '10px', fontWeight: 800, color: '#b3f737',
                     background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)',
                     borderRadius: '20px', padding: '2px 8px', letterSpacing: '0.06em',
                   }}>
@@ -284,7 +284,7 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
                     </div>
                     <div style={{
                       fontSize: '18px', fontWeight: 900,
-                      color: atleta.ovr ? '#22c55e' : 'rgba(255,255,255,0.2)',
+                      color: atleta.ovr ? '#b3f737' : 'rgba(255,255,255,0.2)',
                       lineHeight: 1,
                     }}>
                       {atleta.ovr ?? '—'}
@@ -329,7 +329,7 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
                     )}
 
                     {atleta.clubeAtual && (
-                      <p style={{ margin: '0 0 8px', fontSize: '12px', color: '#22c55e', fontWeight: 600 }}>
+                      <p style={{ margin: '0 0 8px', fontSize: '12px', color: '#b3f737', fontWeight: 600 }}>
                         ⚽ {atleta.clubeAtual}
                       </p>
                     )}
@@ -369,7 +369,7 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
           </p>
           <Link href="/scout/cadastro" style={{
             display: 'inline-block', padding: '13px 28px', borderRadius: '14px',
-            background: '#22c55e', color: 'black', fontWeight: 800, fontSize: '15px', textDecoration: 'none',
+            background: '#b3f737', color: 'black', fontWeight: 800, fontSize: '15px', textDecoration: 'none',
           }}>
             Criar conta de scout →
           </Link>

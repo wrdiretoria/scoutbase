@@ -127,7 +127,7 @@ export default function HeroCard() {
               padding: '2px 8px', borderRadius: '20px',
               background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
             }}>
-              <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#00FF88' }} />
+              <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#b3f737' }} />
               <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.06em' }}>
                 avaliado por{' '}
                 <span style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 700 }}>

@@ -86,7 +86,7 @@ export default function ConectarButton({ subjectId }: { subjectId: string }) {
         style={{
           flex: 1, width: '100%', padding: '13px', borderRadius: '12px', border: 'none',
           background: habilitado
-            ? 'linear-gradient(160deg,#166534 0%,#22c55e 100%)'
+            ? 'linear-gradient(160deg,#166534 0%,#b3f737 100%)'
             : 'rgba(255,255,255,0.06)',
           color: habilitado ? 'white' : 'rgba(255,255,255,0.4)',
           fontWeight: 800, fontSize: '13px',

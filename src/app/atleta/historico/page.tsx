@@ -99,8 +99,8 @@ function getInitials(nome: string) {
 }
 
 function notaColor(n: number): string {
-  if (n >= 80) return '#00FF88'
-  if (n >= 65) return '#22c55e'
+  if (n >= 80) return '#b3f737'
+  if (n >= 65) return '#b3f737'
   if (n >= 50) return '#eab308'
   return '#f97316'
 }
@@ -113,7 +113,7 @@ function notaLabel(n: number): string {
 }
 
 function frequenciaColor(pct: number): string {
-  if (pct >= 90) return '#00FF88'
+  if (pct >= 90) return '#b3f737'
   if (pct >= 75) return '#84cc16'
   if (pct >= 50) return '#eab308'
   return '#ef4444'
@@ -793,7 +793,7 @@ export default function AtletaHistoricoPage() {
                                   border:`1px solid ${delta > 0 ? 'rgba(0,255,136,0.3)' : 'rgba(239,68,68,0.3)'}`,
                                   whiteSpace:'nowrap',
                                 }}>
-                                  <span style={{ fontSize:'10px', fontWeight:900, color: delta > 0 ? '#00FF88' : '#ef4444' }}>
+                                  <span style={{ fontSize:'10px', fontWeight:900, color: delta > 0 ? '#b3f737' : '#ef4444' }}>
                                     {delta > 0 ? `+${delta}` : delta}
                                   </span>
                                 </div>

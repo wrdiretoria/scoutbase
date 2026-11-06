@@ -73,7 +73,7 @@ export default function AtletaPromoverPage() {
 
   if (loading) return (
     <main style={{ background: 'var(--mc-canvas)', minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'inherit' }}>
-      <div style={{ width: 40, height: 40, borderRadius: '50%', border: '3px solid rgba(34,197,94,0.2)', borderTop: '3px solid #22c55e', animation: 'spin 1s linear infinite' }} />
+      <div style={{ width: 40, height: 40, borderRadius: '50%', border: '3px solid rgba(34,197,94,0.2)', borderTop: '3px solid #b3f737', animation: 'spin 1s linear infinite' }} />
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </main>
   )
@@ -107,7 +107,7 @@ export default function AtletaPromoverPage() {
             border:'1px solid rgba(34,197,94,0.3)',
           }}>
             <div style={{ fontSize:40, marginBottom:12 }}>🚀</div>
-            <h2 style={{ margin:'0 0 8px', fontSize:20, fontWeight:900, color:'#22c55e' }}>
+            <h2 style={{ margin:'0 0 8px', fontSize:20, fontWeight:900, color:'#b3f737' }}>
               Você está em destaque!
             </h2>
             <p style={{ margin:'0 0 4px', fontSize:14, color:'rgba(255,255,255,0.6)' }}>
@@ -119,7 +119,7 @@ export default function AtletaPromoverPage() {
             <Link href="/scout/busca" style={{
               display:'inline-block', marginTop:18, padding:'11px 24px', borderRadius:12,
               background:'rgba(34,197,94,0.1)', border:'1px solid rgba(34,197,94,0.25)',
-              color:'#22c55e', fontWeight:700, fontSize:13, textDecoration:'none',
+              color:'#b3f737', fontWeight:700, fontSize:13, textDecoration:'none',
             }}>
               🔍 Ver como você aparece na busca →
             </Link>
@@ -132,7 +132,7 @@ export default function AtletaPromoverPage() {
             <div style={{ textAlign:'center', marginBottom:28 }}>
               <div style={{
                 width:60, height:60, borderRadius:'50%', margin:'0 auto 16px',
-                background:'linear-gradient(135deg, #166534, #22c55e)',
+                background:'linear-gradient(135deg, #166534, #b3f737)',
                 display:'flex', alignItems:'center', justifyContent:'center', fontSize:26,
                 boxShadow:'0 0 30px rgba(34,197,94,0.3)',
               }}>🚀</div>
@@ -226,8 +226,8 @@ export default function AtletaPromoverPage() {
                     className="copy-btn"
                     style={{
                       width:'100%', padding:'11px', borderRadius:10, cursor:'pointer',
-                      background: copiado ? 'rgba(34,197,94,0.2)' : '#22c55e',
-                      color: copiado ? '#22c55e' : 'black',
+                      background: copiado ? 'rgba(34,197,94,0.2)' : '#b3f737',
+                      color: copiado ? '#b3f737' : 'black',
                       fontWeight:800, fontSize:14, fontFamily: 'inherit',
                       border: copiado ? '1px solid rgba(34,197,94,0.4)' : 'none',
                     }}
@@ -249,7 +249,7 @@ export default function AtletaPromoverPage() {
                 disabled={gerando}
                 style={{
                   width:'100%', padding:'17px', borderRadius:16, border:'none', cursor: gerando ? 'wait' : 'pointer',
-                  background: gerando ? 'rgba(34,197,94,0.4)' : 'linear-gradient(135deg, #16a34a, #22c55e)',
+                  background: gerando ? 'rgba(34,197,94,0.4)' : 'linear-gradient(135deg, #16a34a, #b3f737)',
                   color:'black', fontWeight:900, fontSize:17, fontFamily: 'inherit',
                   boxShadow:'0 8px 28px rgba(34,197,94,0.3)',
                   transition:'opacity .2s, transform .1s',
@@ -269,7 +269,7 @@ export default function AtletaPromoverPage() {
               disabled={gerando}
               style={{
                 padding:'12px 28px', borderRadius:12, border:'1px solid rgba(34,197,94,0.25)',
-                background:'rgba(34,197,94,0.07)', color:'#22c55e',
+                background:'rgba(34,197,94,0.07)', color:'#b3f737',
                 fontWeight:700, fontSize:14, cursor:'pointer', fontFamily: 'inherit',
               }}
             >

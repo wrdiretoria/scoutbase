@@ -99,7 +99,7 @@ export default function ScoutFiltros({ posicaoFiltro, categoriaFiltro, cidadeFil
             disabled={idLoading || !idInput.trim()}
             style={{
               padding: '11px 20px', borderRadius: '10px', border: 'none',
-              background: idLoading ? 'rgba(34,197,94,0.4)' : '#22c55e',
+              background: idLoading ? 'rgba(34,197,94,0.4)' : '#b3f737',
               color: 'black', fontWeight: 800, fontSize: '14px', cursor: idLoading ? 'wait' : 'pointer',
               whiteSpace: 'nowrap', fontFamily: 'system-ui, sans-serif',
               opacity: (!idInput.trim() && !idLoading) ? 0.5 : 1,
@@ -184,7 +184,7 @@ export default function ScoutFiltros({ posicaoFiltro, categoriaFiltro, cidadeFil
           />
           <button type="submit" style={{
             padding: '9px 14px', borderRadius: '10px', border: 'none',
-            background: '#22c55e', color: 'black', fontWeight: 700, fontSize: '13px', cursor: 'pointer',
+            background: '#b3f737', color: 'black', fontWeight: 700, fontSize: '13px', cursor: 'pointer',
           }}>
             Buscar
           </button>

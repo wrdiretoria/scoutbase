@@ -43,8 +43,8 @@ async function compressImage(file: File, maxPx = 900, quality = 0.82): Promise<B
 
 
 function notaColor(n: number): string {
-  if (n >= 80) return '#00FF88'
-  if (n >= 60) return '#22c55e'
+  if (n >= 80) return '#b3f737'
+  if (n >= 60) return '#b3f737'
   if (n >= 40) return '#eab308'
   if (n >= 20) return '#f59e0b'
   return '#ef4444'
@@ -184,7 +184,7 @@ function AvaliacaoDetalhada({ respostas }: { respostas: Record<string, number> &
   const fortes = allQs.filter(q => (respostas[q.key] ?? 0) >= 4).sort((a, b) => (respostas[b.key] ?? 0) - (respostas[a.key] ?? 0)).slice(0, 3)
   const melhor = allQs.filter(q => { const v = respostas[q.key] ?? 0; return v > 0 && v <= 2 }).sort((a, b) => (respostas[a.key] ?? 0) - (respostas[b.key] ?? 0)).slice(0, 3)
 
-  const tagColors: Record<number, string> = { 1:'#ef4444', 2:'#f59e0b', 3:'#eab308', 4:'#22c55e', 5:'#00FF88' }
+  const tagColors: Record<number, string> = { 1:'#ef4444', 2:'#f59e0b', 3:'#eab308', 4:'#b3f737', 5:'#b3f737' }
 
   return (
     <div style={{ display:'flex', flexDirection:'column', gap:'16px' }}>
@@ -352,7 +352,7 @@ function IndicacaoSection({ athleteId }: { athleteId: string }) {
             <span style={{ fontSize:'10px', fontWeight:700, color:'rgba(96,165,250,0.7)', letterSpacing:'0.08em', textTransform:'uppercase' }}>
               Próximo card grátis
             </span>
-            <span style={{ fontSize:'11px', fontWeight:800, color: faltam === 0 ? '#00FF88' : 'rgba(255,255,255,0.5)' }}>
+            <span style={{ fontSize:'11px', fontWeight:800, color: faltam === 0 ? '#b3f737' : 'rgba(255,255,255,0.5)' }}>
               {faltam === 0 ? '🎉 Card liberado!' : `faltam ${faltam}`}
             </span>
           </div>
@@ -1253,8 +1253,8 @@ function AtletaPerfilContent() {
                 <div style={{ display:'flex', gap:'8px', marginTop:'2px' }}>
                   <button type="submit" disabled={savingId}
                     style={{ flex:1, padding:'11px', borderRadius:'10px', cursor:'pointer', fontWeight:800, fontSize:'13px',
-                      background: savedId ? 'rgba(34,197,94,0.2)' : '#22c55e',
-                      color: savedId ? '#22c55e' : 'black',
+                      background: savedId ? 'rgba(34,197,94,0.2)' : '#b3f737',
+                      color: savedId ? '#b3f737' : 'black',
                       border: savedId ? '1px solid rgba(34,197,94,0.4)' : 'none',
                     }}>
                     {savedId ? '✓ Salvo!' : savingId ? 'Salvando…' : 'Salvar'}
@@ -1318,7 +1318,7 @@ function AtletaPerfilContent() {
                 )}
               </div>
               <div style={{ height:'5px', background:'rgba(255,255,255,0.07)', borderRadius:'3px', overflow:'hidden' }}>
-                <div style={{ height:'100%', width:`${perfil.pct}%`, background:'linear-gradient(90deg,#00c853,#00FF88)', borderRadius:'3px', transition:'width .4s ease' }} />
+                <div style={{ height:'100%', width:`${perfil.pct}%`, background:'linear-gradient(90deg,#00c853,#b3f737)', borderRadius:'3px', transition:'width .4s ease' }} />
               </div>
               {perfil.faltando.length > 0 && (
                 <p style={{ margin:'8px 0 0', fontSize:'10px', color:'rgba(255,255,255,0.35)', lineHeight:1.6 }}>
@@ -1474,7 +1474,7 @@ function AtletaPerfilContent() {
         {/* ── Stats grid ── */}
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'10px', marginBottom:'12px' }}>
           {[
-            { label:'Avaliações',    val: avaliacao ? '1' : '0',    sub:'registradas',    color:'#22c55e' },
+            { label:'Avaliações',    val: avaliacao ? '1' : '0',    sub:'registradas',    color:'#b3f737' },
             { label:'Visualizações', val: (visitasStats.total || visitCount).toLocaleString('pt-BR'), sub:'no perfil', color:'#60a5fa' },
             { label:'Scouts',        val: favoritoCount > 0 ? favoritoCount.toLocaleString('pt-BR') : '—', sub:'salvaram você', color: favoritoCount > 0 ? '#fbbf24' : 'rgba(255,255,255,0.2)' },
           ].map(s => (
@@ -1500,10 +1500,10 @@ function AtletaPerfilContent() {
             msgColor = 'rgba(255,255,255,0.28)'
           } else if (ratio >= 2) {
             msg = `🔥 ${Math.round(ratio)}× mais visitas que a média esta semana!`
-            msgColor = '#00FF88'
+            msgColor = '#b3f737'
           } else if (ratio > 1) {
             msg = `📈 Acima da média esta semana (${semana} vs ${mediaSemana})`
-            msgColor = '#22c55e'
+            msgColor = '#b3f737'
           } else if (mediaSemana > 0) {
             msg = `${semana} visita${semana !== 1 ? 's' : ''} esta semana · média da plataforma: ${mediaSemana}`
             msgColor = 'rgba(255,255,255,0.35)'
@@ -1591,7 +1591,7 @@ function AtletaPerfilContent() {
             🚀
           </div>
           <div style={{ flex:1 }}>
-            <p style={{ margin:'0 0 2px', fontSize:'13px', fontWeight:700, color:'#22c55e' }}>
+            <p style={{ margin:'0 0 2px', fontSize:'13px', fontWeight:700, color:'#b3f737' }}>
               Aparecer em destaque
             </p>
             <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.35)' }}>
@@ -1651,8 +1651,8 @@ function AtletaPerfilContent() {
                 />
                 <button type="submit" disabled={enviandoConvite || !treinadorInput.trim()} style={{
                   padding:'11px 18px', borderRadius:'10px', border:'none', cursor:'pointer',
-                  background: conviteEnviado ? 'rgba(0,255,136,0.2)' : '#00FF88',
-                  color: conviteEnviado ? '#00FF88' : '#020d04',
+                  background: conviteEnviado ? 'rgba(0,255,136,0.2)' : '#b3f737',
+                  color: conviteEnviado ? '#b3f737' : '#020d04',
                   fontWeight:800, fontSize:'13px', fontFamily:'system-ui,sans-serif',
                   opacity: (enviandoConvite || !treinadorInput.trim()) ? 0.5 : 1,
                   transition:'all 0.2s', whiteSpace:'nowrap',
@@ -1953,7 +1953,7 @@ function AtletaPerfilContent() {
             <Link
               href={uid ? `/jogador/${uid}` : '#'}
               target="_blank"
-              style={{ fontSize:'12px', color:'#22c55e', textDecoration:'none', fontWeight:600 }}
+              style={{ fontSize:'12px', color:'#b3f737', textDecoration:'none', fontWeight:600 }}
             >
               Ver perfil público →
             </Link>
@@ -2113,7 +2113,7 @@ function AtletaPerfilContent() {
             style={{
               width:'100%', padding:'14px', borderRadius:'14px', border:'none',
               cursor:saving ? 'not-allowed' : 'pointer',
-              background:saved ? '#16a34a' : '#22c55e',
+              background:saved ? '#16a34a' : '#b3f737',
               color:'black', fontWeight:800, fontSize:'15px',
               minHeight:'48px',
               opacity:saving ? 0.7 : 1, transition:'background 0.2s', marginBottom:'24px',
@@ -2193,7 +2193,7 @@ function AtletaPerfilContent() {
                 disabled={addingHL || !hlParsed}
                 style={{
                   marginTop:'12px', width:'100%', padding:'11px', borderRadius:'10px', border:'none',
-                  background: hlParsed ? '#00FF88' : 'rgba(255,255,255,0.1)',
+                  background: hlParsed ? '#b3f737' : 'rgba(255,255,255,0.1)',
                   color: hlParsed ? '#020d04' : 'rgba(255,255,255,0.25)',
                   fontWeight:800, fontSize:'14px',
                   cursor: (addingHL || !hlParsed) ? 'not-allowed' : 'pointer',
@@ -2349,7 +2349,7 @@ function AtletaPerfilContent() {
               background:'rgba(0,255,136,0.08)', border:'1px solid rgba(0,255,136,0.20)',
               borderRadius:'8px', padding:'4px 10px',
             }}>
-              <div style={{ width:'5px', height:'5px', borderRadius:'50%', background: 'var(--mc-accent)', boxShadow:'0 0 5px #00FF88' }} />
+              <div style={{ width:'5px', height:'5px', borderRadius:'50%', background: 'var(--mc-accent)', boxShadow:'0 0 5px #b3f737' }} />
               <span style={{ fontSize:'9px', fontWeight:800, color:'rgba(0,255,136,0.8)', letterSpacing:'0.12em', textTransform:'uppercase' }}>Ao vivo</span>
             </div>
           </div>
@@ -2377,7 +2377,7 @@ function AtletaPerfilContent() {
                 {/* Linha 1: ícone + título */}
                 <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'6px' }}>
                   <span style={{ fontSize:'26px', lineHeight:1 }}>📸</span>
-                  <p style={{ margin:0, fontSize:'15px', fontWeight:900, color:'#22c55e', letterSpacing:'-0.01em' }}>
+                  <p style={{ margin:0, fontSize:'15px', fontWeight:900, color:'#b3f737', letterSpacing:'-0.01em' }}>
                     Fotos valem pontos!
                   </p>
                 </div>
@@ -2395,7 +2395,7 @@ function AtletaPerfilContent() {
                     <span style={{ fontSize:'10px', fontWeight:700, color:'rgba(255,255,255,0.35)', letterSpacing:'0.08em', textTransform:'uppercase' }}>
                       Progresso
                     </span>
-                    <span style={{ fontSize:'12px', fontWeight:800, color: count >= 3 ? '#22c55e' : 'rgba(255,255,255,0.5)' }}>
+                    <span style={{ fontSize:'12px', fontWeight:800, color: count >= 3 ? '#b3f737' : 'rgba(255,255,255,0.5)' }}>
                       {count} / 5 fotos
                     </span>
                   </div>
@@ -2404,7 +2404,7 @@ function AtletaPerfilContent() {
                       height:'100%', borderRadius:'4px',
                       width: `${pct}%`,
                       background: count >= 3
-                        ? 'linear-gradient(90deg, #16a34a, #22c55e)'
+                        ? 'linear-gradient(90deg, #16a34a, #b3f737)'
                         : 'linear-gradient(90deg, #15803d, #4ade80)',
                       transition:'width 0.5s ease',
                       boxShadow: count > 0 ? '0 0 8px rgba(34,197,94,0.5)' : 'none',
@@ -2418,7 +2418,7 @@ function AtletaPerfilContent() {
                     </p>
                   )}
                   {count >= 3 && (
-                    <p style={{ margin:'6px 0 0', fontSize:'10px', color:'#22c55e', fontWeight:700 }}>
+                    <p style={{ margin:'6px 0 0', fontSize:'10px', color:'#b3f737', fontWeight:700 }}>
                       ✓ Você já aparece no feed ao vivo!
                     </p>
                   )}
@@ -2580,7 +2580,7 @@ function AtletaPerfilContent() {
               marginTop: '20px',
               display: 'block', width: 'min(300px, 85vw)',
               padding: '16px', borderRadius: '14px', textAlign: 'center',
-              background: 'linear-gradient(135deg,#00e87a,#00FF88)',
+              background: 'linear-gradient(135deg,#00e87a,#b3f737)',
               color: '#020d04', fontWeight: 900, fontSize: '16px',
               border: 'none', cursor: 'pointer', 
             }}
@@ -2607,7 +2607,7 @@ function AtletaPerfilContent() {
         <div style={{
           position: 'fixed', bottom: 88, left: '50%', transform: 'translateX(-50%)',
           zIndex: 999, width: 'calc(100% - 40px)', maxWidth: 380,
-          background: 'linear-gradient(135deg,#00c864,#00FF88)',
+          background: 'linear-gradient(135deg,#00c864,#b3f737)',
           borderRadius: 16, padding: '14px 18px',
           display: 'flex', alignItems: 'center', gap: 12,
           boxShadow: '0 8px 32px rgba(0,255,136,0.4)',

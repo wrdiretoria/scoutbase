@@ -45,7 +45,7 @@ export default function CardShare(props: CanvasCardProps) {
           borderRadius: '14px',
           background: 'rgba(0,255,136,0.07)',
           border: '1.5px solid rgba(0,255,136,0.28)',
-          color: '#00FF88',
+          color: '#b3f737',
           fontWeight: 800, fontSize: '14px',
           cursor: 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
@@ -131,7 +131,7 @@ export default function CardShare(props: CanvasCardProps) {
                   <div style={{
                     width: 30, height: 30, borderRadius: '50%',
                     border: '2.5px solid rgba(0,255,136,0.3)',
-                    borderTopColor: '#00FF88',
+                    borderTopColor: '#b3f737',
                     animation: 'cardSpin .7s linear infinite',
                   }} />
                   <style>{`@keyframes cardSpin { to { transform: rotate(360deg) } }`}</style>

@@ -111,7 +111,7 @@ function formatarDataRelativa(dateStr: string) {
 function StatCard({ label, value, locked }: { label: string; value: number | null; locked?: boolean }) {
   const conteudo = (
     <>
-      <p style={{ margin: '0 0 2px', fontSize: '18px', fontWeight: 900, color: locked ? '#fbbf24' : value !== null ? '#22c55e' : 'rgba(255,255,255,0.2)' }}>
+      <p style={{ margin: '0 0 2px', fontSize: '18px', fontWeight: 900, color: locked ? '#fbbf24' : value !== null ? '#b3f737' : 'rgba(255,255,255,0.2)' }}>
         {locked ? '🔒' : value !== null ? value.toLocaleString('pt-BR') : '—'}
       </p>
       <p style={{ margin: 0, fontSize: '9px', color: locked ? 'rgba(251,191,36,0.6)' : 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
@@ -208,8 +208,8 @@ function posAbrev(pos: string): string {
 // ── Avaliação detalhada pública (novo formato 20 atributos) ───────────────────
 
 function notaBarColor(pct: number): string {
-  if (pct >= 80) return '#00FF88'
-  if (pct >= 60) return '#22c55e'
+  if (pct >= 80) return '#b3f737'
+  if (pct >= 60) return '#b3f737'
   if (pct >= 40) return '#eab308'
   if (pct >= 20) return '#f59e0b'
   return '#ef4444'
@@ -249,7 +249,7 @@ function AvaliacaoPublicaDetalhada({ respostas, variante: varianteProp }: { resp
   const fortes = allQs.filter(q => (respostas[q.key] ?? 0) >= 4).sort((a, b) => (respostas[b.key] ?? 0) - (respostas[a.key] ?? 0)).slice(0, 3)
   const melhor = allQs.filter(q => { const v = respostas[q.key] ?? 0; return v > 0 && v <= 2 }).sort((a, b) => (respostas[a.key] ?? 0) - (respostas[b.key] ?? 0)).slice(0, 3)
 
-  const tagColors: Record<number, string> = { 1:'#ef4444', 2:'#f59e0b', 3:'#eab308', 4:'#22c55e', 5:'#00FF88' }
+  const tagColors: Record<number, string> = { 1:'#ef4444', 2:'#f59e0b', 3:'#eab308', 4:'#b3f737', 5:'#b3f737' }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -305,7 +305,7 @@ function AvaliacaoPublicaDetalhada({ respostas, variante: varianteProp }: { resp
           <p style={{ margin: '0 0 7px', fontSize: '9px', fontWeight: 700, color: 'rgba(34,197,94,0.6)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>✦ Pontos fortes</p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
             {fortes.map((q: QuestionDef) => (
-              <span key={q.key} style={{ padding: '3px 9px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)', color: '#22c55e' }}>
+              <span key={q.key} style={{ padding: '3px 9px', borderRadius: '100px', fontSize: '11px', fontWeight: 700, background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)', color: '#b3f737' }}>
                 {q.icon} {q.label}
               </span>
             ))}
@@ -552,7 +552,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
         .scout-cta-btn {
           display:flex; align-items:center; justify-content:center; gap:8px;
           padding:14px 16px; border-radius:14px;
-          background:linear-gradient(160deg,#166534 0%,#22c55e 100%);
+          background:linear-gradient(160deg,#166534 0%,#b3f737 100%);
           color:white; font-weight:800; font-size:14px;
           text-decoration:none; text-align:center;
           box-shadow:0 4px 22px rgba(34,197,94,0.32), 0 1px 0 rgba(255,255,255,0.08) inset;
@@ -750,7 +750,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
               </div>
             )}
             {clubeAtual && (
-              <p style={{ margin: avatarUrl ? '0 0 14px' : '0 0 14px', fontSize: '12px', color: '#22c55e', fontWeight: 600 }}>
+              <p style={{ margin: avatarUrl ? '0 0 14px' : '0 0 14px', fontSize: '12px', color: '#b3f737', fontWeight: 600 }}>
                 ⚽ {clubeAtual}
               </p>
             )}
@@ -901,7 +901,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
               <div>
-                <p style={{ margin: '0 0 2px', fontSize: '10px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+                <p style={{ margin: '0 0 2px', fontSize: '10px', fontWeight: 700, color: '#b3f737', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
                   Avaliação oficial
                 </p>
                 <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.3)' }}>
@@ -909,7 +909,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
                 </p>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '28px', fontWeight: 900, color: '#22c55e', lineHeight: 1, letterSpacing: '-0.04em', textShadow: '0 0 16px rgba(34,197,94,0.5)' }}>
+                <div style={{ fontSize: '28px', fontWeight: 900, color: '#b3f737', lineHeight: 1, letterSpacing: '-0.04em', textShadow: '0 0 16px rgba(34,197,94,0.5)' }}>
                   {notaDaAvaliacao(ultimaAv) ?? '—'}
                 </div>
                 <div style={{ fontSize: '8px', fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.14em' }}>NOTA</div>
@@ -929,7 +929,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
                     { label: 'POS — Postura',      val: atrs?.pos ?? 0 },
                   ].map(attr => {
                     const pct = Math.min(100, attr.val)
-                    const cor = attr.val >= 70 ? '#22c55e' : attr.val >= 50 ? '#f59e0b' : '#94a3b8'
+                    const cor = attr.val >= 70 ? '#b3f737' : attr.val >= 50 ? '#f59e0b' : '#94a3b8'
                     return (
                       <div key={attr.label}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
@@ -976,7 +976,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
                 background: 'var(--mc-surface)', border: '1px solid rgba(255,255,255,0.07)',
                 borderRadius: '16px', padding: '18px',
               }}>
-                <p style={{ margin: '0 0 10px', fontSize: '10px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                <p style={{ margin: '0 0 10px', fontSize: '10px', fontWeight: 700, color: '#b3f737', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                   Apresentação
                 </p>
                 <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.7 }}>
@@ -994,7 +994,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
                 background: 'var(--mc-surface)', border: '1px solid rgba(255,255,255,0.07)',
                 borderRadius: '14px', padding: '14px', textAlign: 'center',
               }}>
-                <p style={{ margin: '0 0 2px', fontSize: '18px', fontWeight: 900, color: '#22c55e' }}>
+                <p style={{ margin: '0 0 2px', fontSize: '18px', fontWeight: 900, color: '#b3f737' }}>
                   {categoria ?? '—'}
                 </p>
                 <p style={{ margin: 0, fontSize: '10px', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Categoria</p>
@@ -1004,7 +1004,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
                 borderRadius: '14px', padding: '14px', textAlign: 'center',
               }}>
                 {ovr !== null
-                  ? <p style={{ margin: '0 0 2px', fontSize: '18px', fontWeight: 900, color: '#22c55e' }}>{ovr}</p>
+                  ? <p style={{ margin: '0 0 2px', fontSize: '18px', fontWeight: 900, color: '#b3f737' }}>{ovr}</p>
                   : <p style={{ margin: '0 0 2px', fontSize: '12px', fontWeight: 700, color: 'rgba(255,255,255,0.25)' }}>⏳ Aguardando</p>
                 }
                 <p style={{ margin: 0, fontSize: '10px', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Overall</p>
@@ -1062,13 +1062,13 @@ export default async function JogadorPublicoPage({ params }: Props) {
               if (!tags.length && !nivel && !disp && !objetivo && !clube && !anos && !freq && !suporte) return null
               return (
                 <div style={{ background: 'var(--mc-surface)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '16px', padding: '18px' }}>
-                  <p style={{ margin: '0 0 12px', fontSize: '10px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                  <p style={{ margin: '0 0 12px', fontSize: '10px', fontWeight: 700, color: '#b3f737', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                     ⚽ Perfil do Atleta
                   </p>
                   {tags.length > 0 && (
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '10px' }}>
                       {tags.map(t => (
-                        <span key={t} style={{ padding: '4px 12px', borderRadius: '100px', fontSize: '12px', fontWeight: 700, background: 'rgba(34,197,94,0.10)', border: '1px solid rgba(34,197,94,0.22)', color: '#22c55e' }}>
+                        <span key={t} style={{ padding: '4px 12px', borderRadius: '100px', fontSize: '12px', fontWeight: 700, background: 'rgba(34,197,94,0.10)', border: '1px solid rgba(34,197,94,0.22)', color: '#b3f737' }}>
                           {t}
                         </span>
                       ))}
@@ -1093,7 +1093,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
                 background: 'var(--mc-surface)', border: '1px solid rgba(255,255,255,0.07)',
                 borderRadius: '16px', padding: '18px',
               }}>
-                <p style={{ margin: '0 0 10px', fontSize: '10px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                <p style={{ margin: '0 0 10px', fontSize: '10px', fontWeight: 700, color: '#b3f737', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                   🏟 Clubes que já joguei
                 </p>
                 <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.7 }}>
@@ -1108,7 +1108,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
                 background: 'var(--mc-surface)', border: '1px solid rgba(255,255,255,0.07)',
                 borderRadius: '16px', padding: '18px',
               }}>
-                <p style={{ margin: '0 0 10px', fontSize: '10px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                <p style={{ margin: '0 0 10px', fontSize: '10px', fontWeight: 700, color: '#b3f737', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
                   🏆 Campeonatos disputados
                 </p>
                 <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.75)', lineHeight: 1.7 }}>
@@ -1227,7 +1227,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
           <Link href="/scout/busca" style={{
             display: 'inline-block', marginTop: '10px', padding: '11px 24px', borderRadius: '12px',
             background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)',
-            color: '#22c55e', fontWeight: 700, fontSize: '13px', textDecoration: 'none',
+            color: '#b3f737', fontWeight: 700, fontSize: '13px', textDecoration: 'none',
           }}>
             🔍 Buscar mais atletas →
           </Link>
@@ -1238,7 +1238,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
           <Link href="/cadastro" style={{
             display: 'inline-block', padding: '13px 28px', borderRadius: '14px',
             background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)',
-            color: '#22c55e', fontWeight: 700, fontSize: '14px', textDecoration: 'none',
+            color: '#b3f737', fontWeight: 700, fontSize: '14px', textDecoration: 'none',
           }}>
             Criar meu currículo grátis →
           </Link>

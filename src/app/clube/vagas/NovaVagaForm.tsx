@@ -66,7 +66,7 @@ export default function NovaVagaForm({ onCriada }: { onCriada: (v: Vaga) => void
         onClick={() => setAberto(true)}
         style={{
           width: '100%', padding: '14px', borderRadius: '14px', border: '1px solid rgba(34,197,94,0.2)',
-          background: 'rgba(34,197,94,0.08)', color: '#22c55e', fontWeight: 800, fontSize: '14px',
+          background: 'rgba(34,197,94,0.08)', color: '#b3f737', fontWeight: 800, fontSize: '14px',
           cursor: 'pointer', fontFamily: 'system-ui, sans-serif', marginBottom: '20px',
         }}
       >
@@ -125,7 +125,7 @@ export default function NovaVagaForm({ onCriada }: { onCriada: (v: Vaga) => void
           </p>
           <Link href="/planos" style={{
             display: 'inline-block', padding: '8px 16px', borderRadius: '10px',
-            background: '#22c55e', color: 'black', fontWeight: 800, fontSize: '12px', textDecoration: 'none',
+            background: '#b3f737', color: 'black', fontWeight: 800, fontSize: '12px', textDecoration: 'none',
           }}>
             Ver plano Clube →
           </Link>
@@ -137,7 +137,7 @@ export default function NovaVagaForm({ onCriada }: { onCriada: (v: Vaga) => void
           disabled={sending || !title.trim()}
           style={{
             flex: 1, padding: '11px', borderRadius: '10px', border: 'none',
-            background: 'linear-gradient(160deg,#166534 0%,#22c55e 100%)',
+            background: 'linear-gradient(160deg,#166534 0%,#b3f737 100%)',
             color: 'white', fontWeight: 800, fontSize: '13px',
             cursor: sending ? 'default' : 'pointer', opacity: !title.trim() ? 0.5 : 1,
             fontFamily: 'system-ui, sans-serif',

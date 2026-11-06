@@ -85,7 +85,7 @@ async function gerarCardCanvas(opts: {
     ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H)
     ctx.beginPath(); ctx.arc(W/2, H*0.42, W*0.22, 0, Math.PI*2)
     const cg = ctx.createLinearGradient(W*0.28, H*0.2, W*0.72, H*0.64)
-    cg.addColorStop(0, '#1a7a42'); cg.addColorStop(0.5, '#22c55e'); cg.addColorStop(1, '#4ade80')
+    cg.addColorStop(0, '#1a7a42'); cg.addColorStop(0.5, '#b3f737'); cg.addColorStop(1, '#4ade80')
     ctx.fillStyle = cg; ctx.fill()
     ctx.font = `900 ${Math.round(W*0.15)}px system-ui`
     ctx.fillStyle = 'white'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'
@@ -104,7 +104,7 @@ async function gerarCardCanvas(opts: {
   ctx.font = '900 104px system-ui'; ctx.fillStyle = 'white'
   ctx.shadowColor = 'rgba(0,0,0,0.9)'; ctx.shadowBlur = 20
   ctx.fillText(ovr !== null ? String(ovr) : '—', 32, 116)
-  ctx.font = '900 20px system-ui'; ctx.fillStyle = '#00FF88'
+  ctx.font = '900 20px system-ui'; ctx.fillStyle = '#b3f737'
   ctx.shadowColor = 'rgba(0,255,136,0.7)'; ctx.shadowBlur = 12
   ctx.fillText('OVR', 34, 142); ctx.restore()
 
@@ -135,7 +135,7 @@ async function gerarCardCanvas(opts: {
     rrect(ctx, bx, by, bw, bh, 9)
     ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fill()
     ctx.strokeStyle = 'rgba(0,255,136,0.4)'; ctx.lineWidth = 1.5; ctx.stroke()
-    ctx.fillStyle = '#00FF88'; ctx.shadowColor = 'rgba(0,255,136,0.6)'; ctx.shadowBlur = 12
+    ctx.fillStyle = '#b3f737'; ctx.shadowColor = 'rgba(0,255,136,0.6)'; ctx.shadowBlur = 12
     ctx.textAlign = 'center'; ctx.fillText(categoria, bx + bw/2, by + 21); ctx.restore()
   }
 
@@ -154,7 +154,7 @@ async function gerarCardCanvas(opts: {
     rrect(ctx, pbx, pby, pbw, pbh, 8)
     ctx.fillStyle = 'rgba(0,255,136,0.12)'; ctx.fill()
     ctx.strokeStyle = 'rgba(0,255,136,0.3)'; ctx.lineWidth = 1; ctx.stroke()
-    ctx.fillStyle = '#00FF88'; ctx.fillText(posicao, pbx + 12, pby + 19)
+    ctx.fillStyle = '#b3f737'; ctx.fillText(posicao, pbx + 12, pby + 19)
     if (cidade) {
       ctx.font = '600 15px system-ui'; ctx.fillStyle = 'rgba(255,255,255,0.38)'
       ctx.fillText(`· ${cidade}`, pbx + pbw + 10, pby + 19)
@@ -218,7 +218,7 @@ function AtributoBar({ label, value, delay }: { label: string; value: number; de
     return () => clearTimeout(t)
   }, [value, delay])
 
-  const cor = value >= 75 ? '#00FF88' : value >= 65 ? '#4ade80' : 'rgba(255,255,255,0.5)'
+  const cor = value >= 75 ? '#b3f737' : value >= 65 ? '#4ade80' : 'rgba(255,255,255,0.5)'
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
@@ -326,7 +326,7 @@ function BemVindoContent() {
 
         .share-btn {
           width:100%; padding:17px; border-radius:14px; border:none;
-          background: linear-gradient(135deg,#00e87a,#00FF88 50%,#22c55e);
+          background: linear-gradient(135deg,#00e87a,#b3f737 50%,#b3f737);
           color:#020d04; font-weight:900; font-size:16px;
           cursor:pointer; font-family:system-ui,sans-serif;
           letter-spacing:0.04em; min-height:56px;
@@ -374,11 +374,11 @@ function BemVindoContent() {
 
         {/* ── Badge topo ── */}
         <div className="anim-badge" style={{ display:'flex', alignItems:'center', gap:'8px' }}>
-          <div style={{ width:'6px', height:'6px', borderRadius:'50%', background: 'var(--mc-accent)', boxShadow:'0 0 10px #00FF88', animation:'dotPulse 2s ease-in-out infinite' }} />
+          <div style={{ width:'6px', height:'6px', borderRadius:'50%', background: 'var(--mc-accent)', boxShadow:'0 0 10px #b3f737', animation:'dotPulse 2s ease-in-out infinite' }} />
           <span style={{ fontSize:'11px', fontWeight:700, letterSpacing:'0.14em', color:'rgba(0,255,136,0.75)', textTransform:'uppercase' }}>
             Perfil criado
           </span>
-          <div style={{ width:'6px', height:'6px', borderRadius:'50%', background: 'var(--mc-accent)', boxShadow:'0 0 10px #00FF88', animation:'dotPulse 2s ease-in-out infinite 0.3s' }} />
+          <div style={{ width:'6px', height:'6px', borderRadius:'50%', background: 'var(--mc-accent)', boxShadow:'0 0 10px #b3f737', animation:'dotPulse 2s ease-in-out infinite 0.3s' }} />
         </div>
 
         {/* ══════════════════════════════════════
@@ -476,7 +476,7 @@ function BemVindoContent() {
                     <div style={{
                       position:'relative', zIndex:1,
                       width:'118px', height:'118px', borderRadius:'50%',
-                      background:'linear-gradient(145deg,#1a7a42,#22c55e,#4ade80)',
+                      background:'linear-gradient(145deg,#1a7a42,#b3f737,#4ade80)',
                       display:'flex', alignItems:'center', justifyContent:'center',
                       fontSize:'38px', fontWeight:900, color:'white',
                       letterSpacing:'-0.02em',
@@ -691,7 +691,7 @@ function BemVindoContent() {
         }}>
           <div style={{
             width:'8px', height:'8px', borderRadius:'50%', background: 'var(--mc-accent)',
-            flexShrink:0, boxShadow:'0 0 10px #00FF88',
+            flexShrink:0, boxShadow:'0 0 10px #b3f737',
             animation:'dotPulse 2.2s ease-in-out infinite',
           }} />
           <p style={{ margin:0, fontSize:'13px', fontWeight:700, color:'rgba(255,255,255,0.7)' }}>
@@ -916,7 +916,7 @@ function BemVindoContent() {
               marginTop: '20px',
               display: 'block', width: 'min(300px, 85vw)',
               padding: '16px', borderRadius: '14px', textAlign: 'center',
-              background: 'linear-gradient(135deg,#00e87a,#00FF88)',
+              background: 'linear-gradient(135deg,#00e87a,#b3f737)',
               color: '#020d04', fontWeight: 900, fontSize: '16px',
               textDecoration: 'none',
             }}

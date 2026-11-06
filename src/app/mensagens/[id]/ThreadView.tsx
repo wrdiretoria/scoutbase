@@ -171,7 +171,7 @@ export default function ThreadView({ conversationId, meId, otherUser }: {
           </p>
           <Link href="/planos" style={{
             display: 'inline-block', padding: '8px 16px', borderRadius: '10px',
-            background: '#22c55e', color: 'black', fontWeight: 800, fontSize: '12px', textDecoration: 'none',
+            background: '#b3f737', color: 'black', fontWeight: 800, fontSize: '12px', textDecoration: 'none',
           }}>
             Ver plano Pro →
           </Link>
@@ -195,7 +195,7 @@ export default function ThreadView({ conversationId, meId, otherUser }: {
           disabled={sending || !texto.trim()}
           style={{
             padding: '10px 20px', borderRadius: '100px', border: 'none',
-            background: 'linear-gradient(160deg,#166534 0%,#22c55e 100%)',
+            background: 'linear-gradient(160deg,#166534 0%,#b3f737 100%)',
             color: 'white', fontWeight: 800, fontSize: '13px',
             cursor: sending ? 'default' : 'pointer', opacity: !texto.trim() ? 0.5 : 1,
             fontFamily: 'system-ui, sans-serif',

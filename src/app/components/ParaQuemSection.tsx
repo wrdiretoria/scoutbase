@@ -8,7 +8,7 @@ const audiences = [
     desc: 'De 13 a 23 anos. Crie seu perfil, mostre sua evolução e seja visto por quem decide.',
     cta: 'Criar meu perfil',
     href: '/login',
-    color: '#00FF88',
+    color: '#b3f737',
   },
   {
     emoji: '🎯',
@@ -102,7 +102,7 @@ export default function ParaQuemSection() {
           fontSize: 'clamp(24px,4vw,40px)', fontWeight: 900,
           letterSpacing: '-0.03em', lineHeight: 1.1, margin: 0,
         }}>
-          Jogue para <span style={{ color: '#00FF88' }}>ser visto.</span>
+          Jogue para <span style={{ color: '#b3f737' }}>ser visto.</span>
         </h2>
         <p style={{
           fontSize: '15px', color: 'rgba(255,255,255,0.4)',

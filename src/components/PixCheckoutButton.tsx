@@ -22,7 +22,7 @@ export default function PixCheckoutButton({ produto, label, corPrimaria }: {
   const [copiado, setCopiado] = useState(false)
   const [erro, setErro]       = useState<string | null>(null)
 
-  const cor = corPrimaria ?? '#22c55e'
+  const cor = corPrimaria ?? '#b3f737'
 
   async function handleClick() {
     if (gerando) return

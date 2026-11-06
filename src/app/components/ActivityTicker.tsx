@@ -15,7 +15,7 @@ function initials(name: string) {
 }
 
 function ovrColor(ovr: number) {
-  if (ovr >= 80) return '#00FF88'
+  if (ovr >= 80) return '#b3f737'
   if (ovr >= 65) return '#fbbf24'
   return '#f97316'
 }
@@ -24,7 +24,7 @@ function ovrColor(ovr: number) {
 
 function JoinPill({ name, role }: JoinItem) {
   const isTrainer = role === 'Treinador'
-  const color  = isTrainer ? '#fbbf24' : '#00FF88'
+  const color  = isTrainer ? '#fbbf24' : '#b3f737'
   const border = isTrainer ? 'rgba(251,191,36,0.30)' : 'rgba(0,255,136,0.28)'
   const bg     = isTrainer
     ? 'linear-gradient(135deg,#78350f,#d97706)'
@@ -175,7 +175,7 @@ export default function ActivityTicker() {
         }}>
           <div style={{
             width:'6px', height:'6px', borderRadius:'50%',
-            background:'#00FF88', boxShadow:'0 0 6px rgba(0,255,136,0.9)',
+            background:'#b3f737', boxShadow:'0 0 6px rgba(0,255,136,0.9)',
             animation:'pulseDot 1.8s ease-in-out infinite',
           }} />
           <span style={{ fontSize:'8.5px', fontWeight:800, letterSpacing:'0.18em', color:'rgba(0,255,136,0.85)', textTransform:'uppercase' }}>

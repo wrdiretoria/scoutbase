@@ -77,7 +77,7 @@ export default function RecuperarIdPage() {
           <>
             {/* Título */}
             <div style={{ marginBottom: '24px' }}>
-              <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', color: '#22c55e', textTransform: 'uppercase' }}>
+              <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', color: '#b3f737', textTransform: 'uppercase' }}>
                 Atleta
               </p>
               <h1 style={{ margin: '0 0 8px', fontSize: '22px', fontWeight: 900, color: 'white' }}>
@@ -100,7 +100,7 @@ export default function RecuperarIdPage() {
                   style={{
                     padding: '11px', borderRadius: '12px', border: 'none', cursor: 'pointer',
                     fontWeight: 700, fontSize: '13px',
-                    background: modo === m ? '#22c55e' : 'rgba(255,255,255,0.06)',
+                    background: modo === m ? '#b3f737' : 'rgba(255,255,255,0.06)',
                     color: modo === m ? 'black' : 'rgba(255,255,255,0.45)',
                     transition: 'all 0.18s',
                   }}
@@ -167,7 +167,7 @@ export default function RecuperarIdPage() {
                 style={{
                   padding: '14px', borderRadius: '14px', border: 'none',
                   cursor: loading ? 'not-allowed' : 'pointer',
-                  background: '#22c55e', color: 'black', fontWeight: 800,
+                  background: '#b3f737', color: 'black', fontWeight: 800,
                   fontSize: '15px', opacity: loading ? 0.6 : 1,
                 }}
               >
@@ -179,7 +179,7 @@ export default function RecuperarIdPage() {
           <>
             {/* Resultado */}
             <div style={{ marginBottom: '24px', textAlign: 'center' }}>
-              <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', color: '#22c55e', textTransform: 'uppercase' }}>
+              <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', color: '#b3f737', textTransform: 'uppercase' }}>
                 ✓ Encontrado
               </p>
               <h1 style={{ margin: '0 0 8px', fontSize: '22px', fontWeight: 900, color: 'white' }}>
@@ -207,7 +207,7 @@ export default function RecuperarIdPage() {
 
             <Link href="/login" style={{
               display: 'block', textAlign: 'center', padding: '14px', borderRadius: '14px',
-              background: '#22c55e', color: 'black', fontWeight: 800, fontSize: '15px',
+              background: '#b3f737', color: 'black', fontWeight: 800, fontSize: '15px',
               textDecoration: 'none',
             }}>
               Ir para o login →

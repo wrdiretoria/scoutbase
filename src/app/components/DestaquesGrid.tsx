@@ -195,7 +195,7 @@ export default async function DestaquesGrid() {
         }
         .dg-cta {
           display: inline-flex; align-items: center; gap: 5px;
-          font-size: 11px; font-weight: 700; color: #22c55e;
+          font-size: 11px; font-weight: 700; color: #b3f737;
           text-decoration: none;
           padding: 6px 12px; border-radius: 8px;
           background: rgba(34,197,94,0.08);
@@ -215,7 +215,7 @@ export default async function DestaquesGrid() {
       <div className="dg-header">
         <p style={{
           margin: '0 0 6px', fontSize: '10px', fontWeight: 800,
-          color: '#22c55e', letterSpacing: '0.18em', textTransform: 'uppercase',
+          color: '#b3f737', letterSpacing: '0.18em', textTransform: 'uppercase',
         }}>
           ⭐ Em Destaque
         </p>

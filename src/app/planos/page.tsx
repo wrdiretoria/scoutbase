@@ -35,7 +35,7 @@ function PlanCard({
           pointerEvents: 'none',
         }} />
       )}
-      <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, color: destaque ? '#22c55e' : 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+      <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, color: destaque ? '#b3f737' : 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
         {eyebrow}
       </p>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '4px' }}>
@@ -59,7 +59,7 @@ function PlanCard({
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p style={{ margin: '0 0 16px', fontSize: '11px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+    <p style={{ margin: '0 0 16px', fontSize: '11px', fontWeight: 700, color: '#b3f737', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
       {children}
     </p>
   )
@@ -89,7 +89,7 @@ export default function PlanosPage() {
           ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
         <Link href="/atleta/cadastro" style={{
-          padding: '8px 16px', borderRadius: '10px', background: '#22c55e',
+          padding: '8px 16px', borderRadius: '10px', background: '#b3f737',
           color: 'black', fontWeight: 800, fontSize: '13px', textDecoration: 'none',
         }}>
           Começar grátis
@@ -100,12 +100,12 @@ export default function PlanosPage() {
 
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <p style={{ margin: '0 0 8px', fontSize: '11px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+          <p style={{ margin: '0 0 8px', fontSize: '11px', fontWeight: 700, color: '#b3f737', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
             Simples assim
           </p>
           <h1 style={{ margin: '0 0 12px', fontSize: '36px', fontWeight: 900, letterSpacing: '-0.02em' }}>
             Perfil gratuito.<br />
-            <span style={{ color: '#22c55e' }}>Cresça no seu ritmo.</span>
+            <span style={{ color: '#b3f737' }}>Cresça no seu ritmo.</span>
           </h1>
           <p style={{ margin: '0 auto', fontSize: '16px', color: 'rgba(255,255,255,0.45)', maxWidth: '540px', lineHeight: 1.6 }}>
             Crie seu perfil de graça, compre uma avaliação avulsa quando quiser ser avaliado por um treinador,
@@ -144,7 +144,7 @@ export default function PlanosPage() {
 
             <Link href="/atleta/cadastro" style={{
               display: 'block', padding: '14px', borderRadius: '12px', textAlign: 'center',
-              background: 'rgba(34,197,94,0.1)', color: '#22c55e',
+              background: 'rgba(34,197,94,0.1)', color: '#b3f737',
               border: '1px solid rgba(34,197,94,0.25)',
               fontWeight: 800, fontSize: '14px', textDecoration: 'none',
             }}>
@@ -166,7 +166,7 @@ export default function PlanosPage() {
               pointerEvents: 'none',
             }} />
 
-            <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, color: '#22c55e', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Card de Avaliação</p>
+            <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, color: '#b3f737', letterSpacing: '0.12em', textTransform: 'uppercase' }}>Card de Avaliação</p>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '4px' }}>
               <p style={{ margin: 0, fontSize: '28px', fontWeight: 900 }}>R$ 9,90</p>
               <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>por avaliação</span>
@@ -190,7 +190,7 @@ export default function PlanosPage() {
 
             <Link href="/atleta/cadastro" style={{
               display: 'block', padding: '14px', borderRadius: '12px', textAlign: 'center',
-              background: '#22c55e', color: 'black',
+              background: '#b3f737', color: 'black',
               fontWeight: 800, fontSize: '14px', textDecoration: 'none',
             }}>
               Criar perfil e ser avaliado →
@@ -215,7 +215,7 @@ export default function PlanosPage() {
               '📄  Currículo em PDF pra enviar a clubes',
               '✅  Selo "Perfil Verificado"',
             ]}
-            cta={<PixCheckoutButton produto="atleta_pro" label="Assinar Atleta Pro" corPrimaria="#22c55e" />}
+            cta={<PixCheckoutButton produto="atleta_pro" label="Assinar Atleta Pro" corPrimaria="#b3f737" />}
           />
 
           <PlanCard
@@ -231,7 +231,7 @@ export default function PlanosPage() {
               '🔔  Alerta de novo talento por filtro salvo',
               '✅  Selo "Scout Verificado"',
             ]}
-            cta={<PixCheckoutButton produto="treinador_pro" label="Assinar Treinador/Scout Pro" corPrimaria="#22c55e" />}
+            cta={<PixCheckoutButton produto="treinador_pro" label="Assinar Treinador/Scout Pro" corPrimaria="#b3f737" />}
           />
 
           <PlanCard
@@ -245,7 +245,7 @@ export default function PlanosPage() {
               '🗂  Banco de talentos filtrado',
               '📊  Painel de candidatos por vaga',
             ]}
-            cta={<PixCheckoutButton produto="clube" label="Assinar plano institucional" corPrimaria="#22c55e" />}
+            cta={<PixCheckoutButton produto="clube" label="Assinar plano institucional" corPrimaria="#b3f737" />}
           />
 
         </div>

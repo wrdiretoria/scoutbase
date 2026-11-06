@@ -35,7 +35,7 @@ const PLACEHOLDER_SLIDES: Slide[] = [
 ]
 
 function ovrColor(ovr: number) {
-  if (ovr >= 80) return '#00FF88'
+  if (ovr >= 80) return '#b3f737'
   if (ovr >= 65) return '#fbbf24'
   return '#f97316'
 }
@@ -199,8 +199,8 @@ export default function PhotoBillboard() {
               background:'rgba(0,255,136,0.12)', border:'1px solid rgba(0,255,136,0.35)',
               borderRadius:'6px', padding:'4px 10px',
             }}>
-              <div style={{ width:'5px', height:'5px', borderRadius:'50%', background:'#00FF88', boxShadow:'0 0 6px #00FF88' }} />
-              <span style={{ fontSize:'11px', fontWeight:800, color:'#00FF88', letterSpacing:'0.12em', textTransform:'uppercase' }}>
+              <div style={{ width:'5px', height:'5px', borderRadius:'50%', background:'#b3f737', boxShadow:'0 0 6px #b3f737' }} />
+              <span style={{ fontSize:'11px', fontWeight:800, color:'#b3f737', letterSpacing:'0.12em', textTransform:'uppercase' }}>
                 {posAbrev(slide.posicao)}
               </span>
             </div>
@@ -259,7 +259,7 @@ export default function PhotoBillboard() {
                 style={{
                   width: i === current ? '20px' : '6px',
                   height:'6px', borderRadius:'3px',
-                  background: i === current ? '#00FF88' : 'rgba(255,255,255,0.25)',
+                  background: i === current ? '#b3f737' : 'rgba(255,255,255,0.25)',
                   border:'none', cursor:'pointer', padding:0,
                   transition:'all 0.3s ease',
                   boxShadow: i === current ? '0 0 8px rgba(0,255,136,0.7)' : 'none',
@@ -278,7 +278,7 @@ export default function PhotoBillboard() {
         }}>
           <div style={{
             width:'6px', height:'6px', borderRadius:'50%',
-            background:'#00FF88', boxShadow:'0 0 6px rgba(0,255,136,0.9)',
+            background:'#b3f737', boxShadow:'0 0 6px rgba(0,255,136,0.9)',
             animation:'pulseDot 1.8s ease-in-out infinite',
           }} />
           <span style={{ fontSize:'8.5px', fontWeight:800, letterSpacing:'0.18em', color:'rgba(0,255,136,0.85)', textTransform:'uppercase' }}>
@@ -317,7 +317,7 @@ export default function PhotoBillboard() {
             display:'inline-flex', alignItems:'center', gap:'6px',
             background:'rgba(0,255,136,0.10)', border:'1px solid rgba(0,255,136,0.30)',
             borderRadius:'8px', padding:'7px 16px',
-            fontSize:'12px', fontWeight:700, color:'#00FF88',
+            fontSize:'12px', fontWeight:700, color:'#b3f737',
             textDecoration:'none', letterSpacing:'0.02em',
           }}
         >

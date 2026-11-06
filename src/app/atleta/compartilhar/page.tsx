@@ -206,7 +206,7 @@ function CompartilharContent() {
 
         .btn-primary{
           width:100%;padding:17px;border-radius:15px;border:none;
-          background:linear-gradient(135deg,#00e87a,#00FF88 55%,#22c55e);
+          background:linear-gradient(135deg,#00e87a,#b3f737 55%,#b3f737);
           color:#020d04;font-weight:900;font-size:17px;letter-spacing:.03em;
           cursor:pointer;font-family:system-ui,sans-serif;
           box-shadow:0 0 48px rgba(0,255,136,.4),0 6px 24px rgba(0,0,0,.5);
@@ -262,7 +262,7 @@ function CompartilharContent() {
             padding: '5px 14px', borderRadius: '100px',
             background: 'rgba(0,255,136,.08)', border: '1px solid rgba(0,255,136,.2)',
           }}>
-            <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'var(--mc-accent)', boxShadow: '0 0 8px #00FF88', animation: 'dotPulse 2s ease-in-out infinite' }} />
+            <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'var(--mc-accent)', boxShadow: '0 0 8px #b3f737', animation: 'dotPulse 2s ease-in-out infinite' }} />
             <span style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '.14em', color: 'rgba(0,255,136,.85)', textTransform: 'uppercase' }}>Card Oficial</span>
           </div>
           <h1 style={{ margin: 0, fontSize: 'clamp(30px,9vw,38px)', fontWeight: 900, color: 'white', letterSpacing: '-.04em', lineHeight: 1.05 }}>

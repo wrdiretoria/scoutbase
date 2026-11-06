@@ -221,7 +221,7 @@ export default async function CardCraqueSection() {
           }}>
             SEU TALENTO.<br />
             SUA HISTÓRIA.<br />
-            <span style={{ color: '#00FF88' }}>SEU CARD CRAQUE.</span>
+            <span style={{ color: '#b3f737' }}>SEU CARD CRAQUE.</span>
           </h2>
           <p style={{
             fontSize: '14px', color: 'rgba(255,255,255,0.52)',
@@ -355,7 +355,7 @@ export default async function CardCraqueSection() {
                 background: 'rgba(255,255,255,0.05)',
                 border: '1px solid rgba(255,255,255,0.1)',
               }}>
-                <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#00FF88' }} />
+                <div style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#b3f737' }} />
                 <span style={{ fontSize: '8px', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.06em' }}>
                   avaliado por{' '}
                   <span style={{ color: 'rgba(255,255,255,0.75)', fontWeight: 700 }}>

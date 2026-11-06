@@ -29,7 +29,7 @@ function avatarBg(name: string) {
 }
 
 function ovrColor(ovr: number) {
-  if (ovr >= 80) return '#00FF88'
+  if (ovr >= 80) return '#b3f737'
   if (ovr >= 65) return '#fbbf24'
   return '#f97316'
 }
@@ -234,7 +234,7 @@ export default function HeroFeed() {
         }}>
           <div style={{
             width:'6px', height:'6px', borderRadius:'50%',
-            background:'#00FF88', boxShadow:'0 0 6px rgba(0,255,136,0.9)',
+            background:'#b3f737', boxShadow:'0 0 6px rgba(0,255,136,0.9)',
             animation:'pulseDot 1.8s ease-in-out infinite',
           }} />
           <span style={{ fontSize:'9px', fontWeight:800, color:'rgba(0,255,136,0.85)', letterSpacing:'0.16em', textTransform:'uppercase' }}>

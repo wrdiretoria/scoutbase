@@ -14,7 +14,7 @@ export const STORY_H = 1920
 // Zona segura do story: o Instagram cobre ~250px no topo e ~250px embaixo com a própria UI
 const SAFE_TOP = 250
 
-const VERDE = '#00e676'
+const VERDE = '#b3f737'
 
 function nomeTier(ovr: number | null): string {
   if (ovr !== null && ovr >= 85) return 'CARD OURO'

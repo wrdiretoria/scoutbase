@@ -40,7 +40,7 @@ export default function CandidatarButton({ opportunityId }: { opportunityId: str
           padding: '10px 18px', borderRadius: '10px', border: 'none',
           background: status === 'sent'
             ? 'rgba(34,197,94,0.15)'
-            : 'linear-gradient(160deg,#166534 0%,#22c55e 100%)',
+            : 'linear-gradient(160deg,#166534 0%,#b3f737 100%)',
           color: status === 'sent' ? '#22c55e' : 'white',
           fontWeight: 800, fontSize: '13px',
           cursor: habilitado ? 'pointer' : 'default',

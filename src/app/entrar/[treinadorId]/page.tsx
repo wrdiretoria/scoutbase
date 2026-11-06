@@ -63,7 +63,7 @@ export default async function EntrarPage({ params }: Props) {
           </div>
 
           <p style={{
-            margin: '0 0 8px', fontSize: '11px', color: '#22c55e',
+            margin: '0 0 8px', fontSize: '11px', color: '#b3f737',
             fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase',
           }}>
             Convite da escolinha
@@ -91,7 +91,7 @@ export default async function EntrarPage({ params }: Props) {
           style={{
             display: 'block', padding: '16px', borderRadius: '14px',
             marginBottom: '10px',
-            background: '#22c55e', color: 'black', fontWeight: 800,
+            background: '#b3f737', color: 'black', fontWeight: 800,
             fontSize: '16px', textDecoration: 'none',
           }}
         >

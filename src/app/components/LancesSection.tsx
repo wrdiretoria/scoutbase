@@ -53,7 +53,7 @@ function timeAgo(ts: string) {
 }
 
 function ovrColor(ovr: number) {
-  if (ovr >= 80) return '#00FF88'
+  if (ovr >= 80) return '#b3f737'
   if (ovr >= 65) return '#fbbf24'
   return '#f97316'
 }
@@ -118,7 +118,7 @@ function getTag(tipo: 'avaliado' | 'novo' | 'patrocinado', ovr: number | null): 
   if (ovr !== null && ovr >= 85)
     return { label:'⭐ Destaque',       color:'#fbbf24', bg:'rgba(251,191,36,0.13)', border:'rgba(251,191,36,0.32)' }
   if (ovr !== null && ovr >= 75)
-    return { label:'🎯 Avaliado',       color:'#00FF88', bg:'rgba(0,255,136,0.10)', border:'rgba(0,255,136,0.24)' }
+    return { label:'🎯 Avaliado',       color:'#b3f737', bg:'rgba(0,255,136,0.10)', border:'rgba(0,255,136,0.24)' }
   return   { label:'📊 Avaliado',       color:'rgba(255,255,255,0.65)', bg:'rgba(255,255,255,0.07)', border:'rgba(255,255,255,0.16)' }
 }
 
@@ -414,7 +414,7 @@ export default function LancesSection() {
           }}>
             <span style={{
               display:'inline-block', width:5, height:5, borderRadius:'50%',
-              background:'#00FF88', flexShrink:0,
+              background:'#b3f737', flexShrink:0,
               boxShadow:'0 0 7px rgba(0,255,136,0.85)',
               animation:'pulseDot 2s ease-in-out infinite',
             }} />
@@ -438,7 +438,7 @@ export default function LancesSection() {
             textTransform:'uppercase',
           }}>
             Atletas em<br/>
-            <span style={{ color:'#00FF88' }}>destaque</span>
+            <span style={{ color:'#b3f737' }}>destaque</span>
           </h2>
         </div>
 

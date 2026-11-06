@@ -5,7 +5,7 @@ export default function ComoFunciona() {
       icon: '👤',
       title: 'Crie seu perfil',
       desc: 'Cadastre-se grátis em 2 minutos. Adicione foto, posição e informações básicas do seu jogo.',
-      color: '#00FF88',
+      color: '#b3f737',
     },
     {
       number: '02',

@@ -311,7 +311,7 @@ export default function CartaPage() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: '6px', marginBottom: 14 }}>
                   {atributos.map(a => (
                     <div key={a.label} style={{ textAlign: 'center' }}>
-                      <p style={{ margin: '0 0 2px', fontSize: 16, fontWeight: 900, color: a.value >= 75 ? '#00FF88' : a.value >= 60 ? '#4ade80' : 'rgba(255,255,255,0.5)' }}>
+                      <p style={{ margin: '0 0 2px', fontSize: 16, fontWeight: 900, color: a.value >= 75 ? '#b3f737' : a.value >= 60 ? '#4ade80' : 'rgba(255,255,255,0.5)' }}>
                         {a.value}
                       </p>
                       <p style={{ margin: 0, fontSize: 8, fontWeight: 700, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
@@ -407,7 +407,7 @@ export default function CartaPage() {
             onClick={() => router.push('/atleta/perfil')}
             style={{
               width: '100%', padding: '16px', borderRadius: 14, border: 'none', cursor: 'pointer',
-              background: 'linear-gradient(135deg,#00e87a,#00FF88 50%,#22c55e)',
+              background: 'linear-gradient(135deg,#00e87a,#b3f737 50%,#b3f737)',
               color: '#020d04', fontWeight: 900, fontSize: 15, fontFamily: 'inherit',
               boxShadow: '0 0 30px rgba(0,255,136,0.25)',
             }}
@@ -489,7 +489,7 @@ export default function CartaPage() {
               disabled={gerando}
               style={{
                 padding: '18px', borderRadius: 16, border: 'none', cursor: gerando ? 'wait' : 'pointer',
-                background: gerando ? 'rgba(0,255,136,0.15)' : 'linear-gradient(135deg,#00e87a,#00FF88 50%,#22c55e)',
+                background: gerando ? 'rgba(0,255,136,0.15)' : 'linear-gradient(135deg,#00e87a,#b3f737 50%,#b3f737)',
                 color: gerando ? 'rgba(0,255,136,0.6)' : '#020d04',
                 fontWeight: 900, fontSize: 16, fontFamily: 'system-ui',
                 boxShadow: gerando ? 'none' : '0 0 40px rgba(0,255,136,0.3)',
@@ -536,7 +536,7 @@ export default function CartaPage() {
                 style={{
                   width: '100%', padding: '12px', borderRadius: 10, border: 'none',
                   background: copiado ? 'rgba(0,255,136,0.15)' : 'rgba(0,255,136,0.1)',
-                  color: copiado ? '#00FF88' : 'rgba(255,255,255,0.7)',
+                  color: copiado ? '#b3f737' : 'rgba(255,255,255,0.7)',
                   fontSize: 14, fontWeight: 700, cursor: 'pointer', transition: 'all .2s',
                 }}
               >

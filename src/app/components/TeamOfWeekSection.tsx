@@ -35,7 +35,7 @@ const RANKS = [
   },
   {
     label: '🥈 TOP 2',
-    badgeBg: 'rgba(0,255,136,0.10)', badgeText: '#00FF88',
+    badgeBg: 'rgba(0,255,136,0.10)', badgeText: '#b3f737',
     topLine: 'rgba(0,255,136,0.55)',
     borderColor: 'rgba(0,255,136,0.18)',
     boxShadow: '0 0 28px rgba(0,255,136,0.09),0 16px 48px rgba(0,0,0,0.78)',
@@ -308,7 +308,7 @@ export default async function TeamOfWeekSection() {
         <Link href="/ranking" style={{
           display: 'inline-block', padding: '12px 28px', borderRadius: '14px',
           background: 'rgba(0,255,136,0.08)', border: '1px solid rgba(0,255,136,0.2)',
-          color: '#00FF88', fontWeight: 700, fontSize: '14px', textDecoration: 'none',
+          color: '#b3f737', fontWeight: 700, fontSize: '14px', textDecoration: 'none',
         }}>
           Ver ranking completo →
         </Link>

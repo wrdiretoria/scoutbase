@@ -114,7 +114,7 @@ export default async function TreinadoresPage() {
           ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
         <Link href="/treinador/cadastro" style={{
-          padding: '8px 16px', borderRadius: '10px', background: '#22c55e',
+          padding: '8px 16px', borderRadius: '10px', background: '#b3f737',
           color: 'black', fontWeight: 800, fontSize: '13px', textDecoration: 'none',
         }}>
           Cadastrar como treinador
@@ -127,7 +127,7 @@ export default async function TreinadoresPage() {
         <div style={{ marginBottom: '32px' }}>
           <p style={{
             margin: '0 0 8px', fontSize: '11px', fontWeight: 700,
-            color: '#22c55e', letterSpacing: '0.12em', textTransform: 'uppercase',
+            color: '#b3f737', letterSpacing: '0.12em', textTransform: 'uppercase',
           }}>
             🎽 Plataforma Meu Craque
           </p>
@@ -150,7 +150,7 @@ export default async function TreinadoresPage() {
             <p style={{ margin: '0 0 20px', fontSize: '16px', fontWeight: 700 }}>Nenhum treinador cadastrado ainda.</p>
             <Link href="/treinador/cadastro" style={{
               display: 'inline-block', padding: '12px 24px', borderRadius: '12px',
-              background: '#22c55e', color: 'black', fontWeight: 800, fontSize: '14px', textDecoration: 'none',
+              background: '#b3f737', color: 'black', fontWeight: 800, fontSize: '14px', textDecoration: 'none',
             }}>
               Seja o primeiro →
             </Link>
@@ -194,7 +194,7 @@ export default async function TreinadoresPage() {
                       </span>
                       {t.treinadorId && (
                         <span style={{
-                          fontSize: '9px', fontWeight: 800, color: '#22c55e',
+                          fontSize: '9px', fontWeight: 800, color: '#b3f737',
                           background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)',
                           borderRadius: '5px', padding: '1px 6px', letterSpacing: '0.08em',
                         }}>
@@ -216,7 +216,7 @@ export default async function TreinadoresPage() {
 
                   {/* Stats */}
                   <div style={{ textAlign: 'center', flexShrink: 0 }}>
-                    <div style={{ fontSize: '20px', fontWeight: 900, color: '#22c55e', lineHeight: 1 }}>
+                    <div style={{ fontSize: '20px', fontWeight: 900, color: '#b3f737', lineHeight: 1 }}>
                       {t.totalAvaliacoes}
                     </div>
                     <div style={{ fontSize: '9px', color: 'rgba(255,255,255,0.3)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
@@ -246,7 +246,7 @@ export default async function TreinadoresPage() {
           </p>
           <Link href="/treinador/cadastro" style={{
             display: 'inline-block', padding: '13px 28px', borderRadius: '14px',
-            background: '#22c55e', color: 'black', fontWeight: 800,
+            background: '#b3f737', color: 'black', fontWeight: 800,
             fontSize: '15px', textDecoration: 'none',
           }}>
             🎽 Criar perfil de treinador →

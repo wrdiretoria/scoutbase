@@ -131,7 +131,7 @@ export default function ScoutFavoritosPage() {
             <Link href="/scout/busca" style={{
               display: 'inline-block', padding: '13px 28px', borderRadius: '14px',
               background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)',
-              color: '#22c55e', fontWeight: 700, fontSize: '14px', textDecoration: 'none',
+              color: '#b3f737', fontWeight: 700, fontSize: '14px', textDecoration: 'none',
             }}>
               🔍 Buscar atletas →
             </Link>
@@ -187,7 +187,7 @@ export default function ScoutFavoritosPage() {
                       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                         {pos && (
                           <span style={{
-                            fontSize: '10px', fontWeight: 800, color: '#22c55e',
+                            fontSize: '10px', fontWeight: 800, color: '#b3f737',
                             background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)',
                             borderRadius: '6px', padding: '1px 7px',
                           }}>
@@ -206,7 +206,7 @@ export default function ScoutFavoritosPage() {
                       <Link href={`/jogador/${a.id}`} style={{
                         padding: '7px 14px', borderRadius: '10px',
                         background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)',
-                        color: '#22c55e', fontWeight: 700, fontSize: '12px', textDecoration: 'none',
+                        color: '#b3f737', fontWeight: 700, fontSize: '12px', textDecoration: 'none',
                       }}>
                         Ver →
                       </Link>

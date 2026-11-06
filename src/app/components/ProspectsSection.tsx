@@ -95,7 +95,7 @@ function getHighlight(ovr: number, rank: number, cidade: string): string {
 }
 
 const PALETTES = [
-  { badge: 'PROMESSA #1', badgeColor: '#f59e0b', topColor: 'linear-gradient(160deg,#0d3a1a 0%,#061209 100%)', avatarGrad: 'linear-gradient(145deg,#065f28,#00e87a)', glow: 'rgba(0,255,136,0.18)', glowHover: 'rgba(0,255,136,0.32)', accent: '#00FF88' },
+  { badge: 'PROMESSA #1', badgeColor: '#f59e0b', topColor: 'linear-gradient(160deg,#0d3a1a 0%,#061209 100%)', avatarGrad: 'linear-gradient(145deg,#065f28,#00e87a)', glow: 'rgba(0,255,136,0.18)', glowHover: 'rgba(0,255,136,0.32)', accent: '#b3f737' },
   { badge: 'DESTAQUE',    badgeColor: '#a78bfa', topColor: 'linear-gradient(160deg,#1e0d42 0%,#0c0520 100%)', avatarGrad: 'linear-gradient(145deg,#5b21b6,#a78bfa)', glow: 'rgba(139,92,246,0.15)', glowHover: 'rgba(139,92,246,0.28)', accent: '#a78bfa' },
   { badge: 'EM ASCENSÃO', badgeColor: '#38bdf8', topColor: 'linear-gradient(160deg,#082840 0%,#040e1a 100%)', avatarGrad: 'linear-gradient(145deg,#075985,#38bdf8)', glow: 'rgba(56,189,248,0.14)', glowHover: 'rgba(56,189,248,0.26)', accent: '#38bdf8' },
   { badge: 'TALENTO',     badgeColor: '#fb923c', topColor: 'linear-gradient(160deg,#42180a 0%,#160700 100%)', avatarGrad: 'linear-gradient(145deg,#c2410c,#fb923c)', glow: 'rgba(251,146,60,0.14)', glowHover: 'rgba(251,146,60,0.26)', accent: '#fb923c' },
@@ -217,7 +217,7 @@ export default async function ProspectsSection() {
         .pros-micro {
           display:inline-flex; align-items:center; gap:7px;
           font-size:10px; font-weight:800; letter-spacing:0.22em;
-          color:#00FF88; text-transform:uppercase; margin:0 0 16px;
+          color:#b3f737; text-transform:uppercase; margin:0 0 16px;
         }
         .pros-h2 {
           font-size:clamp(26px,3.6vw,42px); font-weight:900;
@@ -343,8 +343,8 @@ export default async function ProspectsSection() {
           border-radius:20px; padding:3px 9px;
           box-shadow:0 0 8px rgba(0,255,136,0.08);
         }
-        .pros-trend-arrow { font-size:10px; color:#00FF88; line-height:1; }
-        .pros-trend-val   { font-size:10.5px; font-weight:800; color:#00FF88; letter-spacing:0.02em; }
+        .pros-trend-arrow { font-size:10px; color:#b3f737; line-height:1; }
+        .pros-trend-val   { font-size:10.5px; font-weight:800; color:#b3f737; letter-spacing:0.02em; }
 
         /* Meta line */
         .pros-meta {
@@ -383,12 +383,12 @@ export default async function ProspectsSection() {
         }
         .pros-cta {
           display:inline-flex; align-items:center; gap:8px;
-          color:#22c55e; font-size:14px; font-weight:700;
+          color:#b3f737; font-size:14px; font-weight:700;
           text-decoration:none; letter-spacing:0.02em;
           border-bottom:1px solid rgba(34,197,94,0.28); padding-bottom:2px;
           transition:color 0.2s, border-color 0.2s;
         }
-        .pros-cta:hover { color:#00FF88; border-color:rgba(0,255,136,0.6); }
+        .pros-cta:hover { color:#b3f737; border-color:rgba(0,255,136,0.6); }
 
         /* ── Responsive ── */
         @media (max-width:1024px) {
