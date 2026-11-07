@@ -4,6 +4,8 @@
 .ring { position: relative; box-sizing: border-box; display: grid; place-items: center; width: 68px; height: 68px; overflow: hidden; padding: 3px; border: 2px solid #b2f000; border-radius: 50%; background: #132119; color: #b2f000; font-size: 20px; font-weight: 700; }
 .ring img { position: absolute; inset: 3px; display: block; width: calc(100% - 6px); height: calc(100% - 6px); border-radius: 50%; object-fit: cover; object-position: center; }
 .add { font-size: 36px; font-weight: 400; color: white; background: #08110d; }
+.trainer { border-color: #ffc857; color: #ffc857; }
+.trainer.seen { border-color: #8d7950; color: #d1bd94; }
 .seen { border-color: #65766c; color: #bfccc3; }
 .name { max-width: 84px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hint { max-width: 290px; flex: 0 0 auto; margin: 0; color: #9aaca0; font-size: 13px; line-height: 1.5; }
