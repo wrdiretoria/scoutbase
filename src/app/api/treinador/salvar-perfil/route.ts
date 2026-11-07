@@ -74,14 +74,25 @@ export async function POST(req: Request) {
     if (youtube            !== undefined) metaUpdate.youtube            = youtube            || null
     if (outras             !== undefined) metaUpdate.outras             = outras             || null
 
+    const publicFields = ['especialidade', 'cidade', 'pais', 'anos_exp', 'clube_atual', 'clubes_trabalhados', 'certificacoes', 'conquistas', 'instagram', 'tiktok', 'youtube', 'outras']
+    const publicChanged = Object.entries(metaUpdate).some(([key, value]) =>
+      publicFields.includes(key) && value !== (user.user_metadata?.[key] || null))
+
     if (Object.keys(metaUpdate).length > 0) {
       const { error: metaErr } = await admin.auth.admin.updateUserById(userId, {
         user_metadata: metaUpdate,
       })
       if (metaErr) {
         console.error('[treinador/salvar-perfil] metadata update', metaErr)
-        // Não fatal — profiles já foi salvo
+        return NextResponse.json({ error: 'Não foi possível salvar o currículo completo.' }, { status: 500 })
       }
+    }
+
+    if (publicChanged && user.user_metadata?.tipo === 'treinador') {
+      const { error } = await admin.from('feed_posts').insert({
+        author_id: user.id, author_type: 'treinador', type: 'update', body: 'Atualizou o currículo de treinador.',
+      })
+      if (error) console.error('[treinador/salvar-perfil] status', error.code)
     }
 
     return NextResponse.json({ ok: true })
