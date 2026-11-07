@@ -4,7 +4,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { type FeedStory as MediaStory, STORY_MAX_BYTES, STORY_TYPES } from '@/lib/feed-stories'
 import styles from './FeedStories.module.css'
 
-type FeedStory = MediaStory | (Omit<MediaStory, 'mediaType'> & { mediaType: 'activity'; href: string })
+type FeedStory = (MediaStory | (Omit<MediaStory, 'mediaType'> & { mediaType: 'activity'; href: string })) & {
+  isTrainer?: boolean
+}
 type CurrentUser = { id: string; name: string; avatarUrl: string | null }
 export default function FeedStories({ user }: { user: CurrentUser | null }) {
   const [stories, setStories] = useState<FeedStory[]>([])
@@ -184,7 +186,7 @@ export default function FeedStories({ user }: { user: CurrentUser | null }) {
           if (!user) window.location.assign(`/login?story=${encodeURIComponent(item.id)}`)
           else void open(item.id)
         }}>
-        <span className={`${styles.ring} ${group.every(s => s.seen) ? styles.seen : ''}`}>
+        <span className={`${styles.ring} ${group[0].isTrainer ? styles.trainer : ''} ${group.every(s => s.seen) ? styles.seen : ''}`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {group[0].avatarUrl ? <img src={group[0].avatarUrl} alt="" /> : <span>{initials(group[0].authorName)}</span>}
         </span><span className={styles.name}>{group[0].authorId === user?.id ? 'Você' : group[0].authorName.split(' ')[0]}</span>
