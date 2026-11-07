@@ -189,9 +189,9 @@ export default function FeedStories({ user }: { user: CurrentUser | null }) {
           {group[0].avatarUrl ? <img src={group[0].avatarUrl} alt="" /> : <span>{initials(group[0].authorName)}</span>}
         </span><span className={styles.name}>{group[0].authorId === user?.id ? 'Você' : group[0].authorName.split(' ')[0]}</span>
       </button>)}
-      {!groups.length && <p className={styles.hint}>{loading ? 'Carregando atualizações…' : user ? 'Compartilhe seu futebol. As atualizações ficam disponíveis por 24 horas.' : 'Entre para acompanhar as atualizações da comunidade.'}</p>}
+      {!groups.length && <p className={styles.hint}>{loading ? 'Carregando atualizações…' : user ? 'Compartilhe seu futebol. As atualizações ficam disponíveis por 24 horas.' : 'Nenhuma atualização recente.'}</p>}
     </div>
-    {error && !mode && <p className={styles.error} role="alert">{error} <button onClick={() => { setError(''); void load() }}>Tentar novamente</button></p>}
+    {error && user && !mode && <p className={styles.error} role="alert">{error} <button onClick={() => { setError(''); void load() }}>Tentar novamente</button></p>}
     <dialog ref={dialog} className={styles.dialog} aria-label={mode === 'publish' ? 'Publicar atualização' : 'Visualizar atualização'}
       onCancel={event => { if (busy) event.preventDefault(); else close() }}>
       <div className={styles.dialogBody}>
