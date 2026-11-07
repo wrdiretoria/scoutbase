@@ -7,6 +7,11 @@ import { createClient } from '@/lib/supabase'
 
 type Area = 'atleta' | 'treinador'
 
+function storyReturn() {
+  const story = new URLSearchParams(window.location.search).get('story')
+  return story && /^signup-[0-9a-f-]{36}$/i.test(story) ? `/?story=${encodeURIComponent(story)}` : null
+}
+
 export default function LoginPage() {
   const router = useRouter()
   const [area, setArea] = useState<Area>('atleta')
@@ -26,9 +31,9 @@ export default function LoginPage() {
       if (session) {
         const tipo = (session.user.user_metadata as { tipo?: string })?.tipo ?? ''
         if (tipo === 'treinador' || tipo === 'escola') {
-          router.replace('/treinador/dashboard')
+          router.replace(storyReturn() ?? '/treinador/dashboard')
         } else {
-          router.replace('/atleta/perfil')
+          router.replace(storyReturn() ?? '/atleta/perfil')
         }
       } else {
         setChecking(false)
@@ -60,7 +65,7 @@ export default function LoginPage() {
           setLoading(false)
           return
         }
-        router.push('/atleta/perfil')
+        router.push(storyReturn() ?? '/atleta/perfil')
         return
       }
 
@@ -77,7 +82,7 @@ export default function LoginPage() {
         setLoading(false)
         return
       }
-      router.push('/atleta/perfil')
+      router.push(storyReturn() ?? '/atleta/perfil')
       return
     }
 
@@ -99,7 +104,7 @@ export default function LoginPage() {
         setLoading(false)
         return
       }
-      router.push('/treinador/dashboard')
+      router.push(storyReturn() ?? '/treinador/dashboard')
       return
     }
 
@@ -115,9 +120,9 @@ export default function LoginPage() {
     }
     const tipo = (data.user.user_metadata as { tipo?: string })?.tipo ?? ''
     if (tipo === 'atleta') {
-      router.push('/atleta/perfil')
+      router.push(storyReturn() ?? '/atleta/perfil')
     } else {
-      router.push('/treinador/dashboard')
+      router.push(storyReturn() ?? '/treinador/dashboard')
     }
   }
 
