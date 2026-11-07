@@ -8,7 +8,7 @@ type FeedStory = MediaStory | (Omit<MediaStory, 'mediaType'> & { mediaType: 'act
 type CurrentUser = { id: string; name: string; avatarUrl: string | null }
 export default function FeedStories({ user }: { user: CurrentUser | null }) {
   const [stories, setStories] = useState<FeedStory[]>([])
-  const [loading, setLoading] = useState(!!user)
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [mode, setMode] = useState<'publish' | 'viewer' | null>(null)
   const [index, setIndex] = useState(0)
@@ -23,8 +23,8 @@ export default function FeedStories({ user }: { user: CurrentUser | null }) {
   const returnFocus = useRef<HTMLElement | null>(null)
   const video = useRef<HTMLVideoElement>(null)
   const signIn = '/login?next=%2Ffeed'
+  const resumed = useRef(false)
   const load = useCallback(async () => {
-    if (!user) return [] as FeedStory[]
     try {
       const response = await fetch('/api/stories', { cache: 'no-store' })
       const body = await response.json()
@@ -39,6 +39,18 @@ export default function FeedStories({ user }: { user: CurrentUser | null }) {
       }
       const ordered = [...grouped.values()].flatMap(group => group.reverse())
       setStories(ordered)
+      if (user && !resumed.current) {
+        resumed.current = true
+        const url = new URL(window.location.href)
+        const story = url.searchParams.get('story')
+        if (story) {
+          url.searchParams.delete('story')
+          window.history.replaceState(window.history.state, '', url)
+          const found = ordered.findIndex(item => item.id === story)
+          if (found >= 0) { setIndex(found); setMode('viewer') }
+          else setError('Essa atualização expirou ou foi removida.')
+        }
+      }
       return ordered
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Não foi possível carregar as atualizações.')
@@ -48,7 +60,6 @@ export default function FeedStories({ user }: { user: CurrentUser | null }) {
   useEffect(() => {
     if (mode) return
     void load()
-    if (!user) return
     const timer = setInterval(() => { void load() }, 60000)
     return () => clearInterval(timer)
   }, [load, user, mode])
@@ -168,7 +179,11 @@ export default function FeedStories({ user }: { user: CurrentUser | null }) {
       </button> : <Link className={styles.story} href={signIn}><span className={`${styles.ring} ${styles.add}`} aria-hidden="true">+</span><span>Sua atualização</span></Link>}
       {groups.map(group => <button key={group[0].authorId} className={styles.story} disabled={busy}
         aria-label={`Ver atualizações de ${group[0].authorName}${group.every(s => s.seen) ? ', já vistas' : ', novas'}`}
-        onClick={() => void open((group.find(s => !s.seen) ?? group[group.length - 1]).id)}>
+        onClick={() => {
+          const item = group.find(s => !s.seen) ?? group[group.length - 1]
+          if (!user) window.location.assign(`/login?story=${encodeURIComponent(item.id)}`)
+          else void open(item.id)
+        }}>
         <span className={`${styles.ring} ${group.every(s => s.seen) ? styles.seen : ''}`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {group[0].avatarUrl ? <img src={group[0].avatarUrl} alt="" /> : <span>{initials(group[0].authorName)}</span>}
