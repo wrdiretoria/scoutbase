@@ -21,12 +21,13 @@ export async function GET() {
     if (!user) {
       // Visitors see only the public athlete directory's recent registrations.
       const since = new Date(Date.now() - STORY_LIFETIME_MS).toISOString()
-      const { data, error } = await admin.from('profiles').select('id,nome,avatar_url,criado_em')
+      const { data, error } = await admin.from('profiles').select('id,nome,avatar_url,criado_em,athlete_id')
         .not('athlete_id', 'is', null).gt('criado_em', since)
         .order('criado_em', { ascending: false }).limit(100)
       if (error) throw error
       const stories = (data ?? []).filter(profile => profile.nome).map(profile => ({
         id: `signup-${profile.id}`, authorId: profile.id,
+        isTrainer: profile.athlete_id?.startsWith('TR-') ?? false,
         authorName: profile.nome.trim().split(/\s+/)[0], avatarUrl: profile.avatar_url,
         expiresAt: new Date(Date.parse(profile.criado_em) + STORY_LIFETIME_MS).toISOString(),
       }))
@@ -37,6 +38,7 @@ export async function GET() {
           const trainer = trainers?.find(profile => profile.id === post.author_id)
           if (!trainer?.nome) continue
           stories.push({ id: `curriculum-${post.id}`, authorId: trainer.id,
+            isTrainer: true,
             authorName: trainer.nome.trim().split(/\s+/)[0], avatarUrl: trainer.avatar_url,
             expiresAt: new Date(Date.parse(post.created_at) + STORY_LIFETIME_MS).toISOString() })
         }
@@ -69,7 +71,7 @@ export async function GET() {
     const authorIds = [...new Set([...(rows ?? []).map(s => s.author_id), ...activity.map(a => a.authorId)])]
     if (!authorIds.length) return NextResponse.json({ stories: [] }, { headers })
     const [profiles, views] = await Promise.all([
-      admin.from('profiles').select('id,nome,avatar_url').in('id', authorIds),
+      admin.from('profiles').select('id,nome,avatar_url,athlete_id').in('id', authorIds),
       rows?.length ? admin.from('feed_story_views').select('story_id').eq('viewer_id', user.id).in('story_id', rows.map(s => s.id)) : { data: [], error: null },
     ])
     if (profiles.error || views.error) throw profiles.error || views.error
@@ -82,12 +84,13 @@ export async function GET() {
     const stories = (rows ?? []).map(row => {
       const author = people.get(row.author_id)
       return { id: row.id, authorId: row.author_id, authorName: author?.nome || 'Pessoa do futebol', avatarUrl: author?.avatar_url ?? null,
+        isTrainer: author?.athlete_id?.startsWith('TR-') ?? false,
         mediaType: row.media_type, mediaUrl: links.get(row.storage_path), caption: row.caption, createdAt: row.created_at, expiresAt: row.expires_at, seen: seen.has(row.id) }
     })
     const updates = activity.flatMap(item => {
       const author = people.get(item.authorId)
       if (!author?.nome) return []
-      return [{ ...item, authorName: author.nome, avatarUrl: author.avatar_url,
+      return [{ ...item, isTrainer: item.id.startsWith('curriculum-') || (author.athlete_id?.startsWith('TR-') ?? false), authorName: author.nome, avatarUrl: author.avatar_url,
         mediaType: 'activity', mediaUrl: '', expiresAt: new Date(Date.parse(item.createdAt) + STORY_LIFETIME_MS).toISOString(), seen: false }]
     })
     return NextResponse.json({ stories: [...stories, ...updates].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)) }, { headers })
