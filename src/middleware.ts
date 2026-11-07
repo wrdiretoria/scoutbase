@@ -121,6 +121,7 @@ export async function middleware(request: NextRequest) {
   // Rotas de API
   if (pathname.startsWith('/api/')) {
     if (isPublicApiRoute(pathname)) return supabaseResponse
+    if (pathname === '/api/stories' && request.method === 'GET') return supabaseResponse
     if (!user) {
       return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 })
     }
