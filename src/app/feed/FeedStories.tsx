@@ -1,9 +1,10 @@
 'use client'
 import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FeedStory, STORY_MAX_BYTES, STORY_TYPES } from '@/lib/feed-stories'
+import { type FeedStory as MediaStory, STORY_MAX_BYTES, STORY_TYPES } from '@/lib/feed-stories'
 import styles from './FeedStories.module.css'
 
+type FeedStory = MediaStory | (Omit<MediaStory, 'mediaType'> & { mediaType: 'activity'; href: string })
 type CurrentUser = { id: string; name: string; avatarUrl: string | null }
 export default function FeedStories({ user }: { user: CurrentUser | null }) {
   const [stories, setStories] = useState<FeedStory[]>([])
@@ -17,6 +18,7 @@ export default function FeedStories({ user }: { user: CurrentUser | null }) {
   const [busy, setBusy] = useState(false)
   const [ready, setReady] = useState(false)
   const [paused, setPaused] = useState(false)
+  const viewedActivity = useRef(new Set<string>())
   const dialog = useRef<HTMLDialogElement>(null)
   const returnFocus = useRef<HTMLElement | null>(null)
   const video = useRef<HTMLVideoElement>(null)
@@ -28,8 +30,16 @@ export default function FeedStories({ user }: { user: CurrentUser | null }) {
       const body = await response.json()
       if (!response.ok) throw new Error(body.error || 'Não foi possível carregar.')
       const active = (body.stories as FeedStory[]).filter(s => Date.parse(s.expiresAt) > Date.now())
-      setStories(active)
-      return active
+        .map(s => viewedActivity.current.has(s.id) ? { ...s, seen: true } : s)
+      const grouped = new Map<string, FeedStory[]>()
+      for (const story of active) {
+        const group = grouped.get(story.authorId) ?? []
+        group.push(story)
+        grouped.set(story.authorId, group)
+      }
+      const ordered = [...grouped.values()].flatMap(group => group.reverse())
+      setStories(ordered)
+      return ordered
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Não foi possível carregar as atualizações.')
       return null
@@ -98,6 +108,12 @@ export default function FeedStories({ user }: { user: CurrentUser | null }) {
     const response = await fetch(`/api/stories/${story.id}/view`, { method: 'POST' }).catch(() => null)
     if (response?.ok) setStories(list => list.map(s => s.id === story.id ? { ...s, seen: true } : s))
   }
+  useEffect(() => {
+    if (mode !== 'viewer' || current?.mediaType !== 'activity') return
+    viewedActivity.current.add(current.id)
+    setStories(list => list.map(s => s.id === current.id && !s.seen ? { ...s, seen: true } : s))
+    setReady(true)
+  }, [mode, current?.id, current?.mediaType])
   const open = async (id: string) => {
     setError(''); setBusy(true)
     const fresh = await load()
@@ -181,7 +197,7 @@ export default function FeedStories({ user }: { user: CurrentUser | null }) {
             {stories.map((s,i) => <span key={s.id} className={i <= index ? styles.stepActive : ''} />)}
           </div>
           <header className={styles.viewerHeader}><strong>{current.authorName}</strong><small>{new Date(current.createdAt).toLocaleString('pt-BR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}</small></header>
-          {current.mediaType === 'video' ?
+          {current.mediaType === 'activity' ? <Link className={styles.primary} href={current.href}>{current.href === '/feed' ? 'Abrir Feed' : 'Ver perfil'}</Link> : current.mediaType === 'video' ?
             <video key={current.id} ref={video} src={current.mediaUrl} controls autoPlay playsInline onEnded={() => move(1)} onPause={() => setPaused(true)} onPlay={() => setPaused(false)} onLoadedData={() => void markViewed(current)} onError={() => setError('Não foi possível abrir o vídeo. Feche e tente novamente.')} /> :
             /* eslint-disable-next-line @next/next/no-img-element */
             <img key={current.id} src={current.mediaUrl} alt={current.caption || `Atualização de ${current.authorName}`} onLoad={() => void markViewed(current)} onError={() => setError('Não foi possível abrir a foto. Feche e tente novamente.')} />}
@@ -189,7 +205,7 @@ export default function FeedStories({ user }: { user: CurrentUser | null }) {
           <footer className={styles.viewerFooter}>
             <button aria-label="Atualização anterior" disabled={index === 0 || busy} onClick={() => move(-1)}>‹</button>
             <button onClick={togglePause} disabled={!ready}>{paused ? 'Continuar' : 'Pausar'}</button>
-            {current.authorId === user?.id && <button onClick={() => void remove()} disabled={busy}>{busy ? 'Excluindo…' : 'Excluir'}</button>}
+            {current.mediaType !== 'activity' && current.authorId === user?.id && <button onClick={() => void remove()} disabled={busy}>{busy ? 'Excluindo…' : 'Excluir'}</button>}
             <button aria-label="Próxima atualização" disabled={busy} onClick={() => move(1)}>›</button>
           </footer>
         </div>}
