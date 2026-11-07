@@ -9,8 +9,21 @@ export async function GET() {
   try {
     const client = await createServerClient()
     const { data: { user } } = await client.auth.getUser()
-    if (!user) return NextResponse.json({ error: 'Entre para ver as atualizações.' }, { status: 401, headers })
     const admin = createAdminClient()
+    if (!user) {
+      // Visitors see only the public athlete directory's recent registrations.
+      const since = new Date(Date.now() - STORY_LIFETIME_MS).toISOString()
+      const { data, error } = await admin.from('profiles').select('id,nome,avatar_url,criado_em')
+        .not('athlete_id', 'is', null).gt('criado_em', since)
+        .order('criado_em', { ascending: false }).limit(100)
+      if (error) throw error
+      const stories = (data ?? []).filter(profile => profile.nome).map(profile => ({
+        id: `signup-${profile.id}`, authorId: profile.id,
+        authorName: profile.nome.trim().split(/\s+/)[0], avatarUrl: profile.avatar_url,
+        expiresAt: new Date(Date.parse(profile.criado_em) + STORY_LIFETIME_MS).toISOString(),
+      }))
+      return NextResponse.json({ stories }, { headers })
+    }
     const { data: rows, error } = await admin.from('feed_stories').select('id,author_id,storage_path,media_type,caption,created_at,expires_at')
       .gt('expires_at', new Date().toISOString()).order('created_at', { ascending: false }).limit(100)
     if (error) throw error
