@@ -9,7 +9,7 @@ type Area = 'atleta' | 'treinador'
 
 function storyReturn() {
   const story = new URLSearchParams(window.location.search).get('story')
-  return story && /^signup-[0-9a-f-]{36}$/i.test(story) ? `/?story=${encodeURIComponent(story)}` : null
+  return story && /^(?:signup|curriculum)-[0-9a-f-]{36}$/i.test(story) ? `/?story=${encodeURIComponent(story)}` : null
 }
 
 export default function LoginPage() {
