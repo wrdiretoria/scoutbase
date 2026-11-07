@@ -10,6 +10,14 @@ export async function GET() {
     const client = await createServerClient()
     const { data: { user } } = await client.auth.getUser()
     const admin = createAdminClient()
+    const { data: curriculumPosts, error: curriculumError } = await admin.from('feed_posts')
+      .select('id,author_id,created_at').eq('author_type', 'treinador').eq('type', 'update')
+      .eq('body', 'Atualizou o currículo de treinador.')
+      .gt('created_at', new Date(Date.now() - STORY_LIFETIME_MS).toISOString())
+      .order('created_at', { ascending: false }).limit(100)
+    if (curriculumError) console.error('[stories] curriculum', curriculumError.code)
+    const curricula = (curriculumPosts ?? []).filter((post, index, list) =>
+      list.findIndex(item => item.author_id === post.author_id) === index)
     if (!user) {
       // Visitors see only the public athlete directory's recent registrations.
       const since = new Date(Date.now() - STORY_LIFETIME_MS).toISOString()
@@ -22,6 +30,17 @@ export async function GET() {
         authorName: profile.nome.trim().split(/\s+/)[0], avatarUrl: profile.avatar_url,
         expiresAt: new Date(Date.parse(profile.criado_em) + STORY_LIFETIME_MS).toISOString(),
       }))
+      if (curricula.length) {
+        const { data: trainers } = await admin.from('profiles').select('id,nome,avatar_url')
+          .in('id', curricula.map(post => post.author_id))
+        for (const post of curricula) {
+          const trainer = trainers?.find(profile => profile.id === post.author_id)
+          if (!trainer?.nome) continue
+          stories.push({ id: `curriculum-${post.id}`, authorId: trainer.id,
+            authorName: trainer.nome.trim().split(/\s+/)[0], avatarUrl: trainer.avatar_url,
+            expiresAt: new Date(Date.parse(post.created_at) + STORY_LIFETIME_MS).toISOString() })
+        }
+      }
       return NextResponse.json({ stories }, { headers })
     }
     const { data: rows, error } = await admin.from('feed_stories').select('id,author_id,storage_path,media_type,caption,created_at,expires_at')
@@ -32,7 +51,7 @@ export async function GET() {
     const [newAthletes, posts, highlights] = await Promise.all([
       admin.from('profiles').select('id,nome,avatar_url,criado_em').not('athlete_id', 'is', null)
         .gt('criado_em', since).order('criado_em', { ascending: false }).limit(100),
-      admin.from('feed_posts').select('id,author_id,body,created_at').in('author_id', network)
+      admin.from('feed_posts').select('id,author_id,author_type,body,created_at').in('author_id', network)
         .gt('created_at', since).order('created_at', { ascending: false }).limit(100),
       admin.from('highlights').select('id,profile_id,created_at').in('profile_id', network)
         .gt('created_at', since).order('created_at', { ascending: false }).limit(100),
@@ -41,8 +60,10 @@ export async function GET() {
       if (result.error) console.error('[stories] activity source', result.error.code)
     }
     const activity = [
+      ...curricula.map(p => ({ id: `curriculum-${p.id}`, authorId: p.author_id, createdAt: p.created_at,
+        caption: 'Atualizou o currículo', href: `/treinador/${p.author_id}` })),
       ...(newAthletes.data ?? []).map(p => ({ id: `signup-${p.id}`, authorId: p.id, createdAt: p.criado_em, caption: 'Entrou no MeuCraque', href: `/jogador/${p.id}` })),
-      ...(posts.data ?? []).map(p => ({ id: `post-${p.id}`, authorId: p.author_id, createdAt: p.created_at, caption: p.body || 'Nova publicação no Feed', href: '/feed' })),
+      ...(posts.data ?? []).filter(p => p.author_type !== 'treinador' || p.body !== 'Atualizou o currículo de treinador.').map(p => ({ id: `post-${p.id}`, authorId: p.author_id, createdAt: p.created_at, caption: p.body || 'Nova publicação no Feed', href: '/feed' })),
       ...(highlights.data ?? []).map(h => ({ id: `highlight-${h.id}`, authorId: h.profile_id, createdAt: h.created_at, caption: 'Adicionou um novo vídeo', href: `/jogador/${h.profile_id}` })),
     ]
     const authorIds = [...new Set([...(rows ?? []).map(s => s.author_id), ...activity.map(a => a.authorId)])]
