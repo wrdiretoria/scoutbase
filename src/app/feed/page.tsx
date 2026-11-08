@@ -190,6 +190,15 @@ export default async function FeedPage() {
           </div>
         </section>
 
+
+        <Link href="/teste-seu-nivel" className={styles.startCard}>
+          <span className={styles.startCardIcon}><Icon name="target" size={28} /></span>
+          <span className={styles.startCardCopy}>
+            <small>Comece por aqui</small>
+            <strong>Teste seu nível</strong>
+          </span>
+          <span className={styles.startCardArrow} aria-hidden="true">›</span>
+        </Link>
         {!user && (
           <section aria-label="Exemplo de perfil esportivo" style={{ marginTop: 14, padding: 16, border: '1px solid #385346', borderRadius: 16, background: 'var(--mc-surface)' }}>
             <p style={{ margin: '0 0 4px', color: '#b3f737', fontSize: 12, fontWeight: 800 }}>PERFIL ESPORTIVO</p>
@@ -203,14 +212,6 @@ export default async function FeedPage() {
           </section>
         )}
 
-        <Link href="/teste-seu-nivel" className={styles.startCard}>
-          <span className={styles.startCardIcon}><Icon name="target" size={28} /></span>
-          <span className={styles.startCardCopy}>
-            <small>Comece por aqui</small>
-            <strong>Teste seu nível</strong>
-          </span>
-          <span className={styles.startCardArrow} aria-hidden="true">›</span>
-        </Link>
         <nav className={styles.shortcutRow} aria-label="Áreas principais">
           <Link href="#journey" className={styles.shortcut}>
             <Icon name="compass" size={37} /><strong>Minha<br className={styles.mobileBreak} /> Jornada</strong>
