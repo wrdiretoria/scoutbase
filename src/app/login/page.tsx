@@ -5,11 +5,18 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 
-type Area = 'atleta' | 'treinador'
+type Area = 'atleta' | 'treinador' | 'clube'
 
 function storyReturn() {
   const story = new URLSearchParams(window.location.search).get('story')
   return story && /^(?:signup|curriculum)-[0-9a-f-]{36}$/i.test(story) ? `/?story=${encodeURIComponent(story)}` : null
+}
+
+function accountHome(tipo: unknown) {
+  if (tipo === 'clube') return '/clube/perfil'
+  if (tipo === 'treinador' || tipo === 'escola') return '/treinador/dashboard'
+  if (tipo === 'scout') return '/scout/dashboard'
+  return '/atleta/perfil'
 }
 
 export default function LoginPage() {
@@ -23,6 +30,7 @@ export default function LoginPage() {
 
   // Se já tem sessão ativa, redireciona
   useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('area') === 'clube') setArea('clube')
     const supabase = createClient()
     // Timeout de segurança: se getSession travar (ex: Safari ITP), libera o form em 3s
     const timeout = setTimeout(() => setChecking(false), 3000)
@@ -30,11 +38,7 @@ export default function LoginPage() {
       clearTimeout(timeout)
       if (session) {
         const tipo = (session.user.user_metadata as { tipo?: string })?.tipo ?? ''
-        if (tipo === 'treinador' || tipo === 'escola') {
-          router.replace(storyReturn() ?? '/treinador/dashboard')
-        } else {
-          router.replace(storyReturn() ?? '/atleta/perfil')
-        }
+        router.replace(storyReturn() ?? accountHome(tipo))
       } else {
         setChecking(false)
       }
@@ -53,6 +57,18 @@ export default function LoginPage() {
     setError(null)
     setLoading(true)
 
+    if (area === 'clube') {
+      try {
+        const { data, error } = await createClient().auth.signInWithPassword({ email: identifier.trim(), password })
+        if (error || !data.user) throw new Error('E-mail ou senha incorretos.')
+        window.location.replace(storyReturn() ?? accountHome(data.user.user_metadata?.tipo))
+      } catch (error) {
+        setError(error instanceof Error ? error.message : 'Não foi possível entrar.')
+        setLoading(false)
+      }
+      return
+    }
+
     if (area === 'atleta') {
       const raw = identifier.trim()
       const isEmail = raw.includes('@')
@@ -65,7 +81,7 @@ export default function LoginPage() {
           setLoading(false)
           return
         }
-        router.push(storyReturn() ?? '/atleta/perfil')
+        router.push(storyReturn() ?? accountHome(data.user.user_metadata?.tipo))
         return
       }
 
@@ -119,11 +135,7 @@ export default function LoginPage() {
       return
     }
     const tipo = (data.user.user_metadata as { tipo?: string })?.tipo ?? ''
-    if (tipo === 'atleta') {
-      router.push(storyReturn() ?? '/atleta/perfil')
-    } else {
-      router.push(storyReturn() ?? '/treinador/dashboard')
-    }
+    router.push(storyReturn() ?? accountHome(tipo))
   }
 
   if (checking) return (
@@ -183,7 +195,7 @@ export default function LoginPage() {
           borderRadius: '12px', padding: '4px', marginBottom: '28px',
           border: '1px solid rgba(255,255,255,0.08)',
         }}>
-          {(['atleta', 'treinador'] as Area[]).map(a => (
+          {(['atleta', 'treinador', 'clube'] as Area[]).map(a => (
             <button
               key={a}
               type="button" aria-pressed={area === a}
@@ -197,7 +209,7 @@ export default function LoginPage() {
                 transition: 'all .2s',
               }}
             >
-              {a === 'atleta' ? '⚡ Atleta' : '👨‍🏫 Treinador'}
+              {a === 'atleta' ? '⚡ Atleta' : a === 'treinador' ? '👨‍🏫 Treinador' : '🏟️ Instituição'}
             </button>
           ))}
         </div>
@@ -207,7 +219,7 @@ export default function LoginPage() {
           Bem-vindo de volta
         </h1>
         <p style={{ margin: '0 0 24px', fontSize: '14px', color: 'var(--mc-muted)' }}>
-          Entre com seu ID ou email e senha.
+          {area === 'clube' ? 'Entre com o e-mail e a senha da instituição.' : 'Entre com seu ID ou email e senha.'}
         </p>
 
         {/* Formulário */}
@@ -215,17 +227,17 @@ export default function LoginPage() {
 
           <div>
             <label htmlFor="login-identificador" style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: 'var(--mc-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '8px' }}>
-              ID ou e-mail
+              {area === 'clube' ? 'E-mail' : 'ID ou e-mail'}
             </label>
             <input
               key={area}
               id="login-identificador" autoComplete="username"
-              type="text"
+              type={area === 'clube' ? 'email' : 'text'}
               required
               autoFocus
               value={identifier}
               onChange={e => setIdentifier(e.target.value)}
-              placeholder={area === 'atleta' ? 'ID (ex: 16138) ou email' : 'ID (ex: 00001) ou email'}
+              placeholder={area === 'clube' ? 'instituicao@exemplo.com' : area === 'atleta' ? 'ID (ex: 16138) ou email' : 'ID (ex: 00001) ou email'}
               style={{
                 ...inputStyle,
                 ...(area === 'atleta' ? { textTransform: 'uppercase', letterSpacing: '0.06em' } : {}),
@@ -293,7 +305,7 @@ export default function LoginPage() {
 
         {/* Criar conta */}
         <Link
-          href={area === 'atleta' ? '/atleta/cadastro' : '/treinador/cadastro'}
+          href={area === 'clube' ? '/clube/cadastro' : area === 'atleta' ? '/atleta/cadastro' : '/treinador/cadastro'}
           style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             padding: '15px', borderRadius: '14px',
@@ -304,7 +316,7 @@ export default function LoginPage() {
             transition: 'border-color .2s, background .2s',
           }}
         >
-          Criar conta {area === 'atleta' ? 'de atleta' : 'de treinador'} →
+          Criar conta {area === 'clube' ? 'institucional' : area === 'atleta' ? 'de atleta' : 'de treinador'} →
         </Link>
 
       </div>

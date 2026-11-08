@@ -11,8 +11,8 @@ export async function GET() {
     const { data: { user } } = await client.auth.getUser()
     const admin = createAdminClient()
     const { data: curriculumPosts, error: curriculumError } = await admin.from('feed_posts')
-      .select('id,author_id,created_at').eq('author_type', 'treinador').eq('type', 'update')
-      .eq('body', 'Atualizou o currículo de treinador.')
+      .select('id,author_id,author_type,body,created_at').in('author_type', ['treinador', 'clube']).eq('type', 'update')
+      .in('body', ['Atualizou o currículo de treinador.', 'Criou o perfil institucional.', 'Atualizou o perfil institucional.'])
       .gt('created_at', new Date(Date.now() - STORY_LIFETIME_MS).toISOString())
       .order('created_at', { ascending: false }).limit(100)
     if (curriculumError) console.error('[stories] curriculum', curriculumError.code)
@@ -28,6 +28,7 @@ export async function GET() {
       const stories = (data ?? []).filter(profile => profile.nome).map(profile => ({
         id: `signup-${profile.id}`, authorId: profile.id,
         isTrainer: profile.athlete_id?.startsWith('TR-') ?? false,
+        isInstitution: false,
         authorName: profile.nome.trim().split(/\s+/)[0], avatarUrl: profile.avatar_url,
         expiresAt: new Date(Date.parse(profile.criado_em) + STORY_LIFETIME_MS).toISOString(),
       }))
@@ -38,7 +39,8 @@ export async function GET() {
           const trainer = trainers?.find(profile => profile.id === post.author_id)
           if (!trainer?.nome) continue
           stories.push({ id: `curriculum-${post.id}`, authorId: trainer.id,
-            isTrainer: true,
+            isTrainer: post.author_type === 'treinador',
+            isInstitution: post.author_type === 'clube',
             authorName: trainer.nome.trim().split(/\s+/)[0], avatarUrl: trainer.avatar_url,
             expiresAt: new Date(Date.parse(post.created_at) + STORY_LIFETIME_MS).toISOString() })
         }
@@ -63,9 +65,9 @@ export async function GET() {
     }
     const activity = [
       ...curricula.map(p => ({ id: `curriculum-${p.id}`, authorId: p.author_id, createdAt: p.created_at,
-        caption: 'Atualizou o currículo', href: `/treinador/${p.author_id}` })),
+        caption: p.author_type === 'clube' ? p.body : 'Atualizou o currículo', href: p.author_type === 'clube' ? `/clube/${p.author_id}` : `/treinador/${p.author_id}` })),
       ...(newAthletes.data ?? []).map(p => ({ id: `signup-${p.id}`, authorId: p.id, createdAt: p.criado_em, caption: 'Entrou no MeuCraque', href: `/jogador/${p.id}` })),
-      ...(posts.data ?? []).filter(p => p.author_type !== 'treinador' || p.body !== 'Atualizou o currículo de treinador.').map(p => ({ id: `post-${p.id}`, authorId: p.author_id, createdAt: p.created_at, caption: p.body || 'Nova publicação no Feed', href: '/feed' })),
+      ...(posts.data ?? []).filter(p => !['Atualizou o currículo de treinador.', 'Criou o perfil institucional.', 'Atualizou o perfil institucional.'].includes(p.body)).map(p => ({ id: `post-${p.id}`, authorId: p.author_id, createdAt: p.created_at, caption: p.body || 'Nova publicação no Feed', href: '/feed' })),
       ...(highlights.data ?? []).map(h => ({ id: `highlight-${h.id}`, authorId: h.profile_id, createdAt: h.created_at, caption: 'Adicionou um novo vídeo', href: `/jogador/${h.profile_id}` })),
     ]
     const authorIds = [...new Set([...(rows ?? []).map(s => s.author_id), ...activity.map(a => a.authorId)])]
@@ -75,6 +77,10 @@ export async function GET() {
       rows?.length ? admin.from('feed_story_views').select('story_id').eq('viewer_id', user.id).in('story_id', rows.map(s => s.id)) : { data: [], error: null },
     ])
     if (profiles.error || views.error) throw profiles.error || views.error
+    const { data: institutions, error: institutionError } = await admin.from('institutional_profiles')
+      .select('owner_id').in('owner_id', authorIds)
+    if (institutionError) throw institutionError
+    const institutionalIds = new Set((institutions ?? []).map(item => item.owner_id))
     const people = new Map((profiles.data ?? []).map(p => [p.id, p]))
     const seen = new Set((views.data ?? []).map(v => v.story_id))
     const ttl = Math.max(1, Math.min(300, ...(rows ?? []).map(row => Math.floor((Date.parse(row.expires_at) - Date.now()) / 1000))))
@@ -85,12 +91,13 @@ export async function GET() {
       const author = people.get(row.author_id)
       return { id: row.id, authorId: row.author_id, authorName: author?.nome || 'Pessoa do futebol', avatarUrl: author?.avatar_url ?? null,
         isTrainer: author?.athlete_id?.startsWith('TR-') ?? false,
+        isInstitution: institutionalIds.has(row.author_id),
         mediaType: row.media_type, mediaUrl: links.get(row.storage_path), caption: row.caption, createdAt: row.created_at, expiresAt: row.expires_at, seen: seen.has(row.id) }
     })
     const updates = activity.flatMap(item => {
       const author = people.get(item.authorId)
       if (!author?.nome) return []
-      return [{ ...item, isTrainer: item.id.startsWith('curriculum-') || (author.athlete_id?.startsWith('TR-') ?? false), authorName: author.nome, avatarUrl: author.avatar_url,
+      return [{ ...item, isInstitution: institutionalIds.has(item.authorId), isTrainer: item.id.startsWith('curriculum-') || (author.athlete_id?.startsWith('TR-') ?? false), authorName: author.nome, avatarUrl: author.avatar_url,
         mediaType: 'activity', mediaUrl: '', expiresAt: new Date(Date.parse(item.createdAt) + STORY_LIFETIME_MS).toISOString(), seen: false }]
     })
     return NextResponse.json({ stories: [...stories, ...updates].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)) }, { headers })

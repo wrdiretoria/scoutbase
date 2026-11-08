@@ -69,16 +69,18 @@ export async function POST(req: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Não autenticado.' }, { status: 401 })
 
-    if (!await isVerifiedTrainer(user.id)) {
-      return NextResponse.json({ error: 'Apenas treinadores/escolinhas podem publicar vagas.' }, { status: 403 })
+    const admin = createAdminClient()
+    const { data: institution, error: institutionError } = await admin.from('institutional_profiles')
+      .select('verification_status').eq('owner_id', user.id).maybeSingle()
+    if (institutionError) throw institutionError
+    if (institution ? institution.verification_status !== 'verified' : !await isVerifiedTrainer(user.id)) {
+      return NextResponse.json({ error: institution ? 'Aguarde a verificação da instituição para publicar oportunidades.' : 'Apenas treinadores e instituições autorizadas podem publicar vagas.' }, { status: 403 })
     }
 
     const { title, position, category, city, description } = await req.json() as {
       title?: string; position?: string; category?: string; city?: string; description?: string
     }
     if (!title?.trim()) return NextResponse.json({ error: 'Título é obrigatório.' }, { status: 400 })
-
-    const admin = createAdminClient()
 
     const { count: vagasAbertas } = await admin
       .from('opportunities')

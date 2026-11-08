@@ -77,6 +77,14 @@ export default function EscolhaPerfilPage() {
           </div>
         </Link>
 
+        <Link href="/clube/cadastro" className="perfil-card">
+          <div style={{ fontSize: 32 }}>🏟️</div>
+          <div>
+            <p style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>Clube ou Escolinha</p>
+            <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--mc-muted)', lineHeight: 1.5 }}>Cadastre a instituição com CNPJ e identificação do responsável.</p>
+          </div>
+          <span style={{ color: '#69b8ff', fontWeight: 700 }}>Criar perfil institucional →</span>
+        </Link>
       </div>
 
       {/* Já tem conta */}

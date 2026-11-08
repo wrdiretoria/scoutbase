@@ -48,7 +48,7 @@ function profileHref(tipo: string | undefined) {
   if (tipo === 'atleta') return '/atleta/perfil'
   if (tipo === 'treinador') return '/treinador/perfil'
   if (tipo === 'scout') return '/scout/dashboard'
-  if (tipo === 'clube') return '/clube/vagas'
+  if (tipo === 'clube') return '/clube/perfil'
   if (tipo === 'pais') return '/pais/perfil'
   return '/configuracoes'
 }

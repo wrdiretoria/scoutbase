@@ -20,6 +20,7 @@ function ehTreinador(meta: Record<string, unknown>) {
 
 export default function ClubeVagasPage() {
   const router = useRouter()
+  const [institutional, setInstitutional] = useState(false)
   const [userId, setUserId]     = useState<string | null>(null)
   const [vagas, setVagas]       = useState<Vaga[] | null>(null)
   const [loading, setLoading]   = useState(true)
@@ -31,7 +32,12 @@ export default function ClubeVagasPage() {
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/login'); return }
-      if (!ehTreinador(user.user_metadata ?? {})) { router.push('/atleta/perfil'); return }
+      if (user.user_metadata?.tipo === 'clube') {
+        const { data: institution } = await supabase.from('institutional_profiles')
+          .select('verification_status').eq('owner_id', user.id).maybeSingle()
+        if (institution?.verification_status !== 'verified') { router.replace('/clube/perfil'); return }
+        setInstitutional(true)
+      } else if (!ehTreinador(user.user_metadata ?? {})) { router.push('/atleta/perfil'); return }
       setUserId(user.id)
 
       const res = await fetch(`/api/opportunities?clubId=${user.id}&status=all`)
@@ -151,7 +157,7 @@ export default function ClubeVagasPage() {
 
       </div>
 
-      <TreinadorBottomNav />
+      {institutional ? <nav aria-label="Instituição" style={{ display: 'flex', justifyContent: 'center', gap: 24, marginTop: 24 }}><Link href="/">Início</Link><Link href="/clube/perfil">Meu perfil institucional</Link></nav> : <TreinadorBottomNav />}
     </main>
   )
 }

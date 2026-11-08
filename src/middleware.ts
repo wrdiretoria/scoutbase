@@ -7,6 +7,7 @@ const ALWAYS_PUBLIC = [
   '/jogador',
   '/scout/busca',
   '/scout/cadastro',
+  '/clube/cadastro',
   '/scout/entrar',
   '/atleta/cadastro',
   '/atleta/recuperar-id',
@@ -54,6 +55,7 @@ const PRIVATE_PREFIXES = [
   '/turmas',
   '/mensagens',
   '/clube/vagas',
+  '/clube/perfil',
 ]
 
 const AUTH_ROUTES = ['/login']
@@ -144,6 +146,8 @@ export async function middleware(request: NextRequest) {
     const url = request.nextUrl.clone()
     if (tipo === 'treinador') {
       url.pathname = '/treinador/dashboard'
+    } else if (tipo === 'clube') {
+      url.pathname = '/clube/perfil'
     } else if (tipo === 'scout') {
       url.pathname = '/scout/dashboard'
     } else {

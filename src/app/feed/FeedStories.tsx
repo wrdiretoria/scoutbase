@@ -6,6 +6,7 @@ import styles from './FeedStories.module.css'
 
 type FeedStory = (MediaStory | (Omit<MediaStory, 'mediaType'> & { mediaType: 'activity'; href: string })) & {
   isTrainer?: boolean
+  isInstitution?: boolean
 }
 type CurrentUser = { id: string; name: string; avatarUrl: string | null }
 export default function FeedStories({ user }: { user: CurrentUser | null }) {
@@ -186,7 +187,7 @@ export default function FeedStories({ user }: { user: CurrentUser | null }) {
           if (!user) window.location.assign(`/login?story=${encodeURIComponent(item.id)}`)
           else void open(item.id)
         }}>
-        <span className={`${styles.ring} ${group[0].isTrainer ? styles.trainer : ''} ${group.every(s => s.seen) ? styles.seen : ''}`}>
+        <span className={`${styles.ring} ${group[0].isInstitution ? styles.institution : group[0].isTrainer ? styles.trainer : ''} ${group.every(s => s.seen) ? styles.seen : ''}`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           {group[0].avatarUrl ? <img src={group[0].avatarUrl} alt="" /> : <span>{initials(group[0].authorName)}</span>}
         </span><span className={styles.name}>{group[0].authorId === user?.id ? 'Você' : group[0].authorName.split(' ')[0]}</span>

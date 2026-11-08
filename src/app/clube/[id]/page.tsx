@@ -1,13 +1,13 @@
 /**
  * /clube/[id] — página pública da instituição/escolinha de um treinador.
- * [id] é o profile id do treinador — não existe tipo de conta "clube"
- * separado, club_id é sempre o auth.uid() do próprio treinador logado.
+ * [id] é o profile id da instituição ou do treinador nas páginas anteriores.
  */
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { createAdminClient } from '@/lib/supabase'
 import CandidatarButton from '@/components/CandidatarButton'
+import styles from '../institution.module.css'
 
 function isUuid(s: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s)
@@ -58,6 +58,31 @@ export default async function ClubePage({ params }: Props) {
     .select('avatar_url, athlete_id')
     .eq('id', id)
     .maybeSingle()
+
+
+  const { data: institution } = await admin.from('institutional_profiles')
+    .select('nome, kind, cidade, verification_status')
+    .eq('owner_id', id).maybeSingle()
+  if (institution) {
+    return (
+      <main className={styles.page}>
+        <div className={styles.shell}>
+          <header className={styles.header}>
+            <Link href="/" className={styles.brand} aria-label="MeuCraque, início">⚽ <span>MEUCRAQUE</span>.com</Link>
+            <Link href="/ranking">Explorar atletas</Link>
+          </header>
+          <section className={styles.card}>
+            <p>{institution.kind === 'clube' ? 'Clube' : 'Escolinha'}</p>
+            <h1>{institution.nome}</h1>
+            <p>{institution.cidade}</p>
+            <span className={styles.status}>{institution.verification_status === 'verified' ? 'Instituição verificada' : 'Verificação pendente'}</span>
+          </section>
+          <p>{institution.verification_status === 'verified' ? 'Cadastro institucional conferido pelo MeuCraque.' : 'CNPJ e vínculo do responsável aguardam conferência.'}</p>
+          <Link href="/clube/cadastro">Cadastrar meu clube ou escolinha</Link>
+        </div>
+      </main>
+    )
+  }
 
   const athleteIdRaw = (profileData?.athlete_id as string | null) ?? null
   const isTrainer = meta.tipo === 'treinador' || meta.tipo === 'escola' || athleteIdRaw?.startsWith('TR-')
