@@ -8,6 +8,7 @@ const ALWAYS_PUBLIC = [
   '/scout/busca',
   '/scout/cadastro',
   '/clube/cadastro',
+  '/clube/recuperar-senha',
   '/scout/entrar',
   '/atleta/cadastro',
   '/atleta/recuperar-id',

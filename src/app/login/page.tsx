@@ -263,7 +263,7 @@ export default function LoginPage() {
             />
             <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.2)' }}>
               <Link
-                href={area === 'atleta' ? '/atleta/recuperar-senha' : '/treinador/recuperar-senha'}
+                href={area === 'clube' ? '/clube/recuperar-senha' : area === 'atleta' ? '/atleta/recuperar-senha' : '/treinador/recuperar-senha'}
                 style={{ color: 'var(--mc-muted)', textDecoration: 'none' }}
               >
                 Esqueceu a senha?
