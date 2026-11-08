@@ -89,8 +89,12 @@ export default function ScoutDashboardPage() {
 
   async function handleSair() {
     const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/')
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      alert('Não foi possível sair. Tente novamente.')
+      return
+    }
+    window.location.replace('/')
   }
 
   // ── Skeleton ──────────────────────────────────────────────────────────────
