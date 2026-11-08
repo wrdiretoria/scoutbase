@@ -1,4 +1,4 @@
-const CACHE_NAME = 'meucraque-v2'
+const CACHE_NAME = 'meucraque-v3'
 
 // Recursos essenciais pré-cacheados no install
 const STATIC_CACHE = [
@@ -83,20 +83,16 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // Páginas HTML: network-first, fallback para cache, fallback para /offline
+  // Dados de navegação do Next.js e páginas autenticadas usam sempre a rede.
+  if (request.mode !== 'navigate') return
+
   event.respondWith(
-    fetch(request)
-      .then((response) => {
-        if (response.ok) {
-          const clone = response.clone()
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone))
-        }
-        return response
+    fetch(request).catch(async () => {
+      const offline = await caches.match('/offline')
+      return offline || new Response('Sem conexão. Tente novamente.', {
+        status: 503,
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
       })
-      .catch(() =>
-        caches.match(request).then(
-          (cached) => cached || caches.match('/offline')
-        )
-      )
+    })
   )
 })
