@@ -1038,7 +1038,15 @@ function AtletaPerfilContent() {
           ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
         <button
-          onClick={async () => { const s = createClient(); await s.auth.signOut(); router.push('/') }}
+          onClick={async () => {
+            const supabase = createClient()
+            const { error } = await supabase.auth.signOut()
+            if (error) {
+              alert('Não foi possível sair. Tente novamente.')
+              return
+            }
+            window.location.replace('/')
+          }}
           style={{ background:'none', border:'none', color:'rgba(255,255,255,0.3)', fontSize:'13px', cursor:'pointer' }}
         >
           Sair
