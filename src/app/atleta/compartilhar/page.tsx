@@ -31,15 +31,46 @@ function CompartilharContent() {
   const router    = useRouter()
   const params    = useSearchParams()
 
-  // Auth guard
+  // Resolve os dados da própria conta quando a página é aberta sem parâmetros.
   useEffect(() => {
-    import('@/lib/supabase').then(({ createClient }) => {
-      createClient().auth.getUser().then(({ data: { user } }) => {
-        if (!user) router.replace('/login')
-        else if (user.user_metadata?.tipo !== 'atleta') router.replace('/login')
+    let cancelled = false
+    async function loadProfile() {
+      const { createClient } = await import('@/lib/supabase')
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (cancelled) return
+      if (!user || user.user_metadata?.tipo !== 'atleta') {
+        router.replace('/login')
+        return
+      }
+      if (params.get('uid')) return
+
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('nome, athlete_id, avatar_url, data_nascimento')
+        .eq('id', user.id)
+        .single()
+      if (cancelled) return
+      if (error) {
+        router.replace('/atleta/perfil')
+        return
+      }
+      const query = new URLSearchParams({
+        uid: user.id,
+        nome: profile.nome || user.user_metadata?.nome || 'Atleta',
+        posicao: user.user_metadata?.posicao || '',
+        cidade: user.user_metadata?.cidade || '',
+        dataNasc: profile.data_nascimento || '',
+        athleteId: profile.athlete_id || '',
+        avatarUrl: profile.avatar_url || '',
       })
+      router.replace('/atleta/compartilhar?' + query.toString())
+    }
+    void loadProfile().catch(() => {
+      if (!cancelled) router.replace('/atleta/perfil')
     })
-  }, [router])
+    return () => { cancelled = true }
+  }, [router, params])
 
   const nome      = params.get('nome')      ?? 'Atleta'
   const posicao   = params.get('posicao')   ?? ''
@@ -174,6 +205,7 @@ function CompartilharContent() {
     <main style={{
       background: '#030a05',
       minHeight: '100svh',
+      overflowX: 'clip',
       display: 'flex', flexDirection: 'column', alignItems: 'center',
       padding: '28px 20px',
       paddingTop: 'max(28px, env(safe-area-inset-top))',
