@@ -35,6 +35,7 @@ const PRIVATE_PREFIXES = [
   '/treinador/perfil',
   '/treinador/compartilhar',
   '/treinador/configurar',
+  '/treinador/curriculo',
   '/treinador/nova-senha',
   '/treinador/bem-vindo',
   '/treinador/questionario',
