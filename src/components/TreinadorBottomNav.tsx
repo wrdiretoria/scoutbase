@@ -1,17 +1,20 @@
 'use client'
 
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
 
 export default function TreinadorBottomNav() {
   const pathname = usePathname()
-  const router   = useRouter()
 
   async function handleLogout() {
     const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/')
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      alert('Não foi possível sair. Tente novamente.')
+      return
+    }
+    window.location.replace('/')
   }
 
   function isActive(href: string) {
