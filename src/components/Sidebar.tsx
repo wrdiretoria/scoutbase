@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 
 const navItems = [
@@ -13,7 +13,6 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname  = usePathname()
-  const router    = useRouter()
   const [open, setOpen] = useState(false)
 
   // Lock body scroll when menu is open
@@ -31,8 +30,12 @@ export default function Sidebar() {
 
   async function handleLogout() {
     const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/login')
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      alert('Não foi possível sair. Tente novamente.')
+      return
+    }
+    window.location.replace('/login')
   }
 
   const navContent = (
