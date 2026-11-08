@@ -60,8 +60,12 @@ export default function AtletaBottomNav() {
 
   async function handleLogout() {
     const supabase = createClient()
-    await supabase.auth.signOut()
-    router.push('/')
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      alert('Não foi possível sair. Tente novamente.')
+      return
+    }
+    window.location.replace('/')
   }
 
   function handleShare() {
