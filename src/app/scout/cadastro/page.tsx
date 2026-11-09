@@ -9,7 +9,6 @@ const organizacoes = [
   'Clube profissional',
   'Clube amador',
   'Agência de atletas',
-  'Scout independente',
   'Escola / escolinha',
   'Federação / confederação',
   'Outro',
@@ -17,31 +16,29 @@ const organizacoes = [
 
 export default function ScoutCadastroPage() {
   const router = useRouter()
-  const [step, setStep] = useState<1 | 2>(1)
   const [nome, setNome]           = useState('')
+  const [cidade, setCidade] = useState('')
+  const [confirmacao, setConfirmacao] = useState(false)
   const [organizacao, setOrg]     = useState('')
   const [email, setEmail]         = useState('')
   const [password, setPassword]   = useState('')
   const [error, setError]         = useState<string | null>(null)
   const [loading, setLoading]     = useState(false)
 
-  function handleNext(e: React.FormEvent) {
-    e.preventDefault()
-    if (!nome || !organizacao) { setError('Preencha todos os campos.'); return }
-    setError(null)
-    setStep(2)
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+    if (!nome.trim() || !cidade.trim()) {
+      setError('Informe seu nome e sua cidade.')
+      return
+    }
     setLoading(true)
 
     const supabase = createClient()
-    const { error: signUpErr } = await supabase.auth.signUp({
+    const { data, error: signUpErr } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { nome, organizacao, tipo: 'scout' } },
+      options: { data: { nome: nome.trim(), cidade: cidade.trim(), organizacao: organizacao || 'Scout independente', tipo: 'scout' } },
     })
 
     if (signUpErr) {
@@ -52,7 +49,13 @@ export default function ScoutCadastroPage() {
       return
     }
 
-    router.push('/scout/busca')
+    if (!data.session) {
+      setConfirmacao(true)
+      setLoading(false)
+      return
+    }
+
+    router.replace('/scout/busca')
   }
 
   const inputStyle: React.CSSProperties = {
@@ -79,82 +82,52 @@ export default function ScoutCadastroPage() {
             ← Voltar
           </Link>
 
-          {/* Steps */}
-          <div style={{ display: 'flex', gap: '6px', marginBottom: '24px' }}>
-            {[1, 2].map(s => (
-              <div key={s} style={{
-                flex: 1, height: '3px', borderRadius: '2px',
-                background: s <= step ? '#b3f737' : 'rgba(255,255,255,0.1)',
-                transition: 'background 0.3s',
-              }} />
-            ))}
-          </div>
-
-          <p style={{ margin: '0 0 4px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', color: '#b3f737', textTransform: 'uppercase' }}>
-            {step === 1 ? 'Identificação · 1 de 2' : 'Acesso · 2 de 2'}
-          </p>
-          <h1 style={{ margin: '0 0 6px', fontSize: '26px', fontWeight: 900, color: 'white', letterSpacing: '-0.02em' }}>
-            {step === 1 ? 'Acesso de scout' : 'Quase pronto'}
-          </h1>
-          <p style={{ margin: 0, fontSize: '14px', color: 'rgba(255,255,255,0.4)' }}>
-            {step === 1
-              ? 'Diga quem você é. Isso ajuda a mostrar atletas relevantes.'
-              : 'Crie seu acesso e comece a buscar talentos.'}
-          </p>
+          <h1 style={{ margin: '0 0 6px', fontSize: 26, color: 'white' }}>Criar conta de scout</h1>
+          <p style={{ margin: 0, color: 'var(--mc-muted)' }}>Encontre atletas, veja seus lances e salve os perfis que quer acompanhar.</p>
         </div>
 
-        {step === 1 && (
-          <form onSubmit={handleNext} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+        {confirmacao ? (
+          <p role="status" style={{ color: 'white' }}>Confira seu e-mail para confirmar a conta. Depois, <Link href="/scout/entrar" style={{ color: '#b3f737' }}>entre como scout</Link>.</p>
+        ) : (
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div>
-              <label style={labelStyle}>Nome completo</label>
+              <label htmlFor="scout-nome" style={labelStyle}>Nome completo</label>
               <input
-                type="text" required value={nome} onChange={e => setNome(e.target.value)}
+                id="scout-nome" autoComplete="name" type="text" required value={nome} onChange={e => setNome(e.target.value)}
                 placeholder="Seu nome" style={inputStyle}
               />
             </div>
 
             <div>
-              <label style={labelStyle}>Organização</label>
+              <label htmlFor="scout-cidade" style={labelStyle}>Cidade</label>
+              <input id="scout-cidade" type="text" required maxLength={100} autoComplete="address-level2" value={cidade} onChange={e => setCidade(e.target.value)} style={inputStyle} />
+            </div>
+
+            <div>
+              <label htmlFor="scout-organizacao" style={labelStyle}>Organização (opcional)</label>
               <select
-                required value={organizacao} onChange={e => setOrg(e.target.value)}
+                id="scout-organizacao" value={organizacao} onChange={e => setOrg(e.target.value)}
                 style={{ ...inputStyle, appearance: 'none', cursor: 'pointer' }}
               >
-                <option value="" disabled style={{ background: 'var(--mc-canvas)' }}>Selecione</option>
+                <option value="" style={{ background: 'var(--mc-canvas)' }}>Scout independente</option>
                 {organizacoes.map(o => (
                   <option key={o} value={o} style={{ background: 'var(--mc-canvas)' }}>{o}</option>
                 ))}
               </select>
             </div>
 
-            {error && (
-              <p style={{ margin: 0, padding: '10px 14px', borderRadius: '10px', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', fontSize: '13px', color: '#f87171' }}>
-                {error}
-              </p>
-            )}
-
-            <button type="submit" style={{
-              padding: '14px', borderRadius: '14px', border: 'none', cursor: 'pointer',
-              background: '#b3f737', color: 'black', fontWeight: 800, fontSize: '16px', marginTop: '4px',
-            }}>
-              Continuar →
-            </button>
-          </form>
-        )}
-
-        {step === 2 && (
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
             <div>
-              <label style={labelStyle}>Email</label>
+              <label htmlFor="scout-email" style={labelStyle}>Email</label>
               <input
-                type="email" required value={email} onChange={e => setEmail(e.target.value)}
+                id="scout-email" autoComplete="email" type="email" required value={email} onChange={e => setEmail(e.target.value)}
                 placeholder="seu@email.com" style={inputStyle}
               />
             </div>
 
             <div>
-              <label style={labelStyle}>Senha</label>
+              <label htmlFor="scout-senha" style={labelStyle}>Senha</label>
               <input
-                type="password" required minLength={6} value={password} onChange={e => setPassword(e.target.value)}
+                id="scout-senha" autoComplete="new-password" type="password" required minLength={6} value={password} onChange={e => setPassword(e.target.value)}
                 placeholder="Mínimo 6 caracteres" style={inputStyle}
               />
             </div>
@@ -171,21 +144,15 @@ export default function ScoutCadastroPage() {
               background: '#b3f737', color: 'black', fontWeight: 800, fontSize: '16px',
               opacity: loading ? 0.6 : 1, marginTop: '4px',
             }}>
-              {loading ? 'Criando acesso…' : '🔍 Acessar busca de atletas'}
+              {loading ? 'Criando acesso…' : 'Criar conta'}
             </button>
 
-            <button type="button" onClick={() => setStep(1)} style={{
-              padding: '10px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)',
-              background: 'transparent', color: 'rgba(255,255,255,0.4)', fontSize: '13px', cursor: 'pointer',
-            }}>
-              ← Voltar
-            </button>
           </form>
         )}
 
         <p style={{ marginTop: '28px', textAlign: 'center', fontSize: '13px', color: 'rgba(255,255,255,0.3)' }}>
           Já tem conta?{' '}
-          <Link href="/login" style={{ color: '#b3f737', textDecoration: 'none', fontWeight: 700 }}>
+          <Link href="/scout/entrar" style={{ color: '#b3f737', textDecoration: 'none', fontWeight: 700 }}>
             Entrar →
           </Link>
         </p>
