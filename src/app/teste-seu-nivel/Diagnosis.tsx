@@ -109,7 +109,7 @@ export function CareerRadar() {
           <p style={{ margin: '0 0 6px' }}>{result.next[1]}</p>
           <Link className={styles.nextLink} href={result.next[3]}>{result.next[2]} →</Link>
         </div>
-      ) : <Link href="/teste-seu-nivel" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 46, padding: '8px 12px', borderRadius: 11, background: '#b3f737', color: '#101c09', fontWeight: 800 }}>Revelar meu radar →</Link>}
+      ) : <p style={{ margin: 0, color: '#c4d0c9' }}>Seu radar aparece aqui depois que você responder ao teste acima.</p>}
     </section>
   )
 }
