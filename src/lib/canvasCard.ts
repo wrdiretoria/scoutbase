@@ -134,8 +134,4 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
     text(`OVR ${opts.ovr}`, 372, 537, 18, lime, 800, 118)
     ctx.textAlign = 'left'
   }
-
-  text('Veja meu perfil completo', 28, 577, 21, '#ffffff', 800)
-  const link = opts.profileUrl.replace(/^https?:\/\/(www\.)?/, '')
-  text(link || 'meucraque.com', 28, 606, 15, lime, 700)
 }
