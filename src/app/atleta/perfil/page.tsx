@@ -466,7 +466,7 @@ function AtletaPerfilContent() {
   const [ovrOficial,         setOvrOficial]         = useState<number | null>(null)
   const [treinadorNome,      setTreinadorNome]      = useState<string>('')
   const [visitCount,         setVisitCount]         = useState<number>(0)
-  const [favoritoCount,      setFavoritoCount]      = useState<number>(0)
+  const [curtidas, setCurtidas] = useState<number | null>(null)
   const [cardsDisponiveis,   setCardsDisponiveis]   = useState<number>(0)
   const [visitasStats, setVisitasStats] = useState({ semana: 0, mes: 0, total: 0, mediaSemana: 0 })
 
@@ -530,13 +530,13 @@ function AtletaPerfilContent() {
       // ── Todas as queries em paralelo (profiles, avaliação, highlights, visitas) ──
       const um = user.user_metadata as Record<string, unknown>
       setVisitCount(        (um?.visit_count       as number | null) ?? 0)
-      setFavoritoCount(     (um?.favorito_count    as number | null) ?? 0)
 
       const [
         { data: profile },
         avRes,
         hlRes,
         visitasRes,
+        reacoes,
       ] = await Promise.all([
         supabase
           .from('profiles')
@@ -552,9 +552,12 @@ function AtletaPerfilContent() {
           .maybeSingle(),
         fetch('/api/atleta/highlights').catch(() => null),
         fetch('/api/atleta/visitas').catch(() => null),
+        supabase.from('feed_reactions').select('feed_posts!inner(author_id)', { count: 'exact', head: true }).eq('feed_posts.author_id', user.id),
       ])
 
       setCardsDisponiveis(profile?.cards_disponiveis ?? 0)
+
+      setCurtidas(reacoes.count)
 
       // ── Processa perfil ──
       if (profile?.data_nascimento) setDataNasc(profile.data_nascimento as string)
@@ -1402,21 +1405,25 @@ function AtletaPerfilContent() {
         )}
 
         {/* ── Stats grid ── */}
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'10px', marginBottom:'12px' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3, minmax(0, 1fr))', gap:'10px', marginBottom:'12px' }}>
           {[
-            { label:'Avaliações',    val: avaliacao ? '1' : '0',    sub:'registradas',    color:'#b3f737' },
             { label:'Visualizações', val: (visitasStats.total || visitCount).toLocaleString('pt-BR'), sub:'no perfil', color:'#60a5fa' },
-            { label:'Scouts',        val: favoritoCount > 0 ? favoritoCount.toLocaleString('pt-BR') : '—', sub:'salvaram você', color: favoritoCount > 0 ? '#fbbf24' : 'rgba(255,255,255,0.2)' },
+            { label:'Curtidas', val: curtidas?.toLocaleString('pt-BR') ?? '—', sub:'nas publicações', color:'#b3f737' },
           ].map(s => (
             <div key={s.label} style={{
               background: 'var(--mc-surface)', border:'1px solid rgba(255,255,255,0.06)',
-              borderRadius:'14px', padding:'14px 10px', textAlign:'center',
+              borderRadius:'14px', padding:'14px 4px', textAlign:'center',
             }}>
               <p style={{ margin:'0 0 2px', fontSize:'20px', fontWeight:900, color: s.color }}>{s.val}</p>
               <p style={{ margin:'0 0 2px', fontSize:'9px', fontWeight:700, color:'white', textTransform:'uppercase', letterSpacing:'0.06em' }}>{s.label}</p>
-              <p style={{ margin:0, fontSize:'9px', color:'rgba(255,255,255,0.25)' }}>{s.sub}</p>
+              <p style={{ margin:0, fontSize:'9px', color:'#aebdb4' }}>{s.sub}</p>
             </div>
           ))}
+          <Link href="/mensagens" style={{ background:'var(--mc-surface)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:14, padding:'14px 4px', textAlign:'center', textDecoration:'none', color:'white' }}>
+            <span aria-hidden="true" style={{ display:'block', marginBottom:2, fontSize:20, fontWeight:900, color:'#b3f737' }}>→</span>
+            <span style={{ display:'block', fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.06em' }}>Mensagem</span>
+            <span style={{ display:'block', fontSize:9, color:'#aebdb4' }}>Caixa de entrada</span>
+          </Link>
         </div>
 
         {/* ── Visitas desta semana + comparação ── */}
