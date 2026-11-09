@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -494,17 +494,7 @@ export default function AtletaHistoricoPage() {
                   OVR atual
                 </span>
               </>
-            ) : (
-              <>
-                <span style={{ fontSize:'28px', lineHeight:1 }}>⏳</span>
-                <span style={{ fontSize:'12px', fontWeight:800, color:'rgba(255,255,255,0.4)', marginTop:'10px', letterSpacing:'0.04em' }}>
-                  AGUARDANDO AVALIAÇÃO
-                </span>
-                <span style={{ fontSize:'10px', color:'rgba(255,255,255,0.2)', marginTop:'6px', lineHeight:1.5, textAlign:'center', maxWidth:'160px' }}>
-                  Receba uma avaliação oficial para desbloquear seu OVR.
-                </span>
-              </>
-            )}
+            ) : null}
           </div>
         </div>
 
@@ -964,59 +954,13 @@ export default function AtletaHistoricoPage() {
                   Agora
                 </span>
                 <p style={{ margin:'4px 0 0', fontSize:'12px', color:'rgba(255,255,255,0.28)', lineHeight:1.6, maxWidth:'280px' }}>
-                  {avaliacoes.length === 0
-                    ? 'Sua carreira começa com a primeira avaliação oficial.'
-                    : avaliacoes.length === 1
-                    ? 'Uma avaliação registrada. Sua trajetória está em construção.'
-                    : `${avaliacoes.length} avaliações na plataforma. Continue evoluindo.`
-                  }
+                  Adicione seus lances ao perfil para registrar novos momentos na sua trajetória.
                 </p>
               </div>
             </div>
 
           </div>
         </div>
-
-        {/* ══════════════════════════════════════
-            EMPTY STATE — sem avaliação
-        ══════════════════════════════════════ */}
-        {avaliacoes.length === 0 && (
-          <div style={{
-            marginTop:'36px',
-            padding:'24px 20px',
-            background:'rgba(0,255,136,0.04)',
-            border:'1px solid rgba(0,255,136,0.12)',
-            borderRadius:'20px',
-            textAlign:'center',
-            animation:'fadeUp .5s ease forwards .9s', opacity:0,
-          }}>
-            <div style={{
-              width:'52px', height:'52px', borderRadius:'50%', margin:'0 auto 14px',
-              background:'rgba(0,255,136,0.08)', border:'1px solid rgba(0,255,136,0.2)',
-              display:'flex', alignItems:'center', justifyContent:'center', fontSize:'22px',
-            }}>
-              🔒
-            </div>
-            <p style={{ margin:'0 0 6px', fontSize:'15px', fontWeight:800, color:'rgba(255,255,255,0.7)' }}>
-              Aguardando primeira avaliação
-            </p>
-            <p style={{ margin:'0 0 20px', fontSize:'12px', color:'rgba(255,255,255,0.28)', lineHeight:1.7, maxWidth:'260px', marginLeft:'auto', marginRight:'auto' }}>
-              Compartilhe seu ID com um treinador para desbloquear atributos e registrar sua evolução.
-            </p>
-            {dados.athleteId && (
-              <div style={{
-                display:'inline-flex', alignItems:'center', gap:'10px',
-                padding:'12px 24px', borderRadius:'14px',
-                background:'rgba(0,255,136,0.08)', border:'1px solid rgba(0,255,136,0.25)',
-              }}>
-                <span style={{ fontSize:'10px', fontWeight:700, color:'rgba(0,255,136,0.55)', textTransform:'uppercase', letterSpacing:'0.1em' }}>Seu ID</span>
-                <span style={{ fontSize:'20px', fontWeight:900, color: 'var(--mc-accent)', letterSpacing:'0.08em', fontVariantNumeric:'tabular-nums' }}>
-                  {dados.athleteId}
-                </span>
-              </div>
-            )}
-          </div>
-        )}
 
         {/* Voltar */}
         <div style={{ marginTop:'40px', textAlign:'center' }}>
