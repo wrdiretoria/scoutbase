@@ -1059,6 +1059,28 @@ function AtletaPerfilContent() {
 
         <p style={{ color: '#b3f737', fontSize: 13, fontWeight: 800, margin: '0 0 12px' }}>Meu Perfil</p>
 
+        {/* ── Stats grid ── */}
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(3, minmax(0, 1fr))', gap:'8px', marginBottom:'12px' }}>
+          {[
+            { label:'Visualizações', val: (visitasStats.total || visitCount).toLocaleString('pt-BR'), sub:'no perfil', color:'#60a5fa' },
+            { label:'Curtidas', val: curtidas?.toLocaleString('pt-BR') ?? '—', sub:'nas publicações', color:'#b3f737' },
+          ].map(s => (
+            <div key={s.label} style={{
+              background: 'var(--mc-surface)', border:'1px solid rgba(255,255,255,0.06)',
+              borderRadius:'14px', padding:'8px 4px', textAlign:'center',
+            }}>
+              <p style={{ margin:'0 0 2px', fontSize:'17px', fontWeight:900, color: s.color }}>{s.val}</p>
+              <p style={{ margin:'0 0 2px', fontSize:'9px', fontWeight:700, color:'white', textTransform:'uppercase', letterSpacing:'0.06em' }}>{s.label}</p>
+              <p style={{ margin:0, fontSize:'9px', color:'#aebdb4' }}>{s.sub}</p>
+            </div>
+          ))}
+          <Link href="/mensagens" style={{ background:'var(--mc-surface)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:14, padding:'8px 4px', textAlign:'center', textDecoration:'none', color:'white' }}>
+            <span aria-hidden="true" style={{ display:'block', marginBottom:2, fontSize:17, fontWeight:900, color:'#b3f737' }}>→</span>
+            <span style={{ display:'block', fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.06em' }}>Mensagem</span>
+            <span style={{ display:'block', fontSize:9, color:'#aebdb4' }}>Caixa de entrada</span>
+          </Link>
+        </div>
+
         {/* ── Header card ── */}
         <div style={{
           borderRadius:'20px', overflow:'hidden',
@@ -1403,28 +1425,6 @@ function AtletaPerfilContent() {
             </div>
           </div>
         )}
-
-        {/* ── Stats grid ── */}
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(3, minmax(0, 1fr))', gap:'10px', marginBottom:'12px' }}>
-          {[
-            { label:'Visualizações', val: (visitasStats.total || visitCount).toLocaleString('pt-BR'), sub:'no perfil', color:'#60a5fa' },
-            { label:'Curtidas', val: curtidas?.toLocaleString('pt-BR') ?? '—', sub:'nas publicações', color:'#b3f737' },
-          ].map(s => (
-            <div key={s.label} style={{
-              background: 'var(--mc-surface)', border:'1px solid rgba(255,255,255,0.06)',
-              borderRadius:'14px', padding:'14px 4px', textAlign:'center',
-            }}>
-              <p style={{ margin:'0 0 2px', fontSize:'20px', fontWeight:900, color: s.color }}>{s.val}</p>
-              <p style={{ margin:'0 0 2px', fontSize:'9px', fontWeight:700, color:'white', textTransform:'uppercase', letterSpacing:'0.06em' }}>{s.label}</p>
-              <p style={{ margin:0, fontSize:'9px', color:'#aebdb4' }}>{s.sub}</p>
-            </div>
-          ))}
-          <Link href="/mensagens" style={{ background:'var(--mc-surface)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:14, padding:'14px 4px', textAlign:'center', textDecoration:'none', color:'white' }}>
-            <span aria-hidden="true" style={{ display:'block', marginBottom:2, fontSize:20, fontWeight:900, color:'#b3f737' }}>→</span>
-            <span style={{ display:'block', fontSize:9, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.06em' }}>Mensagem</span>
-            <span style={{ display:'block', fontSize:9, color:'#aebdb4' }}>Caixa de entrada</span>
-          </Link>
-        </div>
 
         {/* ── Visitas desta semana + comparação ── */}
         {(() => {
