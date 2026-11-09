@@ -276,6 +276,8 @@ export default function TreinadorDashboardPage() {
   const [perfil,        setPerfil]        = useState<Perfil | null>(null)
   const [metricas,      setMetricas]      = useState<Metricas>({ totalAvaliacoes: 0, totalAtletas: 0, totalDestaques: 0, semanaCount: 0 })
   const [recentes,      setRecentes]      = useState<AvaliacaoRecente[]>([])
+  const [views, setViews] = useState<number | null>(null)
+  const [likes, setLikes] = useState<number | null>(null)
   const [loading,       setLoading]       = useState(true)
   const [solicitacoes,  setSolicitacoes]  = useState<{ atletaId: string; atletaNome: string; atletaMcId: string; ts: string }[]>([])
   const [uploadingFoto, setUploadingFoto] = useState(false)
@@ -309,7 +311,13 @@ export default function TreinadorDashboardPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { clearTimeout(safetyTimeout); setLoading(false); router.push('/login'); return }
 
-      const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
+      const [{ data: profile }, visits, reactions] = await Promise.all([
+        supabase.from('profiles').select('*').eq('id', user.id).single(),
+        supabase.from('profile_views').select('id', { count: 'exact', head: true }).eq('subject_id', user.id),
+        supabase.from('feed_reactions').select('feed_posts!inner(author_id)', { count: 'exact', head: true }).eq('feed_posts.author_id', user.id),
+      ])
+      setViews(visits.count)
+      setLikes(reactions.count)
       const p = profile as Record<string, unknown> | null
 
       setPerfil({
@@ -511,6 +519,23 @@ export default function TreinadorDashboardPage() {
       </div>
 
       <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '420px', padding: '0 20px' }}>
+        <section aria-label="Atividade do treinador" style={{ display:'grid', gridTemplateColumns:'repeat(3,minmax(0,1fr))', gap:8, marginBottom:12 }}>
+          {[
+            { label:'Visualizações', value:views, description:'no perfil', color:'#60a5fa' },
+            { label:'Curtidas', value:likes, description:'nas publicações', color:'#b3f737' },
+          ].map(item => (
+            <div key={item.label} style={{ background:'var(--mc-surface)', border:'1px solid #304239', borderRadius:14, padding:'8px 4px', textAlign:'center' }}>
+              <strong style={{ display:'block', fontSize:17, color:item.color }}>{item.value?.toLocaleString('pt-BR') ?? '—'}</strong>
+              <span style={{ display:'block', fontSize:9, fontWeight:700, color:'white', textTransform:'uppercase' }}>{item.label}</span>
+              <span style={{ display:'block', fontSize:9, color:'#aebdb4' }}>{item.description}</span>
+            </div>
+          ))}
+          <Link href="/mensagens" style={{ background:'var(--mc-surface)', border:'1px solid #304239', borderRadius:14, padding:'8px 4px', textAlign:'center', textDecoration:'none' }}>
+            <strong aria-hidden="true" style={{ display:'block', fontSize:17, color:'#b3f737' }}>→</strong>
+            <span style={{ display:'block', fontSize:9, fontWeight:700, color:'white', textTransform:'uppercase' }}>Mensagem</span>
+            <span style={{ display:'block', fontSize:9, color:'#aebdb4' }}>Caixa de entrada</span>
+          </Link>
+        </section>
 
         {/* ── Top nav ── */}
         <div className="a1" style={{
