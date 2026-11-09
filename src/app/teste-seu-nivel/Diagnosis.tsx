@@ -7,7 +7,7 @@ import styles from './diagnostico.module.css'
 const questions = [
   ['Seu Instagram mostra sua posição e um lance seu com clareza?', 'Organize sua bio e fixe um lance em que você aparece.'],
   ['Você tem um currículo esportivo pronto para enviar?', 'Monte seu perfil com posição, categoria e cidade.'],
-  ['Você tem uma avaliação ou feedback de um treinador?', 'Peça a um treinador um ponto forte e um ponto para desenvolver.'],
+  ['Você escolheu um lance para destacar no seu perfil?', 'Escolha um lance que mostre seu ponto forte.'],
   ['Você tem vídeos jogando em que dá para identificar você?', 'Separe um lance de jogo e adicione ao seu perfil.'],
   ['Você tem vídeos treinando que mostram uma habilidade sua?', 'Grave um exercício que mostre uma habilidade da sua posição.'],
   ['Você tem uma rotina para trabalhar sua mentalidade?', 'Escolha uma rotina simples para retomar o foco depois de errar.'],
@@ -17,12 +17,12 @@ const questions = [
   ['Você sabe que oportunidade procura e o que precisa apresentar?', 'Escolha uma oportunidade da sua categoria e confira o material pedido.'],
 ] as const
 
-const storageKey = 'meucraque:diagnostico:v1'
+const storageKey = 'meucraque:diagnostico:v2'
 const titles = ['Montando sua base', 'Organizando sua apresentação', 'Pronto para apresentar seu material']
 const actions = {
   0: ['Organize sua apresentação', 'Abra sua bio, escreva posição e região e fixe um vídeo em que você aparece.', 'Ver meu perfil', '/atleta/perfil'],
   1: ['Monte seu currículo esportivo', 'Preencha posição, categoria e cidade. Depois, abra o perfil público e confira se esses dados estão fáceis de encontrar.', 'Completar meu perfil', '/atleta/perfil#identidade'],
-  2: ['Peça um feedback de treinador', 'Mostre um lance seu e pergunte qual foi sua melhor decisão e o que faria diferente.', 'Encontrar treinadores', '/treinadores'],
+  2: ['Escolha seu lance de destaque', 'Escolha um vídeo em que você aparece e que mostra uma característica da sua posição.', 'Ver meus vídeos', '/atleta/perfil#highlights'],
   3: ['Escolha um vídeo de jogo', 'Separe um lance em que dê para identificar você e entender o que aconteceu antes e depois da jogada.', 'Adicionar vídeo ao meu perfil', '/atleta/perfil#highlights'],
   4: ['Grave um vídeo de treino', 'Escolha uma habilidade da sua posição e grave uma execução completa.', 'Adicionar vídeo ao meu perfil', '/atleta/perfil#highlights'],
   5: ['Defina uma rotina para retomar o foco', 'No próximo treino, teste uma sequência após errar: respirar, observar o jogo e escolher a próxima ação.', 'Ver Minha Jornada', '/#journey'],
@@ -70,7 +70,7 @@ const radarAxes = [
   { label: 'Perfil', questions: [0], x: 160, y: 17 },
   { label: 'Vídeos', questions: [3, 4], x: 272, y: 92 },
   { label: 'Currículo', questions: [1], x: 231, y: 208 },
-  { label: 'Avaliação', questions: [2], x: 89, y: 208 },
+  { label: 'Destaque', questions: [2], x: 89, y: 208 },
   { label: 'Mentalidade', questions: [5], x: 51, y: 92 },
 ] as const
 
