@@ -919,7 +919,6 @@ function AtletaPerfilContent() {
 
   const categoria = dataNasc ? calcularCategoria(dataNasc) : null
   const initials  = getInitials(meta.nome)
-  const pos       = posAbrev(meta.posicao)
 
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '13px 14px', borderRadius: '10px', boxSizing: 'border-box',
@@ -1063,76 +1062,11 @@ function AtletaPerfilContent() {
           background:'#101a15', border:'1px solid #304239',
           marginBottom:'16px',
         }}>
-          {/* Banner + foto */}
-          <div style={{
-            background: avatarUrl
-              ? `url(${avatarUrl}) center 15% / cover no-repeat`
-              : 'linear-gradient(160deg,#15803d 0%,#064e1e 100%)',
-            padding:'20px 20px 0',
-            display:'flex', alignItems:'flex-end', gap:'16px',
-            minHeight:'100px', position:'relative',
-          }}>
-            {/* escurece a foto pra texto ficar legível */}
-            {avatarUrl && (
-              <div style={{
-                position:'absolute', inset:0,
-                background:'linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.15) 60%, rgba(11,22,16,0.85) 100%)',
-                pointerEvents:'none',
-              }} />
-            )}
-            {categoria && (
-              <div style={{
-                position:'absolute', top:'12px', right:'14px',
-                background:'rgba(0,0,0,0.4)', borderRadius:'20px',
-                padding:'3px 10px', fontSize:'10px', fontWeight:700, color:'rgba(255,255,255,0.8)',
-              }}>
-                {categoria}
-              </div>
-            )}
-            {/* OVR total + Medalha — canto superior esquerdo */}
-            <div style={{
-              position:'absolute', top:'12px', left:'14px',
-              display:'flex', flexDirection:'column', alignItems:'flex-start', gap:'4px',
-              pointerEvents:'none',
-            }}>
-              {ovrTotal !== null ? (
-                <>
-                  <div style={{ display:'flex', alignItems:'center', gap:'6px' }}>
-                    <span style={{
-                      fontSize:'30px', fontWeight:900, lineHeight:1, letterSpacing:'-0.04em',
-                      color:'white', textShadow:'0 0 20px rgba(0,255,136,0.4)',
-                    }}>
-                      {ovrTotal}
-                    </span>
-                    {ovrTotal >= 80 && (
-                      <span style={{ fontSize:'22px', lineHeight:1, filter:'drop-shadow(0 0 6px #ffd70099)' }} title="Ouro — OVR ≥ 80">🥇</span>
-                    )}
-                    {ovrTotal >= 60 && ovrTotal < 80 && (
-                      <span style={{ fontSize:'22px', lineHeight:1, filter:'drop-shadow(0 0 6px #c0c0c099)' }} title="Prata — OVR 60-79">🥈</span>
-                    )}
-                    {ovrTotal >= 40 && ovrTotal < 60 && (
-                      <span style={{ fontSize:'22px', lineHeight:1, filter:'drop-shadow(0 0 6px #cd7f3299)' }} title="Bronze — OVR 40-59">🥉</span>
-                    )}
-                  </div>
-                  <span style={{ fontSize:'8px', fontWeight:800, letterSpacing:'0.18em', color:'rgba(0,255,136,0.7)', textTransform:'uppercase' }}>
-                    OVR
-                  </span>
-                </>
-              ) : (
-                <div style={{
-                  padding:'4px 8px', borderRadius:'8px',
-                  background:'rgba(0,0,0,0.55)', border:'1px solid rgba(255,255,255,0.12)',
-                  fontSize:'9px', fontWeight:700, color:'rgba(255,255,255,0.55)',
-                  letterSpacing:'0.04em', maxWidth:'130px', lineHeight:1.4,
-                }}>
-                  ⏳ Aguardando avaliação
-                </div>
-              )}
-            </div>
+          <div style={{ display:'grid', justifyItems:'center', gap:10, padding:'16px 16px 0', background:'#0c1711' }}>
             {/* Foto ou iniciais — label nativo garante abertura do seletor em iOS/Android */}
-            <div id="foto" style={{ position:'relative', width:'72px', height:'72px', flexShrink:0, marginBottom:'-20px' }}>
+            <div id="foto" style={{ position:'relative', width:'100%', maxWidth:'320px', aspectRatio:'4 / 3' }}>
               <label htmlFor="foto-input" style={{
-                display:'block', width:'72px', height:'72px', borderRadius:'50%',
+                display:'block', width:'100%', height:'100%', borderRadius:14, background:'#08120e',
                 border:'3px solid #0b1610', overflow:'hidden',
                 boxShadow:'0 8px 24px rgba(34,197,94,0.4)',
                 cursor: uploadingFoto ? 'wait' : 'pointer',
@@ -1148,7 +1082,7 @@ function AtletaPerfilContent() {
                   onChange={handleFotoChange}
                 />
                 {avatarUrl ? (
-                  <img src={avatarUrl} alt={meta.nome} style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center 15%' }} />
+                  <img src={avatarUrl} alt={meta.nome} style={{ width:'100%', height:'100%', objectFit:'contain', objectPosition:'center' }} />
                 ) : (
                   <div style={{
                     width:'100%', height:'100%',
@@ -1162,7 +1096,7 @@ function AtletaPerfilContent() {
                 {/* overlay câmera — só aparece sem foto ou durante upload */}
                 {(!avatarUrl || uploadingFoto) && (
                   <div style={{
-                    position:'absolute', inset:0, borderRadius:'50%',
+                    position:'absolute', inset:0,
                     background: uploadingFoto ? 'rgba(0,0,0,0.65)' : 'rgba(0,0,0,0.32)',
                     display:'flex', alignItems:'center', justifyContent:'center',
                     transition:'background 0.2s',
@@ -1173,7 +1107,7 @@ function AtletaPerfilContent() {
               </label>
             </div>
             <div style={{ paddingBottom:'16px' }}>
-              <span style={{ fontSize:'13px', color:'rgba(255,255,255,0.55)', marginLeft:'2px' }}>{pos}</span>
+              <span style={{ fontSize:13, color:'#c4d0c9' }}>{categoria}</span>
             </div>
           </div>
 
@@ -1301,19 +1235,7 @@ function AtletaPerfilContent() {
                   {ovrTotal}<span style={{ fontSize:'9px', fontWeight:600, color:'rgba(255,255,255,0.25)', marginLeft:'2px' }}>/100</span>
                 </span>
               </div>
-            ) : (
-              <div style={{ display:'flex', flexDirection:'column', gap:'6px' }}>
-                <div style={{ display:'flex', alignItems:'center', gap:'8px' }}>
-                  <span style={{ fontSize:'16px', lineHeight:1 }}>⏳</span>
-                  <span style={{ fontSize:'11px', fontWeight:800, color:'rgba(255,255,255,0.6)', letterSpacing:'0.04em' }}>
-                    AGUARDANDO AVALIAÇÃO
-                  </span>
-                </div>
-                <p style={{ margin:0, fontSize:'10px', color:'rgba(255,255,255,0.3)', lineHeight:1.5 }}>
-                  Receba uma avaliação oficial para desbloquear seu OVR.
-                </p>
-              </div>
-            )}
+            ) : null}
 
             {/* Perfil completo — barra separada, não entra no OVR */}
             <div style={{ marginTop:'14px', paddingTop:'12px', borderTop:'1px solid rgba(255,255,255,0.06)' }}>
@@ -2648,4 +2570,3 @@ export default function AtletaPerfilPage() {
     </Suspense>
   )
 }
-
