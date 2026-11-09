@@ -281,7 +281,6 @@ function AvaliacaoDetalhada({ respostas }: { respostas: Record<string, number> &
 
 function IndicacaoSection({ athleteId }: { athleteId: string }) {
   const [count,  setCount]  = useState<number | null>(null)
-  const [faltam, setFaltam] = useState<number>(10)
   const [copied, setCopied] = useState(false)
 
   const link = `${window.location.origin}/atleta/cadastro?ref=${athleteId}`
@@ -291,9 +290,8 @@ function IndicacaoSection({ athleteId }: { athleteId: string }) {
       .then(r => r.json())
       .then((d: { count?: number; faltam?: number }) => {
         setCount(d.count ?? 0)
-        setFaltam(d.faltam ?? 10)
       })
-      .catch(() => { setCount(0); setFaltam(10) })
+      .catch(() => setCount(0))
   }, [])
 
   function handleCopy() {
@@ -315,7 +313,6 @@ function IndicacaoSection({ athleteId }: { athleteId: string }) {
     }
   }
 
-  const progresso = count === null ? 0 : ((count % 10) / 10) * 100
 
   return (
     <div style={{
@@ -330,7 +327,7 @@ function IndicacaoSection({ athleteId }: { athleteId: string }) {
           <p style={{ margin:0, fontSize:'13px', fontWeight:800, color:'white' }}>Indicar amigos</p>
           <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.4)' }}>
             {count === null ? '…' : count === 0
-              ? 'Indique 10 amigos e ganhe 1 card grátis'
+              ? 'Convide seus amigos para o MeuCraque'
               : `${count} atleta${count !== 1 ? 's' : ''} indicado${count !== 1 ? 's' : ''}`}
           </p>
         </div>
@@ -344,32 +341,6 @@ function IndicacaoSection({ athleteId }: { athleteId: string }) {
           </div>
         )}
       </div>
-
-      {/* Barra de progresso para o próximo card */}
-      {count !== null && count >= 0 && (
-        <div style={{ marginBottom:'12px' }}>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'6px' }}>
-            <span style={{ fontSize:'10px', fontWeight:700, color:'rgba(96,165,250,0.7)', letterSpacing:'0.08em', textTransform:'uppercase' }}>
-              Próximo card grátis
-            </span>
-            <span style={{ fontSize:'11px', fontWeight:800, color: faltam === 0 ? '#b3f737' : 'rgba(255,255,255,0.5)' }}>
-              {faltam === 0 ? '🎉 Card liberado!' : `faltam ${faltam}`}
-            </span>
-          </div>
-          <div style={{ height:'5px', background:'rgba(255,255,255,0.06)', borderRadius:'3px', overflow:'hidden' }}>
-            <div style={{
-              height:'100%', borderRadius:'3px',
-              background:'linear-gradient(90deg,#60a5fa,#a78bfa)',
-              width:`${progresso === 0 && count === 0 ? 0 : progresso || (faltam === 0 ? 100 : 0)}%`,
-              transition:'width 0.8s ease',
-              boxShadow:'0 0 8px rgba(96,165,250,0.5)',
-            }} />
-          </div>
-          <p style={{ margin:'5px 0 0', fontSize:'10px', color:'rgba(255,255,255,0.25)', textAlign:'center' }}>
-            A cada 10 indicações confirmadas você ganha 1 card de avaliação
-          </p>
-        </div>
-      )}
 
       {/* Link */}
       <div style={{ display:'flex', gap:'6px', marginBottom:'8px' }}>
@@ -467,14 +438,7 @@ function AtletaPerfilContent() {
   const [treinadorNome,      setTreinadorNome]      = useState<string>('')
   const [visitCount,         setVisitCount]         = useState<number>(0)
   const [curtidas, setCurtidas] = useState<number | null>(null)
-  const [cardsDisponiveis,   setCardsDisponiveis]   = useState<number>(0)
   const [visitasStats, setVisitasStats] = useState({ semana: 0, mes: 0, total: 0, mediaSemana: 0 })
-
-  // ── Solicitar avaliação ──
-  const [treinadorInput,    setTreinadorInput]    = useState('')
-  const [enviandoConvite,   setEnviandoConvite]   = useState(false)
-  const [conviteEnviado,    setConviteEnviado]    = useState(false)
-  const [conviteErro,       setConviteErro]       = useState<string | null>(null)
 
   const [saving,  setSaving]  = useState(false)
   const [saved,   setSaved]   = useState(false)
@@ -540,7 +504,7 @@ function AtletaPerfilContent() {
       ] = await Promise.all([
         supabase
           .from('profiles')
-          .select('data_nascimento, bio, altura, peso, pe_dominante, clube_atual, athlete_id, avatar_url, fotos, cards_disponiveis')
+          .select('data_nascimento, bio, altura, peso, pe_dominante, clube_atual, athlete_id, avatar_url, fotos')
           .eq('id', user.id)
           .single(),
         supabase
@@ -555,7 +519,6 @@ function AtletaPerfilContent() {
         supabase.from('feed_reactions').select('feed_posts!inner(author_id)', { count: 'exact', head: true }).eq('feed_posts.author_id', user.id),
       ])
 
-      setCardsDisponiveis(profile?.cards_disponiveis ?? 0)
 
       setCurtidas(reacoes.count)
 
@@ -657,7 +620,6 @@ function AtletaPerfilContent() {
   const temFisico = !!(curriculo.altura && curriculo.peso && curriculo.peDominante)
   const temClube  = curriculo.clubeAtual.trim().length > 0
 
-  if (!avaliacao)              passos.push({ icon: '📋', titulo: 'Receba uma avaliação oficial',  sub: 'Compartilhe seu ID com um treinador', href: '#solicitar' })
   if (highlights.length === 0) passos.push({ icon: '🎬', titulo: 'Adicione um highlight',         sub: 'Cole o link de um vídeo seu no YouTube, TikTok ou Instagram', href: '#highlights' })
   if (!temFoto)                passos.push({ icon: '📸', titulo: 'Adicione uma foto ao perfil',   sub: 'Perfis com foto têm muito mais visibilidade', href: '#foto' })
   if (!temQuestionario)        passos.push({ icon: '⚡', titulo: 'Responda o questionário',        sub: 'Mostre seu estilo de jogo para os scouts', href: '/atleta/questionario' })
@@ -862,25 +824,6 @@ function AtletaPerfilContent() {
     setSavingId(false)
   }
 
-  // ── Enviar solicitação de avaliação ──────────────────────────
-  async function handleEnviarConvite(e: React.FormEvent) {
-    e.preventDefault()
-    if (!treinadorInput.trim()) return
-    setEnviandoConvite(true); setConviteErro(null); setConviteEnviado(false)
-    try {
-      const res = await fetch('/api/convite/solicitar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ treinadorMcId: `TR-${treinadorInput.trim().replace(/^TR-/i, '')}` }),
-      })
-      const json = await res.json() as { ok?: boolean; ja_enviado?: boolean; error?: string }
-      if (!res.ok) { setConviteErro(json.error ?? 'Erro ao enviar.'); return }
-      setConviteEnviado(true)
-      setTreinadorInput('')
-    } catch { setConviteErro('Erro de conexão. Tente novamente.') }
-    finally { setEnviandoConvite(false) }
-  }
-
   // ── Loading — skeleton ───────────────────────────────────────
   if (loading) {
     return (
@@ -1039,6 +982,17 @@ function AtletaPerfilContent() {
         <Link href="/" style={{ fontSize:'16px', fontWeight:800, color:'white', textDecoration:'none', letterSpacing:'0.03em' }}>
           ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
+        <details style={{ position:'relative', marginLeft:'auto', marginRight:12 }}>
+          <summary aria-label="Notificações" style={{ listStyle:'none', cursor:'pointer', display:'grid', placeItems:'center', width:44, height:44, color:'var(--mc-accent)' }}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </summary>
+          <div style={{ position:'absolute', right:0, top:'100%', zIndex:20, width:'min(220px, 65vw)', padding:14, border:'1px solid #425747', borderRadius:12, background:'#101827', color:'white' }}>
+            <strong>Visitas ao perfil</strong>
+            <p>{visitasStats.semana.toLocaleString('pt-BR')} nos últimos 7 dias</p>
+          </div>
+        </details>
         <button
           onClick={async () => {
             const supabase = createClient()
@@ -1538,97 +1492,6 @@ function AtletaPerfilContent() {
           <span style={{ color:'rgba(34,197,94,0.4)', fontSize:'18px', flexShrink:0, alignSelf:'center' }}>›</span>
         </Link>}
 
-        {/* ── Card de Avaliação: gratuita (1ª vez) ou solicitar (tem card) ou comprar ── */}
-        {(!avaliacao || cardsDisponiveis > 0) ? (
-          /* Primeira avaliação gratuita OU tem card */
-          <div style={{
-            marginBottom:'12px', borderRadius:'16px', overflow:'hidden',
-            border: !avaliacao ? '1px solid rgba(0,255,136,0.5)' : '1px solid rgba(0,255,136,0.3)',
-            background: !avaliacao ? 'rgba(0,255,136,0.07)' : 'rgba(0,255,136,0.04)',
-          }}>
-            {/* Header */}
-            <div style={{
-              padding:'14px 18px', display:'flex', alignItems:'center', gap:'12px',
-              borderBottom:'1px solid rgba(0,255,136,0.12)',
-            }}>
-              <div style={{
-                width:'40px', height:'40px', borderRadius:'12px', flexShrink:0,
-                background:'rgba(0,255,136,0.12)', border:'1px solid rgba(0,255,136,0.3)',
-                display:'flex', alignItems:'center', justifyContent:'center', fontSize:'20px',
-              }}>
-                🎟️
-              </div>
-              <div style={{ flex:1 }}>
-                <p style={{ margin:'0 0 2px', fontSize:'13px', fontWeight:800, color: 'var(--mc-accent)' }}>
-                  {!avaliacao ? 'Sua 1ª avaliação é gratuita!' : 'Solicitar avaliação'}
-                </p>
-                <p style={{ margin:0, fontSize:'11px', color: !avaliacao ? 'rgba(0,255,136,0.6)' : 'rgba(255,255,255,0.4)' }}>
-                  {!avaliacao ? 'Digite o ID do treinador e solicite agora' : `${cardsDisponiveis} card${cardsDisponiveis !== 1 ? 's' : ''} disponível${cardsDisponiveis !== 1 ? 'is' : ''}`}
-                </p>
-              </div>
-            </div>
-            {/* Formulário */}
-            <form onSubmit={handleEnviarConvite} style={{ padding:'14px 18px', display:'flex', flexDirection:'column', gap:'10px' }}>
-              <p style={{ margin:0, fontSize:'12px', color:'rgba(255,255,255,0.45)', lineHeight:1.5 }}>
-                Digite o ID do treinador para solicitar avaliação.
-              </p>
-              <div style={{ display:'flex', gap:'8px' }}>
-                <input
-                  value={treinadorInput}
-                  onChange={e => { setTreinadorInput(e.target.value.replace(/\D/g, '')); setConviteErro(null); setConviteEnviado(false) }}
-                  placeholder="Ex: 32848"
-                  maxLength={5}
-                  inputMode="numeric"
-                  style={{
-                    flex:1, padding:'11px 14px', borderRadius:'10px',
-                    background:'rgba(255,255,255,0.05)', border:'1px solid rgba(0,255,136,0.2)',
-                    color:'white', fontSize:'15px', fontWeight:700, letterSpacing:'0.08em',
-                    outline:'none', fontFamily:'monospace',
-                  }}
-                />
-                <button type="submit" disabled={enviandoConvite || !treinadorInput.trim()} style={{
-                  padding:'11px 18px', borderRadius:'10px', border:'none', cursor:'pointer',
-                  background: conviteEnviado ? 'rgba(0,255,136,0.2)' : '#b3f737',
-                  color: conviteEnviado ? '#b3f737' : '#020d04',
-                  fontWeight:800, fontSize:'13px', fontFamily:'system-ui,sans-serif',
-                  opacity: (enviandoConvite || !treinadorInput.trim()) ? 0.5 : 1,
-                  transition:'all 0.2s', whiteSpace:'nowrap',
-                }}>
-                  {conviteEnviado ? '✓ Enviado' : enviandoConvite ? '…' : 'Enviar'}
-                </button>
-              </div>
-              {conviteErro && (
-                <p style={{ margin:0, fontSize:'12px', color:'#ef4444' }}>{conviteErro}</p>
-              )}
-              {conviteEnviado && (
-                <p style={{ margin:0, fontSize:'12px', color: 'var(--mc-accent)' }}>
-                  ✓ Solicitação enviada! O treinador receberá e poderá te avaliar.
-                </p>
-              )}
-            </form>
-          </div>
-        ) : (
-          /* Sem card — botão para comprar */
-          <Link href="/atleta/carta" className="traj-btn" style={{ marginBottom:'12px', display:'flex', borderColor:'rgba(0,255,136,0.2)', background:'rgba(0,255,136,0.03)' }}>
-            <div style={{
-              width:'40px', height:'40px', borderRadius:'12px', flexShrink:0,
-              background:'rgba(0,255,136,0.1)', border:'1px solid rgba(0,255,136,0.25)',
-              display:'flex', alignItems:'center', justifyContent:'center', fontSize:'20px',
-            }}>
-              ⚽
-            </div>
-            <div style={{ flex:1 }}>
-              <p style={{ margin:'0 0 2px', fontSize:'13px', fontWeight:700, color: 'var(--mc-accent)' }}>
-                Card de Avaliação
-              </p>
-              <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.35)' }}>
-                Seja avaliado por um treinador · R$ 9,90
-              </p>
-            </div>
-            <span style={{ color:'rgba(0,255,136,0.4)', fontSize:'18px', flexShrink:0, alignSelf:'center' }}>›</span>
-          </Link>
-        )}
-
         {/* ── Ver Trajetória ── */}
         <Link href="/atleta/historico" className="traj-btn" style={{ marginBottom:'24px', display:'flex' }}>
           <div style={{
@@ -1771,57 +1634,6 @@ function AtletaPerfilContent() {
                   Oficial
                 </span>
               </div>
-            </div>
-          </div>
-        )}
-
-        {/* ══════════════════════════════════════════
-            ATRIBUTOS BLOQUEADOS (só se sem avaliação)
-        ══════════════════════════════════════════ */}
-        {!avaliacao && (
-          <div style={{
-            marginBottom:'24px',
-            background:'rgba(255,255,255,0.02)',
-            border:'1px solid rgba(255,255,255,0.07)',
-            borderRadius:'18px', padding:'20px',
-            position:'relative', overflow:'hidden',
-          }}>
-            {/* Blur overlay */}
-            <div style={{
-              position:'absolute', inset:0, zIndex:2,
-              backdropFilter:'blur(3px)',
-              background:'rgba(4,12,7,0.55)',
-              borderRadius:'18px',
-              display:'flex', flexDirection:'column',
-              alignItems:'center', justifyContent:'center',
-              gap:'10px', padding:'20px', textAlign:'center',
-            }}>
-              <div style={{
-                width:'44px', height:'44px', borderRadius:'50%',
-                background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.1)',
-                display:'flex', alignItems:'center', justifyContent:'center', fontSize:'20px',
-              }}>🔒</div>
-              <p style={{ margin:0, fontSize:'13px', fontWeight:800, color:'rgba(255,255,255,0.75)' }}>
-                Atributos técnicos
-              </p>
-              <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.35)', lineHeight:1.6, maxWidth:'220px' }}>
-                Disponíveis após avaliação oficial de um treinador
-              </p>
-            </div>
-            {/* Conteúdo fantasma */}
-            <p style={{ margin:'0 0 14px', fontSize:'10px', fontWeight:700, letterSpacing:'0.12em', color:'rgba(255,255,255,0.15)', textTransform:'uppercase' }}>
-              Atributos técnicos
-            </p>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'14px 24px', opacity:0.2 }}>
-              {['Velocidade','Visão','Força','Finalização'].map(label => (
-                <div key={label} style={{ display:'flex', flexDirection:'column', gap:'5px' }}>
-                  <div style={{ display:'flex', justifyContent:'space-between' }}>
-                    <span style={{ fontSize:'10px', fontWeight:700, color:'rgba(255,255,255,0.4)', letterSpacing:'0.10em', textTransform:'uppercase' }}>{label}</span>
-                    <span style={{ fontSize:'14px', fontWeight:900, color:'rgba(255,255,255,0.3)' }}>??</span>
-                  </div>
-                  <div style={{ height:'4px', background:'rgba(255,255,255,0.08)', borderRadius:'3px' }} />
-                </div>
-              ))}
             </div>
           </div>
         )}
