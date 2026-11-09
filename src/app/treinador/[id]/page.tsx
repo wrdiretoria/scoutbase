@@ -5,6 +5,7 @@
 
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import CoachVisit from './CoachVisit'
 import { createAdminClient } from '@/lib/supabase'
 import { Metadata } from 'next'
 
@@ -244,6 +245,7 @@ export default async function TreinadorPerfilPublico({ params }: Props) {
       `}</style>
 
       {/* Nav */}
+      <CoachVisit subjectId={id} />
       <nav style={{
         padding: '16px 20px', display: 'flex', alignItems: 'center',
         justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.06)',
