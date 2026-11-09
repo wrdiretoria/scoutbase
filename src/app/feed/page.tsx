@@ -7,7 +7,7 @@ import type { ReactNode } from 'react'
 import { createAdminClient, createServerClient } from '@/lib/supabase'
 import { getNetworkStats } from '@/lib/network-stats'
 import FeedCenter from './FeedCenter'
-import { DiagnosisSummary } from '../teste-seu-nivel/Diagnosis'
+import { CareerRadar, DiagnosisSummary } from '../teste-seu-nivel/Diagnosis'
 import VisitNotifications from './VisitNotifications'
 import QuickConnectButton from './QuickConnectButton'
 import FeedStories from './FeedStories'
@@ -199,6 +199,7 @@ export default async function FeedPage() {
           </span>
           <span className={styles.startCardArrow} aria-hidden="true">›</span>
         </Link>
+        <CareerRadar />
         {!user && (
           <section aria-label="Exemplo de perfil esportivo" style={{ marginTop: 14, padding: 16, border: '1px solid #385346', borderRadius: 16, background: 'var(--mc-surface)' }}>
             <p style={{ margin: '0 0 4px', color: '#b3f737', fontSize: 12, fontWeight: 800 }}>PERFIL ESPORTIVO</p>
