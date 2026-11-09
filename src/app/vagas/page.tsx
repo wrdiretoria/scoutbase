@@ -15,6 +15,14 @@ export default async function VagasPage({ searchParams }: Props) {
 
   const admin = createAdminClient()
   const minhas = aba === 'candidaturas'
+  const filtrando = Boolean(position || category || city)
+  const cabecalho = (
+    <header style={{ display: 'flex', alignItems: 'center', minHeight: 48, marginBottom: 16, borderBottom: '1px solid #304239' }}>
+      <Link href="/" aria-label="MeuCraque, página inicial" style={{ fontSize: 14, fontWeight: 800, color: 'white', textDecoration: 'none' }}>
+        ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span>.com
+      </Link>
+    </header>
+  )
   if (minhas) {
     const supabase = await createServerClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -27,6 +35,7 @@ export default async function VagasPage({ searchParams }: Props) {
     const status: Record<string, string> = { pending: 'Enviada', viewed: 'Visualizada', accepted: 'Aceita', rejected: 'Não selecionada' }
     return (
       <main className="mc-screen" style={{ maxWidth: 600, margin: '0 auto', padding: '24px 20px 64px', color: '#f0f6f1' }}>
+        {cabecalho}
         <Link href="/vagas" style={{ color: '#b3f737' }}>← Ver vagas abertas</Link>
         <h1 style={{ fontSize: 30, margin: '16px 0' }}>Minhas candidaturas</h1>
         {error || vagas?.error ? <p>Não foi possível carregar suas candidaturas agora.</p>
@@ -68,31 +77,26 @@ export default async function VagasPage({ searchParams }: Props) {
     <main className="mc-screen" style={{ background: 'var(--mc-canvas)', minHeight: '100vh',  color: 'white', padding: '24px 20px 60px' }}>
       <div style={{ maxWidth: '560px', margin: '0 auto' }}>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-          <Link href="/" style={{ fontSize: '14px', fontWeight: 800, color: 'white', textDecoration: 'none' }}>
-            ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
-          </Link>
-        </div>
-
-        <h1 style={{ margin: '0 0 4px', fontSize: '22px', fontWeight: 900 }}>Oportunidades</h1>
-        <p style={{ margin: '0 0 18px', fontSize: '13px', color: 'var(--mc-muted)' }}>
-          Oportunidades publicadas por treinadores e escolinhas no Meu Craque.
-        </p>
+        {cabecalho}
+        <h1 style={{ margin: '0 0 16px', fontSize: 26, fontWeight: 900 }}>Oportunidades</h1>
 
         <nav aria-label="Oportunidades" style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
           <Link aria-current="page" href="/vagas" style={{ padding: '12px 14px', borderRadius: 10, background: 'var(--mc-accent)', color: 'var(--mc-on-accent)', fontWeight: 800 }}>Vagas abertas</Link>
           <Link href="/vagas?aba=candidaturas" style={{ padding: '12px 14px', borderRadius: 10, border: '1px solid #526458', color: '#f0f6f1' }}>Minhas candidaturas</Link>
         </nav>
-        <VagasFiltros positionFiltro={position} categoryFiltro={category} cityFiltro={city} />
+        {!vagasError && (rows.length > 0 || filtrando) && (
+          <VagasFiltros positionFiltro={position} categoryFiltro={category} cityFiltro={city} />
+        )}
 
         {rows.length === 0 ? (
           <div style={{
-            padding: '32px', borderRadius: '16px', textAlign: 'center',
+            padding: '16px', borderRadius: '14px',
             background: 'var(--mc-surface)', border: '1px solid rgba(255,255,255,0.07)',
           }}>
-            <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.35)' }}>
-              {vagasError ? 'Não foi possível carregar as vagas agora.' : 'Nenhuma vaga encontrada. Experimente mudar os filtros.'}
+            <p style={{ margin: 0, fontSize: '13px', color: 'var(--mc-muted)' }}>
+              {vagasError ? 'Não foi possível carregar as vagas agora.' : filtrando ? 'Nenhuma vaga corresponde aos filtros.' : 'Nenhuma vaga aberta no momento.'}
             </p>
+            {!vagasError && filtrando && <Link href="/vagas" style={{ display: 'inline-block', marginTop: 10, color: 'var(--mc-accent)' }}>Limpar filtros</Link>}
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
