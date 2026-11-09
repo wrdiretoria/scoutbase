@@ -639,7 +639,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
           {/* ── Topo: foto full-cover OU gradiente ── */}
           <div style={{
             position: 'relative',
-            height: hasPhoto ? '240px' : '148px',
+            height: hasPhoto ? 'clamp(230px, 72vw, 360px)' : '148px',
             overflow: 'hidden',
             background: hasPhoto
               ? '#0a120e'
@@ -656,58 +656,6 @@ export default async function JogadorPublicoPage({ params }: Props) {
               }} />
             )}
 
-            {/* Gradiente de leitura sobre foto */}
-            {hasPhoto && (
-              <div style={{
-                position: 'absolute', inset: 0,
-                background: 'linear-gradient(to bottom, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.08) 40%, rgba(0,0,0,0.60) 75%, rgba(0,0,0,0.85) 100%)',
-              }} />
-            )}
-
-            {/* Badges OVR + Categoria — topo do painel */}
-            <div style={{
-              position: 'absolute', top: 14, left: 14, right: 14,
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              zIndex: 4,
-            }}>
-              <div style={{
-                background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(8px)',
-                WebkitBackdropFilter: 'blur(8px)',
-                border: '1px solid rgba(34,197,94,0.35)',
-                borderRadius: '10px', padding: '6px 12px',
-                display: 'flex', flexDirection: 'column', alignItems: 'center',
-              }}>
-                <span style={{ fontSize: '8px', fontWeight: 800, color: 'rgba(0,255,136,0.75)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>OVR</span>
-                {ovr !== null
-                  ? <span style={{ fontSize: '22px', fontWeight: 900, color: 'white', lineHeight: 1, letterSpacing: '-0.03em' }}>{ovr}</span>
-                  : <span style={{ fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.35)', lineHeight: 1.3, textAlign: 'center' }}>⏳ Aguardando{'\n'}avaliação</span>
-                }
-              </div>
-              {categoria ? (
-                <div style={{
-                  background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(8px)',
-                  WebkitBackdropFilter: 'blur(8px)',
-                  border: '1px solid rgba(34,197,94,0.35)',
-                  borderRadius: '8px', padding: '4px 10px',
-                  fontSize: '10px', fontWeight: 800, color: '#4ade80', letterSpacing: '0.06em',
-                }}>{categoria}</div>
-              ) : <div />}
-            </div>
-
-            {/* Nome + posição sobre foto (rodapé do painel) */}
-            {hasPhoto && (
-              <div style={{
-                position: 'absolute', bottom: 0, left: 0, right: 0,
-                padding: '0 16px 14px', zIndex: 4,
-              }}>
-                <h1 style={{ margin: '0 0 2px', fontSize: '20px', fontWeight: 900, color: 'white', letterSpacing: '-0.01em', textShadow: '0 1px 8px rgba(0,0,0,0.8)' }}>
-                  {nome}
-                </h1>
-                <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255,255,255,0.70)', fontWeight: 500, textShadow: '0 1px 4px rgba(0,0,0,0.8)' }}>
-                  {pos}{posicao !== pos ? ` · ${posicao}` : ''}{cidade ? ` · ${cidade}` : ''}
-                </p>
-              </div>
-            )}
           </div>
 
           {/* Avatar circular — só sem foto */}
@@ -728,15 +676,11 @@ export default async function JogadorPublicoPage({ params }: Props) {
 
           {/* Dados */}
           <div style={{ padding: hasPhoto ? '14px 20px 22px' : '12px 20px 22px', textAlign: 'center' }}>
-            {/* Nome + posição — só sem foto (com foto ficam sobre a imagem) */}
-            {!hasPhoto && (
-              <>
-                <h1 style={{ margin: '0 0 4px', fontSize: '20px', fontWeight: 800, color: 'white' }}>{nome}</h1>
-                <p style={{ margin: '0 0 4px', fontSize: '13px', color: 'rgba(255,255,255,0.4)' }}>
-                  {posicao}{cidade ? ` · ${cidade}` : ''}
-                </p>
-              </>
-            )}
+            <h1 style={{ margin: '0 0 4px', fontSize: '24px', fontWeight: 800, color: 'white' }}>{nome}</h1>
+            <p style={{ margin: '0 0 12px', fontSize: '14px', color: 'rgba(255,255,255,0.76)' }}>
+              {[posicao, categoria, cidade].filter(Boolean).join(' · ')}
+              {ovr !== null ? ` · OVR ${ovr}` : ''}
+            </p>
             {/* ID — sempre visível, para todo atleta */}
             {athleteId && (
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
