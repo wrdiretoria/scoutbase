@@ -177,7 +177,10 @@ export default function Diagnosis() {
               ))}
             </fieldset>
           ))}
-          <label>Que característica sua explica a posição que escolheu?
+          <label>Qual posição você joga?
+            <textarea rows={1} maxLength={80} placeholder="Ex.: atacante, volante ou goleiro." />
+          </label>
+          <label>Que característica você tem que te fez escolher essa posição?
             <textarea maxLength={500} placeholder="Pense em um lance que mostra isso." />
           </label>
           <label>Por que você decidiu jogar e qual é seu maior sonho no futebol?
