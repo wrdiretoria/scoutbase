@@ -34,7 +34,7 @@ export default function ScoutEntrarPage() {
       setLoading(false)
       return
     }
-    router.push('/scout/dashboard')
+    router.replace('/scout/busca')
   }
 
   const inputStyle: React.CSSProperties = {
