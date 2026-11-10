@@ -16,12 +16,12 @@ export async function GET() {
   try {
     const supabase = await createServerClient()
     const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return NextResponse.json({ favoritos: [] })
+    if (!user) return NextResponse.json({ favoritos: [], autenticado: false })
 
     const favoritos = (user.user_metadata?.favoritos as string[] | null) ?? []
-    return NextResponse.json({ favoritos })
+    return NextResponse.json({ favoritos, autenticado: true })
   } catch {
-    return NextResponse.json({ favoritos: [] })
+    return NextResponse.json({ error: 'Falha ao carregar favoritos' }, { status: 500 })
   }
 }
 
@@ -32,11 +32,13 @@ export async function POST(req: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
 
-    const { atletaId } = await req.json() as { atletaId?: string }
+    const { atletaId, favoritado } = await req.json() as { atletaId?: string; favoritado?: boolean }
     if (!atletaId) return NextResponse.json({ error: 'atletaId obrigatório' }, { status: 400 })
 
     const favoritos: string[] = (user.user_metadata?.favoritos as string[] | null) ?? []
     const jaFavoritado = favoritos.includes(atletaId)
+
+    if (favoritado === jaFavoritado) return NextResponse.json({ ok: true, favoritado, totalFavs: favoritos.length })
 
     const novosFavoritos = jaFavoritado
       ? favoritos.filter(id => id !== atletaId)
@@ -45,9 +47,11 @@ export async function POST(req: NextRequest) {
     const admin = createAdminClient()
 
     // 1. Salva favoritos do scout
-    await admin.auth.admin.updateUserById(user.id, {
+    const { error } = await admin.auth.admin.updateUserById(user.id, {
       user_metadata: { favoritos: novosFavoritos },
     })
+
+    if (error) return NextResponse.json({ error: 'Falha ao salvar favoritos' }, { status: 500 })
 
     // 2. Atualiza favorito_count no user_metadata do atleta (social proof)
     try {
