@@ -24,12 +24,41 @@ export default function FavoritoButton({ atletaId }: { atletaId: string }) {
   const [favoritado, setFavoritado] = useState(false)
   const [mounted,    setMounted]    = useState(false)
 
+  const [autenticado, setAutenticado] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState(false)
+
   useEffect(() => {
-    setFavoritado(getFavoritos().includes(atletaId))
-    setMounted(true)
+    let active = true
+    async function load() {
+      try {
+        const response = await fetch('/api/scout/favorito', { cache: 'no-store' })
+        if (!response.ok) throw new Error()
+        const data = await response.json()
+        if (!active) return
+        setAutenticado(data.autenticado)
+        setFavoritado((data.autenticado ? data.favoritos : getFavoritos()).includes(atletaId))
+        setMounted(true)
+      } catch { if (active) setError(true) }
+    }
+    void load()
+    return () => { active = false }
   }, [atletaId])
 
-  function handleToggle() {
+  async function handleToggle() {
+    setError(false)
+    if (autenticado) {
+      setSaving(true)
+      try {
+        const response = await fetch('/api/scout/favorito', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ atletaId, favoritado: !favoritado }),
+        })
+        if (!response.ok) throw new Error()
+        setFavoritado((await response.json()).favoritado)
+      } catch { setError(true) } finally { setSaving(false) }
+      return
+    }
     const atual = getFavoritos()
     const novo  = atual.includes(atletaId)
       ? atual.filter(id => id !== atletaId)
@@ -39,6 +68,7 @@ export default function FavoritoButton({ atletaId }: { atletaId: string }) {
   }
 
   // Evita flash de hidratação
+  if (!mounted && error) return <span role="status">Favoritos indisponíveis</span>
   if (!mounted) return (
     <div style={{ width: '50px', height: '44px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1.5px solid rgba(255,255,255,0.08)' }} />
   )
@@ -46,6 +76,9 @@ export default function FavoritoButton({ atletaId }: { atletaId: string }) {
   return (
     <button
       onClick={handleToggle}
+      disabled={saving}
+      aria-pressed={favoritado}
+      aria-label={error ? 'Falha ao salvar favorito. Tentar novamente' : undefined}
       title={favoritado ? 'Remover dos favoritos' : 'Salvar nos favoritos'}
       style={{
         display:        'flex',
@@ -71,7 +104,7 @@ export default function FavoritoButton({ atletaId }: { atletaId: string }) {
       }}
     >
       <span style={{ fontSize: '16px', lineHeight: 1 }}>
-        {favoritado ? '⭐' : '☆'}
+        {error ? '!' : favoritado ? '⭐' : '☆'}
       </span>
     </button>
   )
