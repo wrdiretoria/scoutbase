@@ -47,17 +47,25 @@ export default function ScoutFavoritosPage() {
   const [loading,  setLoading]  = useState(true)
   const [removing, setRemoving] = useState<string | null>(null)
 
+  const [autenticado, setAutenticado] = useState(false)
+  const [error, setError] = useState('')
+
   useEffect(() => {
     async function load() {
-      const ids = getFavoritos()
-      if (ids.length === 0) { setLoading(false); return }
       try {
+        const response = await fetch('/api/scout/favorito', { cache: 'no-store' })
+        if (!response.ok) throw new Error()
+        const data = await response.json() as { autenticado: boolean; favoritos: string[] }
+        setAutenticado(data.autenticado)
+        const ids = data.autenticado ? data.favoritos : getFavoritos()
+        if (!ids.length) return
         const res = await fetch('/api/atleta/nomes', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
           body:    JSON.stringify({ ids }),
         })
-        if (res.ok) {
+        if (!res.ok) throw new Error()
+        {
           const data = await res.json() as AtletaInfo[]
           // Preserva a ordem dos favoritos
           const ordered = ids
@@ -65,17 +73,28 @@ export default function ScoutFavoritosPage() {
             .filter((a): a is AtletaInfo => !!a)
           setAtletas(ordered)
         }
-      } catch { /* silencia */ }
-      setLoading(false)
+      } catch { setError('Não foi possível carregar os favoritos.') }
+      finally { setLoading(false) }
     }
     load()
   }, [])
 
-  function handleRemover(atletaId: string) {
+  async function handleRemover(atletaId: string) {
     setRemoving(atletaId)
-    removeFavorito(atletaId)
-    setAtletas(prev => prev.filter(a => a.id !== atletaId))
-    setRemoving(null)
+    setError('')
+    try {
+      if (autenticado) {
+        const response = await fetch('/api/scout/favorito', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ atletaId, favoritado: false }),
+        })
+        if (!response.ok) throw new Error()
+      } else {
+        removeFavorito(atletaId)
+      }
+      setAtletas(prev => prev.filter(a => a.id !== atletaId))
+    } catch { setError('Não foi possível remover o favorito.') }
+    finally { setRemoving(null) }
   }
 
   return (
@@ -112,6 +131,7 @@ export default function ScoutFavoritosPage() {
 
       <div style={{ maxWidth: '480px', margin: '0 auto', padding: '28px 20px 32px' }}>
 
+        {error && <p role="alert">{error}</p>}
         {loading ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {[...Array(3)].map((_, i) => (
