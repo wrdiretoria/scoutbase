@@ -1,4 +1,4 @@
-import { createAdminClient } from '@/lib/supabase'
+import { createAdminClient, createServerClient } from '@/lib/supabase'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -14,8 +14,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false })
     }
 
+    const client = await createServerClient()
+    const { data: { user } } = await client.auth.getUser()
+    if (user?.id === athleteUserId) return NextResponse.json({ ok: false })
+
     const admin = createAdminClient()
-    await admin.from('visitas').insert({ atleta_id: athleteUserId })
+    const { error } = await admin.from('visitas').insert({ atleta_id: athleteUserId })
+    if (error) throw error
 
     return NextResponse.json({ ok: true })
   } catch (err) {

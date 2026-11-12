@@ -9,7 +9,8 @@ import { useEffect } from 'react'
 export default function VisitTracker({ athleteUserId }: { athleteUserId: string }) {
   useEffect(() => {
     const key  = `visit_${athleteUserId}`
-    const last = localStorage.getItem(key)
+    let last: string | null = null
+    try { last = localStorage.getItem(key) } catch { /* armazenamento indisponível */ }
     const now  = Date.now()
     if (last && now - parseInt(last) < 24 * 60 * 60 * 1000) return   // 24h por visitante
 
@@ -17,7 +18,9 @@ export default function VisitTracker({ athleteUserId }: { athleteUserId: string 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ athleteUserId }),
-    }).then(() => localStorage.setItem(key, String(now)))
+    }).then(async response => {
+      if (response.ok && (await response.json()).ok === true) localStorage.setItem(key, String(now))
+    })
       .catch(() => {/* silencioso */})
   }, [athleteUserId])
 

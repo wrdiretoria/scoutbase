@@ -413,8 +413,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
     return filtered.length > 0 ? filtered : (avatarUrl ? [avatarUrl] : [])
   })()
   const hasPhoto = fotosArray.length > 0
-  // +1 porque esta visita ainda não foi contabilizada (acontece client-side após render)
-  const visitCount     = (meta.visit_count     ?? 0) + 1
+  const visitCount     = meta.visit_count ?? 0
   const favoritoCount  = meta.favorito_count   ?? 0
 
   // Busca OVR + última avaliação (atributos detalhados para scouts)
@@ -578,7 +577,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
       `}</style>
 
       {/* Rastreia visita silenciosamente (client) */}
-      <VisitTracker athleteUserId={id} />
+      {!isOwner && <VisitTracker athleteUserId={id} />}
 
       <div style={{ maxWidth: '380px', margin: '0 auto' }}>
 
@@ -684,6 +683,11 @@ export default async function JogadorPublicoPage({ params }: Props) {
               {[posicao, categoria, cidade].filter(Boolean).join(' · ')}
               {ovr !== null ? ` · OVR ${ovr}` : ''}
             </p>
+            {highlights.length > 0 && (
+              <a href="#lances" className="mc-primary-action" style={{ display: 'inline-flex', alignItems: 'center', minHeight: 44, padding: '0 16px', marginBottom: 12, borderRadius: 10, textDecoration: 'none' }}>
+                Ver melhores lances
+              </a>
+            )}
             {/* ID — sempre visível, para todo atleta */}
             {athleteId && (
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>

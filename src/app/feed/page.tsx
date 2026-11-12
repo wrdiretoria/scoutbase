@@ -66,7 +66,7 @@ export default async function FeedPage() {
     ? await (async () => {
         const admin = createAdminClient()
         const [profileResult, networkStats, highlightResult] = await Promise.all([
-          admin.from('profiles').select('nome, avatar_url').eq('id', user.id).maybeSingle(),
+          admin.from('profiles').select('nome, avatar_url, athlete_id, data_nascimento').eq('id', user.id).maybeSingle(),
           getNetworkStats(admin, user.id, user.id),
           tipo === 'atleta'
             ? admin.from('highlights').select('id').eq('profile_id', user.id).limit(1)
@@ -81,21 +81,24 @@ export default async function FeedPage() {
     : 'MeuCraque'
   const avatar = (profile?.avatar_url as string | null) ?? null
   const perfil = profileHref(tipo)
-  const posicao = user?.user_metadata?.posicao
-  const nextStep = user && tipo === 'atleta'
-    ? typeof posicao !== 'string' || !posicao.trim()
-      ? { label: 'Informar minha posição', href: '/atleta/perfil#identidade' }
-      : hasHighlight === false
-        ? { label: 'Adicionar link de vídeo', href: '/atleta/perfil#highlights' }
-        : hasHighlight === true
-          ? { label: 'Ver meu perfil público', href: `/jogador/${user.id}` }
-          : { label: 'Revisar meu perfil', href: perfil }
-    : null
-  const publicProfile = user && tipo === 'atleta' && hasHighlight === true && typeof posicao === 'string' && posicao.trim()
-    ? `/jogador/${user.id}`
-    : null
-  const shareProfile = publicProfile
-    ? `https://wa.me/?text=${encodeURIComponent(`Veja meu perfil esportivo no MeuCraque: https://www.meucraque.com${publicProfile}`)}`
+  const meta = user?.user_metadata
+  const hasPosition = typeof meta?.posicao === 'string' && !!meta.posicao.trim()
+  const hasCity = typeof meta?.cidade === 'string' && !!meta.cidade.trim()
+  const isAthlete = !!user && tipo === 'atleta'
+  const profileReady = isAthlete && !!avatar && !!profile?.data_nascimento
+    && hasPosition && hasCity && hasHighlight === true
+  const publicProfile = isAthlete ? `/jogador/${user.id}` : null
+  const canShareCard = profileReady && !!profile?.athlete_id
+  const nextStep = isAthlete
+    ? !avatar
+      ? { label: 'Adicionar minha foto', href: '/atleta/perfil#foto' }
+      : !hasPosition || !hasCity || !profile?.data_nascimento
+        ? { label: 'Completar meus dados esportivos', href: '/atleta/perfil#identidade' }
+        : hasHighlight === false
+          ? { label: 'Adicionar meu primeiro lance', href: '/atleta/perfil#highlights' }
+          : profileReady
+            ? { label: canShareCard ? 'Compartilhar meu card' : 'Compartilhar meu perfil', href: '/atleta/perfil#compartilhar' }
+            : { label: 'Revisar meu perfil', href: perfil }
     : null
   const desempenho = performanceHref(tipo)
   const firstName = nome.split(' ')[0]
@@ -147,7 +150,7 @@ export default async function FeedPage() {
                 <Icon name="message" size={21} />
               </Link>
             )}
-            {user && tipo === 'atleta' && <VisitNotifications icon={<Icon name="bell" size={23} />} />}
+            {user && tipo === 'atleta' && <VisitNotifications ownerId={user.id} icon={<Icon name="bell" size={23} />} />}
             {user ? <Link href={perfil} className={styles.avatarLink} aria-label={`Abrir perfil de ${nome}`}>
               {avatar ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -161,14 +164,14 @@ export default async function FeedPage() {
 
         <FeedStories user={user ? { id: user.id, name: nome, avatarUrl: avatar } : null} />
 
-        <section className={styles.hero} aria-label={nextStep ? "Minha Jornada" : "Boas-vindas ao MeuCraque"} style={{ marginTop: 16 }}>
+        <section className={styles.hero} aria-label={nextStep ? "Mostre seu jogo" : "Boas-vindas ao MeuCraque"} style={{ marginTop: 16 }}>
           <div className={styles.heroPhoto} />
           <div className={styles.heroShade} />
           <div className={`${styles.heroCopy} ${!user ? styles.heroGuestCopy : ''}`}>
             {user ? <>
               <span className={styles.eyebrow}>SEU FUTEBOL. SUA TRAJETÓRIA.</span>
-              <h1>{nextStep ? 'Minha Jornada' : <>Bem-vindo, <em>{firstName}!</em></>}</h1>
-              <p>{nextStep ? publicProfile ? 'Mostre seu jogo. Envie seu perfil esportivo a um treinador.' : 'Seu próximo passo para preparar seu perfil esportivo.' : 'Acompanhe sua evolução, conecte-se e descubra novas oportunidades.'}</p>
+              <h1>{nextStep ? 'Mostre seu jogo' : <>Bem-vindo, <em>{firstName}!</em></>}</h1>
+              <p>{nextStep ? profileReady ? 'Seu perfil está pronto para compartilhar. Mostre seus lances e acompanhe as visitas pelo sino.' : 'Adicione sua foto, seus dados esportivos e um lance para ter um perfil pronto para compartilhar.' : 'Acompanhe sua evolução, conecte-se e descubra novas oportunidades.'}</p>
             </> : <>
 
               <h1>Mostre seu jogo</h1>
@@ -177,8 +180,8 @@ export default async function FeedPage() {
           </div>
           <div className={styles.heroNetwork}>
             {nextStep ? (
-              <Link href={shareProfile ?? nextStep.href} className={styles.heroCta} style={{ minHeight: 44, whiteSpace: 'normal' }}>
-                {shareProfile ? 'Compartilhar meu perfil' : nextStep.label} <span aria-hidden="true">›</span>
+              <Link href={nextStep.href} className={styles.heroCta} style={{ minHeight: 44, whiteSpace: 'normal' }}>
+                {nextStep.label} <span aria-hidden="true">›</span>
               </Link>
             ) : user ? <>
               <div className={styles.networkStat}><Icon name="users" size={18} /><span><strong>{stats?.connections ?? 0}</strong> {(stats?.connections ?? 0) === 1 ? 'conexão' : 'conexões'}</span></div>
@@ -244,9 +247,9 @@ export default async function FeedPage() {
             <>
               <DiagnosisSummary />
               <p className={styles.journeyCopy}>Monte seu perfil esportivo, avalie seu nível e acompanhe sua evolução no futebol.</p>
-              {nextStep && (
-                <Link href={nextStep.href} className={styles.sideCta}>
-                  {publicProfile ? 'Ver como o treinador vê' : `Próximo passo: ${nextStep.label}`} <span aria-hidden="true">›</span>
+              {profileReady && publicProfile && (
+                <Link href={publicProfile} className={styles.sideCta}>
+                  Ver meu perfil público <span aria-hidden="true">›</span>
                 </Link>
               )}
               <Link href={user ? perfil : '/atleta/cadastro'} className={styles.sideCta}>

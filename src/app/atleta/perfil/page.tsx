@@ -1,5 +1,6 @@
 'use client'
 
+import VisitNotifications from '../../feed/VisitNotifications'
 import { highlightSkills } from '@/lib/highlight-skills'
 
 import { useEffect, useState, Suspense, useRef } from 'react'
@@ -424,7 +425,7 @@ function AtletaPerfilContent() {
   useEffect(() => {
     if (loading) return
     const section = window.location.hash.slice(1)
-    if (section === 'identidade' || section === 'highlights') {
+    if (['foto', 'identidade', 'highlights', 'compartilhar'].includes(section)) {
       document.getElementById(section)?.scrollIntoView()
     }
   }, [loading])
@@ -985,17 +986,11 @@ function AtletaPerfilContent() {
         <Link href="/" style={{ fontSize:'16px', fontWeight:800, color:'white', textDecoration:'none', letterSpacing:'0.03em' }}>
           ⚽ <span style={{ color: 'var(--mc-accent)' }}>MEUCRAQUE</span><span style={{ color: 'white' }}>.com</span>
         </Link>
-        <details style={{ position:'relative', marginLeft:'auto', marginRight:12 }}>
-          <summary aria-label="Notificações" style={{ listStyle:'none', cursor:'pointer', display:'grid', placeItems:'center', width:44, height:44, color:'var(--mc-accent)' }}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </summary>
-          <div style={{ position:'absolute', right:0, top:'100%', zIndex:20, width:'min(220px, 65vw)', padding:14, border:'1px solid #425747', borderRadius:12, background:'#101827', color:'white' }}>
-            <strong>Visitas ao perfil</strong>
-            <p>{visitasStats.semana.toLocaleString('pt-BR')} nos últimos 7 dias</p>
-          </div>
-        </details>
+        {uid && <VisitNotifications ownerId={uid} icon={
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        } />}
         <button
           onClick={async () => {
             const supabase = createClient()
@@ -1046,7 +1041,7 @@ function AtletaPerfilContent() {
         }}>
           <div style={{ display:'grid', justifyItems:'center', gap:10, padding:'16px 16px 0', background:'#0c1711' }}>
             {/* Foto ou iniciais — label nativo garante abertura do seletor em iOS/Android */}
-            <div id="foto" style={{ position:'relative', width:'100%', maxWidth:'320px', aspectRatio:'4 / 3' }}>
+            <div id="foto" style={{ scrollMarginTop: 80, position:'relative', width:'100%', maxWidth:'320px', aspectRatio:'4 / 3' }}>
               <label htmlFor="foto-input" style={{
                 display:'block', width:'100%', height:'100%', borderRadius:14, background:'#08120e',
                 border:'3px solid #0b1610', overflow:'hidden',
@@ -1260,14 +1255,14 @@ function AtletaPerfilContent() {
           {uid && <Link href={`/jogador/${uid}`}>Ver perfil público</Link>}
         </nav>
         {/* ── Ações ── */}
-        <div style={{ display:'flex', flexDirection:'column', gap:'10px', marginBottom:16 }}>
+        <div id="compartilhar" style={{ scrollMarginTop: 80, display:'flex', flexDirection:'column', gap:'10px', marginBottom:16 }}>
           <button
             className="share-btn profile-link-share"
             onClick={async () => {
               const cardUrl = uid ? `${window.location.origin}/jogador/${uid}` : window.location.origin
               try {
                 if (navigator.share) {
-                  await navigator.share({ title:`${meta.nome} · MeuCraque`, text:`Acabei de montar meu perfil no MeuCraque! ${meta.posicao} · ${meta.cidade}. Você é o próximo?`, url:cardUrl })
+                  await navigator.share({ title:`${meta.nome} · MeuCraque`, text:`Veja meu perfil e meus lances no MeuCraque.`, url:cardUrl })
                 } else {
                   await navigator.clipboard.writeText(cardUrl)
                   alert('Link copiado!')
@@ -1287,7 +1282,7 @@ function AtletaPerfilContent() {
             <div style={{ flex:1, textAlign:'left' }}>
               <span style={{ display:'block', fontSize:'14px', fontWeight:700 }}>Compartilhar meu perfil</span>
               <span style={{ display:'block', fontSize:'12px', color:'#c4d0c9', marginTop:'2px' }}>
-                {avaliacao ? 'Com avaliação oficial · atributos desbloqueados' : 'Perfil + ID de atleta'}
+                Copie ou envie o link dos seus lances
               </span>
             </div>
             <span style={{ fontSize:'16px', color:'rgba(0,255,136,0.5)', flexShrink:0 }}>↗</span>
