@@ -1,3 +1,4 @@
+import { podeTrocarMensagens } from '@/lib/athlete-messaging'
 /**
  * GET /api/conversations/[id]/messages
  * Lista as mensagens da conversa (mais antigas primeiro) e marca como lidas
@@ -92,10 +93,18 @@ export async function POST(
 
     const admin = createAdminClient()
 
+    if (!await ehParticipante(admin, id, user.id)) {
+      return NextResponse.json({ error: 'Conversa não encontrada.' }, { status: 404 })
+    }
+
     const [{ data: outroParticipante }, { count: totalMensagens }] = await Promise.all([
       admin.from('conversation_participants').select('user_id').eq('conversation_id', id).neq('user_id', user.id).maybeSingle(),
       admin.from('messages').select('*', { count: 'exact', head: true }).eq('conversation_id', id),
     ])
+
+    if (!outroParticipante || !await podeTrocarMensagens(admin, [user.id, outroParticipante.user_id as string])) {
+      return NextResponse.json({ error: 'Mensagens internas estão disponíveis a partir dos 18 anos.' }, { status: 403 })
+    }
 
     const primeiraMensagem = (totalMensagens ?? 0) === 0
     if (primeiraMensagem && outroParticipante) {
