@@ -257,7 +257,7 @@ function TrainerCard({ perfil, av, at, dest, uploadingFoto }: { perfil: Perfil; 
           }}>
             {perfil.treinadorId && (
               <span style={{ fontSize: '11px', fontWeight: 900, color: 'rgba(179,247,55,0.7)', letterSpacing: '0.12em' }}>
-                ID: {perfil.treinadorId.replace('TR-', '')}
+                ID: {perfil.treinadorId.replace(/^TR-0*(?=\d{2}$)/, '').replace(/^TR-/, '')}
               </span>
             )}
           </div>
