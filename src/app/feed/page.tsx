@@ -11,6 +11,7 @@ import { CareerRadar, DiagnosisSummary } from '../teste-seu-nivel/Diagnosis'
 import VisitNotifications from './VisitNotifications'
 import QuickConnectButton from './QuickConnectButton'
 import FeedStories from './FeedStories'
+import PwaInstallBanner from '@/components/IosPwaPrompt'
 import styles from './FeedHome.module.css'
 
 type IconName = 'home' | 'user' | 'trend' | 'target' | 'users' | 'search' | 'calendar' | 'cone' | 'club' | 'plus' | 'bell' | 'menu' | 'message' | 'compass' | 'video' | 'image' | 'event' | 'trophy'
@@ -162,6 +163,7 @@ export default async function FeedPage() {
           </div>
         </header>
 
+        <PwaInstallBanner />
         <FeedStories user={user ? { id: user.id, name: nome, avatarUrl: avatar } : null} />
 
         <section className={styles.hero} aria-label={nextStep ? "Mostre seu jogo" : "Boas-vindas ao MeuCraque"} style={{ marginTop: 16 }}>
