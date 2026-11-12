@@ -214,7 +214,8 @@ export default async function RankingPage({ searchParams }: Props) {
 
   // 6. Título dinâmico — ex.: "Top 10 Sub-13 de Jacarepaguá"
   const local = bairroFiltro || cidadeFiltro || (paisFiltro && paisFiltro !== 'Brasil' ? paisFiltro : '')
-  const recorte = [categoriaFiltro, posicaoFiltro].filter(Boolean).join(' · ')
+  const categoriaLabel = categoriaFiltro === 'Adulto' ? 'Profissional' : categoriaFiltro
+  const recorte = [categoriaLabel, posicaoFiltro].filter(Boolean).join(' · ')
   const sufixo = `${recorte ? ` ${recorte}` : ''}${local ? ` ${comPreposicao(local)}` : ''}${!local && estadoFiltro ? ` · ${estadoFiltro.toUpperCase()}` : ''}`
   const topN = Math.min(filtered.length, 10)
   const titulo =
@@ -265,7 +266,7 @@ export default async function RankingPage({ searchParams }: Props) {
           <p style={{ margin: 0, fontSize: '14px', color: 'var(--mc-muted)' }}>
             {titulo} · {filtered.length} atleta{filtered.length !== 1 ? 's' : ''}
             {buscaFiltro     ? ` · "${buscaFiltro}"`   : ''}
-            {categoriaFiltro ? ` · ${categoriaFiltro}` : ''}
+            {categoriaLabel ? ` · ${categoriaLabel}` : ''}
             {posicaoFiltro   ? ` · ${posicaoFiltro}`   : ''}
             {estadoFiltro    ? ` · ${estadoFiltro}`     : ''}
             {cidadeFiltro    ? ` · ${cidadeFiltro}`     : ''}
@@ -290,43 +291,37 @@ export default async function RankingPage({ searchParams }: Props) {
           </div>
         </form>
 
-        {/* Filtros de categoria (pills) */}
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'nowrap', overflowX: 'auto', marginBottom: '12px', paddingBottom: '4px', scrollbarWidth: 'none' }}>
-          {(() => {
-            return (
-              <Link
-                href={urlRanking(params, { categoria: undefined })}
-                className="filter-pill"
-                style={{
-                  padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0,
-                  textDecoration: 'none', border: '1px solid',
-                  background: !categoriaFiltro ? '#26382d' : 'transparent',
-                  color: !categoriaFiltro ? 'var(--mc-text)' : 'var(--mc-muted)',
-                  borderColor: !categoriaFiltro ? '#718279' : 'rgba(255,255,255,0.12)',
-                }}
-              >
-                Todos
-              </Link>
-            )
-          })()}
-          {CATEGORIAS.map(cat => {
-            return (
-            <Link
-              key={cat}
-              href={urlRanking(params, { categoria: cat })}
-              className="filter-pill"
-              style={{
-                padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0,
-                textDecoration: 'none', border: '1px solid',
-                background: categoriaFiltro === cat ? '#26382d' : 'transparent',
-                color: categoriaFiltro === cat ? 'var(--mc-text)' : 'var(--mc-muted)',
-                borderColor: categoriaFiltro === cat ? '#718279' : 'rgba(255,255,255,0.12)',
-              }}
-            >
-              {cat}
-            </Link>
-          )})}
-        </div>
+        <nav aria-label="Categorias do ranking" style={{ display:'flex', alignItems:'flex-start', gap:8, flexWrap:'wrap', marginBottom:12 }}>
+          <Link
+            href={urlRanking(params, { categoria: undefined })}
+            aria-current={!categoriaFiltro ? 'page' : undefined}
+            className="filter-pill"
+            style={{ padding:'6px 12px', borderRadius:20, fontSize:12, fontWeight:700, textDecoration:'none', border:'1px solid #405247', background:!categoriaFiltro ? '#26382d' : 'transparent', color:!categoriaFiltro ? 'var(--mc-text)' : 'var(--mc-muted)' }}
+          >
+            Todos
+          </Link>
+          <details style={{ position:'relative' }}>
+            <summary className="filter-pill" style={{ padding:'6px 12px', borderRadius:20, fontSize:12, fontWeight:700, cursor:'pointer', border:'1px solid #405247', background:categoriaFiltro?.startsWith('Sub-') ? '#26382d' : 'transparent', color:categoriaFiltro?.startsWith('Sub-') ? 'var(--mc-text)' : 'var(--mc-muted)' }}>
+              {categoriaFiltro?.startsWith('Sub-') ? categoriaFiltro : 'Sub'}
+            </summary>
+            <div style={{ position:'absolute', top:'calc(100% + 6px)', left:0, zIndex:10, width:'min(220px, 58vw)', display:'grid', gridTemplateColumns:'repeat(2, minmax(0, 1fr))', gap:4, padding:8, border:'1px solid #405247', borderRadius:12, background:'var(--mc-surface)', boxShadow:'0 8px 24px #0008' }}>
+              {CATEGORIAS.map(cat => (
+                <Link key={cat} href={urlRanking(params, { categoria: cat })} aria-current={categoriaFiltro === cat ? 'page' : undefined} className="filter-pill"
+                  style={{ padding:'8px 4px', borderRadius:8, textAlign:'center', fontSize:12, fontWeight:700, textDecoration:'none', background:categoriaFiltro === cat ? '#26382d' : 'transparent', color:'var(--mc-text)' }}>
+                  {cat}
+                </Link>
+              ))}
+            </div>
+          </details>
+          <Link
+            href={urlRanking(params, { categoria: 'Adulto' })}
+            aria-current={categoriaFiltro === 'Adulto' ? 'page' : undefined}
+            className="filter-pill"
+            style={{ padding:'6px 12px', borderRadius:20, fontSize:12, fontWeight:700, textDecoration:'none', border:'1px solid #405247', background:categoriaFiltro === 'Adulto' ? '#26382d' : 'transparent', color:categoriaFiltro === 'Adulto' ? 'var(--mc-text)' : 'var(--mc-muted)' }}
+          >
+            Profissional
+          </Link>
+        </nav>
 
         {/* Filtros de posição + estado + cidade (client component) */}
         <RankingFiltros
