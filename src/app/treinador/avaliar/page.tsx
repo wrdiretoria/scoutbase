@@ -246,6 +246,7 @@ function AvaliarPageInner() {
     : 'iniciacao'
 
   const blocoA         = VARIANTES[variante].blocoA
+  const blocoB = VARIANTES[variante].blocoB ?? BLOCO_PERFIL
   const blocoC         = VARIANTES[variante].blocoC
   const varianteLabel  = VARIANTES[variante].label
   const todasPerguntas = atleta ? getTodasPerguntas(variante) : []
@@ -256,7 +257,7 @@ function AvaliarPageInner() {
 
   // Contagens por bloco
   const contTecnico  = blocoA.filter(q => (notas[q.key] ?? 0) > 0).length
-  const contPerfil   = BLOCO_PERFIL.filter(q => (notas[q.key] ?? 0) > 0).length
+  const contPerfil   = blocoB.filter(q => (notas[q.key] ?? 0) > 0).length
   const contContexto = blocoC.filter(q => (notas[q.key] ?? 0) > 0).length
   const totalPreench = contTecnico + contPerfil + contContexto
   const todasPreench = atleta ? totalPreench === totalPerguntas : false
@@ -652,9 +653,9 @@ function AvaliarPageInner() {
 
                   <div style={{ display:'flex', flexDirection:'column', gap:'6px' }}>
                     {[
-                      { icone:'⚽', bloco:'Bloco A — Técnico', qtd:'10 perguntas', desc:`Fundamentos específicos de ${atleta.posicao}`, cor:'#60a5fa' },
-                      { icone:'🎭', bloco:'Bloco B — Perfil',  qtd:'6 perguntas',  desc:'Personalidade e comportamento (igual para todos)', cor:'#a78bfa' },
-                      { icone:'💪', bloco:'Bloco C — Físico',  qtd:'4 perguntas',  desc:`Condicionamento físico para ${posInfo.grupo}`, cor:faseInfo.cor },
+                      { icone:'⚽', bloco:'Técnica e tática', qtd:`${blocoA.length} perguntas`, desc:`Fundamentos específicos de ${atleta.posicao}`, cor:'#60a5fa' },
+                      { icone:'🎭', bloco:'Comportamento em campo', qtd:`${blocoB.length} perguntas`, desc:`Ações observáveis de ${atleta.posicao}`, cor:'#a78bfa' },
+                      { icone:'💪', bloco:'Físico', qtd:`${blocoC.length} perguntas`,  desc:`Condicionamento físico para ${posInfo.grupo}`, cor:faseInfo.cor },
                     ].map(b => (
                       <div key={b.bloco} style={{
                         display:'flex', alignItems:'center', gap:'10px',
@@ -767,7 +768,7 @@ function AvaliarPageInner() {
               borderRadius:'18px', overflow:'hidden', marginBottom:'12px',
             }}>
               <SectionHeader
-                title="⚽ Bloco A — Técnico (10 perguntas)"
+                title={`⚽ Técnica e tática (${blocoA.length} perguntas)`}
                 subtitle={`Específico para ${atleta.posicao} · ${faseInfo?.fase ?? varianteLabel}`}
                 count={contTecnico}
                 total={blocoA.length}
@@ -788,15 +789,15 @@ function AvaliarPageInner() {
               borderRadius:'18px', overflow:'hidden', marginBottom:'12px',
             }}>
               <SectionHeader
-                title="🎭 Bloco B — Perfil (6 perguntas)"
+                title={`🎭 Comportamento (${blocoB.length} perguntas)`}
                 subtitle="Comportamento e personalidade — igual para todas as posições"
                 count={contPerfil}
-                total={BLOCO_PERFIL.length}
+                total={blocoB.length}
               />
-              {BLOCO_PERFIL.map((attr, i) => (
+              {blocoB.map((attr, i) => (
                 <div key={attr.key} style={{
                   padding:'16px 18px',
-                  borderBottom: i < BLOCO_PERFIL.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                  borderBottom: i < blocoB.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
                 }}>
                   <SegmentBar icon={attr.icon} label={attr.label} value={notas[attr.key] ?? 0} onChange={val => setNota(attr.key, val)} />
                 </div>
@@ -809,7 +810,7 @@ function AvaliarPageInner() {
               borderRadius:'18px', overflow:'hidden', marginBottom:'20px',
             }}>
               <SectionHeader
-                title="💪 Bloco C — Físico (4 perguntas)"
+                title={`💪 Físico (${blocoC.length} perguntas)`}
                 subtitle={`Condicionamento físico para ${posInfo?.grupo ?? atleta.posicao} · ${faseInfo?.fase ?? ''}`}
                 count={contContexto}
                 total={blocoC.length}
@@ -885,9 +886,9 @@ function AvaliarPageInner() {
               <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
                 {/* Médias por bloco */}
                 {[
-                  { label: '⚽ Técnico',    qs: blocoA },
-                  { label: '🎭 Perfil',     qs: BLOCO_PERFIL },
-                  { label: '💪 Contextual', qs: blocoC },
+                  { label: '⚽ Técnica e tática',    qs: blocoA },
+                  { label: '🎭 Comportamento',     qs: blocoB },
+                  { label: '💪 Físico', qs: blocoC },
                 ].map(({ label, qs }) => {
                   const vals = qs.map(q => notas[q.key] ?? 0).filter(v => v > 0)
                   const avg  = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0

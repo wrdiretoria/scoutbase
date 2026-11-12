@@ -117,6 +117,7 @@ type Avaliacao = {
   professor_id:  string
   // Novo: 20 respostas JSON + variante (pode ser null em avaliações antigas)
   respostas:     (Record<string, number> & { variante?: string }) | null
+  variante?: string | null
 }
 
 // ── Highlights ────────────────────────────────────────────────────────────────
@@ -174,16 +175,16 @@ function getThumbnail(hl: Highlight): string {
 
 // ── Avaliação Detalhada (novo formato 20 atributos) ──────────────────────────
 
-function AvaliacaoDetalhada({ respostas }: { respostas: Record<string, number> & { variante?: string } }) {
-  const variante = (respostas.variante ?? 'iniciacao') as VarianteKey
-  const blocoA   = VARIANTES[variante].blocoA
-  const blocoC   = VARIANTES[variante].blocoC
-  const etiqueta = VARIANTES[variante].label
+function AvaliacaoDetalhada({ respostas, varianteSalva }: { respostas: Record<string, number> & { variante?: string }; varianteSalva?: string | null }) {
+  const variante = (varianteSalva ?? respostas.variante ?? 'iniciacao') as VarianteKey
+  const definition = Object.hasOwn(VARIANTES, variante) ? VARIANTES[variante] : VARIANTES.iniciacao
+  const { blocoA, blocoC, label: etiqueta } = definition
+  const blocoB = definition.blocoB ?? Q_BPERF
 
   // converte nota 1-5 para barra 0-100
   const toBar = (v: number) => v > 0 ? Math.round(((v - 1) / 4) * 100) : 0
 
-  const allQs  = [...blocoA, ...Q_BPERF, ...blocoC]
+  const allQs  = [...blocoA, ...blocoB, ...blocoC]
   const fortes = allQs.filter(q => (respostas[q.key] ?? 0) >= 4).sort((a, b) => (respostas[b.key] ?? 0) - (respostas[a.key] ?? 0)).slice(0, 3)
   const melhor = allQs.filter(q => { const v = respostas[q.key] ?? 0; return v > 0 && v <= 2 }).sort((a, b) => (respostas[a.key] ?? 0) - (respostas[b.key] ?? 0)).slice(0, 3)
 
@@ -198,7 +199,7 @@ function AvaliacaoDetalhada({ respostas }: { respostas: Record<string, number> &
       {/* Atributos técnicos */}
       <div>
         <p style={{ margin:'0 0 10px', fontSize:'10px', fontWeight:700, letterSpacing:'0.10em', color:'rgba(255,255,255,0.28)', textTransform:'uppercase' }}>
-          ⚽ Técnico
+          ⚽ Técnica e tática
         </p>
         <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
           {blocoA.map((q: QuestionDef) => (
@@ -213,7 +214,7 @@ function AvaliacaoDetalhada({ respostas }: { respostas: Record<string, number> &
           🎭 Perfil
         </p>
         <div style={{ display:'flex', flexWrap:'wrap', gap:'8px' }}>
-          {Q_BPERF.map((q: QuestionDef) => {
+          {blocoB.map((q: QuestionDef) => {
             const v   = respostas[q.key] ?? 0
             const cor = tagColors[v] ?? 'rgba(255,255,255,0.2)'
             return (
@@ -1571,7 +1572,7 @@ function AtletaPerfilContent() {
 
               {avaliacao.respostas ? (
                 // ── Novo formato: 20 atributos ──────────────────────
-                <AvaliacaoDetalhada respostas={avaliacao.respostas} />
+                <AvaliacaoDetalhada respostas={avaliacao.respostas} varianteSalva={avaliacao.variante} />
               ) : (
                 // ── Formato legado: 6 atributos ─────────────────────
                 <div style={{ display:'flex', flexDirection:'column', gap:'13px' }}>

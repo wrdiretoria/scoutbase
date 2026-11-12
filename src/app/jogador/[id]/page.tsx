@@ -239,14 +239,14 @@ function BarSimples({ icon, label, value }: { icon: string; label: string; value
 
 function AvaliacaoPublicaDetalhada({ respostas, variante: varianteProp }: { respostas: Record<string, number>; variante?: string | null }) {
   const variante = ((varianteProp ?? respostas['variante']) ?? 'iniciacao') as VarianteKey
-  const blocoA   = VARIANTES[variante].blocoA
-  const blocoC   = VARIANTES[variante].blocoC
-  const etiqueta = VARIANTES[variante].label
+  const definition = Object.hasOwn(VARIANTES, variante) ? VARIANTES[variante] : VARIANTES.iniciacao
+  const { blocoA, blocoC, label: etiqueta } = definition
+  const blocoB = definition.blocoB ?? Q_BPERF
 
   // converte nota 1-5 para barra 0-100
   const toBar = (v: number) => v > 0 ? Math.round(((v - 1) / 4) * 100) : 0
 
-  const allQs  = [...blocoA, ...Q_BPERF, ...blocoC]
+  const allQs  = [...blocoA, ...blocoB, ...blocoC]
   const fortes = allQs.filter(q => (respostas[q.key] ?? 0) >= 4).sort((a, b) => (respostas[b.key] ?? 0) - (respostas[a.key] ?? 0)).slice(0, 3)
   const melhor = allQs.filter(q => { const v = respostas[q.key] ?? 0; return v > 0 && v <= 2 }).sort((a, b) => (respostas[a.key] ?? 0) - (respostas[b.key] ?? 0)).slice(0, 3)
 
@@ -260,7 +260,7 @@ function AvaliacaoPublicaDetalhada({ respostas, variante: varianteProp }: { resp
 
       {/* Técnico */}
       <div>
-        <p style={{ margin: '0 0 8px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>⚽ Técnico</p>
+        <p style={{ margin: '0 0 8px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>⚽ Técnica e tática</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {blocoA.map((q: QuestionDef) => (
             <BarSimples key={q.key} icon={q.icon} label={q.label} value={toBar(respostas[q.key] ?? 0)} />
@@ -270,9 +270,9 @@ function AvaliacaoPublicaDetalhada({ respostas, variante: varianteProp }: { resp
 
       {/* Perfil chips */}
       <div>
-        <p style={{ margin: '0 0 8px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>🎭 Perfil</p>
+        <p style={{ margin: '0 0 8px', fontSize: '10px', fontWeight: 700, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>🎭 Comportamento</p>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '7px' }}>
-          {Q_BPERF.map((q: QuestionDef) => {
+          {blocoB.map((q: QuestionDef) => {
             const v   = respostas[q.key] ?? 0
             const cor = tagColors[v] ?? 'rgba(255,255,255,0.2)'
             return (

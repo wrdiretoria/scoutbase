@@ -3,7 +3,7 @@ import { randomUUID } from 'crypto'
 import { createServerClient, createAdminClient } from '@/lib/supabase'
 import { isVerifiedTrainer } from '@/lib/trainer-access'
 import { sendEmail, emailAvaliacaoRecebida } from '@/lib/email'
-import { calcScoutScore, calcAtributos, getTodasPerguntas, type VarianteKey } from '@/lib/questionnaire'
+import { calcScoutScore, calcAtributos, getTodasPerguntas, getVariante, type VarianteKey } from '@/lib/questionnaire'
 
 export async function POST(req: NextRequest) {
   // ── Autenticação ──
@@ -69,6 +69,14 @@ export async function POST(req: NextRequest) {
 
   // ── Verifica e decrementa card do atleta ──
   const { data: { user: atletaUser } } = await admin.auth.admin.getUserById(profileId)
+  const position = atletaUser?.user_metadata?.posicao
+  const expectedVariant = profileData?.data_nascimento && typeof position === 'string' && position
+    ? getVariante(profileData.data_nascimento, position)
+    : 'iniciacao'
+  if (variante !== expectedVariant) {
+    return NextResponse.json({ error: 'O questionário mudou. Busque o atleta novamente para carregar as perguntas corretas.' }, { status: 409 })
+  }
+
   const cardsDisponiveis = profileData?.cards_disponiveis ?? 0
 
   // Primeira avaliação é gratuita — verifica se nunca foi avaliado antes
@@ -115,7 +123,7 @@ export async function POST(req: NextRequest) {
   // ── Calcula os 6 atributos FIFA-style via calcAtributos ──
   // posicao está em user_metadata (não na tabela profiles)
   const posicaoAtleta = (atletaUser?.user_metadata?.posicao as string | null) ?? 'Atacante'
-  const atrs = calcAtributos(respostas, posicaoAtleta)
+  const atrs = calcAtributos(respostas, posicaoAtleta, variante)
 
   // Mapeia VEL/TEC/DRI/FIS/TAT/POS para as colunas legadas do DB
   // (reutilizamos as colunas existentes com os novos valores 0-99)

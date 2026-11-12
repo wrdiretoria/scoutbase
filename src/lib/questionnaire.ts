@@ -22,9 +22,12 @@
 
 import { BLOCO_POR_PERGUNTA, type BlocoOvr } from './blocosOvr'
 
-export type QuestionDef = { key: string; label: string; icon: string }
+import { positionQuestionnaireKey, positionQuestionnaires, type PositionQuestionnaireKey, type CardAttribute } from './positionQuestionnaires'
+
+export type QuestionDef = { key: string; label: string; icon: string; block?: BlocoOvr; attribute?: CardAttribute }
 
 export type VarianteKey =
+  | PositionQuestionnaireKey
   | 'iniciacao'
   | 'iniciacao_goleiro'     | 'iniciacao_zagueiro'     | 'iniciacao_lateral'
   | 'iniciacao_volante'     | 'iniciacao_meia'          | 'iniciacao_ponta'    | 'iniciacao_centroavante'
@@ -36,6 +39,7 @@ export type VarianteKey =
   | 'sub20_volante'         | 'sub20_meia'              | 'sub20_ponta'        | 'sub20_centroavante'
 
 export type VarianteDef = {
+  blocoB?: QuestionDef[]
   label:  string
   blocoA: QuestionDef[]   // 10 questões técnicas (varia por posição/fase)
   blocoC: QuestionDef[]   // 4 questões físico/contextual (varia por posição/fase)
@@ -671,6 +675,7 @@ const BLOCO_C_INICIACAO_LEGADO: QuestionDef[] = [
 // ── VARIANTES — estrutura completa ────────────────────────────────────────────
 
 export const VARIANTES: Record<VarianteKey, VarianteDef> = {
+  ...positionQuestionnaires,
 
   // ── Iniciação (legacy fallback) ────────────────────────────────────────────
 
@@ -866,6 +871,8 @@ export function getGrupoPosicao(
 
 export function getVariante(dataNasc: string, posicao: string): VarianteKey {
   const fase  = getFase(dataNasc)
+  const positionVariant = positionQuestionnaireKey(fase, posicao)
+  if (positionVariant) return positionVariant
   const grupo = getGrupoPosicao(posicao)
   if (fase === 'iniciacao') {
     if (grupo === 'goleiro')      return 'iniciacao_goleiro'
@@ -883,7 +890,7 @@ export function getVariante(dataNasc: string, posicao: string): VarianteKey {
 export function getTodasPerguntas(variante: VarianteKey): QuestionDef[] {
   if (!Object.hasOwn(VARIANTES, variante)) return []
   const v = VARIANTES[variante]
-  return [...v.blocoA, ...BLOCO_PERFIL, ...v.blocoC]
+  return [...v.blocoA, ...(v.blocoB ?? BLOCO_PERFIL), ...v.blocoC]
 }
 
 /** Pesos de cada bloco no OVR (somam 1). Mapa pergunta → bloco em lib/blocosOvr.ts. */
@@ -906,7 +913,7 @@ export function calcScoutScore(respostas: Record<string, number>, variante: Vari
   const porBloco: Record<BlocoOvr, number[]> = { tecnico: [], fisico: [], tatico: [], comportamento: [] }
   for (const q of perguntas) {
     const v = respostas[q.key] ?? 0
-    const bloco = BLOCO_POR_PERGUNTA[q.key]
+    const bloco = q.block ?? BLOCO_POR_PERGUNTA[q.key]
     if (v > 0 && bloco) porBloco[bloco].push(v)
   }
   let soma = 0
@@ -1097,7 +1104,23 @@ function avgAtributo(respostas: Record<string, number>, keys: string[]): number 
 export function calcAtributos(
   respostas: Record<string, number>,
   posicao: string,
+  variante?: VarianteKey,
 ): Atributos {
+  const questions = variante ? getTodasPerguntas(variante) : []
+  if (questions.some(question => question.attribute)) {
+    const keys: AtributoMap = { VEL: [], TEC: [], DRI: [], FIS: [], TAT: [], POS: [] }
+    for (const question of questions) {
+      if (question.attribute) keys[question.attribute].push(question.key)
+    }
+    return {
+      VEL: avgAtributo(respostas, keys.VEL),
+      TEC: avgAtributo(respostas, keys.TEC),
+      DRI: avgAtributo(respostas, keys.DRI),
+      FIS: avgAtributo(respostas, keys.FIS),
+      TAT: avgAtributo(respostas, keys.TAT),
+      POS: avgAtributo(respostas, keys.POS),
+    }
+  }
   const grupo = getGrupoPosicao(posicao)
   const map   = ATRIBUTOS_KEYS[grupo]
   return {
