@@ -1,6 +1,6 @@
 import { createAdminClient } from '@/lib/supabase'
 import { NextResponse } from 'next/server'
-import { erroDataNascimento } from '@/lib/categoria'
+import { erroIdadeCadastroAtleta } from '@/lib/categoria'
 
 async function gerarAthleteId(admin: ReturnType<typeof createAdminClient>): Promise<string> {
   for (let tentativa = 0; tentativa < 10; tentativa++) {
@@ -28,19 +28,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Dados ausentes.' }, { status: 400 })
     }
     // Data de nascimento obrigatória e válida — sem ela o atleta fica sem categoria
-    const erroNasc = erroDataNascimento(dataNascimento)
+    const erroNasc = erroIdadeCadastroAtleta(dataNascimento)
     if (erroNasc || !dataNascimento) {
       return NextResponse.json({ error: erroNasc ?? 'Informe sua data de nascimento.' }, { status: 400 })
     }
 
-    // Validação de idade — atleta deve ter até 20 anos (Sub-20)
-    const nasc  = new Date(dataNascimento)
-    const hoje  = new Date()
-    const idade = hoje.getFullYear() - nasc.getFullYear()
-      - (hoje < new Date(hoje.getFullYear(), nasc.getMonth(), nasc.getDate()) ? 1 : 0)
-    if (idade > 20) {
-      return NextResponse.json({ error: 'O Meu Craque é exclusivo para atletas do futebol de base (até Sub-20). Se você é treinador ou profissional, crie um perfil de treinador.' }, { status: 400 })
-    }
 
     const admin = createAdminClient()
 
