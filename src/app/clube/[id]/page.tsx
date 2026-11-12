@@ -61,9 +61,11 @@ export default async function ClubePage({ params }: Props) {
 
 
   const { data: institution } = await admin.from('institutional_profiles')
-    .select('nome, kind, cidade, verification_status')
+    .select('nome, kind, cidade, verification_status, cnpj')
     .eq('owner_id', id).maybeSingle()
   if (institution) {
+    const independent = institution.cnpj === null
+    const verified = institution.verification_status === 'verified'
     return (
       <main className={styles.page}>
         <div className={styles.shell}>
@@ -72,12 +74,12 @@ export default async function ClubePage({ params }: Props) {
             <Link href="/ranking">Explorar atletas</Link>
           </header>
           <section className={styles.card}>
-            <p>{institution.kind === 'clube' ? 'Clube' : 'Escolinha'}</p>
+            <p>{institution.kind === 'clube' ? 'Clube' : independent ? 'Escolinha independente' : 'Escolinha'}</p>
             <h1>{institution.nome}</h1>
             <p>{institution.cidade}</p>
-            <span className={styles.status}>{institution.verification_status === 'verified' ? 'Instituição verificada' : 'Verificação pendente'}</span>
+            {verified && <span className={styles.status}>Instituição verificada</span>}
           </section>
-          <p>{institution.verification_status === 'verified' ? 'Cadastro institucional conferido pelo MeuCraque.' : 'CNPJ e vínculo do responsável aguardam conferência.'}</p>
+          {verified && <p>Cadastro institucional conferido pelo MeuCraque.</p>}
           <Link href="/clube/cadastro">Cadastrar meu clube ou escolinha</Link>
         </div>
       </main>

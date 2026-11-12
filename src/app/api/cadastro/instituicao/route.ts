@@ -29,10 +29,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Saia da conta atual antes de criar uma instituição.' }, { status: 409 })
     }
     const admin = createAdminClient()
-    const existing = await admin.from('institutional_profiles').select('owner_id').eq('cnpj', institution.cnpj).maybeSingle()
-    if (existing.error) throw existing.error
-    if (existing.data) {
-      return NextResponse.json({ error: 'Este CNPJ já possui cadastro. Entre na conta da instituição.' }, { status: 409 })
+    if (institution.cnpj !== null) {
+      const existing = await admin.from('institutional_profiles').select('owner_id').eq('cnpj', institution.cnpj).maybeSingle()
+      if (existing.error) throw existing.error
+      if (existing.data) {
+        return NextResponse.json({ error: 'Este CNPJ já possui cadastro. Entre na conta da instituição.' }, { status: 409 })
+      }
     }
     const { data, error } = await client.auth.signUp({
       email, password,

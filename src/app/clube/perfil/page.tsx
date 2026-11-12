@@ -13,6 +13,8 @@ export default async function InstitutionProfilePage() {
   if (error) throw new Error('Não foi possível carregar o cadastro institucional.')
   if (!data) redirect('/clube/cadastro')
   const institution = data as Institution
+  const independent = institution.cnpj === null
+  const verified = institution.verification_status === 'verified'
   return (
     <main className={styles.page}>
       <div className={styles.shell}>
@@ -20,14 +22,14 @@ export default async function InstitutionProfilePage() {
           <Link href="/" className={styles.brand} aria-label="MeuCraque, início">⚽ <span>MEUCRAQUE</span>.com</Link>
           <Link href="/">Início</Link>
         </header>
-        <p>{institution.kind === 'clube' ? 'Clube' : 'Escolinha'}</p>
+        <p>{institution.kind === 'clube' ? 'Clube' : independent ? 'Escolinha independente' : 'Escolinha'}</p>
         <h1>{institution.nome}</h1>
-        <span className={styles.status}>{institution.verification_status === 'verified' ? 'Instituição verificada' : 'Verificação pendente'}</span>
-        <p>{institution.verification_status === 'verified' ? 'Cadastro institucional conferido.' : 'Seu CNPJ e o vínculo do responsável ainda precisam ser conferidos. Atualizar os dados reinicia essa conferência.'}</p>
+        {!independent && <span className={styles.status}>{verified ? 'Instituição verificada' : 'Verificação pendente'}</span>}
+        <p>{independent ? 'Adicione um CNPJ para solicitar a verificação e poder publicar vagas após a aprovação.' : verified ? 'Cadastro institucional conferido.' : 'Seu CNPJ e o vínculo do responsável ainda precisam ser conferidos. Atualizar os dados reinicia essa conferência.'}</p>
         <nav className={styles.actions} aria-label="Ações da instituição">
           <Link href={'/clube/' + user.id}>Ver perfil público</Link>
           <Link href="/ranking">Explorar atletas</Link>
-          {institution.verification_status === 'verified' && <Link href="/clube/vagas">Gerenciar oportunidades</Link>}
+          {verified && <Link href="/clube/vagas">Gerenciar oportunidades</Link>}
         </nav>
         <section className={styles.card}><InstitutionForm initial={institution} signedIn /></section>
       </div>

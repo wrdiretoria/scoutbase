@@ -2,13 +2,14 @@ create table public.institutional_profiles (
   owner_id uuid primary key references public.profiles(id) on delete cascade,
   kind text not null check (kind in ('clube', 'escolinha')),
   nome text not null check (char_length(nome) between 2 and 160),
-  cnpj text not null unique check (cnpj ~ '^[A-Z0-9]{12}[0-9]{2}$'),
+  cnpj text unique check (cnpj ~ '^[A-Z0-9]{12}[0-9]{2}$'),
   cidade text not null check (char_length(cidade) between 2 and 160),
   responsavel_nome text not null check (char_length(responsavel_nome) between 2 and 160),
   responsavel_cargo text not null check (char_length(responsavel_cargo) between 2 and 160),
   verification_status text not null default 'pending' check (verification_status in ('pending', 'verified')),
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  constraint institutional_profiles_cnpj_required check (cnpj is not null or (kind = 'escolinha' and verification_status = 'pending'))
 );
 alter table public.institutional_profiles enable row level security;
 revoke all on public.institutional_profiles from anon, authenticated;

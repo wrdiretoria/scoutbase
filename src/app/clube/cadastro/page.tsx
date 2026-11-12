@@ -23,7 +23,7 @@ export default async function InstitutionSignupPage() {
         <div className={styles.card}>
           {user && user.user_metadata?.tipo !== 'clube' ? <p>Você está em uma conta pessoal. Volte ao seu perfil e saia da conta para cadastrar uma instituição.</p> : <InstitutionForm signedIn={!!user} />}
         </div>
-        <p>O cadastro entra como pendente de verificação. O selo depende da conferência do CNPJ e da representação.</p>
+        <p>Escolinhas independentes podem criar um perfil sem CNPJ. O selo depende da conferência do CNPJ e do vínculo do responsável.</p>
       </div>
     </main>
   )

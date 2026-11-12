@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
-import { isValidCnpj, normalizeCnpj } from '@/lib/cnpj'
+import { isValidCnpj } from '@/lib/cnpj'
 import type { Institution } from '@/lib/institution'
 import styles from './institution.module.css'
 
@@ -19,7 +19,7 @@ export default function InstitutionForm({ initial, signedIn = false }: { initial
     if (busy) return
     setError('')
     setMessage('')
-    if (!isValidCnpj(cnpj)) {
+    if ((kind === 'clube' || cnpj.trim()) && !isValidCnpj(cnpj)) {
       setError('Confira o CNPJ informado.')
       return
     }
@@ -30,7 +30,7 @@ export default function InstitutionForm({ initial, signedIn = false }: { initial
       const response = await fetch(signedIn ? '/api/clube/perfil' : '/api/cadastro/instituicao', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...body, kind, cnpj: normalizeCnpj(cnpj), acceptedTerms: form.has('terms') }),
+        body: JSON.stringify({ ...body, kind, cnpj, acceptedTerms: form.has('terms') }),
       })
       const result = await response.json()
       if (!response.ok) throw new Error(result.error || 'Não foi possível salvar.')
@@ -70,9 +70,9 @@ export default function InstitutionForm({ initial, signedIn = false }: { initial
           </select>
           <label htmlFor="institution-name">Nome da instituição</label>
           <input id="institution-name" name="nome" required minLength={2} maxLength={160} defaultValue={initial?.nome} autoComplete="organization" />
-          <label htmlFor="institution-cnpj">CNPJ da instituição responsável</label>
-          <input id="institution-cnpj" name="cnpj" required maxLength={18} value={cnpj} onChange={e => setCnpj(e.target.value.toUpperCase())} autoCapitalize="characters" spellCheck={false} aria-describedby="cnpj-help" />
-          <small id="cnpj-help">Aceita CNPJ numérico ou alfanumérico. Se a escolinha pertence a uma instituição, informe o CNPJ dela.</small>
+          <label htmlFor="institution-cnpj">CNPJ da instituição responsável{kind === 'escolinha' ? ' (opcional)' : ''}</label>
+          <input id="institution-cnpj" name="cnpj" required={kind === 'clube'} maxLength={18} value={cnpj} onChange={e => setCnpj(e.target.value.toUpperCase())} autoCapitalize="characters" spellCheck={false} aria-describedby="cnpj-help" />
+          <small id="cnpj-help">{kind === 'escolinha' ? 'Sem CNPJ, você pode criar o perfil da escolinha independente. O selo e a publicação de vagas exigem verificação.' : 'O selo depende da conferência do CNPJ e do vínculo do responsável.'}</small>
           <label htmlFor="institution-city">Cidade e estado</label>
           <input id="institution-city" name="cidade" required minLength={2} maxLength={160} defaultValue={initial?.cidade} placeholder="Rio de Janeiro, RJ" />
           <label htmlFor="institution-representative">Nome completo do responsável</label>
