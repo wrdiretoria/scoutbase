@@ -1,3 +1,4 @@
+import { podeTrocarMensagens } from '@/lib/athlete-messaging'
 /**
  * GET /api/conversations
  * Lista as conversas do usuário logado, com o outro participante, a última
@@ -92,6 +93,10 @@ export async function POST(req: NextRequest) {
 
     const { data: destino } = await admin.from('profiles').select('id').eq('id', otherUserId).maybeSingle()
     if (!destino) return NextResponse.json({ error: 'Perfil não encontrado.' }, { status: 404 })
+
+    if (!await podeTrocarMensagens(admin, [user.id, otherUserId])) {
+      return NextResponse.json({ error: 'Mensagens internas estão disponíveis a partir dos 18 anos.' }, { status: 403 })
+    }
 
     const conversationId = await getOrCreateConversation(admin, user.id, otherUserId)
 
