@@ -6,7 +6,7 @@
 import { NextResponse } from 'next/server'
 import { createServerClient, createAdminClient } from '@/lib/supabase'
 
-export async function GET() {
+export async function GET(request: Request) {
   const supabase = await createServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
@@ -16,6 +16,16 @@ export async function GET() {
   const agora      = new Date()
   const semanaAtras = new Date(agora.getTime() - 7  * 24 * 60 * 60 * 1000).toISOString()
   const mesAtras    = new Date(agora.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString()
+
+  const summary = new URL(request.url).searchParams.get('resumo') === '1'
+  if (summary) {
+    const [week, all] = await Promise.all([
+      admin.from('visitas').select('*', { count: 'exact', head: true }).eq('atleta_id', user.id).gte('created_at', semanaAtras),
+      admin.from('visitas').select('*', { count: 'exact', head: true }).eq('atleta_id', user.id),
+    ])
+    if (week.error || all.error) return NextResponse.json({ error: 'Falha ao carregar visitas' }, { status: 503 })
+    return NextResponse.json({ semana: week.count ?? 0, total: all.count ?? 0 })
+  }
 
   // ── Contagens do atleta ──
   const [{ count: semana }, { count: mes }, { count: total }] = await Promise.all([

@@ -26,7 +26,7 @@ export default function VisitNotifications({ icon, ownerId }: { icon: ReactNode;
       request = new AbortController()
       const { signal } = request
       try {
-        const response = await fetch('/api/atleta/visitas', { cache: 'no-store', signal })
+        const response = await fetch('/api/atleta/visitas?resumo=1', { cache: 'no-store', signal })
         if (!response.ok) throw new Error('Falha ao carregar visitas')
         const latest = await response.json() as Visits
         if (signal.aborted) return

@@ -413,7 +413,6 @@ export default async function JogadorPublicoPage({ params }: Props) {
     return filtered.length > 0 ? filtered : (avatarUrl ? [avatarUrl] : [])
   })()
   const hasPhoto = fotosArray.length > 0
-  const visitCount     = meta.visit_count ?? 0
   const favoritoCount  = meta.favorito_count   ?? 0
 
   // Busca OVR + última avaliação (atributos detalhados para scouts)
@@ -431,7 +430,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
     video_id: string; titulo: string | null; thumbnail_url: string | null
   }
 
-  const [categoria, ovr, ultimaAv, highlights, networkStats, atividadeRecente] = await Promise.all([
+  const [categoria, ovr, ultimaAv, highlights, networkStats, atividadeRecente, { count: visitCount }] = await Promise.all([
     Promise.resolve(dataNasc ? categoriaDoAtleta(dataNasc) : null),
     athleteId ? fetchOvrSingle(admin, athleteId) : Promise.resolve(null),
     // Última avaliação com atributos detalhados (via auth UUID direto)
@@ -491,6 +490,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
         })) as FeedPostComContagens[]
       } catch { return [] as FeedPostComContagens[] }
     })(),
+    admin.from('visitas').select('*', { count: 'exact', head: true }).eq('atleta_id', id),
   ])
 
   // Atributos na escala única 0-99 (normaliza avaliações legadas 0-10)
@@ -610,7 +610,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
               background: 'rgba(255,255,255,0.03)',
             }}>
               <span style={{ fontSize: '12px' }}>👁</span>
-              {visitCount.toLocaleString('pt-BR')}
+              {(visitCount ?? 0).toLocaleString('pt-BR')}
             </div>
             {favoritoCount > 0 && (
               <div style={{
