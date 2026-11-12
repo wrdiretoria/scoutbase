@@ -1,3 +1,4 @@
+import { atletaMaiorDeIdade } from '@/lib/athlete-messaging'
 /**
  * /jogador/[id] — Currículo público do atleta
  * Acessível sem login. Compartilhável no story / WhatsApp / grupos.
@@ -361,6 +362,8 @@ export default async function JogadorPublicoPage({ params }: Props) {
     pais?: string; nacionalidade?: string
     visit_count?: number; favorito_count?: number
     telefone?: string
+    publicar_telefone?: boolean
+    instagram_contato?: string
     clubes_anteriores?: string
     campeonatos?: string
     titulos?: string
@@ -830,7 +833,13 @@ export default async function JogadorPublicoPage({ params }: Props) {
         {!isOwner && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '16px' }}>
             <ConectarButton subjectId={id} />
-            <MensagemButton subjectId={id} />
+            {atletaMaiorDeIdade(dataNasc) && <MensagemButton subjectId={id} />}
+            {atletaMaiorDeIdade(dataNasc) && meta.instagram_contato && /^[a-zA-Z0-9._]{1,30}$/.test(meta.instagram_contato) && (
+              <a href={`https://www.instagram.com/${meta.instagram_contato}/`} target="_blank" rel="noopener noreferrer">Instagram</a>
+            )}
+            {atletaMaiorDeIdade(dataNasc) && meta.publicar_telefone === true && telefone && /^\+?[\d\s().-]{8,24}$/.test(telefone) && (
+              <a href={`tel:${telefone.replace(/[^+\d]/g, '')}`}>Ligar para o atleta</a>
+            )}
             <SeguirButton subjectId={id} />
             <CopiarLink url={`${SERVER_BASE_URL}/jogador/${id}`} />
           </div>
