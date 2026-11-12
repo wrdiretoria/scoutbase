@@ -189,9 +189,9 @@ export default function LoginPage() {
           </Link>
         </div>
 
-        {/* Toggle Atleta / Treinador */}
+        {/* Acessos por tipo de conta */}
         <div style={{
-          display: 'flex', background: 'rgba(255,255,255,0.05)',
+          display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', background: 'rgba(255,255,255,0.05)',
           borderRadius: '12px', padding: '4px', marginBottom: '28px',
           border: '1px solid rgba(255,255,255,0.08)',
         }}>
@@ -201,9 +201,9 @@ export default function LoginPage() {
               type="button" aria-pressed={area === a}
               onClick={() => handleArea(a)}
               style={{
-                flex: 1, padding: '10px', borderRadius: '9px', border: 'none',
+                minHeight: 44, padding: '8px 2px', borderRadius: '9px', border: 'none',
                 cursor: 'pointer', fontFamily: 'inherit',
-                fontSize: '14px', fontWeight: 700,
+                fontSize: '12px', fontWeight: 700,
                 background: area === a ? '#304332' : 'transparent',
                 color: area === a ? 'var(--mc-text)' : 'var(--mc-muted)',
                 transition: 'all .2s',
@@ -212,6 +212,13 @@ export default function LoginPage() {
               {a === 'atleta' ? '⚡ Atleta' : a === 'treinador' ? '👨‍🏫 Treinador' : '🏟️ Instituição'}
             </button>
           ))}
+          <Link href="/scout/entrar" style={{
+            display: 'grid', placeItems: 'center', minHeight: 44, padding: '8px 2px',
+            borderRadius: '9px', fontSize: '12px', fontWeight: 700,
+            color: 'var(--mc-muted)', textDecoration: 'none', textAlign: 'center',
+          }}>
+            <span><span aria-hidden="true">🔍 </span>Scout</span>
+          </Link>
         </div>
 
         {/* Título */}
