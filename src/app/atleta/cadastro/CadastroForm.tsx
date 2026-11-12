@@ -4,7 +4,7 @@ import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
-import { erroDataNascimento } from '@/lib/categoria'
+import { erroIdadeCadastroAtleta } from '@/lib/categoria'
 
 const posicoes = [
   'Goleiro', 'Lateral Direito', 'Lateral Esquerdo', 'Zagueiro',
@@ -154,21 +154,12 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
       return
     }
     // Data obrigatória e válida ANTES de criar a conta (sem ela o atleta fica sem categoria)
-    const erroNasc = erroDataNascimento(dataNasc)
+    const erroNasc = erroIdadeCadastroAtleta(dataNasc)
     if (erroNasc) {
       setError(erroNasc)
       return
     }
 
-    // Validação de idade — perfil de atleta até Sub-20 (20 anos)
-    const nascimento = new Date(dataNasc)
-    const hoje = new Date()
-    const idade = hoje.getFullYear() - nascimento.getFullYear() -
-      (hoje < new Date(hoje.getFullYear(), nascimento.getMonth(), nascimento.getDate()) ? 1 : 0)
-    if (idade > 20) {
-      setError('⚠️ O Meu Craque é exclusivo para atletas do futebol de base (até Sub-20). Se você é treinador ou profissional, crie um perfil de treinador.')
-      return
-    }
     setError(null)
     setLoading(true)
 
@@ -392,7 +383,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
               </label>
               <input
                 type="email" required value={recoveryEmail} onChange={e => setRecoveryEmail(e.target.value)}
-                placeholder="email do responsável / pai ou mãe"
+                placeholder="Seu e-mail ou o do responsável"
                 style={inputStyle}
               />
               <p style={{ margin: '6px 0 0', fontSize: '11px', color: 'rgba(255,255,255,0.25)', lineHeight: 1.5 }}>
@@ -414,7 +405,7 @@ export default function CadastroForm({ escolaId, escolaNome, refCode }: Props) {
                 {consent && <span style={{ fontSize: '12px', color: 'black', fontWeight: 900 }}>✓</span>}
               </div>
               <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>
-                Confirmo que sou o responsável legal pelo atleta cadastrado e autorizo o uso de seus dados e imagens conforme os{' '}
+                Confirmo que sou o atleta maior de idade ou o responsável legal pelo atleta menor de idade e autorizo o uso dos dados e imagens conforme os{' '}
                 <Link href="/termos" target="_blank" onClick={e => e.stopPropagation()} style={{ color: '#b3f737', textDecoration: 'none' }}>Termos de Uso</Link>.
               </span>
             </div>
