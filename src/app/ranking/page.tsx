@@ -97,7 +97,7 @@ export default async function RankingPage({ searchParams }: Props) {
     const [, prefixo, digitos] = buscaPorId
     const numero = digitos.padStart(5, '0')
     const codigos = prefixo ? [`${prefixo}-${numero}`] : [numero, `MC-${numero}`, `TR-${numero}`]
-    const { data: perfis } = await admin.from('profiles').select('id, nome, athlete_id').in('athlete_id', codigos)
+    const { data: perfis } = await admin.from('profiles').select('id, nome, athlete_id, avatar_url').in('athlete_id', codigos)
     if (perfis?.length) {
       return (
         <main style={{ maxWidth: 720, margin: '0 auto', padding: '24px 16px', color: 'var(--mc-text)' }}>
@@ -116,9 +116,16 @@ export default async function RankingPage({ searchParams }: Props) {
               return (
                 <li key={perfil.id}>
                   <Link href={`/${treinador ? 'treinador' : 'jogador'}/${perfil.id}`}
-                    style={{ display: 'block', padding: 14, border: '1px solid #405247', borderRadius: 12, background: 'var(--mc-surface)', color: 'var(--mc-text)', textDecoration: 'none' }}>
+                    style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 14, border: '1px solid #405247', borderRadius: 12, background: 'var(--mc-surface)', color: 'var(--mc-text)', textDecoration: 'none' }}>
+                    <span aria-hidden="true" style={{ width: 46, height: 46, flexShrink: 0, borderRadius: '50%', overflow: 'hidden', display: 'grid', placeItems: 'center', background: '#26382d', fontWeight: 800 }}>
+                      {perfil.avatar_url ? (
+                        <img src={perfil.avatar_url} alt="" width={46} height={46} style={{ display: 'block', objectFit: 'cover' }} />
+                      ) : getInitials(perfil.nome || tipo)}
+                    </span>
+                    <div style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
                     <strong>{perfil.nome || tipo}</strong>
                     <span style={{ display: 'block', marginTop: 4, color: 'var(--mc-muted)' }}>{tipo} · {treinador ? perfil.athlete_id?.replace(/^TR-0*(?=\d{2}$)/, '').replace(/^TR-/, '') : perfil.athlete_id}</span>
+                    </div>
                   </Link>
                 </li>
               )
