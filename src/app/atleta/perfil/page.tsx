@@ -1,5 +1,7 @@
 'use client'
 
+import { highlightSkills } from '@/lib/highlight-skills'
+
 import { useEffect, useState, Suspense, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -460,12 +462,9 @@ function AtletaPerfilContent() {
   const [savedId,      setSavedId]      = useState(false)
 
   // ── Highlights state ──
+  const [savingSkill, setSavingSkill] = useState<string | null>(null)
+  const [skillStatus, setSkillStatus] = useState<{ skill: string; message: string; failed: boolean } | null>(null)
   const [highlights,    setHighlights]    = useState<Highlight[]>([])
-  const [showAddHL,     setShowAddHL]     = useState(false)
-  const [hlUrl,         setHlUrl]         = useState('')
-  const [hlParsed,      setHlParsed]      = useState<ParsedVideo | null>(null)
-  const [addingHL,      setAddingHL]      = useState(false)
-  const [hlError,       setHlError]       = useState<string | null>(null)
   const [playingHlId,   setPlayingHlId]   = useState<string | null>(null)
   const [deletingHlId,  setDeletingHlId]  = useState<string | null>(null)
 
@@ -698,33 +697,33 @@ function AtletaPerfilContent() {
   }
 
   // ── Highlights handlers ──────────────────────────────────────
-  function handleHlUrlChange(v: string) {
-    setHlUrl(v)
-    setHlError(null)
-    setHlParsed(parseVideoUrl(v))
-  }
-
-  async function handleAddHL() {
-    if (!hlParsed) { setHlError('URL não reconhecida. Use YouTube, TikTok, Instagram ou Vimeo.'); return }
-    setAddingHL(true); setHlError(null)
+  async function saveSkillVideo(skill: string, url: string) {
+    if (savingSkill) return
+    setSavingSkill(skill)
+    setSkillStatus(null)
     try {
+      if (!parseVideoUrl(url)) throw new Error('Use um link de vídeo do YouTube, TikTok, Instagram ou Vimeo.')
       const res = await fetch('/api/atleta/highlights', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: hlUrl }),
+        body: JSON.stringify({ url, skill }),
       })
-      const json = await res.json() as { highlight?: Highlight; error?: string }
-      if (!res.ok || !json.highlight) { setHlError(json.error ?? 'Erro ao adicionar.'); return }
-      setHighlights(prev => [json.highlight!, ...prev])
-      setHlUrl(''); setHlParsed(null); setShowAddHL(false)
-    } catch { setHlError('Erro de conexão. Tente novamente.') }
-    finally { setAddingHL(false) }
+      const { highlight, error } = await res.json() as { highlight?: Highlight; error?: string }
+      if (!res.ok || !highlight) throw new Error(error ?? 'Não foi possível salvar o link.')
+      setHighlights(previous => [highlight, ...previous.filter(video => video.id !== highlight.id)])
+      setSkillStatus({ skill, message: 'Link salvo.', failed: false })
+    } catch (error) {
+      setSkillStatus({ skill, message: error instanceof Error ? error.message : 'Tente novamente.', failed: true })
+    } finally {
+      setSavingSkill(null)
+    }
   }
 
   async function handleDeleteHL(id: string) {
     setDeletingHlId(id)
     try {
-      await fetch(`/api/atleta/highlights/${id}`, { method: 'DELETE' })
+      const response = await fetch(`/api/atleta/highlights/${id}`, { method: 'DELETE' })
+      if (!response.ok) return
       setHighlights(prev => prev.filter(h => h.id !== id))
       if (playingHlId === id) setPlayingHlId(null)
     } catch { /* silencia */ }
@@ -1877,83 +1876,40 @@ function AtletaPerfilContent() {
         ══════════════════════════════════════════ */}
         <div id="highlights" style={{ marginBottom:'24px', scrollMarginTop: 80 }}>
 
-          {/* Header */}
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'12px' }}>
-            <div>
-              <p style={{ margin:'0 0 2px', fontSize:'12px', fontWeight:700, color:'rgba(255,255,255,0.4)', letterSpacing:'0.08em', textTransform:'uppercase' }}>
-                Highlights
-              </p>
-              <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.2)' }}>
-                {highlights.length === 0 ? 'Seus melhores momentos em campo' : `${highlights.length} vídeo${highlights.length > 1 ? 's' : ''} adicionado${highlights.length > 1 ? 's' : ''}`}
-              </p>
-            </div>
-            <button
-              onClick={() => { setShowAddHL(v => !v); setHlUrl(''); setHlParsed(null); setHlError(null) }}
-              style={{
-                padding:'7px 14px', borderRadius:'10px', border:'1px solid rgba(0,255,136,0.3)',
-                background: showAddHL ? 'rgba(0,255,136,0.12)' : 'rgba(0,255,136,0.06)',
-                color: 'var(--mc-accent)', fontWeight:700, fontSize:'13px', cursor:'pointer',
-                fontFamily:'system-ui,sans-serif',
-              }}
-            >
-              {showAddHL ? '✕ Cancelar' : '＋ Adicionar'}
-            </button>
+          <h2 style={{ margin:'0 0 4px', fontSize:20 }}>Meus vídeos</h2>
+          <p style={{ margin:'0 0 12px', color:'var(--mc-muted)', fontSize:13 }}>
+            Cole um link do YouTube, TikTok, Instagram ou Vimeo em cada habilidade que quiser mostrar.
+          </p>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 172px), 1fr))', gap:10, marginBottom:16 }}>
+            {highlightSkills.map((skill, index) => {
+              const video = highlights.find(item => item.titulo === skill)
+              const inputId = `highlight-skill-${index}`
+              return (
+                <form key={skill} onSubmit={event => {
+                  event.preventDefault()
+                  const url = new FormData(event.currentTarget).get('url')
+                  if (typeof url === 'string') void saveSkillVideo(skill, url.trim())
+                }} style={{ display:'flex', flexDirection:'column', gap:8, padding:12, borderRadius:14, border:'1px solid #304239', background:'var(--mc-surface)' }}>
+                  <label htmlFor={inputId} style={{ fontSize:13, fontWeight:800, flex:1 }}>{skill}</label>
+                  <input key={video?.url ?? ''} id={inputId} name="url" type="url" required
+                    defaultValue={video?.url ?? ''} placeholder="Cole o link do vídeo"
+                    className="hl-add-input" style={{ minWidth:0, width:'100%', boxSizing:'border-box', fontSize:16 }}
+                  />
+                  <button type="submit" disabled={savingSkill !== null || deletingHlId !== null} style={{
+                    minHeight:40, borderRadius:9, border:'1px solid #526458', background:'transparent',
+                    color:'var(--mc-accent)', fontWeight:800, cursor:'pointer',
+                  }}>
+                    {savingSkill === skill ? 'Salvando…' : video ? 'Atualizar link' : 'Salvar link'}
+                  </button>
+                  {skillStatus?.skill === skill && (
+                    <p role={skillStatus.failed ? 'alert' : 'status'} style={{ margin:0, fontSize:12, color:skillStatus.failed ? '#f87171' : 'var(--mc-accent)' }}>
+                      {skillStatus.message}
+                    </p>
+                  )}
+                </form>
+              )
+            })}
           </div>
-
-          {/* Formulário de adição */}
-          {showAddHL && (
-            <div style={{
-              marginBottom:'14px', padding:'16px', borderRadius:'16px',
-              background:'rgba(0,255,136,0.04)', border:'1px solid rgba(0,255,136,0.18)',
-              animation:'revealUp .3s ease forwards',
-            }}>
-              <p style={{ margin:'0 0 10px', fontSize:'11px', fontWeight:700, color:'rgba(255,255,255,0.35)', letterSpacing:'0.06em', textTransform:'uppercase' }}>
-                Cole o link do vídeo
-              </p>
-              <input
-                className="hl-add-input"
-                type="url"
-                value={hlUrl}
-                onChange={e => handleHlUrlChange(e.target.value)}
-                placeholder="YouTube, TikTok, Instagram ou Vimeo…"
-              />
-
-              {/* Platform detection badge */}
-              {hlParsed && (
-                <div style={{
-                  marginTop:'8px', display:'inline-flex', alignItems:'center', gap:'6px',
-                  padding:'4px 10px', borderRadius:'100px',
-                  background: getPlatformInfo(hlParsed.plataforma).bg + '22',
-                  border:`1px solid ${getPlatformInfo(hlParsed.plataforma).bg}44`,
-                }}>
-                  <div style={{ width:'6px', height:'6px', borderRadius:'50%', background: getPlatformInfo(hlParsed.plataforma).bg }} />
-                  <span style={{ fontSize:'11px', fontWeight:700, color:'rgba(255,255,255,0.6)' }}>
-                    {getPlatformInfo(hlParsed.plataforma).label} detectado
-                  </span>
-                </div>
-              )}
-
-              {hlError && (
-                <p style={{ margin:'8px 0 0', fontSize:'12px', color:'#f87171' }}>{hlError}</p>
-              )}
-
-              <button
-                onClick={handleAddHL}
-                disabled={addingHL || !hlParsed}
-                style={{
-                  marginTop:'12px', width:'100%', padding:'11px', borderRadius:'10px', border:'none',
-                  background: hlParsed ? '#b3f737' : 'rgba(255,255,255,0.1)',
-                  color: hlParsed ? '#020d04' : 'rgba(255,255,255,0.25)',
-                  fontWeight:800, fontSize:'14px',
-                  cursor: (addingHL || !hlParsed) ? 'not-allowed' : 'pointer',
-                  fontFamily:'system-ui,sans-serif',
-                  opacity: addingHL ? 0.7 : 1,
-                }}
-              >
-                {addingHL ? 'Adicionando…' : 'Adicionar highlight →'}
-              </button>
-            </div>
-          )}
 
           {/* Cards de highlights */}
           {highlights.length > 0 && (
@@ -2061,21 +2017,7 @@ function AtletaPerfilContent() {
           )}
 
           {/* Empty state */}
-          {highlights.length === 0 && !showAddHL && (
-            <div style={{
-              padding:'20px', borderRadius:'16px',
-              background:'rgba(255,255,255,0.02)', border:'1px dashed rgba(255,255,255,0.1)',
-              textAlign:'center',
-            }}>
-              <p style={{ margin:'0 0 6px', fontSize:'20px' }}>🎬</p>
-              <p style={{ margin:'0 0 4px', fontSize:'13px', fontWeight:700, color:'rgba(255,255,255,0.45)' }}>
-                Nenhum highlight ainda
-              </p>
-              <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.2)', lineHeight:1.6 }}>
-                Cole links do YouTube, TikTok, Instagram ou Vimeo
-              </p>
-            </div>
-          )}
+
         </div>
 
         {/* ══════════════════════════════════════════
