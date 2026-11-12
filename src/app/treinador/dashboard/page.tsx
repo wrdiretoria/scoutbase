@@ -278,7 +278,10 @@ export default function TreinadorDashboardPage() {
   const [recentes,      setRecentes]      = useState<AvaliacaoRecente[]>([])
   const [views, setViews] = useState<number | null>(null)
   const [seenViews, setSeenViews] = useState(0)
-  const [viewsOpen, setViewsOpen] = useState(false)
+  const [openActivity, setOpenActivity] = useState<'views' | 'likes' | 'messages' | null>(null)
+  const [seenLikes, setSeenLikes] = useState(0)
+  const [unread, setUnread] = useState<string[] | null>(null)
+  const [seenMessages, setSeenMessages] = useState<string[]>([])
   const [likes, setLikes] = useState<number | null>(null)
   const [loading,       setLoading]       = useState(true)
   const [solicitacoes,  setSolicitacoes]  = useState<{ atletaId: string; atletaNome: string; atletaMcId: string; ts: string }[]>([])
@@ -313,12 +316,25 @@ export default function TreinadorDashboardPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { clearTimeout(safetyTimeout); setLoading(false); router.push('/login'); return }
 
-      const [{ data: profile }, visits, reactions] = await Promise.all([
+      const [{ data: profile }, visits, reactions, inbox] = await Promise.all([
         supabase.from('profiles').select('*').eq('id', user.id).single(),
         supabase.from('profile_views').select('id', { count: 'exact', head: true }).eq('subject_id', user.id),
         supabase.from('feed_reactions').select('feed_posts!inner(author_id)', { count: 'exact', head: true }).eq('feed_posts.author_id', user.id),
+        fetch('/api/conversations', { cache: 'no-store' })
+          .then(async response => {
+            if (!response.ok) return null
+            const data = await response.json() as {
+              conversations: { id: string; unread: boolean; lastMessage: { created_at: string } | null }[]
+            }
+            return data.conversations.filter(item => item.unread)
+              .map(item => `${item.id}:${item.lastMessage?.created_at ?? ''}`)
+          }).catch(() => null),
       ])
+      setUnread(inbox)
       try {
+        setSeenLikes(Number(localStorage.getItem(`mc:coach-likes-seen:${user.id}`)) || 0)
+        const previous = JSON.parse(localStorage.getItem(`mc:coach-messages-seen:${user.id}`) ?? '[]')
+        if (Array.isArray(previous)) setSeenMessages(previous)
         setSeenViews(Number(localStorage.getItem(`mc:coach-views-seen:${user.id}`)) || 0)
       } catch { /* Storage may be unavailable. */ }
       setViews(visits.count)
@@ -525,46 +541,55 @@ export default function TreinadorDashboardPage() {
 
       <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '420px', padding: '0 20px' }}>
         <section aria-label="Atividade do treinador" style={{ display:'grid', gridTemplateColumns:'repeat(3,minmax(0,1fr))', gap:8, marginBottom:12 }}>
-          <button
-            type="button"
-            aria-expanded={viewsOpen}
-            aria-controls="coach-profile-views"
-            onClick={() => {
-              setViewsOpen(!viewsOpen)
-              if (!viewsOpen && views !== null) {
-                setSeenViews(views)
+          {([
+            { id:'views', label:'Visualizações', value:views, badge:views === null ? 0 : views - seenViews, color:'#60a5fa' },
+            { id:'likes', label:'Curtidas', value:likes, badge:likes === null ? 0 : likes - seenLikes, color:'#b3f737' },
+            { id:'messages', label:'Mensagem', value:unread?.length ?? null, badge:unread?.filter(key => !seenMessages.includes(key)).length ?? 0, color:'#b3f737' },
+          ] as const).map(item => (
+            <button
+              key={item.id}
+              type="button"
+              aria-expanded={openActivity === item.id}
+              aria-controls="coach-activity-detail"
+              onClick={() => {
+                if (openActivity === item.id) {
+                  setOpenActivity(null)
+                  return
+                }
+                setOpenActivity(item.id)
+                if (item.value === null) return
+                if (item.id === 'views') setSeenViews(item.value)
+                if (item.id === 'likes') setSeenLikes(item.value)
+                if (item.id === 'messages' && unread) setSeenMessages(unread)
                 try {
-                  if (perfil) localStorage.setItem(`mc:coach-views-seen:${perfil.id}`, String(views))
+                  if (perfil) {
+                    const value = item.id === 'messages' ? JSON.stringify(unread) : String(item.value)
+                    localStorage.setItem(`mc:coach-${item.id}-seen:${perfil.id}`, value)
+                  }
                 } catch { /* Keep the read state in memory. */ }
-              }
-            }}
-            style={{ position:'relative', background:'var(--mc-surface)', border:'1px solid #304239', borderRadius:14, padding:'8px 4px', textAlign:'center', cursor:'pointer' }}
-          >
-            {views !== null && views > seenViews && (
-              <span style={{ position:'absolute', top:5, right:5, minWidth:17, padding:'1px 4px', borderRadius:10, background:'#b3f737', color:'#101827', fontSize:9, fontWeight:800 }} aria-label={`${views - seenViews} novas visitas`}>
-                {views - seenViews}
-              </span>
-            )}
-            <strong style={{ display:'block', fontSize:17, color:'#60a5fa' }}>{views?.toLocaleString('pt-BR') ?? '—'}</strong>
-            <span style={{ display:'block', fontSize:9, fontWeight:700, color:'white', textTransform:'uppercase' }}>Visualizações</span>
-            <span style={{ display:'block', fontSize:9, color:'#aebdb4' }}>Ver atividade</span>
-          </button>
-          <div style={{ background:'var(--mc-surface)', border:'1px solid #304239', borderRadius:14, padding:'8px 4px', textAlign:'center' }}>
-            <strong style={{ display:'block', fontSize:17, color:'#b3f737' }}>{likes?.toLocaleString('pt-BR') ?? '—'}</strong>
-            <span style={{ display:'block', fontSize:9, fontWeight:700, color:'white', textTransform:'uppercase' }}>Curtidas</span>
-            <span style={{ display:'block', fontSize:9, color:'#aebdb4' }}>nas publicações</span>
-          </div>
-          <Link href="/mensagens" style={{ background:'var(--mc-surface)', border:'1px solid #304239', borderRadius:14, padding:'8px 4px', textAlign:'center', textDecoration:'none' }}>
-            <strong aria-hidden="true" style={{ display:'block', fontSize:17, color:'#b3f737' }}>→</strong>
-            <span style={{ display:'block', fontSize:9, fontWeight:700, color:'white', textTransform:'uppercase' }}>Mensagem</span>
-            <span style={{ display:'block', fontSize:9, color:'#aebdb4' }}>Caixa de entrada</span>
-          </Link>
+              }}
+              style={{ position:'relative', background:'var(--mc-surface)', border:'1px solid #304239', borderRadius:14, padding:'8px 4px', textAlign:'center', cursor:'pointer' }}
+            >
+              {item.badge > 0 && (
+                <span style={{ position:'absolute', top:5, right:5, minWidth:17, padding:'1px 4px', borderRadius:10, background:'#b3f737', color:'#101827', fontSize:9, fontWeight:800 }} aria-label={`${item.badge} novidades`}>
+                  {item.badge}
+                </span>
+              )}
+              <strong style={{ display:'block', fontSize:17, color:item.color }}>{item.value?.toLocaleString('pt-BR') ?? '—'}</strong>
+              <span style={{ display:'block', fontSize:9, fontWeight:700, color:'white', textTransform:'uppercase' }}>{item.label}</span>
+              <span style={{ display:'block', fontSize:9, color:'#aebdb4' }}>Ver atividade</span>
+            </button>
+          ))}
         </section>
-        <div id="coach-profile-views" hidden={!viewsOpen} style={{ marginBottom:12, padding:12, border:'1px solid #304239', borderRadius:14, color:'white' }}>
-          <strong>Visitas ao perfil</strong>
-          <p style={{ margin:'4px 0 0', color:'#aebdb4' }}>
-            {views === null ? 'Total indisponível no momento.' : `${views.toLocaleString('pt-BR')} ${views === 1 ? 'visita registrada' : 'visitas registradas'}`}
-          </p>
+        <div id="coach-activity-detail" hidden={!openActivity} style={{ marginBottom:12, padding:12, border:'1px solid #304239', borderRadius:14, color:'white' }}>
+          {openActivity === 'views' && <p>{views === null ? 'Visualizações indisponíveis no momento.' : `Visitas ao perfil: ${views.toLocaleString('pt-BR')}`}</p>}
+          {openActivity === 'likes' && <p>{likes === null ? 'Curtidas indisponíveis no momento.' : `Curtidas nas publicações: ${likes.toLocaleString('pt-BR')}`}</p>}
+          {openActivity === 'messages' && (
+            <>
+              <p>{unread === null ? 'Contagem de mensagens indisponível no momento.' : `Conversas com mensagens não lidas: ${unread.length.toLocaleString('pt-BR')}`}</p>
+              <Link href="/mensagens" style={{ color:'#b3f737' }}>Abrir caixa de entrada →</Link>
+            </>
+          )}
         </div>
 
         {/* ── Top nav ── */}
