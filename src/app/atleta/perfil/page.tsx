@@ -99,7 +99,7 @@ type AtletaMeta = { nome: string; posicao: string; cidade: string; bairro?: stri
 
 type Curriculo = {
   bio: string; altura: string; peso: string; peDominante: string; clubeAtual: string
-  telefone: string; clubesAnteriores: string; campeonatos: string; titulos: string
+  telefone: string; publicarTelefone: boolean; instagramContato: string; clubesAnteriores: string; campeonatos: string; titulos: string
   premiacoes: string
 }
 
@@ -431,7 +431,7 @@ function AtletaPerfilContent() {
 
   const [curriculo,  setCurriculo]  = useState<Curriculo>({
     bio: '', altura: '', peso: '', peDominante: '', clubeAtual: '',
-    telefone: '', clubesAnteriores: '', campeonatos: '', titulos: '', premiacoes: '',
+    telefone: '', publicarTelefone: false, instagramContato: '', clubesAnteriores: '', campeonatos: '', titulos: '', premiacoes: '',
   })
   const [questionarioConcluido, setQuestionarioConcluido] = useState(false)
 
@@ -536,6 +536,8 @@ function AtletaPerfilContent() {
         peDominante:      (profile?.pe_dominante as string) ?? '',
         clubeAtual:       (profile?.clube_atual  as string) ?? '',
         telefone:         (um.telefone          as string) ?? '',
+        publicarTelefone: um.publicar_telefone === true,
+        instagramContato: (um.instagram_contato as string) ?? '',
         clubesAnteriores: (um.clubes_anteriores as string) ?? '',
         campeonatos:      (um.campeonatos       as string) ?? '',
         titulos:          (um.titulos           as string) ?? '',
@@ -761,6 +763,8 @@ function AtletaPerfilContent() {
       const { error: metaErr } = await supabase.auth.updateUser({
         data: {
           telefone:          curriculo.telefone.trim(),
+          publicar_telefone: curriculo.publicarTelefone,
+          instagram_contato: curriculo.instagramContato.trim().replace(/^@/, ''),
           clubes_anteriores: curriculo.clubesAnteriores.trim(),
           campeonatos:       curriculo.campeonatos.trim(),
           titulos:           curriculo.titulos.trim(),
@@ -1790,6 +1794,17 @@ function AtletaPerfilContent() {
                 placeholder="(11) 99999-9999"
                 style={inputStyle}
               />
+              <label style={{ display:'flex', gap:8, alignItems:'center', marginTop:8, fontSize:13 }}>
+                <input type="checkbox" checked={curriculo.publicarTelefone}
+                  onChange={e => setCurriculo(c => ({ ...c, publicarTelefone: e.target.checked }))} />
+                Exibir telefone no perfil público a partir dos 18 anos
+              </label>
+              <label style={{ display:'block', marginTop:12, fontSize:13 }}>
+                Instagram para contato público a partir dos 18 anos
+                <input type="text" value={curriculo.instagramContato} maxLength={31}
+                  pattern="@?[a-zA-Z0-9._]{1,30}" placeholder="@seuusuario"
+                  onChange={e => setCurriculo(c => ({ ...c, instagramContato: e.target.value }))} />
+              </label>
             </div>
 
             {/* ── Clubes anteriores ── */}
