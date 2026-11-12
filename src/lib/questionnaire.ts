@@ -6,7 +6,7 @@
  *   Bloco B  (6) — Perfil do Jogador    → fixos para todos os atletas
  *   Bloco C  (4) — Físico / Contextual  → específicos por fase + posição
  *
- * Variantes (23):
+ * Variantes por fase e posição:
  *   iniciacao                                                        (legacy/fallback)
  *   iniciacao_goleiro   | iniciacao_zagueiro   | iniciacao_lateral
  *   iniciacao_volante   | iniciacao_meia       | iniciacao_ponta    | iniciacao_centroavante
@@ -253,7 +253,7 @@ const BLOCO_C_LAT_FORMACAO: QuestionDef[] = [
 ]
 
 const BLOCO_C_LAT_COMPETICAO: QuestionDef[] = [
-  { key: 'lat_velocidade_aceleracao', label: 'Velocidade e Aceleração', icon: '🏃' },
+  { key: 'lat_recuperacao_velocidade', label: 'Velocidade para recompor após perder a bola', icon: '🏃' },
   { key: 'lat_resistencia_fisica',    label: 'Resistência Aeróbica',    icon: '🔋' },
   { key: 'lat_agilidade',             label: 'Agilidade e Explosão',    icon: '🤸' },
   { key: 'lat_concentracao',          label: 'Concentração Tática',     icon: '🎯' },
@@ -370,7 +370,7 @@ const BLOCO_C_MEI_INICIACAO: QuestionDef[] = [
   { key: 'mei_coordenacao',       label: 'Coordenação Motora',   icon: '🤸' },
   { key: 'mei_velocidade_reacao', label: 'Velocidade de Reação', icon: '🏃' },
   { key: 'mei_agilidade',         label: 'Agilidade com a Bola', icon: '🦶' },
-  { key: 'mei_disposicao',        label: 'Disposição e Vontade', icon: '❤️' },
+  { key: 'mei_reacao_ao_erro', label: 'Reação após errar uma jogada', icon: '❤️' },
 ]
 
 const BLOCO_C_MEI_FORMACAO: QuestionDef[] = [
@@ -431,21 +431,21 @@ const BLOCO_A_PON_COMPETICAO: QuestionDef[] = [
 ]
 
 const BLOCO_C_PON_INICIACAO: QuestionDef[] = [
-  { key: 'pon_velocidade',  label: 'Velocidade',                    icon: '🏃' },
+  { key: 'pon_arrancada_curta', label: 'Arrancada nos primeiros metros',                    icon: '🏃' },
   { key: 'pon_agilidade',   label: 'Agilidade / Mudança de Direção', icon: '🤸' },
   { key: 'pon_coordenacao', label: 'Coordenação Motora',            icon: '🌀' },
   { key: 'pon_disposicao',  label: 'Disposição e Garra',            icon: '❤️' },
 ]
 
 const BLOCO_C_PON_FORMACAO: QuestionDef[] = [
-  { key: 'pon_velocidade_sprint', label: 'Velocidade de Sprint',             icon: '🏃' },
+  { key: 'pon_sprint_com_bola', label: 'Velocidade em sprint conduzindo a bola',             icon: '🏃' },
   { key: 'pon_agilidade',         label: 'Agilidade e Mudança de Direção',  icon: '🤸' },
   { key: 'pon_explosao',          label: 'Explosão / Arrancada',            icon: '💥' },
   { key: 'pon_criatividade',      label: 'Criatividade e Imprevisibilidade', icon: '✨' },
 ]
 
 const BLOCO_C_PON_COMPETICAO: QuestionDef[] = [
-  { key: 'pon_velocidade_aceleracao', label: 'Velocidade e Aceleração',           icon: '🏃' },
+  { key: 'pon_aceleracao_apos_drible', label: 'Aceleração após superar o marcador',           icon: '🏃' },
   { key: 'pon_agilidade_explosiva',   label: 'Agilidade Explosiva',              icon: '🤸' },
   { key: 'pon_resistencia_sprints',   label: 'Resistência para Repetir Sprints', icon: '🔋' },
   { key: 'pon_concentracao',          label: 'Concentração e Consistência',      icon: '🧘' },
@@ -495,7 +495,7 @@ const BLOCO_A_CAV_COMPETICAO: QuestionDef[] = [
 ]
 
 const BLOCO_C_CAV_INICIACAO: QuestionDef[] = [
-  { key: 'cav_velocidade_reacao', label: 'Velocidade de Reação', icon: '⚡' },
+  { key: 'cav_reacao_rebote', label: 'Reação para chegar a um rebote', icon: '⚡' },
   { key: 'cav_forca_fisica',      label: 'Força Física',         icon: '💪' },
   { key: 'cav_jogo_aereo_basico', label: 'Jogo Aéreo Básico',   icon: '👆' },
   { key: 'cav_disposicao_garra',  label: 'Disposição e Garra',  icon: '❤️' },
@@ -503,9 +503,9 @@ const BLOCO_C_CAV_INICIACAO: QuestionDef[] = [
 
 const BLOCO_C_CAV_FORMACAO: QuestionDef[] = [
   { key: 'cav_velocidade',   label: 'Velocidade',              icon: '🏃' },
-  { key: 'cav_forca_duelos', label: 'Força nos Duelos',        icon: '💪' },
-  { key: 'cav_jogo_aereo',   label: 'Potência no Jogo Aéreo', icon: '👆' },
-  { key: 'cav_movimentacao', label: 'Movimentação sem Bola',  icon: '💨' },
+  { key: 'cav_equilibrio_contato', label: 'Equilíbrio ao finalizar sob contato',        icon: '💪' },
+  { key: 'cav_precisao_cabeceio', label: 'Precisão no cabeceio ao gol', icon: '👆' },
+  { key: 'cav_ataque_primeiro_pau', label: 'Ataque ao primeiro pau nos cruzamentos',  icon: '💨' },
 ]
 
 const BLOCO_C_CAV_COMPETICAO: QuestionDef[] = [
@@ -881,6 +881,7 @@ export function getVariante(dataNasc: string, posicao: string): VarianteKey {
 }
 
 export function getTodasPerguntas(variante: VarianteKey): QuestionDef[] {
+  if (!Object.hasOwn(VARIANTES, variante)) return []
   const v = VARIANTES[variante]
   return [...v.blocoA, ...BLOCO_PERFIL, ...v.blocoC]
 }
@@ -1001,7 +1002,7 @@ const ATRIBUTOS_KEYS: Record<ReturnType<typeof getGrupoPosicao>, AtributoMap> = 
   },
 
   lateral: {
-    VEL: ['lat_velocidade', 'lat_velocidade_sprint', 'lat_velocidade_aceleracao',
+    VEL: ['lat_velocidade', 'lat_velocidade_sprint', 'lat_velocidade_aceleracao', 'lat_recuperacao_velocidade',
           'lat_agilidade', 'lat_agilidade_defensiva', 'lat_agilidade_explosiva'],
     TEC: ['lat_marcacao', 'lat_marcacao_1x1', 'lat_marcacao_1x1_pressao', 'lat_desarme',
           'lat_cruzamento', 'lat_cruzamento_qualidade', 'lat_passe_curto',
@@ -1041,19 +1042,19 @@ const ATRIBUTOS_KEYS: Record<ReturnType<typeof getGrupoPosicao>, AtributoMap> = 
     FIS: ['mei_agilidade', 'mei_resistencia', 'mei_coordenacao'],
     TAT: ['mei_visao', 'mei_visao_circulacao', 'mei_visao_decisao', 'mei_posicionamento',
           'mei_movimentacao', 'mei_criatividade', 'mei_imprevisibilidade'],
-    POS: ['mei_disposicao', 'mei_concentracao', 'mei_criatividade_ment',
+    POS: ['mei_disposicao', 'mei_reacao_ao_erro', 'mei_concentracao', 'mei_criatividade_ment',
           'pf_lider', 'pf_competitivo', 'pf_decisivo', 'pf_inteligente'],
   },
 
   ponta: {
-    VEL: ['pon_velocidade', 'pon_velocidade_sprint', 'pon_velocidade_aceleracao',
+    VEL: ['pon_velocidade', 'pon_arrancada_curta', 'pon_velocidade_sprint', 'pon_sprint_com_bola', 'pon_velocidade_aceleracao', 'pon_aceleracao_apos_drible',
           'pon_agilidade', 'pon_agilidade_explosiva', 'pon_explosao'],
     TEC: ['pon_cruzamento', 'pon_cruzamento_qualidade', 'pon_passe_curto',
           'pon_passe_profundidade', 'pon_dominio', 'pon_dominio_protecao',
           'pon_protecao_bola', 'pon_finalizacao', 'pon_finalizacao_pressao'],
     DRI: ['pon_drible', 'pon_drible_1x1', 'pon_drible_velocidade',
           'pon_conducao', 'pon_conducao_explosiva'],
-    FIS: ['pon_velocidade', 'pon_agilidade', 'pon_explosao', 'pon_resistencia_sprints',
+    FIS: ['pon_velocidade', 'pon_arrancada_curta', 'pon_agilidade', 'pon_explosao', 'pon_resistencia_sprints',
           'pon_coordenacao'],
     TAT: ['pon_movimentacao', 'pon_movimentacao_ruptura', 'pon_posicionamento',
           'pon_leitura_espaco', 'pon_leitura_jogo', 'pon_aproveitamento_espaco',
@@ -1063,17 +1064,17 @@ const ATRIBUTOS_KEYS: Record<ReturnType<typeof getGrupoPosicao>, AtributoMap> = 
   },
 
   centroavante: {
-    VEL: ['cav_velocidade_reacao', 'cav_velocidade', 'cav_velocidade_aceleracao'],
+    VEL: ['cav_velocidade_reacao', 'cav_reacao_rebote', 'cav_velocidade', 'cav_velocidade_aceleracao'],
     TEC: ['cav_finalizacao', 'cav_finalizacao_precisao', 'cav_finalizacao_pressao',
-          'cav_jogo_aereo', 'cav_jogo_aereo_dominio', 'cav_jogo_aereo_basico',
+          'cav_jogo_aereo', 'cav_precisao_cabeceio', 'cav_jogo_aereo_dominio', 'cav_jogo_aereo_basico',
           'cav_dominio_protecao', 'cav_protecao_apoio', 'cav_protecao_bola',
           'cav_assistencia', 'cav_passe_apoio'],
     DRI: ['cav_drible', 'cav_drible_criacao', 'cav_drible_espacos',
-          'cav_movimentacao', 'cav_movimentacao_ruptura'],
-    FIS: ['cav_forca_duelos', 'cav_forca_fisica', 'cav_forca_protecao',
+          'cav_movimentacao', 'cav_ataque_primeiro_pau', 'cav_movimentacao_ruptura'],
+    FIS: ['cav_forca_duelos', 'cav_equilibrio_contato', 'cav_forca_fisica', 'cav_forca_protecao',
           'cav_potencia_aereo', 'cav_resistencia'],
     TAT: ['cav_posicionamento', 'cav_posicionamento_area', 'cav_leitura_jogo',
-          'cav_leitura_defesa', 'cav_frieza_decisao', 'cav_movimentacao'],
+          'cav_leitura_defesa', 'cav_frieza_decisao', 'cav_movimentacao', 'cav_ataque_primeiro_pau'],
     POS: ['cav_garra', 'cav_disposicao', 'cav_disposicao_garra',
           'pf_competitivo', 'pf_decisivo', 'pf_lider', 'pf_forte'],
   },

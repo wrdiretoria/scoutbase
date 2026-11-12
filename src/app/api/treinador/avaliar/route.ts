@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     observacao: string
   }
 
-  if (!profileId || !respostas || !variante) {
+  if (typeof profileId !== 'string' || !profileId || !respostas || typeof respostas !== 'object' || typeof variante !== 'string') {
     return NextResponse.json({ error: 'Dados incompletos.' }, { status: 400 })
   }
 

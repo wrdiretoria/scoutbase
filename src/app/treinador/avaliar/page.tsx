@@ -95,13 +95,6 @@ function notaColor(n: number): string {
   return '#ef4444'
 }
 
-function calcGeral(notas: Record<string, number>): number {
-  const vals = Object.values(notas).filter(v => v > 0)
-  if (vals.length === 0) return 0
-  const avg = vals.reduce((a, b) => a + b, 0) / vals.length
-  return Math.round(((avg - 1) / 4) * 100)
-}
-
 // ── Animated counter ──────────────────────────────────────────────────────────
 
 function useCounter(target: number, delay = 300, duration = 900) {
@@ -268,7 +261,7 @@ function AvaliarPageInner() {
   const totalPreench = contTecnico + contPerfil + contContexto
   const todasPreench = atleta ? totalPreench === totalPerguntas : false
 
-  const notaGeral = calcGeral(notas)
+  const notaGeral = calcScoutScore(notas, variante)
 
   const hoje       = new Date().toLocaleDateString('pt-BR')
   const categoria  = atleta ? (categoriaDoAtleta(atleta.dataNasc) ?? '') : ''
@@ -292,45 +285,53 @@ function AvaliarPageInner() {
     e.preventDefault()
     setError(null)
     setLoading(true)
-    const res  = await fetch('/api/treinador/buscar-atleta', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ atletaId }),
-    })
-    const data = await res.json() as AtletaInfo & { error?: string }
-    if (!res.ok || data.error) {
-      setError(data.error ?? 'Atleta não encontrado.')
+    try {
+      const res  = await fetch('/api/treinador/buscar-atleta', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ atletaId }),
+      })
+      const data = await res.json() as AtletaInfo & { error?: string }
+      if (!res.ok || data.error) {
+        setError(data.error ?? 'Atleta não encontrado.')
+        return
+      }
+      setAtleta(data)
+      setStep('confirmar')
+    } catch {
+      setError('Falha de conexão. Tente novamente.')
+    } finally {
       setLoading(false)
-      return
     }
-    setAtleta(data)
-    setLoading(false)
-    setStep('confirmar')
   }
 
   async function handleFinalizar() {
-    if (!atleta || !todasPreench) return
+    if (loading || !atleta || !todasPreench) return
     setLoading(true)
     setError(null)
-    const res = await fetch('/api/treinador/avaliar', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        profileId:  atleta.profileId,
-        respostas:  notas,
-        variante,
-        observacao,
-      }),
-    })
-    const data = await res.json() as { ok?: boolean; notaGeral?: number; error?: string }
-    if (!res.ok || data.error) {
-      setError(data.error ?? 'Erro ao registrar avaliação.')
+    try {
+      const res = await fetch('/api/treinador/avaliar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          profileId:  atleta.profileId,
+          respostas:  notas,
+          variante,
+          observacao,
+        }),
+      })
+      const data = await res.json() as { ok?: boolean; notaGeral?: number; error?: string }
+      if (!res.ok || data.error) {
+        setError(data.error ?? 'Erro ao registrar avaliação.')
+        return
+      }
+      setNotaFinal(data.notaGeral ?? calcScoutScore(notas, variante))
+      setStep('sucesso')
+    } catch {
+      setError('Falha de conexão. Tente novamente.')
+    } finally {
       setLoading(false)
-      return
     }
-    setNotaFinal(data.notaGeral ?? calcScoutScore(notas, variante))
-    setLoading(false)
-    setStep('sucesso')
   }
 
   function resetar() {
