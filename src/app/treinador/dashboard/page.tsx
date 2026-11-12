@@ -277,6 +277,8 @@ export default function TreinadorDashboardPage() {
   const [metricas,      setMetricas]      = useState<Metricas>({ totalAvaliacoes: 0, totalAtletas: 0, totalDestaques: 0, semanaCount: 0 })
   const [recentes,      setRecentes]      = useState<AvaliacaoRecente[]>([])
   const [views, setViews] = useState<number | null>(null)
+  const [seenViews, setSeenViews] = useState(0)
+  const [viewsOpen, setViewsOpen] = useState(false)
   const [likes, setLikes] = useState<number | null>(null)
   const [loading,       setLoading]       = useState(true)
   const [solicitacoes,  setSolicitacoes]  = useState<{ atletaId: string; atletaNome: string; atletaMcId: string; ts: string }[]>([])
@@ -316,6 +318,9 @@ export default function TreinadorDashboardPage() {
         supabase.from('profile_views').select('id', { count: 'exact', head: true }).eq('subject_id', user.id),
         supabase.from('feed_reactions').select('feed_posts!inner(author_id)', { count: 'exact', head: true }).eq('feed_posts.author_id', user.id),
       ])
+      try {
+        setSeenViews(Number(localStorage.getItem(`mc:coach-views-seen:${user.id}`)) || 0)
+      } catch { /* Storage may be unavailable. */ }
       setViews(visits.count)
       setLikes(reactions.count)
       const p = profile as Record<string, unknown> | null
@@ -520,22 +525,47 @@ export default function TreinadorDashboardPage() {
 
       <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '420px', padding: '0 20px' }}>
         <section aria-label="Atividade do treinador" style={{ display:'grid', gridTemplateColumns:'repeat(3,minmax(0,1fr))', gap:8, marginBottom:12 }}>
-          {[
-            { label:'Visualizações', value:views, description:'no perfil', color:'#60a5fa' },
-            { label:'Curtidas', value:likes, description:'nas publicações', color:'#b3f737' },
-          ].map(item => (
-            <div key={item.label} style={{ background:'var(--mc-surface)', border:'1px solid #304239', borderRadius:14, padding:'8px 4px', textAlign:'center' }}>
-              <strong style={{ display:'block', fontSize:17, color:item.color }}>{item.value?.toLocaleString('pt-BR') ?? '—'}</strong>
-              <span style={{ display:'block', fontSize:9, fontWeight:700, color:'white', textTransform:'uppercase' }}>{item.label}</span>
-              <span style={{ display:'block', fontSize:9, color:'#aebdb4' }}>{item.description}</span>
-            </div>
-          ))}
+          <button
+            type="button"
+            aria-expanded={viewsOpen}
+            aria-controls="coach-profile-views"
+            onClick={() => {
+              setViewsOpen(!viewsOpen)
+              if (!viewsOpen && views !== null) {
+                setSeenViews(views)
+                try {
+                  if (perfil) localStorage.setItem(`mc:coach-views-seen:${perfil.id}`, String(views))
+                } catch { /* Keep the read state in memory. */ }
+              }
+            }}
+            style={{ position:'relative', background:'var(--mc-surface)', border:'1px solid #304239', borderRadius:14, padding:'8px 4px', textAlign:'center', cursor:'pointer' }}
+          >
+            {views !== null && views > seenViews && (
+              <span style={{ position:'absolute', top:5, right:5, minWidth:17, padding:'1px 4px', borderRadius:10, background:'#b3f737', color:'#101827', fontSize:9, fontWeight:800 }} aria-label={`${views - seenViews} novas visitas`}>
+                {views - seenViews}
+              </span>
+            )}
+            <strong style={{ display:'block', fontSize:17, color:'#60a5fa' }}>{views?.toLocaleString('pt-BR') ?? '—'}</strong>
+            <span style={{ display:'block', fontSize:9, fontWeight:700, color:'white', textTransform:'uppercase' }}>Visualizações</span>
+            <span style={{ display:'block', fontSize:9, color:'#aebdb4' }}>Ver atividade</span>
+          </button>
+          <div style={{ background:'var(--mc-surface)', border:'1px solid #304239', borderRadius:14, padding:'8px 4px', textAlign:'center' }}>
+            <strong style={{ display:'block', fontSize:17, color:'#b3f737' }}>{likes?.toLocaleString('pt-BR') ?? '—'}</strong>
+            <span style={{ display:'block', fontSize:9, fontWeight:700, color:'white', textTransform:'uppercase' }}>Curtidas</span>
+            <span style={{ display:'block', fontSize:9, color:'#aebdb4' }}>nas publicações</span>
+          </div>
           <Link href="/mensagens" style={{ background:'var(--mc-surface)', border:'1px solid #304239', borderRadius:14, padding:'8px 4px', textAlign:'center', textDecoration:'none' }}>
             <strong aria-hidden="true" style={{ display:'block', fontSize:17, color:'#b3f737' }}>→</strong>
             <span style={{ display:'block', fontSize:9, fontWeight:700, color:'white', textTransform:'uppercase' }}>Mensagem</span>
             <span style={{ display:'block', fontSize:9, color:'#aebdb4' }}>Caixa de entrada</span>
           </Link>
         </section>
+        <div id="coach-profile-views" hidden={!viewsOpen} style={{ marginBottom:12, padding:12, border:'1px solid #304239', borderRadius:14, color:'white' }}>
+          <strong>Visitas ao perfil</strong>
+          <p style={{ margin:'4px 0 0', color:'#aebdb4' }}>
+            {views === null ? 'Total indisponível no momento.' : `${views.toLocaleString('pt-BR')} ${views === 1 ? 'visita registrada' : 'visitas registradas'}`}
+          </p>
+        </div>
 
         {/* ── Top nav ── */}
         <div className="a1" style={{
