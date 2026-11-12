@@ -1,6 +1,6 @@
 import { createAdminClient, createServerClient } from '@/lib/supabase'
 import { NextResponse } from 'next/server'
-import { categoriaDoAtleta, erroDataNascimento } from '@/lib/categoria'
+import { categoriaDoAtleta, erroIdadeCadastroAtleta } from '@/lib/categoria'
 
 /** Corrige uma data ausente ou inválida no perfil do próprio atleta. */
 export async function POST(req: Request) {
@@ -12,16 +12,9 @@ export async function POST(req: Request) {
     const { dataNascimento } = await req.json() as { dataNascimento?: string }
 
     // Mesma validação do cadastro
-    const erroNasc = erroDataNascimento(dataNascimento)
+    const erroNasc = erroIdadeCadastroAtleta(dataNascimento)
     if (erroNasc || !dataNascimento) {
       return NextResponse.json({ error: erroNasc ?? 'Informe sua data de nascimento.' }, { status: 400 })
-    }
-    const nasc  = new Date(dataNascimento)
-    const hoje  = new Date()
-    const idade = hoje.getFullYear() - nasc.getFullYear()
-      - (hoje < new Date(hoje.getFullYear(), nasc.getMonth(), nasc.getDate()) ? 1 : 0)
-    if (idade > 20 || !categoriaDoAtleta(dataNascimento, hoje)) {
-      return NextResponse.json({ error: 'O Meu Craque é exclusivo para atletas do futebol de base (até Sub-20).' }, { status: 400 })
     }
 
     const admin = createAdminClient()
