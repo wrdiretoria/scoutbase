@@ -92,9 +92,10 @@ export default async function RankingPage({ searchParams }: Props) {
 
   const admin = createAdminClient()
 
-  const buscaPorId = typeof buscaFiltro === 'string' ? buscaFiltro.trim().toUpperCase().match(/^(?:(MC|TR)-?)?(\d{5})$/) : null
+  const buscaPorId = typeof buscaFiltro === 'string' ? buscaFiltro.trim().toUpperCase().match(/^(?:(MC|TR)-?)?(\d{2,5})$/) : null
   if (buscaPorId) {
-    const [, prefixo, numero] = buscaPorId
+    const [, prefixo, digitos] = buscaPorId
+    const numero = digitos.padStart(5, '0')
     const codigos = prefixo ? [`${prefixo}-${numero}`] : [numero, `MC-${numero}`, `TR-${numero}`]
     const { data: perfis } = await admin.from('profiles').select('id, nome, athlete_id').in('athlete_id', codigos)
     if (perfis?.length) {
@@ -117,7 +118,7 @@ export default async function RankingPage({ searchParams }: Props) {
                   <Link href={`/${treinador ? 'treinador' : 'jogador'}/${perfil.id}`}
                     style={{ display: 'block', padding: 14, border: '1px solid #405247', borderRadius: 12, background: 'var(--mc-surface)', color: 'var(--mc-text)', textDecoration: 'none' }}>
                     <strong>{perfil.nome || tipo}</strong>
-                    <span style={{ display: 'block', marginTop: 4, color: 'var(--mc-muted)' }}>{tipo} · {perfil.athlete_id}</span>
+                    <span style={{ display: 'block', marginTop: 4, color: 'var(--mc-muted)' }}>{tipo} · {treinador ? perfil.athlete_id?.replace(/^TR-0*(?=\d{2}$)/, '').replace(/^TR-/, '') : perfil.athlete_id}</span>
                   </Link>
                 </li>
               )
