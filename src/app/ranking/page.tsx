@@ -92,6 +92,42 @@ export default async function RankingPage({ searchParams }: Props) {
 
   const admin = createAdminClient()
 
+  const buscaPorId = typeof buscaFiltro === 'string' ? buscaFiltro.trim().toUpperCase().match(/^(?:(MC|TR)-?)?(\d{5})$/) : null
+  if (buscaPorId) {
+    const [, prefixo, numero] = buscaPorId
+    const codigos = prefixo ? [`${prefixo}-${numero}`] : [numero, `MC-${numero}`, `TR-${numero}`]
+    const { data: perfis } = await admin.from('profiles').select('id, nome, athlete_id').in('athlete_id', codigos)
+    if (perfis?.length) {
+      return (
+        <main style={{ maxWidth: 720, margin: '0 auto', padding: '24px 16px', color: 'var(--mc-text)' }}>
+          <Link href="/ranking" style={{ color: 'var(--mc-accent)' }}>← Explorar atletas</Link>
+          <h1 style={{ fontSize: 26, margin: '16px 0' }}>Busca por ID</h1>
+          <form action="/ranking" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
+            <label htmlFor="busca-id" style={{ width: '100%', fontWeight: 700 }}>Buscar perfil por ID</label>
+            <input id="busca-id" name="q" defaultValue={buscaFiltro} required
+              style={{ flex: '1 1 160px', minWidth: 0, padding: 12, border: '1px solid #405247', borderRadius: 10, background: 'var(--mc-surface)', color: 'var(--mc-text)' }} />
+            <button type="submit" style={{ padding: '10px 14px', border: 0, borderRadius: 10, fontWeight: 800, background: 'var(--mc-accent)', color: '#101827' }}>Buscar</button>
+          </form>
+          <ul style={{ display: 'grid', gap: 10, listStyle: 'none', padding: 0 }}>
+            {perfis.map(perfil => {
+              const treinador = perfil.athlete_id?.startsWith('TR-')
+              const tipo = treinador ? 'Treinador' : 'Atleta'
+              return (
+                <li key={perfil.id}>
+                  <Link href={`/${treinador ? 'treinador' : 'jogador'}/${perfil.id}`}
+                    style={{ display: 'block', padding: 14, border: '1px solid #405247', borderRadius: 12, background: 'var(--mc-surface)', color: 'var(--mc-text)', textDecoration: 'none' }}>
+                    <strong>{perfil.nome || tipo}</strong>
+                    <span style={{ display: 'block', marginTop: 4, color: 'var(--mc-muted)' }}>{tipo} · {perfil.athlete_id}</span>
+                  </Link>
+                </li>
+              )
+            })}
+          </ul>
+        </main>
+      )
+    }
+  }
+
   // 1. Busca todos os usuários auth
   const users = await listAllUsers(admin).catch(() => null)
   if (!users) notFound()
