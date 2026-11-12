@@ -244,7 +244,7 @@ export default function LoginPage() {
               autoFocus
               value={identifier}
               onChange={e => setIdentifier(e.target.value)}
-              placeholder={area === 'clube' ? 'instituicao@exemplo.com' : area === 'atleta' ? 'ID (ex: 16138) ou email' : 'ID (ex: 00001) ou email'}
+              placeholder={area === 'clube' ? 'instituicao@exemplo.com' : area === 'atleta' ? 'ID (ex: 16138) ou email' : 'ID (ex: 01) ou email'}
               style={{
                 ...inputStyle,
                 ...(area === 'atleta' ? { textTransform: 'uppercase', letterSpacing: '0.06em' } : {}),
