@@ -115,6 +115,8 @@ export default async function RankingPage({ searchParams }: Props) {
     (profilesRes.data ?? []).map(p => [p.id, p])
   )
 
+  const buscaLower = typeof buscaFiltro === 'string' ? buscaFiltro.toLowerCase().trim() : ''
+
   // 4. Monta lista de atletas
   type RankingItem = {
     id: string; nome: string; posicao: string; cidade: string; bairro: string; estado: string; pais: string
@@ -149,10 +151,10 @@ export default async function RankingPage({ searchParams }: Props) {
       const dataNasc  = (profile?.data_nascimento as string | null) ?? null
       const athleteId = (profile?.athlete_id as string | null) ?? null
       const ovr       = athleteId ? (ovrMap.get(athleteId) ?? null) : null
-      if (aba === 'ranking' && ovr === null) return null   // ranking por OVR: só avaliados
-      if (modoNovos && ovr !== null) return null            // Novos Craques: só quem aguarda avaliação
+      if (!buscaLower && aba === 'ranking' && ovr === null) return null   // ranking por OVR: só avaliados
+      if (!buscaLower && modoNovos && ovr !== null) return null            // Novos Craques: só quem aguarda avaliação
       const visitas = visitasMap.get(u.id) ?? 0
-      if (modoSemana && visitas === 0) return null          // Top da Semana: só quem foi visitado
+      if (!buscaLower && modoSemana && visitas === 0) return null          // Top da Semana: só quem foi visitado
       const criadoEm  = (profilesComCriacao.find(p => p.id === u.id) as { criado_em?: string | null } | undefined)?.criado_em ?? u.created_at ?? null
       const boostLegado = meta.promovido_ate ? new Date(meta.promovido_ate) > agora : false
       return {
@@ -183,7 +185,6 @@ export default async function RankingPage({ searchParams }: Props) {
     })
 
   // 5. Aplica filtros
-  const buscaLower = buscaFiltro?.toLowerCase().trim() ?? ''
   const noLocal = (a: RankingItem) => {
     if (paisFiltro   && a.pais.toLowerCase() !== paisFiltro.toLowerCase()) return false
     if (estadoFiltro && a.estado.toUpperCase() !== estadoFiltro.toUpperCase()) return false
@@ -206,7 +207,7 @@ export default async function RankingPage({ searchParams }: Props) {
       const matchNome    = a.nome.toLowerCase().includes(buscaLower)
       const matchPosicao = a.posicao.toLowerCase().includes(buscaLower)
       const matchCidade  = a.cidade.toLowerCase().includes(buscaLower)
-      const matchId      = (a.athleteId ?? '').toLowerCase().includes(buscaLower)
+      const matchId      = (a.athleteId ?? '').toLowerCase().replace(/^mc-/, '').includes(buscaLower.replace(/^mc-/, '') || buscaLower)
       if (!matchNome && !matchPosicao && !matchCidade && !matchId) return false
     }
     return true
