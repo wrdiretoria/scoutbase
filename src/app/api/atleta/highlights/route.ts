@@ -1,3 +1,4 @@
+import { highlightSkills } from '@/lib/highlight-skills'
 import { createServerClient } from '@/lib/supabase'
 import { NextResponse } from 'next/server'
 
@@ -78,8 +79,11 @@ export async function POST(req: Request) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 })
 
-    const { url } = await req.json() as { url?: string }
-    if (!url?.trim()) return NextResponse.json({ error: 'URL obrigatória.' }, { status: 400 })
+    const { url, skill } = await req.json() as { url?: string; skill?: string }
+    if (skill !== undefined && !highlightSkills.some(label => label === skill)) {
+      return NextResponse.json({ error: 'Habilidade inválida.' }, { status: 400 })
+    }
+    if (typeof url !== 'string' || !url.trim()) return NextResponse.json({ error: 'URL obrigatória.' }, { status: 400 })
 
     const parsed = parseVideoUrl(url)
     if (!parsed) {
@@ -92,20 +96,28 @@ export async function POST(req: Request) {
     const { plataforma, videoId, thumbnail } = parsed
 
     // Busca título via oEmbed (não bloqueia se falhar)
-    const titulo = await fetchOembedTitle(plataforma, url.trim())
+    const titulo = skill ?? await fetchOembedTitle(plataforma, url.trim())
 
-    const { data, error } = await supabase
-      .from('highlights')
-      .insert({
-        profile_id:    user.id,
-        url:           url.trim(),
-        plataforma,
-        video_id:      videoId,
-        titulo:        titulo ?? null,
-        thumbnail_url: thumbnail || null,
-      })
-      .select()
-      .single()
+    const values = {
+      url: url.trim(),
+      plataforma,
+      video_id: videoId,
+      titulo,
+      thumbnail_url: thumbnail || null,
+    }
+    const table = supabase.from('highlights')
+    const existing = skill
+      ? await table.select('id').eq('profile_id', user.id).eq('titulo', skill)
+        .order('created_at', { ascending: false }).limit(1).maybeSingle()
+      : null
+    if (existing?.error) {
+      return NextResponse.json({ error: 'Erro ao consultar o vídeo salvo.' }, { status: 500 })
+    }
+
+    const save = existing?.data
+      ? table.update(values).eq('profile_id', user.id).eq('id', existing.data.id)
+      : table.insert({ ...values, profile_id: user.id })
+    const { data, error } = await save.select().single()
 
     if (error) {
       console.error('[highlights POST]', error)
