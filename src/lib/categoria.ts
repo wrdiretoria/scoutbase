@@ -57,3 +57,14 @@ export const CATEGORIAS_FILTRO: string[] = [
   ...[6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map(n => `Sub-${n}`),
   'Adulto',
 ]
+
+/** Limite de cadastro por idade completa, separado da categoria por ano. */
+export function erroIdadeCadastroAtleta(dataNasc: string | null | undefined, hoje = new Date()): string | null {
+  const erro = erroDataNascimento(dataNasc, hoje)
+  if (erro) return erro
+
+  const [ano, mes, dia] = dataNasc!.trim().split('-').map(Number)
+  const aniversario = new Date(hoje.getFullYear(), mes - 1, dia)
+  const idade = hoje.getFullYear() - ano - (hoje < aniversario ? 1 : 0)
+  return idade > 35 ? 'O cadastro de atleta é permitido até os 35 anos.' : null
+}
