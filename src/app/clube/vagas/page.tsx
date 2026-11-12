@@ -81,7 +81,7 @@ export default function ClubeVagasPage() {
       <div style={{ maxWidth: '560px', margin: '0 auto' }}>
 
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-          <h1 style={{ margin: 0, fontSize: '20px', fontWeight: 900 }}>💼 Minhas vagas</h1>
+          <h1 style={{ margin: 0, fontSize: '20px', fontWeight: 900 }}>Minhas vagas e peneiras</h1>
           {userId && (
             <Link href={`/clube/${userId}`} style={{ fontSize: '12px', fontWeight: 700, color: '#b3f737', textDecoration: 'none' }}>
               Ver página pública →

@@ -7,6 +7,7 @@
  * POST /api/opportunities/[id]/applications
  * Candidata o atleta logado à vaga. Bloqueia duplicata (unique constraint).
  */
+import { categoriaDoAtleta } from '@/lib/categoria'
 import { NextResponse } from 'next/server'
 import { createServerClient, createAdminClient } from '@/lib/supabase'
 
@@ -40,11 +41,40 @@ export async function GET(
     }
 
     const rows = candidaturas ?? []
-    const athleteIds = Array.from(new Set(rows.map(c => c.athlete_id)))
-    const { data: atletas } = athleteIds.length > 0
-      ? await admin.from('profiles').select('id, nome, avatar_url, athlete_id').in('id', athleteIds)
-      : { data: [] as { id: string; nome: string | null; avatar_url: string | null; athlete_id: string | null }[] }
-    const atletaPorId = new Map((atletas ?? []).map(a => [a.id, { id: a.id, nome: a.nome, avatarUrl: a.avatar_url, athleteId: a.athlete_id }]))
+    const athleteIds = [...new Set(rows.map(c => c.athlete_id))]
+    const atletaPorId = new Map<string, {
+      id: string; nome: string | null; avatarUrl: string | null; athleteId: string | null
+      position: string | null; category: string | null
+    }>()
+
+    // A posição está no perfil de autenticação. Limita as consultas simultâneas.
+    for (let index = 0; index < athleteIds.length; index += 12) {
+      const ids = athleteIds.slice(index, index + 12)
+      const [profiles, accounts] = await Promise.all([
+        admin.from('profiles').select('id, nome, avatar_url, athlete_id, data_nascimento').in('id', ids),
+        Promise.all(ids.map(athleteId => admin.auth.admin.getUserById(athleteId))),
+      ])
+      if (profiles.error) throw profiles.error
+      const positions = new Map<string, string>()
+      for (const { data, error: accountError } of accounts) {
+        if (accountError && accountError.status !== 404) throw accountError
+        const athlete = data?.user
+        const position = athlete?.user_metadata?.posicao
+        if (athlete && typeof position === 'string' && position.trim()) {
+          positions.set(athlete.id, position.trim())
+        }
+      }
+      for (const profile of profiles.data ?? []) {
+        atletaPorId.set(profile.id, {
+          id: profile.id,
+          nome: profile.nome,
+          avatarUrl: profile.avatar_url,
+          athleteId: profile.athlete_id,
+          position: positions.get(profile.id) ?? null,
+          category: categoriaDoAtleta(profile.data_nascimento),
+        })
+      }
+    }
 
     return NextResponse.json({
       applications: rows.map(c => ({ ...c, athlete: atletaPorId.get(c.athlete_id) ?? null })),
