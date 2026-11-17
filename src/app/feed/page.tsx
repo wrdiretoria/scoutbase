@@ -108,6 +108,49 @@ export default async function FeedPage() {
   const firstName = nome.split(' ')[0]
   const signInHref = '/login?next=%2Ffeed'
 
+  const journey = (
+    <section id="journey" className={styles.journeyCard} aria-labelledby="journey-heading" style={{ marginBottom: 14 }}>
+      <div className={styles.sideTitle}>
+        <span className={styles.sideGlyph}><Icon name="compass" size={22} /></span>
+        <div>
+          <h2 id="journey-heading">Minha Jornada</h2>
+          <p>{user && tipo !== 'atleta' ? 'Seu caminho no futebol.' : 'Desenvolvimento do atleta'}</p>
+        </div>
+      </div>
+      {user && tipo !== 'atleta' ? (
+        <Link href={perfil} className={styles.sideCta}>Completar perfil <span aria-hidden="true">›</span></Link>
+      ) : (
+        <>
+          <DiagnosisSummary />
+          {isAthlete && (
+            <Link href="/teste-seu-nivel" className={styles.sideCta}>
+              Teste seu nível <span aria-hidden="true">›</span>
+            </Link>
+          )}
+          <p className={styles.journeyCopy}>Monte seu perfil esportivo, avalie seu nível e acompanhe sua evolução no futebol.</p>
+          {nextStep && nextStep.href !== perfil && (
+            <Link href={nextStep.href} className={styles.sideCta}>
+              {nextStep.label} <span aria-hidden="true">›</span>
+            </Link>
+          )}
+          {profileReady && publicProfile && (
+            <Link href={publicProfile} className={styles.sideCta}>
+              Ver meu perfil público <span aria-hidden="true">›</span>
+            </Link>
+          )}
+          <Link href={user ? perfil : '/atleta/cadastro'} className={styles.sideCta}>
+            {user ? 'Atualizar meu perfil' : 'Criar perfil de atleta'} <span aria-hidden="true">›</span>
+          </Link>
+          <Link href="/atleta/questionario" className={styles.sideCta}>Fazer autoavaliação <span aria-hidden="true">›</span></Link>
+          <Link href={user ? '/atleta/historico' : '/login?next=%2Fatleta%2Fhistorico'} className={styles.sideCta}>
+            Ver histórico de evolução <span aria-hidden="true">›</span>
+          </Link>
+          {isAthlete && <details className={styles.radarDisclosure}><summary>Radar da carreira</summary><CareerRadar /></details>}
+        </>
+      )}
+    </section>
+  )
+
   return (
     <main className={`mc-screen ${styles.page}`}>
       <div className={styles.shell}>
@@ -196,15 +239,19 @@ export default async function FeedPage() {
           </section>
         )}
 
-        <Link href="/teste-seu-nivel" className={styles.startCard}>
-          <span className={styles.startCardIcon}><Icon name="target" size={28} /></span>
-          <span className={styles.startCardCopy}>
-            <small>Comece por aqui</small>
-            <strong>Teste seu nível</strong>
-          </span>
-          <span className={styles.startCardArrow} aria-hidden="true">›</span>
-        </Link>
-        <CareerRadar />
+        {!isAthlete && (
+          <>
+            <Link href="/teste-seu-nivel" className={styles.startCard}>
+              <span className={styles.startCardIcon}><Icon name="target" size={28} /></span>
+              <span className={styles.startCardCopy}>
+                <small>Comece por aqui</small>
+                <strong>Teste seu nível</strong>
+              </span>
+              <span className={styles.startCardArrow} aria-hidden="true">›</span>
+            </Link>
+            <CareerRadar />
+          </>
+        )}
         {!user && (
           <section aria-label="Exemplo de perfil esportivo" style={{ marginTop: 14, padding: 16, border: '1px solid #385346', borderRadius: 16, background: 'var(--mc-surface)' }}>
             <p style={{ margin: '0 0 4px', color: '#b3f737', fontSize: 12, fontWeight: 800 }}>PERFIL ESPORTIVO</p>
@@ -218,7 +265,7 @@ export default async function FeedPage() {
           </section>
         )}
 
-        <nav className={styles.shortcutRow} aria-label="Áreas principais">
+        <nav className={isAthlete ? styles.athleteShortcuts : styles.shortcutRow} aria-label="Áreas principais">
           <Link href="#journey" className={styles.shortcut}>
             <Icon name="compass" size={37} /><strong>Minha<br className={styles.mobileBreak} /> Jornada</strong>
           </Link>
@@ -235,46 +282,13 @@ export default async function FeedPage() {
           )}
         </nav>
 
-        <section id="journey" className={styles.journeyCard} aria-labelledby="journey-heading" style={{ marginBottom: 14 }}>
-          <div className={styles.sideTitle}>
-            <span className={styles.sideGlyph}><Icon name="compass" size={22} /></span>
-            <div>
-              <h2 id="journey-heading">Minha Jornada</h2>
-              <p>{user && tipo !== 'atleta' ? 'Seu caminho no futebol.' : 'Desenvolvimento do atleta'}</p>
-            </div>
-          </div>
-          {user && tipo !== 'atleta' ? (
-            <Link href={perfil} className={styles.sideCta}>Completar perfil <span aria-hidden="true">›</span></Link>
-          ) : (
-            <>
-              <DiagnosisSummary />
-              <p className={styles.journeyCopy}>Monte seu perfil esportivo, avalie seu nível e acompanhe sua evolução no futebol.</p>
-              {nextStep && nextStep.href !== perfil && (
-                <Link href={nextStep.href} className={styles.sideCta}>
-                  {nextStep.label} <span aria-hidden="true">›</span>
-                </Link>
-              )}
-              {profileReady && publicProfile && (
-                <Link href={publicProfile} className={styles.sideCta}>
-                  Ver meu perfil público <span aria-hidden="true">›</span>
-                </Link>
-              )}
-              <Link href={user ? perfil : '/atleta/cadastro'} className={styles.sideCta}>
-                {user ? 'Atualizar meu perfil' : 'Criar perfil de atleta'} <span aria-hidden="true">›</span>
-              </Link>
-              <Link href="/atleta/questionario" className={styles.sideCta}>Fazer autoavaliação <span aria-hidden="true">›</span></Link>
-              <Link href={user ? '/atleta/historico' : '/login?next=%2Fatleta%2Fhistorico'} className={styles.sideCta}>
-                Ver histórico de evolução <span aria-hidden="true">›</span>
-              </Link>
-            </>
-          )}
-        </section>
+        {!isAthlete && journey}
 
-        <div className={styles.contentGrid}>
+        <div className={isAthlete ? `${styles.contentGrid} ${styles.athleteGrid}` : styles.contentGrid}>
           <section className={styles.feedColumn} aria-label="Feed da comunidade">
-            <nav className={styles.feedTabs} aria-label="Filtros do feed">
+            {isAthlete ? <h1 className={styles.feedHeading}>Feed da comunidade</h1> : <nav className={styles.feedTabs} aria-label="Filtros do feed">
               <Link className={styles.selectedTab} href="/feed">Feed</Link>
-            </nav>
+            </nav>}
             <FeedCenter
               cardStyle={{}}
               currentUser={user ? { id: user.id, nome, avatarUrl: avatar } : null}
@@ -282,6 +296,7 @@ export default async function FeedPage() {
           </section>
 
           <aside className={styles.rightRail}>
+            {isAthlete && journey}
             <section className={styles.peopleCard}>
               <div className={styles.sideTitle}><span className={styles.sideGlyph}><Icon name="users" size={22} /></span><div><h2>Conexões</h2><p>Pessoas do futebol para conhecer.</p></div></div>
               <div className={styles.suggestions}>{user ? <QuickConnectButton /> : <p>Entre na plataforma para se conectar com quem faz o futebol acontecer.</p>}</div>
