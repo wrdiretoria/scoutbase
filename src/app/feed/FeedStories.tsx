@@ -20,11 +20,9 @@ export default function FeedStories({ user }: { user: CurrentUser | null }) {
   const [caption, setCaption] = useState('')
   const [busy, setBusy] = useState(false)
   const [ready, setReady] = useState(false)
-  const [paused, setPaused] = useState(false)
   const viewedActivity = useRef(new Set<string>())
   const dialog = useRef<HTMLDialogElement>(null)
   const returnFocus = useRef<HTMLElement | null>(null)
-  const video = useRef<HTMLVideoElement>(null)
   const signIn = '/login?next=%2Ffeed'
   const resumed = useRef(false)
   const load = useCallback(async () => {
@@ -83,11 +81,11 @@ export default function FeedStories({ user }: { user: CurrentUser | null }) {
     return [...map.values()].sort((a,b) => Number(a.every(s => s.seen)) - Number(b.every(s => s.seen)))
   }, [stories])
   const current = stories[index]
-  const close = useCallback(() => { setMode(null); setPaused(false); setReady(false); setError('') }, [])
+  const close = useCallback(() => { setMode(null); setReady(false); setError('') }, [])
   const move = useCallback((direction: number) => {
     const target = stories[index + direction]
     if (!target) { if (direction > 0) close(); return }
-    setError(''); setReady(false); setPaused(false); setBusy(true)
+    setError(''); setReady(false); setBusy(true)
     void load().then(fresh => {
       if (!fresh) return
       const nextIndex = fresh.findIndex(story => story.id === target.id)
@@ -96,11 +94,11 @@ export default function FeedStories({ user }: { user: CurrentUser | null }) {
     }).finally(() => setBusy(false))
   }, [index, stories, close, load])
   useEffect(() => {
-    if (mode !== 'viewer' || !current || !ready || paused || busy) return
+    if (mode !== 'viewer' || !current || !ready || busy) return
     if (current.mediaType === 'video') return
     const timer = setTimeout(() => move(1), 7000)
     return () => clearTimeout(timer)
-  }, [mode, current, ready, paused, busy, move])
+  }, [mode, current, ready, busy, move])
   useEffect(() => {
     if (mode !== 'viewer' || busy) return
     const handler = (event: KeyboardEvent) => {
@@ -135,7 +133,7 @@ export default function FeedStories({ user }: { user: CurrentUser | null }) {
     if (!fresh) return
     const found = fresh.findIndex(s => s.id === id)
     if (found < 0) { setError('Essa atualização expirou ou foi removida.'); return }
-    setIndex(found); setReady(false); setPaused(false); setMode('viewer')
+    setIndex(found); setReady(false); setMode('viewer')
   }
   const chooseFile = (selected?: File) => {
     setError('')
@@ -166,13 +164,6 @@ export default function FeedStories({ user }: { user: CurrentUser | null }) {
       close(); await load()
     } catch (err) { setError(err instanceof Error ? err.message : 'Falha ao excluir.') }
     finally { setBusy(false) }
-  }
-  const togglePause = () => {
-    if (video.current) {
-      if (paused) void video.current.play().catch(() => setError('Toque no vídeo para reproduzir.'))
-      else video.current.pause()
-    }
-    setPaused(!paused)
   }
   const initials = (name: string) => name.split(' ').slice(0,2).map(s => s[0]).join('').toUpperCase()
   return <section className={styles.section} aria-label="Atualizações da comunidade">
@@ -216,13 +207,12 @@ export default function FeedStories({ user }: { user: CurrentUser | null }) {
           </div>
           <header className={styles.viewerHeader}><strong>{current.authorName}</strong><small>{new Date(current.createdAt).toLocaleString('pt-BR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}</small></header>
           {current.mediaType === 'activity' ? <Link className={styles.primary} href={current.href}>{current.href === '/feed' ? 'Abrir Feed' : 'Ver perfil'}</Link> : current.mediaType === 'video' ?
-            <video key={current.id} ref={video} src={current.mediaUrl} controls autoPlay playsInline onEnded={() => move(1)} onPause={() => setPaused(true)} onPlay={() => setPaused(false)} onLoadedData={() => void markViewed(current)} onError={() => setError('Não foi possível abrir o vídeo. Feche e tente novamente.')} /> :
+            <video key={current.id} src={current.mediaUrl} controls autoPlay playsInline onEnded={() => move(1)} onLoadedData={() => void markViewed(current)} onError={() => setError('Não foi possível abrir o vídeo. Feche e tente novamente.')} /> :
             /* eslint-disable-next-line @next/next/no-img-element */
             <img key={current.id} src={current.mediaUrl} alt={current.caption || `Atualização de ${current.authorName}`} onLoad={() => void markViewed(current)} onError={() => setError('Não foi possível abrir a foto. Feche e tente novamente.')} />}
           {current.caption && <p className={styles.caption}>{current.caption}</p>}
           <footer className={styles.viewerFooter}>
             <button aria-label="Atualização anterior" disabled={index === 0 || busy} onClick={() => move(-1)}>‹</button>
-            <button onClick={togglePause} disabled={!ready}>{paused ? 'Continuar' : 'Pausar'}</button>
             {current.mediaType !== 'activity' && current.authorId === user?.id && <button onClick={() => void remove()} disabled={busy}>{busy ? 'Excluindo…' : 'Excluir'}</button>}
             <button aria-label="Próxima atualização" disabled={busy} onClick={() => move(1)}>›</button>
           </footer>
