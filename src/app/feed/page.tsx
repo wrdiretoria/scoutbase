@@ -169,35 +169,32 @@ export default async function FeedPage() {
         <PwaInstallBanner />
         <FeedStories user={user ? { id: user.id, name: nome, avatarUrl: avatar } : null} />
 
-        <section className={styles.hero} aria-label={nextStep ? "Mostre seu jogo" : "Boas-vindas ao MeuCraque"} style={{ marginTop: 16 }}>
-          <div className={styles.heroPhoto} />
-          <div className={styles.heroShade} />
-          <div className={`${styles.heroCopy} ${!user ? styles.heroGuestCopy : ''}`}>
-            {user ? <>
-              <span className={styles.eyebrow}>SEU FUTEBOL. SUA TRAJETÓRIA.</span>
-              <h1>{nextStep ? 'Mostre seu jogo' : <>Bem-vindo, <em>{firstName}!</em></>}</h1>
-              <p>{nextStep ? profileReady ? 'Seu perfil está pronto para compartilhar. Mostre seus lances e acompanhe as visitas pelo sino.' : 'Adicione sua foto, seus dados esportivos e um lance para ter um perfil pronto para compartilhar.' : 'Acompanhe sua evolução, conecte-se e descubra novas oportunidades.'}</p>
-            </> : <>
+        {!isAthlete && (
+          <section className={styles.hero} aria-label="Boas-vindas ao MeuCraque" style={{ marginTop: 16 }}>
+            <div className={styles.heroPhoto} />
+            <div className={styles.heroShade} />
+            <div className={`${styles.heroCopy} ${!user ? styles.heroGuestCopy : ''}`}>
+              {user ? <>
+                <span className={styles.eyebrow}>SEU FUTEBOL. SUA TRAJETÓRIA.</span>
+                <h1>Bem-vindo, <em>{firstName}!</em></h1>
+                <p>Acompanhe sua evolução, conecte-se e descubra novas oportunidades.</p>
+              </> : <>
 
-              <h1>Mostre seu jogo</h1>
-              <p>Crie seu perfil esportivo, adicione links dos seus melhores lances e compartilhe tudo em um só lugar.</p>
-            </>}
-          </div>
-          <div className={styles.heroNetwork}>
-            {nextStep ? (
-              <Link href={nextStep.href} className={styles.heroCta} style={{ minHeight: 44, whiteSpace: 'normal' }}>
-                {nextStep.label} <span aria-hidden="true">›</span>
-              </Link>
-            ) : user ? <>
-              <div className={styles.networkStat}><Icon name="users" size={18} /><span><strong>{connections ?? 0}</strong> {(connections ?? 0) === 1 ? 'conexão' : 'conexões'}</span></div>
-              <Link href={perfil} className={styles.heroCta}>Completar perfil <span aria-hidden="true">›</span></Link>
-            </> : <div className={styles.guestHeroActions}>
-              <Link href="/atleta/cadastro" className={`mc-primary-action ${styles.heroCta}`}>Criar meu perfil de atleta</Link>
-              <Link href="/ranking" className={styles.heroCtaSecondary}>Encontrar atletas</Link>
-            </div>}
-          </div>
-        </section>
-
+                <h1>Mostre seu jogo</h1>
+                <p>Crie seu perfil esportivo, adicione links dos seus melhores lances e compartilhe tudo em um só lugar.</p>
+              </>}
+            </div>
+            <div className={styles.heroNetwork}>
+              {user ? <>
+                <div className={styles.networkStat}><Icon name="users" size={18} /><span><strong>{connections ?? 0}</strong> {(connections ?? 0) === 1 ? 'conexão' : 'conexões'}</span></div>
+                <Link href={perfil} className={styles.heroCta}>Completar perfil <span aria-hidden="true">›</span></Link>
+              </> : <div className={styles.guestHeroActions}>
+                <Link href="/atleta/cadastro" className={`mc-primary-action ${styles.heroCta}`}>Criar meu perfil de atleta</Link>
+                <Link href="/ranking" className={styles.heroCtaSecondary}>Encontrar atletas</Link>
+              </div>}
+            </div>
+          </section>
+        )}
 
         <Link href="/teste-seu-nivel" className={styles.startCard}>
           <span className={styles.startCardIcon}><Icon name="target" size={28} /></span>
@@ -252,6 +249,11 @@ export default async function FeedPage() {
             <>
               <DiagnosisSummary />
               <p className={styles.journeyCopy}>Monte seu perfil esportivo, avalie seu nível e acompanhe sua evolução no futebol.</p>
+              {nextStep && nextStep.href !== perfil && (
+                <Link href={nextStep.href} className={styles.sideCta}>
+                  {nextStep.label} <span aria-hidden="true">›</span>
+                </Link>
+              )}
               {profileReady && publicProfile && (
                 <Link href={publicProfile} className={styles.sideCta}>
                   Ver meu perfil público <span aria-hidden="true">›</span>
