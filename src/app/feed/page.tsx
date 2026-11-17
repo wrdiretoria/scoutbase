@@ -5,7 +5,6 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { createAdminClient, createServerClient } from '@/lib/supabase'
-import { getNetworkStats } from '@/lib/network-stats'
 import FeedCenter from './FeedCenter'
 import { CareerRadar, DiagnosisSummary } from '../teste-seu-nivel/Diagnosis'
 import VisitNotifications from './VisitNotifications'
@@ -63,17 +62,21 @@ export default async function FeedPage() {
   const supabase = await createServerClient()
   const { data: { user } } = await supabase.auth.getUser()
   const tipo = user?.user_metadata?.tipo as string | undefined
-  const [profile, stats, hasHighlight] = user
+  const [profile, connections, hasHighlight] = user
     ? await (async () => {
         const admin = createAdminClient()
-        const [profileResult, networkStats, highlightResult] = await Promise.all([
+        const [profileResult, connectionsResult, highlightResult] = await Promise.all([
           admin.from('profiles').select('nome, avatar_url, athlete_id, data_nascimento').eq('id', user.id).maybeSingle(),
-          getNetworkStats(admin, user.id, user.id),
+          tipo !== 'atleta'
+            ? admin.from('connections').select('*', { count: 'exact', head: true })
+              .eq('status', 'accepted')
+              .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
+            : null,
           tipo === 'atleta'
             ? admin.from('highlights').select('id').eq('profile_id', user.id).limit(1)
             : null,
         ])
-        return [profileResult.data, networkStats, highlightResult?.data ? highlightResult.data.length > 0 : null] as const
+        return [profileResult.data, connectionsResult?.count ?? 0, highlightResult?.data ? highlightResult.data.length > 0 : null] as const
       })()
     : [null, null, null] as const
 
@@ -186,7 +189,7 @@ export default async function FeedPage() {
                 {nextStep.label} <span aria-hidden="true">›</span>
               </Link>
             ) : user ? <>
-              <div className={styles.networkStat}><Icon name="users" size={18} /><span><strong>{stats?.connections ?? 0}</strong> {(stats?.connections ?? 0) === 1 ? 'conexão' : 'conexões'}</span></div>
+              <div className={styles.networkStat}><Icon name="users" size={18} /><span><strong>{connections ?? 0}</strong> {(connections ?? 0) === 1 ? 'conexão' : 'conexões'}</span></div>
               <Link href={perfil} className={styles.heroCta}>Completar perfil <span aria-hidden="true">›</span></Link>
             </> : <div className={styles.guestHeroActions}>
               <Link href="/atleta/cadastro" className={`mc-primary-action ${styles.heroCta}`}>Criar meu perfil de atleta</Link>
