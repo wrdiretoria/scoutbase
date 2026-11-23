@@ -58,7 +58,7 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
   // esgotar, e nem consulta/loga nada se ele já tiver o plano Pro (unlimited).
   let buscasRestantes: number | null = null
   let buscaBloqueada = false
-  if (isScoutLogado && visitor) {
+  if (isScoutLogado && visitor && visitor.user_metadata?.tipo !== 'scout') {
     buscasRestantes = await buscasRestantesNoMes(admin, visitor.id)
     if (buscasRestantes === 0) {
       buscaBloqueada = true
@@ -221,7 +221,7 @@ export default async function ScoutBuscaPage({ searchParams }: Props) {
               Você usou suas 5 buscas grátis deste mês
             </p>
             <p style={{ margin: '0 0 20px', fontSize: '13px', color: 'rgba(255,255,255,0.45)', maxWidth: '380px', marginLeft: 'auto', marginRight: 'auto' }}>
-              Assine o Treinador/Scout Pro pra ter busca ilimitada com filtros avançados, mensagens diretas ilimitadas e alerta de novo talento.
+              Assine o Treinador Pro pra ter busca ilimitada com filtros avançados, mensagens diretas ilimitadas e alerta de novo talento.
             </p>
             <Link href="/planos" style={{
               display: 'inline-block', padding: '13px 28px', borderRadius: '12px',

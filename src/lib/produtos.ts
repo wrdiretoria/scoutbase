@@ -15,7 +15,7 @@ export type ProdutoConfig = {
 
 export const PRODUTOS: Record<ProdutoKey, ProdutoConfig> = {
   atleta_pro:    { valor: 19.90,  descricao: 'Atleta Pro — Meu Craque (30 dias)', tiposPermitidos: ['atleta'] },
-  treinador_pro: { valor: 49.90,  descricao: 'Treinador/Scout Pro — Meu Craque (30 dias)', tiposPermitidos: ['treinador', 'scout', 'escola'] },
+  treinador_pro: { valor: 49.90,  descricao: 'Treinador Pro — Meu Craque (30 dias)', tiposPermitidos: ['treinador', 'escola'] },
   clube:         { valor: 149.90, descricao: 'Clube/Escolinha institucional — Meu Craque (30 dias)', tiposPermitidos: ['treinador', 'escola'] },
   boost:         { valor: 9.90,   descricao: 'Impulsionar perfil — Meu Craque (7 dias em destaque)', tiposPermitidos: ['atleta'] },
 }

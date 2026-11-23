@@ -4,7 +4,7 @@ import PixCheckoutButton from '@/components/PixCheckoutButton'
 
 export const metadata: Metadata = {
   title: 'Planos | Meu Craque',
-  description: 'Perfil gratuito, avaliação avulsa por R$ 9,90 e os planos Pro — Atleta, Treinador/Scout e Clube institucional.',
+  description: 'Perfil gratuito, avaliação avulsa por R$ 9,90 e os planos Pro — Atleta, Treinador e Clube institucional.',
 }
 
 const FEATURE = { display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' } as const
@@ -219,19 +219,19 @@ export default function PlanosPage() {
           />
 
           <PlanCard
-            eyebrow="Treinador / Scout Pro"
+            eyebrow="Treinador Pro"
             preco="R$ 49,90"
             periodo="/mês"
-            subtitulo="5 buscas grátis por mês. Sem selo verificado."
+            subtitulo="Ferramentas para treinadores."
             destaque
             features={[
               '🔍  Busca ilimitada com filtros avançados',
               '✉️  Mensagens diretas ilimitadas',
               '📋  Shortlists e comparação de atletas',
               '🔔  Alerta de novo talento por filtro salvo',
-              '✅  Selo "Scout Verificado"',
+              
             ]}
-            cta={<PixCheckoutButton produto="treinador_pro" label="Assinar Treinador/Scout Pro" corPrimaria="#b3f737" />}
+            cta={<PixCheckoutButton produto="treinador_pro" label="Assinar Treinador Pro" corPrimaria="#b3f737" />}
           />
 
           <PlanCard
@@ -298,20 +298,20 @@ export default function PlanosPage() {
               a: 'Cada pagamento Pix libera 30 dias de acesso Pro (ou 7 dias no caso do Impulsionar perfil). Perto do vencimento, é só gerar uma nova cobrança pela mesma página pra renovar.',
             },
             {
-              q: 'Um treinador e um scout pagam o mesmo plano Pro?',
-              a: 'Sim, o Treinador/Scout Pro tem o mesmo preço e benefícios pros dois tipos de conta — cada um recebe o Pro na sua própria conta.',
+              q: 'O scout precisa assinar um plano?',
+              a: 'Não. A conta de scout é gratuita.',
             },
             {
               q: 'Quem pode assinar o plano institucional?',
               a: 'Qualquer conta de treinador ou escolinha — não existe um tipo de conta "clube" separado, a página do clube e as vagas ficam vinculadas à sua própria conta de treinador.',
             },
             {
-              q: 'Scouts sem plano Pro conseguem buscar atletas?',
-              a: 'Sim, com um limite de 5 buscas por mês. Passado esse limite, é só assinar o Pro pra continuar buscando sem restrição.',
+              q: 'A busca para scouts é gratuita?',
+              a: 'Sim. Scouts podem buscar atletas e usar os filtros gratuitamente, sem limite mensal de buscas.',
             },
             {
               q: 'O scout precisa pagar para ver os perfis?',
-              a: 'Não. Scouts e visitantes acessam todos os perfis públicos gratuitamente, sem cadastro — o plano Pro só destrava busca ilimitada, mensagens e outros recursos extras.',
+              a: 'Não. O acesso aos perfis públicos e a busca para scouts são gratuitos.',
             },
           ].map(item => (
             <div key={item.q} style={{
