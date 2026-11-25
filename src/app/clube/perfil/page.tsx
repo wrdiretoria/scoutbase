@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import MainAccountNav from '@/components/MainAccountNav'
 import { redirect } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase'
 import type { Institution } from '@/lib/institution'
@@ -16,7 +17,7 @@ export default async function InstitutionProfilePage() {
   const independent = institution.cnpj === null
   const verified = institution.verification_status === 'verified'
   return (
-    <main className={styles.page}>
+    <main className={styles.page} style={{ paddingBottom: 100 }}>
       <div className={styles.shell}>
         <header className={styles.header}>
           <Link href="/" className={styles.brand} aria-label="MeuCraque, início">⚽ <span>MEUCRAQUE</span>.com</Link>
@@ -33,6 +34,7 @@ export default async function InstitutionProfilePage() {
         </nav>
         <section className={styles.card}><InstitutionForm initial={institution} signedIn /></section>
       </div>
+      <MainAccountNav />
     </main>
   )
 }

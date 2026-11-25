@@ -1,14 +1,12 @@
 /**
  * GET /api/feed?offset=&limit=
- * Lista feed_posts da rede do usuário logado (conexões aceitas + quem ele segue
- * + ele mesmo), mais recentes primeiro, paginado. Resposta: { posts, hasMore }
+ * Lista publicações da comunidade para o usuário logado, mais recentes primeiro, paginado. Resposta: { posts, hasMore }
  *
  * POST /api/feed
  * Cria um post tipo 'update'. Body: { body }
  */
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient, createAdminClient } from '@/lib/supabase'
-import { getNetworkIds } from '@/lib/network'
 
 const AUTHOR_TYPES_VALIDOS = ['atleta', 'treinador', 'scout', 'clube']
 
@@ -33,12 +31,10 @@ export async function GET(req: NextRequest) {
     const limit  = Math.min(Math.max(parseInt(req.nextUrl.searchParams.get('limit') ?? '10', 10) || 10, 1), 30)
 
     const admin = createAdminClient()
-    const networkIds = await getNetworkIds(admin, user.id)
 
     const { data: posts, error, count } = await admin
       .from('feed_posts')
       .select('id, author_id, author_type, type, body, media_url, opportunity_id, created_at', { count: 'exact' })
-      .in('author_id', networkIds)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 

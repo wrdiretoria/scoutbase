@@ -423,3 +423,9 @@
   .athleteShortcuts .shortcut { padding-inline: 8px; min-width: 0; }
   .athleteGrid .rightRail { width: 100%; }
 }
+
+/* Home keeps the community feed before supporting discovery on small screens. */
+@media (max-width: 760px) {
+  .feedColumn { order: 0; }
+  .rightRail { order: 1; }
+}

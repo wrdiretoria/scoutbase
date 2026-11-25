@@ -410,7 +410,7 @@ function AuthenticatedFeedCenter({ cardStyle, currentUser }: { cardStyle: CSSPro
       {posts !== null && posts.length === 0 && (
         <div className="feedHomeEmpty">
           <p>
-            Sua rede ainda não publicou nada. Que tal ser o primeiro?
+            A comunidade ainda não publicou nada. Que tal ser o primeiro?
           </p>
         </div>
       )}

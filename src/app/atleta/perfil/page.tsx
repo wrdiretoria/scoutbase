@@ -1,5 +1,6 @@
 'use client'
 
+import { CareerRadar, DiagnosisSummary } from '../../teste-seu-nivel/Diagnosis'
 import VisitNotifications from '../../feed/VisitNotifications'
 import { highlightSkills } from '@/lib/highlight-skills'
 
@@ -1011,6 +1012,12 @@ function AtletaPerfilContent() {
       <div style={{ maxWidth:'480px', margin:'0 auto', padding:'28px 20px', paddingBottom:'calc(80px + env(safe-area-inset-bottom))' }}>
 
         <p style={{ color: '#b3f737', fontSize: 13, fontWeight: 800, margin: '0 0 12px' }}>Meu Perfil</p>
+        <details style={{ marginBottom: 20, border: '1px solid #385346', borderRadius: 14, padding: 16 }}>
+          <summary style={{ cursor: 'pointer', fontWeight: 800 }}>Minha preparação e evolução</summary>
+          <DiagnosisSummary />
+          <Link href="/teste-seu-nivel" style={{ display: 'inline-flex', minHeight: 44, alignItems: 'center', color: '#b3f737' }}>Teste seu nível →</Link>
+          <CareerRadar />
+        </details>
 
         {/* ── Stats grid ── */}
         <div style={{ display:'grid', gridTemplateColumns:'repeat(3, minmax(0, 1fr))', gap:'8px', marginBottom:'12px' }}>
