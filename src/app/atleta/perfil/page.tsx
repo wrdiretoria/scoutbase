@@ -1248,6 +1248,349 @@ function AtletaPerfilContent() {
           </div>
         </div>
 
+        {/* ══════════════════════════════════════════
+            HIGHLIGHTS — vídeos via link
+        ══════════════════════════════════════════ */}
+        <div id="highlights" style={{ marginBottom:'24px', scrollMarginTop: 80 }}>
+
+          <h2 style={{ margin:'0 0 4px', fontSize:20 }}>Meus vídeos</h2>
+          <p style={{ margin:'0 0 12px', color:'var(--mc-muted)', fontSize:13 }}>
+            Cole um link do YouTube, TikTok, Instagram ou Vimeo em cada habilidade que quiser mostrar.
+          </p>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 172px), 1fr))', gap:10, marginBottom:16 }}>
+            {highlightSkills.map((skill, index) => {
+              const video = highlights.find(item => item.titulo === skill)
+              const inputId = `highlight-skill-${index}`
+              return (
+                <form key={skill} onSubmit={event => {
+                  event.preventDefault()
+                  const url = new FormData(event.currentTarget).get('url')
+                  if (typeof url === 'string') void saveSkillVideo(skill, url.trim())
+                }} style={{ display:'flex', flexDirection:'column', gap:8, padding:12, borderRadius:14, border:'1px solid #304239', background:'var(--mc-surface)' }}>
+                  <label htmlFor={inputId} style={{ fontSize:13, fontWeight:800, flex:1 }}>{skill}</label>
+                  <input key={video?.url ?? ''} id={inputId} name="url" type="url" required
+                    defaultValue={video?.url ?? ''} placeholder="Cole o link do vídeo"
+                    className="hl-add-input" style={{ minWidth:0, width:'100%', boxSizing:'border-box', fontSize:16 }}
+                  />
+                  <button type="submit" disabled={savingSkill !== null || deletingHlId !== null} style={{
+                    minHeight:40, borderRadius:9, border:'1px solid #526458', background:'transparent',
+                    color:'var(--mc-accent)', fontWeight:800, cursor:'pointer',
+                  }}>
+                    {savingSkill === skill ? 'Salvando…' : video ? 'Atualizar link' : 'Salvar link'}
+                  </button>
+                  {skillStatus?.skill === skill && (
+                    <p role={skillStatus.failed ? 'alert' : 'status'} style={{ margin:0, fontSize:12, color:skillStatus.failed ? '#f87171' : 'var(--mc-accent)' }}>
+                      {skillStatus.message}
+                    </p>
+                  )}
+                </form>
+              )
+            })}
+          </div>
+
+          {/* Cards de highlights */}
+          {highlights.length > 0 && (
+            <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
+              {highlights.map(hl => {
+                const thumb = getThumbnail(hl)
+                const platform = getPlatformInfo(hl.plataforma)
+                const isPlaying = playingHlId === hl.id
+                const isDeleting = deletingHlId === hl.id
+
+                return (
+                  <div key={hl.id} className="hl-card" style={{
+                    borderRadius:'16px', overflow:'hidden',
+                    background: 'var(--mc-surface)', border:'1px solid rgba(255,255,255,0.08)',
+                  }}>
+                    {/* Thumbnail / embed area — 16:9 */}
+                    <div style={{ position:'relative', aspectRatio:'16/9', background:'#0a120e', cursor:'pointer' }}
+                      onClick={() => {
+                        if (hl.plataforma === 'instagram' || hl.plataforma === 'tiktok') {
+                          window.open(hl.url, '_blank')
+                        } else {
+                          !isPlaying && setPlayingHlId(hl.id)
+                        }
+                      }}
+                    >
+                      {isPlaying && hl.plataforma !== 'instagram' && hl.plataforma !== 'tiktok' ? (
+                        <iframe
+                          src={getEmbedUrl(hl.plataforma, hl.video_id)}
+                          style={{ width:'100%', height:'100%', border:'none' }}
+                          allow="autoplay; fullscreen; picture-in-picture"
+                          allowFullScreen
+                        />
+                      ) : (
+                        <>
+                          {thumb ? (
+                            <img src={thumb} alt={hl.titulo ?? platform.label} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
+                          ) : (
+                            <div style={{
+                              width:'100%', height:'100%',
+                              background:`linear-gradient(135deg,${platform.bg}22,rgba(0,0,0,0.6))`,
+                              display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:'6px',
+                            }}>
+                              <div style={{
+                                width:'42px', height:'42px', borderRadius:'50%',
+                                background: platform.bg,
+                                display:'flex', alignItems:'center', justifyContent:'center',
+                                fontSize:'20px',
+                              }}>
+                                ▶
+                              </div>
+                              <span style={{ fontSize:'12px', fontWeight:700, color:'rgba(255,255,255,0.5)' }}>{platform.label}</span>
+                            </div>
+                          )}
+                          {/* Play overlay */}
+                          <div style={{
+                            position:'absolute', inset:0,
+                            display:'flex', alignItems:'center', justifyContent:'center',
+                            background:'rgba(0,0,0,0.25)',
+                          }}>
+                            <div style={{
+                              width:'48px', height:'48px', borderRadius:'50%',
+                              background:'rgba(0,0,0,0.65)', backdropFilter:'blur(6px)',
+                              display:'flex', alignItems:'center', justifyContent:'center',
+                              border:'1.5px solid rgba(255,255,255,0.25)',
+                            }}>
+                              <span style={{ fontSize:'18px', marginLeft:'3px' }}>▶</span>
+                            </div>
+                          </div>
+                          {/* Platform badge */}
+                          <div style={{
+                            position:'absolute', top:'8px', left:'8px',
+                            padding:'3px 8px', borderRadius:'100px',
+                            background: platform.bg,
+                          }}>
+                            <span style={{ fontSize:'9px', fontWeight:800, color:'white', letterSpacing:'0.05em' }}>{platform.label}</span>
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Footer */}
+                    <div style={{ padding:'10px 12px', display:'flex', alignItems:'center', gap:'10px' }}>
+                      <p style={{ margin:0, flex:1, fontSize:'12px', fontWeight:600, color:'rgba(255,255,255,0.5)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
+                        {hl.titulo ?? platform.label}
+                      </p>
+                      <a href={hl.url} target="_blank" rel="noreferrer"
+                        style={{ fontSize:'13px', color:'rgba(255,255,255,0.22)', textDecoration:'none', flexShrink:0 }}
+                        title="Abrir original"
+                      >
+                        ↗
+                      </a>
+                      <button
+                        className="hl-del-btn"
+                        onClick={() => handleDeleteHL(hl.id)}
+                        disabled={isDeleting}
+                        title="Remover highlight"
+                      >
+                        {isDeleting ? '…' : '✕'}
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
+          {/* Empty state */}
+
+        </div>
+
+        {/* ══════════════════════════════════════════
+            GALERIA — fotos para o painel da landing
+        ══════════════════════════════════════════ */}
+        <div style={{ marginBottom:'24px' }}>
+
+          {/* Header */}
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'10px' }}>
+            <div>
+              <p style={{ margin:'0 0 2px', fontSize:'12px', fontWeight:700, color:'rgba(255,255,255,0.4)', letterSpacing:'0.08em', textTransform:'uppercase' }}>
+                Fotos de ação
+              </p>
+              <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.2)' }}>
+                Aparecem no feed ao vivo da página inicial
+              </p>
+            </div>
+            <div style={{
+              display:'flex', alignItems:'center', gap:'5px',
+              background:'rgba(0,255,136,0.08)', border:'1px solid rgba(0,255,136,0.20)',
+              borderRadius:'8px', padding:'4px 10px',
+            }}>
+              <div style={{ width:'5px', height:'5px', borderRadius:'50%', background: 'var(--mc-accent)', boxShadow:'0 0 5px #b3f737' }} />
+              <span style={{ fontSize:'9px', fontWeight:800, color:'rgba(0,255,136,0.8)', letterSpacing:'0.12em', textTransform:'uppercase' }}>Ao vivo</span>
+            </div>
+          </div>
+
+          {/* ── Banner de urgência ── */}
+          {(() => {
+            const count = galeriaFotos.filter(Boolean).length
+            const pct   = Math.round((count / 5) * 100)
+            return (
+              <div style={{
+                borderRadius:'18px', marginBottom:'14px', padding:'18px 16px 16px',
+                background:'linear-gradient(160deg, #071a0e 0%, #030d06 100%)',
+                border:'1px solid rgba(34,197,94,0.28)',
+                boxShadow:'0 0 24px rgba(34,197,94,0.10), inset 0 1px 0 rgba(34,197,94,0.08)',
+                position:'relative', overflow:'hidden',
+              }}>
+                {/* Brilho decorativo de fundo */}
+                <div style={{
+                  position:'absolute', top:'-30px', right:'-20px',
+                  width:'120px', height:'120px', borderRadius:'50%',
+                  background:'radial-gradient(circle, rgba(34,197,94,0.12) 0%, transparent 70%)',
+                  pointerEvents:'none',
+                }} />
+
+                {/* Linha 1: ícone + título */}
+                <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'6px' }}>
+                  <span style={{ fontSize:'26px', lineHeight:1 }}>📸</span>
+                  <p style={{ margin:0, fontSize:'15px', fontWeight:900, color:'#b3f737', letterSpacing:'-0.01em' }}>
+                    Fotos valem pontos!
+                  </p>
+                </div>
+
+                {/* Linha 2: subtexto */}
+                <p style={{ margin:'0 0 14px', fontSize:'12px', color:'rgba(255,255,255,0.6)', lineHeight:1.65, paddingLeft:'36px' }}>
+                  Mais fotos aumentam sua visibilidade. Com 3 fotos você aparece no{' '}
+                  <span style={{ color:'rgba(34,197,94,0.85)', fontWeight:700 }}>feed ao vivo</span>{' '}
+                  da home e fica visível para scouts.
+                </p>
+
+                {/* Barra de progresso */}
+                <div style={{ paddingLeft:'36px' }}>
+                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'6px' }}>
+                    <span style={{ fontSize:'10px', fontWeight:700, color:'rgba(255,255,255,0.35)', letterSpacing:'0.08em', textTransform:'uppercase' }}>
+                      Progresso
+                    </span>
+                    <span style={{ fontSize:'12px', fontWeight:800, color: count >= 3 ? '#b3f737' : 'rgba(255,255,255,0.5)' }}>
+                      {count} / 5 fotos
+                    </span>
+                  </div>
+                  <div style={{ height:'5px', borderRadius:'4px', background:'rgba(255,255,255,0.08)', overflow:'hidden' }}>
+                    <div style={{
+                      height:'100%', borderRadius:'4px',
+                      width: `${pct}%`,
+                      background: count >= 3
+                        ? 'linear-gradient(90deg, #16a34a, #b3f737)'
+                        : 'linear-gradient(90deg, #15803d, #4ade80)',
+                      transition:'width 0.5s ease',
+                      boxShadow: count > 0 ? '0 0 8px rgba(34,197,94,0.5)' : 'none',
+                    }} />
+                  </div>
+                  {count < 3 && (
+                    <p style={{ margin:'6px 0 0', fontSize:'10px', color:'rgba(34,197,94,0.6)', fontWeight:600 }}>
+                      {count === 0
+                        ? 'Adicione a primeira foto e suba no ranking!'
+                        : `Falta${3 - count > 1 ? 'm' : ''} ${3 - count} foto${3 - count > 1 ? 's' : ''} para aparecer no feed ao vivo`}
+                    </p>
+                  )}
+                  {count >= 3 && (
+                    <p style={{ margin:'6px 0 0', fontSize:'10px', color:'#b3f737', fontWeight:700 }}>
+                      ✓ Você já aparece no feed ao vivo!
+                    </p>
+                  )}
+                </div>
+              </div>
+            )
+          })()}
+
+          {/* 5 slots — 3 colunas na primeira linha + 2 na segunda */}
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'10px' }}>
+            {[0,1,2,3,4].map(slot => {
+              const url       = galeriaFotos[slot]
+              const uploading = uploadingSlot === slot
+              return (
+                <div key={slot} style={{ position:'relative', aspectRatio:'3/4', borderRadius:'12px', overflow:'hidden' }}>
+                  {url ? (
+                    /* Foto preenchida */
+                    <>
+                      <img
+                        src={url} alt={`Foto ${slot+1}`}
+                        style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }}
+                      />
+                      {/* Overlay hover com botões */}
+                      <label
+                        htmlFor={`galeria-input-${slot}`}
+                        style={{
+                          position:'absolute', inset:0,
+                          background:'rgba(0,0,0,0.0)',
+                          display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+                          gap:'8px', cursor:'pointer',
+                          transition:'background 0.2s',
+                        }}
+                        onMouseEnter={e => (e.currentTarget.style.background='rgba(0,0,0,0.55)')}
+                        onMouseLeave={e => (e.currentTarget.style.background='rgba(0,0,0,0.0)')}
+                      >
+                        <span style={{ fontSize:'18px', opacity:0.9 }}>🔄</span>
+                        <span style={{ fontSize:'10px', color:'white', fontWeight:700, opacity:0.85 }}>Trocar</span>
+                      </label>
+                      {/* Botão deletar */}
+                      <button
+                        onClick={e => { e.stopPropagation(); handleGaleriaDelete(slot) }}
+                        style={{
+                          position:'absolute', top:'6px', right:'6px',
+                          width:'24px', height:'24px', borderRadius:'50%',
+                          background:'rgba(0,0,0,0.7)', border:'1px solid rgba(255,255,255,0.2)',
+                          color:'white', fontSize:'12px', cursor:'pointer',
+                          display:'flex', alignItems:'center', justifyContent:'center',
+                          zIndex:2,
+                        }}
+                      >✕</button>
+                    </>
+                  ) : (
+                    /* Slot vazio */
+                    <label
+                      htmlFor={`galeria-input-${slot}`}
+                      style={{
+                        position:'absolute', inset:0,
+                        background:'rgba(255,255,255,0.02)',
+                        border:'2px dashed rgba(34,197,94,0.22)',
+                        borderRadius:'12px',
+                        display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
+                        gap:'4px', cursor: uploading ? 'wait' : 'pointer',
+                        transition:'border-color 0.2s, background 0.2s',
+                      }}
+                    >
+                      {uploading ? (
+                        <>
+                          <span style={{ fontSize:'20px' }}>⏳</span>
+                          <span style={{ fontSize:'10px', color:'rgba(0,255,136,0.6)', fontWeight:700 }}>Enviando…</span>
+                        </>
+                      ) : (
+                        <>
+                          <span style={{ fontSize:'22px', color:'rgba(34,197,94,0.45)', lineHeight:1 }}>＋</span>
+                          <span style={{ fontSize:'9px', color:'rgba(255,255,255,0.25)', fontWeight:600, letterSpacing:'0.02em' }}>
+                            Foto {slot + 1}
+                          </span>
+                          <span style={{ fontSize:'9px', color:'rgba(255,255,255,0.3)', fontWeight:700, letterSpacing:'0.04em' }}>
+                            + Foto
+                          </span>
+                        </>
+                      )}
+                    </label>
+                  )}
+                  {/* Input oculto */}
+                  <input
+                    id={`galeria-input-${slot}`}
+                    ref={galeriaRefs[slot]}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    disabled={uploading}
+                    style={{ position:'absolute', width:'1px', height:'1px', opacity:0, pointerEvents:'none' }}
+                    onChange={e => handleGaleriaChange(slot, e)}
+                  />
+                </div>
+              )
+            })}
+          </div>
+
+          <p style={{ margin:'8px 0 0', fontSize:'10.5px', color:'rgba(255,255,255,0.18)', lineHeight:1.5 }}>
+            Fotos de treino, jogos ou ação · até 5 fotos · ciclam automaticamente no feed da home.
+          </p>
+        </div>
+
+
         <nav className="profile-quick-actions" aria-label="Atalhos do meu perfil">
           <a href="#curriculo">Editar currículo</a>
           <a href="#highlights">Meus vídeos</a>
@@ -1879,348 +2222,6 @@ function AtletaPerfilContent() {
             {saving ? 'Salvando…' : saved ? '✓ Salvo!' : 'Salvar currículo'}
           </button>
         </form>
-
-        {/* ══════════════════════════════════════════
-            HIGHLIGHTS — vídeos via link
-        ══════════════════════════════════════════ */}
-        <div id="highlights" style={{ marginBottom:'24px', scrollMarginTop: 80 }}>
-
-          <h2 style={{ margin:'0 0 4px', fontSize:20 }}>Meus vídeos</h2>
-          <p style={{ margin:'0 0 12px', color:'var(--mc-muted)', fontSize:13 }}>
-            Cole um link do YouTube, TikTok, Instagram ou Vimeo em cada habilidade que quiser mostrar.
-          </p>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 172px), 1fr))', gap:10, marginBottom:16 }}>
-            {highlightSkills.map((skill, index) => {
-              const video = highlights.find(item => item.titulo === skill)
-              const inputId = `highlight-skill-${index}`
-              return (
-                <form key={skill} onSubmit={event => {
-                  event.preventDefault()
-                  const url = new FormData(event.currentTarget).get('url')
-                  if (typeof url === 'string') void saveSkillVideo(skill, url.trim())
-                }} style={{ display:'flex', flexDirection:'column', gap:8, padding:12, borderRadius:14, border:'1px solid #304239', background:'var(--mc-surface)' }}>
-                  <label htmlFor={inputId} style={{ fontSize:13, fontWeight:800, flex:1 }}>{skill}</label>
-                  <input key={video?.url ?? ''} id={inputId} name="url" type="url" required
-                    defaultValue={video?.url ?? ''} placeholder="Cole o link do vídeo"
-                    className="hl-add-input" style={{ minWidth:0, width:'100%', boxSizing:'border-box', fontSize:16 }}
-                  />
-                  <button type="submit" disabled={savingSkill !== null || deletingHlId !== null} style={{
-                    minHeight:40, borderRadius:9, border:'1px solid #526458', background:'transparent',
-                    color:'var(--mc-accent)', fontWeight:800, cursor:'pointer',
-                  }}>
-                    {savingSkill === skill ? 'Salvando…' : video ? 'Atualizar link' : 'Salvar link'}
-                  </button>
-                  {skillStatus?.skill === skill && (
-                    <p role={skillStatus.failed ? 'alert' : 'status'} style={{ margin:0, fontSize:12, color:skillStatus.failed ? '#f87171' : 'var(--mc-accent)' }}>
-                      {skillStatus.message}
-                    </p>
-                  )}
-                </form>
-              )
-            })}
-          </div>
-
-          {/* Cards de highlights */}
-          {highlights.length > 0 && (
-            <div style={{ display:'flex', flexDirection:'column', gap:'10px' }}>
-              {highlights.map(hl => {
-                const thumb = getThumbnail(hl)
-                const platform = getPlatformInfo(hl.plataforma)
-                const isPlaying = playingHlId === hl.id
-                const isDeleting = deletingHlId === hl.id
-
-                return (
-                  <div key={hl.id} className="hl-card" style={{
-                    borderRadius:'16px', overflow:'hidden',
-                    background: 'var(--mc-surface)', border:'1px solid rgba(255,255,255,0.08)',
-                  }}>
-                    {/* Thumbnail / embed area — 16:9 */}
-                    <div style={{ position:'relative', aspectRatio:'16/9', background:'#0a120e', cursor:'pointer' }}
-                      onClick={() => {
-                        if (hl.plataforma === 'instagram' || hl.plataforma === 'tiktok') {
-                          window.open(hl.url, '_blank')
-                        } else {
-                          !isPlaying && setPlayingHlId(hl.id)
-                        }
-                      }}
-                    >
-                      {isPlaying && hl.plataforma !== 'instagram' && hl.plataforma !== 'tiktok' ? (
-                        <iframe
-                          src={getEmbedUrl(hl.plataforma, hl.video_id)}
-                          style={{ width:'100%', height:'100%', border:'none' }}
-                          allow="autoplay; fullscreen; picture-in-picture"
-                          allowFullScreen
-                        />
-                      ) : (
-                        <>
-                          {thumb ? (
-                            <img src={thumb} alt={hl.titulo ?? platform.label} style={{ width:'100%', height:'100%', objectFit:'cover' }} />
-                          ) : (
-                            <div style={{
-                              width:'100%', height:'100%',
-                              background:`linear-gradient(135deg,${platform.bg}22,rgba(0,0,0,0.6))`,
-                              display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:'6px',
-                            }}>
-                              <div style={{
-                                width:'42px', height:'42px', borderRadius:'50%',
-                                background: platform.bg,
-                                display:'flex', alignItems:'center', justifyContent:'center',
-                                fontSize:'20px',
-                              }}>
-                                ▶
-                              </div>
-                              <span style={{ fontSize:'12px', fontWeight:700, color:'rgba(255,255,255,0.5)' }}>{platform.label}</span>
-                            </div>
-                          )}
-                          {/* Play overlay */}
-                          <div style={{
-                            position:'absolute', inset:0,
-                            display:'flex', alignItems:'center', justifyContent:'center',
-                            background:'rgba(0,0,0,0.25)',
-                          }}>
-                            <div style={{
-                              width:'48px', height:'48px', borderRadius:'50%',
-                              background:'rgba(0,0,0,0.65)', backdropFilter:'blur(6px)',
-                              display:'flex', alignItems:'center', justifyContent:'center',
-                              border:'1.5px solid rgba(255,255,255,0.25)',
-                            }}>
-                              <span style={{ fontSize:'18px', marginLeft:'3px' }}>▶</span>
-                            </div>
-                          </div>
-                          {/* Platform badge */}
-                          <div style={{
-                            position:'absolute', top:'8px', left:'8px',
-                            padding:'3px 8px', borderRadius:'100px',
-                            background: platform.bg,
-                          }}>
-                            <span style={{ fontSize:'9px', fontWeight:800, color:'white', letterSpacing:'0.05em' }}>{platform.label}</span>
-                          </div>
-                        </>
-                      )}
-                    </div>
-
-                    {/* Footer */}
-                    <div style={{ padding:'10px 12px', display:'flex', alignItems:'center', gap:'10px' }}>
-                      <p style={{ margin:0, flex:1, fontSize:'12px', fontWeight:600, color:'rgba(255,255,255,0.5)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>
-                        {hl.titulo ?? platform.label}
-                      </p>
-                      <a href={hl.url} target="_blank" rel="noreferrer"
-                        style={{ fontSize:'13px', color:'rgba(255,255,255,0.22)', textDecoration:'none', flexShrink:0 }}
-                        title="Abrir original"
-                      >
-                        ↗
-                      </a>
-                      <button
-                        className="hl-del-btn"
-                        onClick={() => handleDeleteHL(hl.id)}
-                        disabled={isDeleting}
-                        title="Remover highlight"
-                      >
-                        {isDeleting ? '…' : '✕'}
-                      </button>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-
-          {/* Empty state */}
-
-        </div>
-
-        {/* ══════════════════════════════════════════
-            GALERIA — fotos para o painel da landing
-        ══════════════════════════════════════════ */}
-        <div style={{ marginBottom:'24px' }}>
-
-          {/* Header */}
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'10px' }}>
-            <div>
-              <p style={{ margin:'0 0 2px', fontSize:'12px', fontWeight:700, color:'rgba(255,255,255,0.4)', letterSpacing:'0.08em', textTransform:'uppercase' }}>
-                Fotos de ação
-              </p>
-              <p style={{ margin:0, fontSize:'11px', color:'rgba(255,255,255,0.2)' }}>
-                Aparecem no feed ao vivo da página inicial
-              </p>
-            </div>
-            <div style={{
-              display:'flex', alignItems:'center', gap:'5px',
-              background:'rgba(0,255,136,0.08)', border:'1px solid rgba(0,255,136,0.20)',
-              borderRadius:'8px', padding:'4px 10px',
-            }}>
-              <div style={{ width:'5px', height:'5px', borderRadius:'50%', background: 'var(--mc-accent)', boxShadow:'0 0 5px #b3f737' }} />
-              <span style={{ fontSize:'9px', fontWeight:800, color:'rgba(0,255,136,0.8)', letterSpacing:'0.12em', textTransform:'uppercase' }}>Ao vivo</span>
-            </div>
-          </div>
-
-          {/* ── Banner de urgência ── */}
-          {(() => {
-            const count = galeriaFotos.filter(Boolean).length
-            const pct   = Math.round((count / 5) * 100)
-            return (
-              <div style={{
-                borderRadius:'18px', marginBottom:'14px', padding:'18px 16px 16px',
-                background:'linear-gradient(160deg, #071a0e 0%, #030d06 100%)',
-                border:'1px solid rgba(34,197,94,0.28)',
-                boxShadow:'0 0 24px rgba(34,197,94,0.10), inset 0 1px 0 rgba(34,197,94,0.08)',
-                position:'relative', overflow:'hidden',
-              }}>
-                {/* Brilho decorativo de fundo */}
-                <div style={{
-                  position:'absolute', top:'-30px', right:'-20px',
-                  width:'120px', height:'120px', borderRadius:'50%',
-                  background:'radial-gradient(circle, rgba(34,197,94,0.12) 0%, transparent 70%)',
-                  pointerEvents:'none',
-                }} />
-
-                {/* Linha 1: ícone + título */}
-                <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'6px' }}>
-                  <span style={{ fontSize:'26px', lineHeight:1 }}>📸</span>
-                  <p style={{ margin:0, fontSize:'15px', fontWeight:900, color:'#b3f737', letterSpacing:'-0.01em' }}>
-                    Fotos valem pontos!
-                  </p>
-                </div>
-
-                {/* Linha 2: subtexto */}
-                <p style={{ margin:'0 0 14px', fontSize:'12px', color:'rgba(255,255,255,0.6)', lineHeight:1.65, paddingLeft:'36px' }}>
-                  Mais fotos aumentam sua visibilidade. Com 3 fotos você aparece no{' '}
-                  <span style={{ color:'rgba(34,197,94,0.85)', fontWeight:700 }}>feed ao vivo</span>{' '}
-                  da home e fica visível para scouts.
-                </p>
-
-                {/* Barra de progresso */}
-                <div style={{ paddingLeft:'36px' }}>
-                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'6px' }}>
-                    <span style={{ fontSize:'10px', fontWeight:700, color:'rgba(255,255,255,0.35)', letterSpacing:'0.08em', textTransform:'uppercase' }}>
-                      Progresso
-                    </span>
-                    <span style={{ fontSize:'12px', fontWeight:800, color: count >= 3 ? '#b3f737' : 'rgba(255,255,255,0.5)' }}>
-                      {count} / 5 fotos
-                    </span>
-                  </div>
-                  <div style={{ height:'5px', borderRadius:'4px', background:'rgba(255,255,255,0.08)', overflow:'hidden' }}>
-                    <div style={{
-                      height:'100%', borderRadius:'4px',
-                      width: `${pct}%`,
-                      background: count >= 3
-                        ? 'linear-gradient(90deg, #16a34a, #b3f737)'
-                        : 'linear-gradient(90deg, #15803d, #4ade80)',
-                      transition:'width 0.5s ease',
-                      boxShadow: count > 0 ? '0 0 8px rgba(34,197,94,0.5)' : 'none',
-                    }} />
-                  </div>
-                  {count < 3 && (
-                    <p style={{ margin:'6px 0 0', fontSize:'10px', color:'rgba(34,197,94,0.6)', fontWeight:600 }}>
-                      {count === 0
-                        ? 'Adicione a primeira foto e suba no ranking!'
-                        : `Falta${3 - count > 1 ? 'm' : ''} ${3 - count} foto${3 - count > 1 ? 's' : ''} para aparecer no feed ao vivo`}
-                    </p>
-                  )}
-                  {count >= 3 && (
-                    <p style={{ margin:'6px 0 0', fontSize:'10px', color:'#b3f737', fontWeight:700 }}>
-                      ✓ Você já aparece no feed ao vivo!
-                    </p>
-                  )}
-                </div>
-              </div>
-            )
-          })()}
-
-          {/* 5 slots — 3 colunas na primeira linha + 2 na segunda */}
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'10px' }}>
-            {[0,1,2,3,4].map(slot => {
-              const url       = galeriaFotos[slot]
-              const uploading = uploadingSlot === slot
-              return (
-                <div key={slot} style={{ position:'relative', aspectRatio:'3/4', borderRadius:'12px', overflow:'hidden' }}>
-                  {url ? (
-                    /* Foto preenchida */
-                    <>
-                      <img
-                        src={url} alt={`Foto ${slot+1}`}
-                        style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }}
-                      />
-                      {/* Overlay hover com botões */}
-                      <label
-                        htmlFor={`galeria-input-${slot}`}
-                        style={{
-                          position:'absolute', inset:0,
-                          background:'rgba(0,0,0,0.0)',
-                          display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
-                          gap:'8px', cursor:'pointer',
-                          transition:'background 0.2s',
-                        }}
-                        onMouseEnter={e => (e.currentTarget.style.background='rgba(0,0,0,0.55)')}
-                        onMouseLeave={e => (e.currentTarget.style.background='rgba(0,0,0,0.0)')}
-                      >
-                        <span style={{ fontSize:'18px', opacity:0.9 }}>🔄</span>
-                        <span style={{ fontSize:'10px', color:'white', fontWeight:700, opacity:0.85 }}>Trocar</span>
-                      </label>
-                      {/* Botão deletar */}
-                      <button
-                        onClick={e => { e.stopPropagation(); handleGaleriaDelete(slot) }}
-                        style={{
-                          position:'absolute', top:'6px', right:'6px',
-                          width:'24px', height:'24px', borderRadius:'50%',
-                          background:'rgba(0,0,0,0.7)', border:'1px solid rgba(255,255,255,0.2)',
-                          color:'white', fontSize:'12px', cursor:'pointer',
-                          display:'flex', alignItems:'center', justifyContent:'center',
-                          zIndex:2,
-                        }}
-                      >✕</button>
-                    </>
-                  ) : (
-                    /* Slot vazio */
-                    <label
-                      htmlFor={`galeria-input-${slot}`}
-                      style={{
-                        position:'absolute', inset:0,
-                        background:'rgba(255,255,255,0.02)',
-                        border:'2px dashed rgba(34,197,94,0.22)',
-                        borderRadius:'12px',
-                        display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
-                        gap:'4px', cursor: uploading ? 'wait' : 'pointer',
-                        transition:'border-color 0.2s, background 0.2s',
-                      }}
-                    >
-                      {uploading ? (
-                        <>
-                          <span style={{ fontSize:'20px' }}>⏳</span>
-                          <span style={{ fontSize:'10px', color:'rgba(0,255,136,0.6)', fontWeight:700 }}>Enviando…</span>
-                        </>
-                      ) : (
-                        <>
-                          <span style={{ fontSize:'22px', color:'rgba(34,197,94,0.45)', lineHeight:1 }}>＋</span>
-                          <span style={{ fontSize:'9px', color:'rgba(255,255,255,0.25)', fontWeight:600, letterSpacing:'0.02em' }}>
-                            Foto {slot + 1}
-                          </span>
-                          <span style={{ fontSize:'9px', color:'rgba(255,255,255,0.3)', fontWeight:700, letterSpacing:'0.04em' }}>
-                            + Foto
-                          </span>
-                        </>
-                      )}
-                    </label>
-                  )}
-                  {/* Input oculto */}
-                  <input
-                    id={`galeria-input-${slot}`}
-                    ref={galeriaRefs[slot]}
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,image/gif"
-                    disabled={uploading}
-                    style={{ position:'absolute', width:'1px', height:'1px', opacity:0, pointerEvents:'none' }}
-                    onChange={e => handleGaleriaChange(slot, e)}
-                  />
-                </div>
-              )
-            })}
-          </div>
-
-          <p style={{ margin:'8px 0 0', fontSize:'10.5px', color:'rgba(255,255,255,0.18)', lineHeight:1.5 }}>
-            Fotos de treino, jogos ou ação · até 5 fotos · ciclam automaticamente no feed da home.
-          </p>
-        </div>
 
         {/* ── Indicação ── */}
         {athleteId && <IndicacaoSection athleteId={athleteId} />}
