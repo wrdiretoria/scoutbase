@@ -23,7 +23,7 @@ import {
 import VisitTracker from './VisitTracker'
 import CopiarLink from './CopiarLink'
 import FavoritoButton from './FavoritoButton'
-import FotoSlideshow from './FotoSlideshow'
+import AthletePortrait from '@/components/AthletePortrait'
 import CardShare from './CardShare'
 import ConectarButton from './ConectarButton'
 import SeguirButton from './SeguirButton'
@@ -638,43 +638,9 @@ export default async function JogadorPublicoPage({ params }: Props) {
           marginBottom: '16px',
         }}>
 
-          {/* ── Topo: foto full-cover OU gradiente ── */}
-          <div style={{
-            position: 'relative',
-            height: hasPhoto ? 'clamp(230px, 72vw, 360px)' : '148px',
-            overflow: 'hidden',
-            background: hasPhoto
-              ? '#0a120e'
-              : 'linear-gradient(160deg,#166534 0%,#052e16 100%)',
-          }}>
-            {/* Slideshow de fotos ciclando de 2 em 2 segundos */}
-            {hasPhoto && <FotoSlideshow fotos={fotosArray} nome={nome} />}
-
-            {/* Grid sutil — só sem foto */}
-            {!hasPhoto && (
-              <div style={{
-                position: 'absolute', inset: 0, opacity: 1,
-                backgroundImage: 'repeating-linear-gradient(0deg,rgba(255,255,255,0.025) 0px,rgba(255,255,255,0.025) 1px,transparent 1px,transparent 28px),repeating-linear-gradient(90deg,rgba(255,255,255,0.025) 0px,rgba(255,255,255,0.025) 1px,transparent 1px,transparent 28px)',
-              }} />
-            )}
-
+          <div style={{ width: 'min(100%, 288px)', margin: '0 auto', padding: '22px 12px 8px', boxSizing: 'border-box' }}>
+            <AthletePortrait src={avatarUrl || fotosArray[0] || null} name={nome} initials={initials} />
           </div>
-
-          {/* Avatar circular — só sem foto */}
-          {!hasPhoto && (
-            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '-34px', position: 'relative', zIndex: 2 }}>
-              <div style={{
-                width: '68px', height: '68px', borderRadius: '50%',
-                background: 'linear-gradient(135deg,#15803d,#4ade80)',
-                border: '3px solid #0b1610',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: '20px', fontWeight: 900, color: 'white',
-                boxShadow: '0 8px 28px rgba(34,197,94,0.45)',
-              }}>
-                {initials}
-              </div>
-            </div>
-          )}
 
           {/* Dados */}
           <div style={{ padding: hasPhoto ? '14px 20px 22px' : '12px 20px 22px', textAlign: 'center' }}>

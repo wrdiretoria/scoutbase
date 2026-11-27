@@ -94,27 +94,41 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
   ctx.fillStyle = '#091610'
   ctx.fillRect(0, 0, width, height)
 
+  // The same upright 3:4 portrait used on the athlete's profile.
+  const px = 88, py = 88, pw = 224, ph = pw * 4 / 3
+  function shield(x: number, y: number, w: number, h: number) {
+    const points = [[.08,0],[.92,0],[1,.06],[1,.93],[.88,1],[.12,1],[0,.93],[0,.06]]
+    ctx.beginPath()
+    points.forEach(([dx,dy], index) => {
+      if (index === 0) ctx.moveTo(x + dx*w, y + dy*h)
+      else ctx.lineTo(x + dx*w, y + dy*h)
+    })
+    ctx.closePath()
+  }
+  const metal = ctx.createLinearGradient(px, py, px + pw, py + ph)
+  metal.addColorStop(0, '#e1e8db')
+  metal.addColorStop(.3, '#182b22')
+  metal.addColorStop(.55, lime)
+  metal.addColorStop(.75, '#40533c')
+  metal.addColorStop(1, '#dce4d6')
+  shield(px - 6, py - 6, pw + 12, ph + 12)
+  ctx.fillStyle = metal
+  ctx.fill()
   ctx.save()
-  ctx.beginPath()
-  ctx.rect(0, 76, width, 378)
+  shield(px, py, pw, ph)
   ctx.clip()
+  ctx.fillStyle = '#162c22'
+  ctx.fillRect(px, py, pw, ph)
   if (photo) {
-    const scale = Math.max(width / photo.naturalWidth, 378 / photo.naturalHeight)
+    const scale = Math.max(pw / photo.naturalWidth, ph / photo.naturalHeight)
     const w = photo.naturalWidth * scale
     const h = photo.naturalHeight * scale
-    ctx.drawImage(photo, (width - w) / 2, 76 - (h - 378) * .28, w, h)
+    ctx.drawImage(photo, px + (pw - w) / 2, py + (ph - h) / 2, w, h)
   } else {
-    ctx.fillStyle = '#162c22'
-    ctx.fillRect(0, 76, width, 378)
     ctx.textAlign = 'center'
-    text(opts.initials, 200, 288, 88, lime, 800)
+    text(opts.initials, 200, 256, 72, lime, 800, pw - 24)
     ctx.textAlign = 'left'
   }
-  const shade = ctx.createLinearGradient(0, 245, 0, 454)
-  shade.addColorStop(0, '#09161000')
-  shade.addColorStop(1, '#091610')
-  ctx.fillStyle = shade
-  ctx.fillRect(0, 245, width, 209)
   ctx.restore()
 
   text('MeuCraque', 28, 48, 30, lime, 900)

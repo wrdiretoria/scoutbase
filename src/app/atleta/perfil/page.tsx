@@ -8,6 +8,7 @@ import { useEffect, useState, Suspense, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase'
+import AthletePortrait from '@/components/AthletePortrait'
 import AtletaBottomNav from '@/components/AtletaBottomNav'
 import {
   VARIANTES, BLOCO_PERFIL as Q_BPERF,
@@ -1049,11 +1050,10 @@ function AtletaPerfilContent() {
         }}>
           <div style={{ display:'grid', justifyItems:'center', gap:10, padding:'16px 16px 0', background:'#0c1711' }}>
             {/* Foto ou iniciais — label nativo garante abertura do seletor em iOS/Android */}
-            <div id="foto" style={{ scrollMarginTop: 80, position:'relative', width:'100%', maxWidth:'320px', aspectRatio:'4 / 3' }}>
+            <div id="foto" style={{ scrollMarginTop: 80, position:'relative', width:'100%', maxWidth:'264px' }}>
               <label htmlFor="foto-input" style={{
-                display:'block', width:'100%', height:'100%', borderRadius:14, background:'#08120e',
-                border:'3px solid #0b1610', overflow:'hidden',
-                boxShadow:'0 8px 24px rgba(34,197,94,0.4)',
+                display:'block', width:'100%',
+                filter:'drop-shadow(0 12px 20px rgba(0,0,0,0.45))',
                 cursor: uploadingFoto ? 'wait' : 'pointer',
                 position:'relative',
               }}>
@@ -1066,18 +1066,7 @@ function AtletaPerfilContent() {
                   style={{ position:'absolute', width:'1px', height:'1px', opacity:0, pointerEvents:'none' }}
                   onChange={handleFotoChange}
                 />
-                {avatarUrl ? (
-                  <img src={avatarUrl} alt={meta.nome} style={{ width:'100%', height:'100%', objectFit:'contain', objectPosition:'center' }} />
-                ) : (
-                  <div style={{
-                    width:'100%', height:'100%',
-                    background:'linear-gradient(135deg,#15803d,#4ade80)',
-                    display:'flex', alignItems:'center', justifyContent:'center',
-                    fontSize:'22px', fontWeight:900,
-                  }}>
-                    {initials}
-                  </div>
-                )}
+                <AthletePortrait src={avatarUrl} name={meta.nome || 'Atleta'} initials={initials} />
                 {/* overlay câmera — só aparece sem foto ou durante upload */}
                 {(!avatarUrl || uploadingFoto) && (
                   <div style={{
@@ -1092,7 +1081,9 @@ function AtletaPerfilContent() {
               </label>
             </div>
             <div style={{ paddingBottom:'16px' }}>
-              <span style={{ fontSize:13, color:'#c4d0c9' }}>{categoria}</span>
+              <span style={{ display:'block', textAlign:'center', fontSize:11, color:'#c4d0c9', letterSpacing:'.12em', textTransform:'uppercase', fontWeight:800 }}>{categoria}</span>
+              <label htmlFor="foto-input" style={{ display:'flex', minHeight:44, alignItems:'center', justifyContent:'center', color:'#b3f737', cursor:'pointer', fontSize:13, fontWeight:700 }}>Alterar foto principal</label>
+              <p style={{ margin:'0 0 4px', textAlign:'center', fontSize:12, lineHeight:1.5, color:'#aebdb4' }}>Use uma foto sua, sozinho e de frente.</p>
             </div>
           </div>
 

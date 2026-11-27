@@ -1,0 +1,15 @@
+.frame {
+  width: 100%; box-sizing: border-box; padding: 6px;
+  background: linear-gradient(145deg, #e1e8db 0%, #71846e 12%, #182b22 32%, #b3f737 53%, #40533c 68%, #dce4d6 90%, #6b8065 100%);
+  clip-path: polygon(8% 0, 92% 0, 100% 6%, 100% 93%, 88% 100%, 12% 100%, 0 93%, 0 6%);
+}
+.portrait {
+  position: relative; aspect-ratio: 3 / 4; overflow: hidden; background: #0a1510;
+  clip-path: polygon(7% 0, 93% 0, 100% 6%, 100% 93%, 88% 100%, 12% 100%, 0 93%, 0 6%);
+}
+.photo { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+.placeholder {
+  display: flex; width: 100%; height: 100%; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at 50% 25%, #244331, #08120d 75%);
+  color: #b3f737; font-size: clamp(40px, 12vw, 80px); font-weight: 900;
+}
