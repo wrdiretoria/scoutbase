@@ -23,7 +23,7 @@ export function athleteMissions(input: MissionInput): AthleteMission[] {
     ...highlightSkills.map((skill, index) => ({
       id: 'skill-' + index, group: 'Mostre seu futebol', title: skill,
       description: 'Treine essa habilidade, grave um lance em que você aparece e salve o link na sua grade de vídeos.',
-      href: '/atleta/perfil#highlight-skill-' + index,
+      href: '/atleta/perfil#highlight-task-' + index,
       done: input.highlights.some(video => video.titulo === skill && hasLink(video.url)),
     })),
     { id: 'action-photos', group: 'Sua presença em campo', title: 'Adicione 3 fotos de ação', description: photoCount + ' de 3 fotos. Mostre momentos de treino ou jogo na sua galeria.', href: '/atleta/perfil#fotos-acao', done: photoCount >= 3 },

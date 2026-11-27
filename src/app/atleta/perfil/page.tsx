@@ -426,10 +426,16 @@ function AtletaPerfilContent() {
 
   useEffect(() => {
     if (loading) return
-    const section = window.location.hash.slice(1)
-    if (['foto', 'identidade', 'highlights', 'compartilhar'].includes(section)) {
-      document.getElementById(section)?.scrollIntoView()
+    const scrollToSection = () => {
+      const section = window.location.hash.slice(1)
+      if (['foto', 'identidade', 'highlights', 'compartilhar', 'curriculo', 'fotos-acao'].includes(section)
+        || /^highlight-task-[0-7]$/.test(section)) {
+        document.getElementById(section)?.scrollIntoView({ block: 'start' })
+      }
     }
+    scrollToSection()
+    window.addEventListener('hashchange', scrollToSection)
+    return () => window.removeEventListener('hashchange', scrollToSection)
   }, [loading])
 
   const [curriculo,  setCurriculo]  = useState<Curriculo>({
@@ -1256,11 +1262,11 @@ function AtletaPerfilContent() {
               const video = highlights.find(item => item.titulo === skill)
               const inputId = `highlight-skill-${index}`
               return (
-                <form key={skill} onSubmit={event => {
+                <form key={skill} id={`highlight-task-${index}`} onSubmit={event => {
                   event.preventDefault()
                   const url = new FormData(event.currentTarget).get('url')
                   if (typeof url === 'string') void saveSkillVideo(skill, url.trim())
-                }} style={{ display:'flex', flexDirection:'column', gap:8, padding:12, borderRadius:14, border:'1px solid #304239', background:'var(--mc-surface)' }}>
+                }} style={{ scrollMarginTop:80, display:'flex', flexDirection:'column', gap:8, padding:12, borderRadius:14, border:'1px solid #304239', background:'var(--mc-surface)' }}>
                   <label htmlFor={inputId} style={{ fontSize:13, fontWeight:800, flex:1 }}>{skill}</label>
                   <input key={video?.url ?? ''} id={inputId} name="url" type="url" required
                     defaultValue={video?.url ?? ''} placeholder="Cole o link do vídeo"
