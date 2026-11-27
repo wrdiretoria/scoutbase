@@ -1309,7 +1309,7 @@ function AtletaPerfilContent() {
                       })
                     } catch { imgSrc = avatarUrl }
                   }
-                  // Story 1080×1920 — OVR (lib/escala) e categoria (lib/categoria) pelos helpers únicos
+                  // Card sem arte externa — OVR (lib/escala) e categoria (lib/categoria) pelos helpers únicos
                   const tempCanvas = document.createElement('canvas')
                   await generateStoryCard(tempCanvas, {
                     nome:          meta.nome,
@@ -1332,7 +1332,7 @@ function AtletaPerfilContent() {
                     statDef:       atrsLegado?.tat ?? null,
                     statPhy:       atrsLegado?.pos ?? null,
                   })
-                  setCardFile(await storyParaArquivo(tempCanvas, `${meta.nome.replace(/\s+/g,'_')}_MeuCraque_story.png`))
+                  setCardFile(await storyParaArquivo(tempCanvas, `${meta.nome.replace(/\s+/g,'_')}_MeuCraque_card.png`))
                   setCardModal(tempCanvas.toDataURL('image/png'))
                 } catch {
                   alert('Erro ao gerar o card. Tente novamente.')
@@ -1347,7 +1347,7 @@ function AtletaPerfilContent() {
                   {sharingCard ? 'Gerando…' : 'Compartilhar meu card'}
                 </span>
                 <span style={{ display:'block', fontSize:'11px', color:'rgba(255,255,255,0.42)', marginTop:'1px' }}>
-                  {sharingCard ? 'Aguarde um segundo' : 'Story para Instagram / WhatsApp'}
+                  {sharingCard ? 'Aguarde um segundo' : 'Card para Instagram / WhatsApp'}
                 </span>
               </div>
               {!sharingCard && <span style={{ fontSize:'16px', color:'rgba(0,255,136,0.5)', flexShrink:0 }}>↗</span>}
@@ -2251,15 +2251,15 @@ function AtletaPerfilContent() {
             textAlign: 'center', fontSize: '13px', fontWeight: 600,
             lineHeight: 1.5,
           }}>
-            Seu card no formato story · pronto para postar
+            Seu card · pronto para compartilhar
           </p>
 
           <img
             src={cardModal}
-            alt="Card do atleta no formato story"
+            alt="Card compartilhável do atleta"
             style={{
-              width: 'min(240px, 60vw, calc((100dvh - 260px) * 9 / 16))',
-              aspectRatio: '9 / 16',
+              width: 'min(240px, 60vw, calc((100dvh - 260px) * 5 / 8))',
+              aspectRatio: '5 / 8',
               borderRadius: '16px',
               boxShadow: '0 0 60px rgba(0,255,136,0.25), 0 20px 60px rgba(0,0,0,0.8)',
               display: 'block',

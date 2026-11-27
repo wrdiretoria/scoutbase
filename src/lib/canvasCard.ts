@@ -95,7 +95,7 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
   ctx.fillRect(0, 0, width, height)
 
   // The same upright 3:4 portrait used on the athlete's profile.
-  const px = 88, py = 88, pw = 224, ph = pw * 4 / 3
+  const px = 72, py = 86, pw = 256, ph = pw * 4 / 3
   function shield(x: number, y: number, w: number, h: number) {
     const points = [[.08,0],[.92,0],[1,.06],[1,.93],[.88,1],[.12,1],[0,.93],[0,.06]]
     ctx.beginPath()
@@ -126,7 +126,7 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
     ctx.drawImage(photo, px + (pw - w) / 2, py + (ph - h) / 2, w, h)
   } else {
     ctx.textAlign = 'center'
-    text(opts.initials, 200, 256, 72, lime, 800, pw - 24)
+    text(opts.initials, 200, 278, 72, lime, 800, pw - 24)
     ctx.textAlign = 'left'
   }
   ctx.restore()
@@ -134,18 +134,22 @@ export async function generateCard(canvas: HTMLCanvasElement, opts: CanvasCardPr
   text('MeuCraque', 28, 48, 30, lime, 900)
   ctx.textAlign = 'right'
   text('PERFIL ESPORTIVO', 372, 47, 12, '#d4e0d7', 800, 135)
-  ctx.textAlign = 'left'
-  text(opts.posicao || opts.pos || 'Atleta', 28, 404, 19, lime, 800)
-  text(opts.nome, 28, 450, 42, '#ffffff', 900)
+  ctx.textAlign = 'center'
+  text(opts.posicao || opts.pos || 'Atleta', 200, 458, 19, lime, 800)
+  text(opts.nome, 200, 502, 40, '#ffffff', 900)
   const context = [opts.categoria, opts.cidade].filter(Boolean).join(' · ')
-  if (context) text(context, 28, 482, 18, '#d4e0d7', 600)
+  if (context) text(context, 200, 536, 17, '#d4e0d7', 600)
 
   ctx.fillStyle = '#315141'
-  ctx.fillRect(28, 507, 344, 1)
-  if (opts.athleteId) text(`ID ${opts.athleteId}`, 28, 537, 15, '#d4e0d7')
+  ctx.fillRect(28, 560, 344, 1)
   if (opts.ovr !== null && opts.hasEvaluation) {
-    ctx.textAlign = 'right'
-    text(`OVR ${opts.ovr}`, 372, 537, 18, lime, 800, 118)
     ctx.textAlign = 'left'
+    if (opts.athleteId) text(`ID ${opts.athleteId}`, 28, 596, 16, '#d4e0d7', 700, 210)
+    ctx.textAlign = 'right'
+    text(`OVR ${opts.ovr}`, 372, 596, 20, lime, 800, 118)
+  } else if (opts.athleteId) {
+    text(`ID ${opts.athleteId}`, 200, 596, 16, '#d4e0d7', 700)
   }
+  ctx.textAlign = 'left'
+
 }
