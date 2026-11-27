@@ -9,6 +9,7 @@ import { NextRequest } from 'next/server'
 import { createAdminClient } from '@/lib/supabase'
 
 export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 function getInitials(nome: string) {
   return nome.split(' ').slice(0, 2).map(n => n[0] ?? '').join('').toUpperCase()
@@ -22,6 +23,9 @@ export async function GET(req: NextRequest) {
   const admin = createAdminClient()
   const { data: profile } = await admin.from('profiles').select('*').eq('id', userId).single()
   const p = profile as Record<string, unknown> | null
+
+  const rawId = typeof p?.athlete_id === 'string' ? p.athlete_id.replace(/^[A-Z]+-/i, '') : ''
+  const trainerId = /^[0-9]+$/.test(rawId) ? rawId.replace(/^0+(?=[0-9])/, '').padStart(2, '0') : rawId
 
   const nome: string          = (p?.nome as string) ?? 'Treinador'
   const avatar_url: string    = (p?.avatar_url as string) ?? ''
@@ -60,7 +64,11 @@ export async function GET(req: NextRequest) {
         <span style={{ fontSize: nameSize, lineHeight: 1.05, fontWeight: 900, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{nome}</span>
         {cidade && <span style={{ color: '#d4e0d7', fontSize: 33 }}>{cidade}</span>}
       </div>
-      <div style={{ position: 'absolute', top: 1008, left: 56, right: 56, borderTop: '2px solid #746044', paddingTop: 16, display: 'flex', justifyContent: 'space-between' }}>
+      {trainerId && <div style={{ position: 'absolute', top: 966, left: 56, right: 56, display: 'flex', alignItems: 'center', gap: 12 }}>
+        <span style={{ color: '#d4e0d7', fontSize: 23, fontWeight: 700 }}>ID DO TREINADOR</span>
+        <span style={{ color: gold, fontSize: 30, fontWeight: 900 }}>{trainerId}</span>
+      </div>}
+      <div style={{ position: 'absolute', top: 1020, left: 56, right: 56, borderTop: '2px solid #746044', paddingTop: 16, display: 'flex', justifyContent: 'space-between' }}>
         {[[av, 'Avaliações'], [at, 'Atletas'], [dest, 'Destaques']].map(([count, label]) => (
           <div key={label} style={{ display: 'flex', alignItems: 'baseline', gap: 9, fontSize: 24, color: '#d4e0d7' }}>
             <span style={{ color: gold, fontSize: 37, fontWeight: 900 }}>{count}</span>
@@ -68,11 +76,11 @@ export async function GET(req: NextRequest) {
           </div>
         ))}
       </div>
-      <div style={{ position: 'absolute', top: 1134, left: 56, right: 56, display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <span style={{ fontSize: 39, fontWeight: 800 }}>Veja meu perfil completo</span>
-        <span style={{ fontSize: 23, color: gold }}>{`meucraque.com/treinador/${userId}`}</span>
+      <div style={{ position: 'absolute', top: 1142, left: 56, right: 56, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <span style={{ fontSize: 33, fontWeight: 800 }}>Veja meu perfil completo no</span>
+        <span style={{ fontSize: 39, color: gold, fontWeight: 900 }}>meucraque.com</span>
       </div>
     </div>,
-    { width: W, height: H },
+    { width: W, height: H, headers: { 'Cache-Control': 'no-store' } },
   )
 }
