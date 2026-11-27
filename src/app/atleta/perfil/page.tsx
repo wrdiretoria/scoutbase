@@ -665,7 +665,7 @@ function AtletaPerfilContent() {
 
       // Cache-busting: o path no Storage é sempre {uuid}.jpg — sem timestamp
       // o browser mostra a versão antiga cacheada e o state não atualiza
-      setAvatarUrl(json.url + '?t=' + Date.now())
+      setAvatarUrl(json.url)
     } finally {
       setUploadingFoto(false)
       if (fotoInputRef.current) fotoInputRef.current.value = ''
@@ -1082,7 +1082,7 @@ function AtletaPerfilContent() {
             </div>
             <div style={{ paddingBottom:'16px' }}>
               <span style={{ display:'block', textAlign:'center', fontSize:11, color:'#c4d0c9', letterSpacing:'.12em', textTransform:'uppercase', fontWeight:800 }}>{categoria}</span>
-              <label htmlFor="foto-input" style={{ display:'flex', minHeight:44, alignItems:'center', justifyContent:'center', color:'#b3f737', cursor:'pointer', fontSize:13, fontWeight:700 }}>Alterar foto principal</label>
+              <button type="button" disabled={uploadingFoto} onClick={() => fotoInputRef.current?.click()} style={{ display:'flex', width:'100%', minHeight:48, margin:'12px 0 8px', alignItems:'center', justifyContent:'center', gap:8, background:'#b3f737', color:'#08120d', border:0, borderRadius:12, cursor:uploadingFoto ? 'wait' : 'pointer', font:'inherit', fontWeight:800 }}><span aria-hidden="true">📷</span>{uploadingFoto ? 'Salvando foto…' : 'Trocar foto'}</button>
               <p style={{ margin:'0 0 4px', textAlign:'center', fontSize:12, lineHeight:1.5, color:'#aebdb4' }}>Use uma foto sua, sozinho e de frente.</p>
             </div>
           </div>

@@ -24,6 +24,7 @@ import VisitTracker from './VisitTracker'
 import CopiarLink from './CopiarLink'
 import FavoritoButton from './FavoritoButton'
 import AthletePortrait from '@/components/AthletePortrait'
+import EditableAthletePortrait from '@/components/EditableAthletePortrait'
 import CardShare from './CardShare'
 import ConectarButton from './ConectarButton'
 import SeguirButton from './SeguirButton'
@@ -639,7 +640,9 @@ export default async function JogadorPublicoPage({ params }: Props) {
         }}>
 
           <div style={{ width: 'min(100%, 288px)', margin: '0 auto', padding: '22px 12px 8px', boxSizing: 'border-box' }}>
-            <AthletePortrait src={avatarUrl || fotosArray[0] || null} name={nome} initials={initials} />
+            {isOwner
+              ? <EditableAthletePortrait src={avatarUrl || fotosArray[0] || null} name={nome} initials={initials} />
+              : <AthletePortrait src={avatarUrl || fotosArray[0] || null} name={nome} initials={initials} />}
           </div>
 
           {/* Dados */}
@@ -1094,7 +1097,7 @@ export default async function JogadorPublicoPage({ params }: Props) {
               ovr={ovr}
               hasEvaluation={ultimaAv !== null}
               categoria={categoria}
-              fotoUrl={fotosArray[0] ?? null}
+              fotoUrl={avatarUrl || fotosArray[0] || null}
               initials={initials}
               athleteId={athleteId}
               cidade={cidade || null}

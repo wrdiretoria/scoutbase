@@ -53,10 +53,17 @@ export async function POST(req: NextRequest) {
   const urlFresh = `${publicUrl}?t=${Date.now()}`
 
   // ── Salva URL com timestamp no perfil (evita CDN cache em todas as telas) ──
-  await admin
+  const { data: saved, error: saveError } = await admin
     .from('profiles')
     .update({ avatar_url: urlFresh })
     .eq('id', user.id)
+    .select('id')
+    .maybeSingle()
+
+  if (saveError || !saved) {
+    console.error('[upload-foto] profile save failed', saveError?.code)
+    return NextResponse.json({ error: 'Não foi possível atualizar o perfil. Tente novamente.' }, { status: 500 })
+  }
 
   return NextResponse.json({ ok: true, url: urlFresh })
 }

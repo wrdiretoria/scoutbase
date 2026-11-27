@@ -11,13 +11,12 @@ export async function GET() {
     const { data: { user } } = await client.auth.getUser()
     const admin = createAdminClient()
     const { data: curriculumPosts, error: curriculumError } = await admin.from('feed_posts')
-      .select('id,author_id,author_type,body,created_at').in('author_type', ['treinador', 'clube']).eq('type', 'update')
-      .in('body', ['Atualizou o currículo de treinador.', 'Criou o perfil institucional.', 'Atualizou o perfil institucional.'])
+      .select('id,author_id,author_type,body,created_at').in('author_type', ['atleta', 'treinador', 'scout', 'clube']).eq('type', 'update')
+      .in('body', ['Atualizou o currículo de treinador.', 'Criou o perfil institucional.', 'Atualizou o perfil institucional.', 'Atualizou a foto de perfil.'])
       .gt('created_at', new Date(Date.now() - STORY_LIFETIME_MS).toISOString())
       .order('created_at', { ascending: false }).limit(100)
     if (curriculumError) console.error('[stories] curriculum', curriculumError.code)
-    const curricula = (curriculumPosts ?? []).filter((post, index, list) =>
-      list.findIndex(item => item.author_id === post.author_id) === index)
+    const curricula = curriculumPosts ?? []
     if (!user) {
       // Visitors see only the public athlete directory's recent registrations.
       const since = new Date(Date.now() - STORY_LIFETIME_MS).toISOString()
@@ -65,9 +64,9 @@ export async function GET() {
     }
     const activity = [
       ...curricula.map(p => ({ id: `curriculum-${p.id}`, authorId: p.author_id, createdAt: p.created_at,
-        caption: p.author_type === 'clube' ? p.body : 'Atualizou o currículo', href: p.author_type === 'clube' ? `/clube/${p.author_id}` : `/treinador/${p.author_id}` })),
+        caption: p.body, href: p.author_type === 'clube' ? `/clube/${p.author_id}` : p.author_type === 'treinador' ? `/treinador/${p.author_id}` : p.author_type === 'atleta' ? `/jogador/${p.author_id}` : '/feed' })),
       ...(newAthletes.data ?? []).map(p => ({ id: `signup-${p.id}`, authorId: p.id, createdAt: p.criado_em, caption: 'Entrou no MeuCraque', href: `/jogador/${p.id}` })),
-      ...(posts.data ?? []).filter(p => !['Atualizou o currículo de treinador.', 'Criou o perfil institucional.', 'Atualizou o perfil institucional.'].includes(p.body)).map(p => ({ id: `post-${p.id}`, authorId: p.author_id, createdAt: p.created_at, caption: p.body || 'Nova publicação no Feed', href: '/feed' })),
+      ...(posts.data ?? []).filter(p => !['Atualizou o currículo de treinador.', 'Criou o perfil institucional.', 'Atualizou o perfil institucional.', 'Atualizou a foto de perfil.'].includes(p.body)).map(p => ({ id: `post-${p.id}`, authorId: p.author_id, createdAt: p.created_at, caption: p.body || 'Nova publicação no Feed', href: '/feed' })),
       ...(highlights.data ?? []).map(h => ({ id: `highlight-${h.id}`, authorId: h.profile_id, createdAt: h.created_at, caption: 'Adicionou um novo vídeo', href: `/jogador/${h.profile_id}` })),
     ]
     const authorIds = [...new Set([...(rows ?? []).map(s => s.author_id), ...activity.map(a => a.authorId)])]
@@ -97,7 +96,7 @@ export async function GET() {
     const updates = activity.flatMap(item => {
       const author = people.get(item.authorId)
       if (!author?.nome) return []
-      return [{ ...item, isInstitution: institutionalIds.has(item.authorId), isTrainer: item.id.startsWith('curriculum-') || (author.athlete_id?.startsWith('TR-') ?? false), authorName: author.nome, avatarUrl: author.avatar_url,
+      return [{ ...item, isInstitution: institutionalIds.has(item.authorId), isTrainer: (author.athlete_id?.startsWith('TR-') ?? false), authorName: author.nome, avatarUrl: author.avatar_url,
         mediaType: 'activity', mediaUrl: '', expiresAt: new Date(Date.parse(item.createdAt) + STORY_LIFETIME_MS).toISOString(), seen: false }]
     })
     return NextResponse.json({ stories: [...stories, ...updates].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt)) }, { headers })
