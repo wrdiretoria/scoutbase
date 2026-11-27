@@ -64,6 +64,7 @@ export default async function FeedPage() {
               {user && <Link href="#feed-composer"><Icon name="plus" size={18} /> Publicar no Feed</Link>}
               <Link href="/"><Icon name="home" size={18} /> Home</Link>
               {tipo === 'atleta' && <Link href="/atleta/evolucao"><Icon name="trend" size={18} /> Minha evolução</Link>}
+              {tipo === 'treinador' && <Link href="/treinador/caminhada"><Icon name="trend" size={18} /> Minha caminhada</Link>}
               <Link href={user ? perfil : signInHref}><Icon name="user" size={18} /> Meu Perfil</Link>
               <Link href={user ? '/mensagens' : signInHref}><Icon name="users" size={18} /> Conexões</Link>
               <Link href="/vagas"><Icon name="target" size={18} /> Oportunidades</Link>
@@ -90,6 +91,7 @@ export default async function FeedPage() {
           <nav className={styles.desktopNav} aria-label="Navegação principal">
             <Link className={styles.activeNav} href="/" aria-current="page"><Icon name="home" size={19} />Home</Link>
             {tipo === 'atleta' && <Link href="/atleta/evolucao"><Icon name="trend" size={19} />Minha evolução</Link>}
+            {tipo === 'treinador' && <Link href="/treinador/caminhada"><Icon name="trend" size={19} />Minha caminhada</Link>}
             <Link href={perfil}><Icon name="user" size={19} />Perfil</Link>
           </nav>
           <div className={styles.headerActions}>
@@ -151,6 +153,7 @@ export default async function FeedPage() {
       <nav className={styles.mobileDock} aria-label="Navegação principal">
         <Link className={styles.dockActive} href="/" aria-current="page"><Icon name="home" size={23} />Home</Link>
         {tipo === 'atleta' && <Link href="/atleta/evolucao"><Icon name="trend" size={23} />Minha evolução</Link>}
+        {tipo === 'treinador' && <Link href="/treinador/caminhada"><Icon name="trend" size={23} />Minha caminhada</Link>}
         <Link href="/perfil"><Icon name="user" size={23} />Perfil</Link>
       </nav>
     </main>

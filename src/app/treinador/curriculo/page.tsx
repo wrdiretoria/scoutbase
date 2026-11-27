@@ -59,9 +59,10 @@ function notaColor(n: number): string {
 
 // ── Section wrapper ────────────────────────────────────────────────────────────
 
-function Secao({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+function Secao({ titulo, children, id }: { titulo: string; children: React.ReactNode; id?: string }) {
   return (
-    <div style={{
+    <div id={id} style={{
+      scrollMarginTop: 80,
       background: 'rgba(255,255,255,0.025)',
       border: '1px solid rgba(255,255,255,0.07)',
       borderRadius: '20px',
@@ -184,6 +185,17 @@ export default function TreinadorCurriculoPage() {
     }
     init()
   }, [router])
+
+  useEffect(() => {
+    if (loading) return
+    const scrollToTask = () => {
+      const id = window.location.hash.slice(1)
+      if (['foto','identidade','apresentacao','historico','contato','redes'].includes(id)) document.getElementById(id)?.scrollIntoView({ block:'start' })
+    }
+    scrollToTask()
+    window.addEventListener('hashchange', scrollToTask)
+    return () => window.removeEventListener('hashchange', scrollToTask)
+  }, [loading])
 
   function handleFotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -406,7 +418,7 @@ export default function TreinadorCurriculoPage() {
             )}
 
             {/* Clickable photo circle */}
-            <div style={{ position: 'relative', width: '72px', height: '72px', flexShrink: 0, marginBottom: '-20px' }}>
+            <div id="foto" style={{ scrollMarginTop:80, position: 'relative', width: '72px', height: '72px', flexShrink: 0, marginBottom: '-20px' }}>
               <label htmlFor="curriculo-foto" style={{
                 display: 'block', width: '72px', height: '72px', borderRadius: '50%',
                 overflow: 'hidden', cursor: uploading ? 'wait' : 'pointer', position: 'relative',
@@ -493,7 +505,7 @@ export default function TreinadorCurriculoPage() {
         {/* ════════════════════════════════════
             IDENTIDADE PROFISSIONAL
         ════════════════════════════════════ */}
-        <Secao titulo="🏅 Identidade profissional">
+        <Secao id="identidade" titulo="🏅 Identidade profissional">
 
           <Campo label="Especialidade">
             <select
@@ -540,7 +552,7 @@ export default function TreinadorCurriculoPage() {
         {/* ════════════════════════════════════
             APRESENTAÇÃO
         ════════════════════════════════════ */}
-        <Secao titulo="📝 Apresentação">
+        <Secao id="apresentacao" titulo="📝 Apresentação">
 
           <Campo label="Bio profissional" hint="opcional">
             <textarea
@@ -561,7 +573,7 @@ export default function TreinadorCurriculoPage() {
         {/* ════════════════════════════════════
             HISTÓRICO PROFISSIONAL
         ════════════════════════════════════ */}
-        <Secao titulo="📋 Histórico profissional">
+        <Secao id="historico" titulo="📋 Histórico profissional">
 
           <Campo label="Onde trabalha atualmente" hint="opcional">
             <input
@@ -607,7 +619,7 @@ export default function TreinadorCurriculoPage() {
         {/* ════════════════════════════════════
             CONTATO
         ════════════════════════════════════ */}
-        <Secao titulo="📞 Contato">
+        <Secao id="contato" titulo="📞 Contato">
 
           <Campo label="Telefone / WhatsApp" hint="opcional">
             <input
@@ -623,7 +635,7 @@ export default function TreinadorCurriculoPage() {
         {/* ════════════════════════════════════
             REDES SOCIAIS
         ════════════════════════════════════ */}
-        <Secao titulo="📲 Redes sociais">
+        <Secao id="redes" titulo="📲 Redes sociais">
 
           <div style={{
             marginBottom: '16px', padding: '10px 14px', borderRadius: '10px',

@@ -1,2 +1,3 @@
 'use client'
-export { default } from './MainAccountNav'
+import MainAccountNav from './MainAccountNav'
+export default function TreinadorBottomNav() { return <MainAccountNav trainer /> }

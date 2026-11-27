@@ -2,14 +2,16 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-export default function MainAccountNav({ athlete = false }: { athlete?: boolean }) {
+export default function MainAccountNav({ athlete = false, trainer = false }: { athlete?: boolean; trainer?: boolean }) {
   const pathname = usePathname()
   const onHome = pathname === '/' || pathname === '/feed'
   const isAthlete = athlete || pathname.startsWith('/atleta/')
-  const onEvolution = pathname.startsWith('/atleta/evolucao')
+  const isTrainer = trainer || pathname.startsWith('/treinador/')
+  const onEvolution = pathname.startsWith('/atleta/evolucao') || pathname.startsWith('/treinador/caminhada')
   const items = [
     { href: '/', label: 'Home', icon: 'home', active: onHome },
     ...(isAthlete ? [{ href: '/atleta/evolucao', label: 'Minha evolução', icon: 'trend', active: onEvolution }] : []),
+    ...(isTrainer ? [{ href: '/treinador/caminhada', label: 'Minha caminhada', icon: 'trend', active: onEvolution }] : []),
     { href: '/perfil', label: 'Perfil', icon: 'user', active: !onHome && !onEvolution },
   ]
   return <nav aria-label="Navegação principal" style={{
