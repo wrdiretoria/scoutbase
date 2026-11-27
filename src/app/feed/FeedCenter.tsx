@@ -22,7 +22,6 @@ type FeedPost = {
   reactedByMe: boolean
 }
 
-type Comentario = { id: string; body: string; created_at: string; author: Autor | null }
 type PublicEvent = {
   id: string
   atletaId: string
@@ -175,88 +174,12 @@ function Composer({ onPosted, currentUser }: { onPosted: (post: FeedPost) => voi
   )
 }
 
-function CommentsPanel({ postId, onCommentAdded }: { postId: string; onCommentAdded: () => void }) {
-  const [comentarios, setComentarios] = useState<Comentario[] | null>(null)
-  const [texto, setTexto] = useState('')
-  const [sending, setSending] = useState(false)
-
-  useEffect(() => {
-    let ativo = true
-    fetch(`/api/feed/${postId}/comments`)
-      .then(res => res.json())
-      .then((data: { comments: Comentario[] }) => { if (ativo) setComentarios(data.comments ?? []) })
-      .catch(() => { if (ativo) setComentarios([]) })
-    return () => { ativo = false }
-  }, [postId])
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!texto.trim() || sending) return
-    setSending(true)
-    try {
-      const res = await fetch(`/api/feed/${postId}/comments`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ body: texto }),
-      })
-      if (res.ok) {
-        const data = await res.json() as { comment: Comentario }
-        setComentarios(prev => [...(prev ?? []), data.comment])
-        setTexto('')
-        onCommentAdded()
-      }
-    } catch { /* silencioso */ } finally { setSending(false) }
-  }
-
-  return (
-    <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-      {comentarios === null && (
-        <p style={{ margin: 0, fontSize: '11px', color: 'rgba(255,255,255,0.3)' }}>Carregando comentários…</p>
-      )}
-      {comentarios?.map(c => (
-        <div key={c.id} style={{ display: 'flex', gap: '8px' }}>
-          <Avatar autor={c.author} size={26} />
-          <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '10px', padding: '6px 10px', flex: 1 }}>
-            <p style={{ margin: 0, fontSize: '11px', fontWeight: 700, color: 'white' }}>{c.author?.nome ?? 'Alguém'}</p>
-            <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255,255,255,0.65)' }}>{c.body}</p>
-          </div>
-        </div>
-      ))}
-      <form onSubmit={handleSubmit} style={{ display: 'flex', gap: '8px' }}>
-        <input
-          value={texto}
-          onChange={e => setTexto(e.target.value)}
-          placeholder="Escreva um comentário…"
-          style={{
-            flex: 1, padding: '8px 12px', borderRadius: '100px', border: '1px solid rgba(255,255,255,0.1)',
-            background: 'rgba(255,255,255,0.04)', color: 'white', fontSize: '12px', outline: 'none',
-            fontFamily: 'system-ui, sans-serif',
-          }}
-        />
-        <button
-          type="submit"
-          disabled={sending || !texto.trim()}
-          style={{
-            padding: '8px 16px', borderRadius: '100px', border: 'none',
-            background: 'rgba(34,197,94,0.15)', color: '#b3f737', fontWeight: 700, fontSize: '12px',
-            cursor: sending ? 'default' : 'pointer', fontFamily: 'system-ui, sans-serif',
-          }}
-        >
-          Enviar
-        </button>
-      </form>
-    </div>
-  )
-}
-
-function PostCard({ post, onToggleLike, onCommentAdded, cardStyle }: {
+function PostCard({ post, onToggleLike, cardStyle }: {
   post: FeedPost
   onToggleLike: (id: string, liked: boolean, reactionCount: number) => void
-  onCommentAdded: (id: string) => void
   cardStyle: CSSProperties
 }) {
   const [sendingLike, setSendingLike] = useState(false)
-  const [comentariosAbertos, setComentariosAbertos] = useState(false)
 
   async function handleLike() {
     if (sendingLike) return
@@ -270,15 +193,22 @@ function PostCard({ post, onToggleLike, onCommentAdded, cardStyle }: {
     } catch { /* silencioso */ } finally { setSendingLike(false) }
   }
 
+  const profilePath = post.author_type === 'atleta' ? '/jogador/'
+    : post.author_type === 'treinador' ? '/treinador/'
+    : post.author_type === 'clube' ? '/clube/' : null
+  const profileUrl = profilePath ? profilePath + encodeURIComponent(post.author_id) : null
+  const profileUpdate = /^(Atualizou|Agora faz parte|Recebeu uma nova avaliação)/i.test(post.body.trim())
   const mediaUrl = urlSegura(post.media_url) ? post.media_url : null
   const mediaIsImage = !!mediaUrl && /\.(avif|gif|jpe?g|png|webp)(\?.*)?$/i.test(mediaUrl)
 
   return (
     <article className="feedHomePost" style={cardStyle}>
       <div className="feedHomePostHeader">
-        <Avatar autor={post.author} size={46} />
+        {profileUrl ? <Link href={profileUrl} aria-label={`Ver perfil de ${post.author?.nome ?? 'participante'}`} style={{ display: 'flex', flexShrink: 0 }}>
+          <Avatar autor={post.author} size={46} />
+        </Link> : <Avatar autor={post.author} size={46} />}
         <div className="feedHomePostIdentity">
-          <strong>{post.author?.nome ?? 'Alguém'}</strong>
+          <strong>{profileUrl ? <Link href={profileUrl} style={{ color: 'inherit', textDecoration: 'none' }}>{post.author?.nome ?? 'Participante'}</Link> : (post.author?.nome ?? 'Participante')}</strong>
           <span>{AUTOR_LABEL[post.author_type] ?? 'Comunidade'} · {dataRelativa(post.created_at)}</span>
         </div>
         <span className="feedHomePostType" aria-hidden="true">•••</span>
@@ -324,19 +254,11 @@ function PostCard({ post, onToggleLike, onCommentAdded, cardStyle }: {
         >
           ♡ {post.reactionCount > 0 ? post.reactionCount : ''} Curtir
         </button>
-        <button
-          onClick={() => setComentariosAbertos(v => !v)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '5px', background: 'none', border: 'none',
-            color: 'rgba(255,255,255,0.45)', fontSize: '12px', fontWeight: 700, cursor: 'pointer', padding: '4px 0',
-            fontFamily: 'system-ui, sans-serif',
-          }}
-        >
-          ◯ {post.commentCount > 0 ? post.commentCount : ''} Comentar
-        </button>
+        {profileUrl && <Link href={profileUrl} style={{ display: 'inline-flex', alignItems: 'center', minHeight: 44, color: '#b3f737', fontWeight: 700, textDecoration: 'none' }}>
+          {profileUpdate ? 'Ver perfil atualizado' : 'Ver perfil'} <span aria-hidden="true" style={{ marginLeft: 6 }}>›</span>
+        </Link>}
       </div>
 
-      {comentariosAbertos && <CommentsPanel postId={post.id} onCommentAdded={() => onCommentAdded(post.id)} />}
     </article>
   )
 }
@@ -389,10 +311,6 @@ function AuthenticatedFeedCenter({ cardStyle, currentUser }: { cardStyle: CSSPro
     setPosts(prev => prev?.map(p => p.id === id ? { ...p, reactedByMe: liked, reactionCount } : p) ?? prev)
   }
 
-  function handleCommentAdded(id: string) {
-    setPosts(prev => prev?.map(p => p.id === id ? { ...p, commentCount: p.commentCount + 1 } : p) ?? prev)
-  }
-
   function handlePosted(post: FeedPost) {
     setPosts(prev => [post, ...(prev ?? [])])
   }
@@ -416,7 +334,7 @@ function AuthenticatedFeedCenter({ cardStyle, currentUser }: { cardStyle: CSSPro
       )}
 
       {posts?.map(post => (
-        <PostCard key={post.id} post={post} onToggleLike={handleToggleLike} onCommentAdded={handleCommentAdded} cardStyle={cardStyle} />
+        <PostCard key={post.id} post={post} onToggleLike={handleToggleLike} cardStyle={cardStyle} />
       ))}
 
       <div ref={sentinelRef} style={{ height: '1px' }} />
@@ -471,9 +389,9 @@ function PublicActivityFeed() {
         return (
           <article className="feedHomePost feedHomePublicPost" key={event.id}>
             <div className="feedHomePostHeader">
-              <Avatar autor={athlete} size={46} />
+              <Link href={`/jogador/${event.atletaId}`} aria-label={`Ver perfil de ${event.nome}`} style={{ display: 'flex', flexShrink: 0 }}><Avatar autor={athlete} size={46} /></Link>
               <div className="feedHomePostIdentity">
-                <strong>{event.nome}</strong>
+                <strong><Link href={`/jogador/${event.atletaId}`} style={{ color: 'inherit', textDecoration: 'none' }}>{event.nome}</Link></strong>
                 <span>Atleta · {dataRelativa(event.ts)}</span>
               </div>
               <span className="feedHomePostType" aria-hidden="true">•••</span>
