@@ -1,0 +1,34 @@
+.page { min-height:100vh; background:var(--mc-canvas, #050b08); color:#f5f7f5; padding:20px 16px 110px; }
+.shell { max-width:720px; margin:0 auto; }
+.header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:32px; font-size:13px; }
+.header a { text-decoration:none; color:#d4e0d7; }
+.header strong { color:#b3f737; }
+.eyebrow { color:#b3f737; letter-spacing:.12em; font-size:11px; font-weight:800; }
+.page h1 { font-size:clamp(28px,6vw,38px); margin:8px 0; }
+.intro { color:#bdccc2; line-height:1.6; margin:0 0 24px; }
+.progressCard, .next { padding:20px; border:1px solid #385346; border-radius:18px; background:#0e1c15; margin-bottom:16px; }
+.progressTitle { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.progressTitle h2 { font-size:17px; margin:0; }
+.progressTitle strong { font-size:28px; color:#b3f737; }
+.progressCard progress { width:100%; height:12px; accent-color:#b3f737; margin-top:14px; }
+.progressCard p { font-size:13px; color:#bdccc2; margin-bottom:0; }
+.next { background:linear-gradient(130deg,#162e1c,#0b1610); border-color:#647f3a; }
+.next h2 { font-size:22px; margin:10px 0; }
+.next p { font-size:14px; color:#d4e0d7; line-height:1.6; }
+.primary { display:flex; justify-content:space-between; gap:16px; align-items:center; min-height:48px; background:#b3f737; border-radius:12px; color:#08120d; padding:8px 16px; box-sizing:border-box; text-decoration:none; font-weight:800; }
+.hint { color:#aebdb4; font-size:13px; line-height:1.6; margin:0 0 28px; }
+.group { margin-bottom:28px; }
+.groupTitle { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.groupTitle span { color:#b3f737; font-size:13px; font-weight:800; }
+.groupTitle h2 { font-size:20px; margin:0; }
+.task { display:flex; gap:12px; border:1px solid #2c4236; background:#0c1711; padding:16px; border-radius:14px; margin-bottom:10px; }
+.task > div { min-width:0; }
+.done, .todo { flex:0 0 28px; height:28px; display:grid; place-items:center; border-radius:50%; font-size:18px; }
+.done { color:#b3f737; background:#b3f73718; }
+.todo { color:#b8c8be; background:#ffffff08; }
+.task h3 { font-size:15px; margin:3px 0 6px; }
+.task p { font-size:13px; line-height:1.5; color:#aebdb4; margin:0; }
+.task a { display:inline-flex; gap:8px; align-items:center; min-height:44px; color:#b3f737; font-size:13px; font-weight:700; text-decoration:none; }
+.extras { display:grid; gap:12px; }
+.extras a { display:grid; gap:6px; padding:18px; border:1px solid #385346; border-radius:14px; color:#f5f7f5; text-decoration:none; }
+.extras span { color:#aebdb4; font-size:13px; line-height:1.5; }
